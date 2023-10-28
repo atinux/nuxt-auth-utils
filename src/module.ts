@@ -25,7 +25,11 @@ export default defineNuxtModule<ModuleOptions>({
     addImportsDir(resolver.resolve('./runtime/composables'))
     addPlugin(resolver.resolve('./runtime/plugins/session.server'))
     // Server
-    addServerImportsDir(resolver.resolve('./runtime/server/utils'))
+    nuxt.options.nitro.imports = nuxt.options.nitro.imports || {}
+    nuxt.options.nitro.imports.dirs = nuxt.options.nitro.imports.dirs || []
+    nuxt.options.nitro.imports.dirs.push(resolver.resolve('./runtime/server/utils'))
+    // Waiting for https://github.com/nuxt/nuxt/pull/24000/files
+    // addServerImportsDir(resolver.resolve('./runtime/server/utils'))
     addServerHandler({
       handler: resolver.resolve('./runtime/server/api/session.delete'),
       route: '/api/_auth/session',
