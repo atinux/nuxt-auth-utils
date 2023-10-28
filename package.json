@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-core",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Minimalist Auth module for Nuxt",
   "repository": "Atinux/nuxt-auth-core",
   "license": "MIT",
