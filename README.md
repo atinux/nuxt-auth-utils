@@ -13,10 +13,8 @@ Minimalist Authentication module for Nuxt.
 
 ## Features
 
-<!-- Highlight some of the features your module provide here -->
+- Secured & sealed cookies sessions
 - OAuth Providers
-- Secured & sealed sessions
-- 
 
 ## Quick Setup
 
