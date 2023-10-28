@@ -1,5 +1,6 @@
 import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerImportsDir, addServerHandler } from '@nuxt/kit'
 import { sha256 } from 'ohash'
+import { defu } from 'defu'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {}
@@ -39,6 +40,25 @@ export default defineNuxtModule<ModuleOptions>({
       handler: resolver.resolve('./runtime/server/api/session.get'),
       route: '/api/_auth/session',
       method: 'get'
+    })
+
+    // Runtime Config
+    const runtimeConfig = nuxt.options.runtimeConfig
+    runtimeConfig.session = defu(runtimeConfig.session, {
+      name: 'nuxt-session',
+      password: ''
+    })
+    // OAuth settings
+    runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
+    // GitHub Oauth
+    runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Spotify Oauth
+    runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {
+      clientId: '',
+      clientSecret: ''
     })
   }
 })
