@@ -31,6 +31,7 @@ export default defineNuxtModule<ModuleOptions>({
     addPlugin(resolver.resolve('./runtime/plugins/session.server'))
     // Server
     if (nuxt.options.nitro.imports !== false) {
+      // TODO: address https://github.com/Atinux/nuxt-auth-utils/issues/1 upstream in unimport
       nuxt.options.nitro.imports = defu(nuxt.options.nitro.imports, {
         presets: [
           {
