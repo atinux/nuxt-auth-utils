@@ -1,14 +1,14 @@
-# Nuxt Auth Core
+# Nuxt Auth Utils
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-Minimalist Authentication module for Nuxt.
+Minimalist Authentication module for Nuxt exposing Vue composables and server utils.
 
 - [✨ &nbsp;Release Notes](/CHANGELOG.md)
-<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/nuxt-auth-core?file=playground%2Fapp.vue) -->
+<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/nuxt-auth-utils?file=playground%2Fapp.vue) -->
 <!-- - [📖 &nbsp;Documentation](https://example.com) -->
 
 ## Features
@@ -22,25 +22,25 @@ This module only works with SSR (server-side rendering) enabled as it uses serve
 
 ## Quick Setup
 
-1. Add `nuxt-auth-core` dependency to your project
+1. Add `nuxt-auth-utils` dependency to your project
 
 ```bash
 # Using pnpm
-pnpm add -D nuxt-auth-core
+pnpm add -D nuxt-auth-utils
 
 # Using yarn
-yarn add --dev nuxt-auth-core
+yarn add --dev nuxt-auth-utils
 
 # Using npm
-npm install --save-dev nuxt-auth-core
+npm install --save-dev nuxt-auth-utils
 ```
 
-2. Add `nuxt-auth-core` to the `modules` section of `nuxt.config.ts`
+2. Add `nuxt-auth-utils` to the `modules` section of `nuxt.config.ts`
 
 ```js
 export default defineNuxtConfig({
   modules: [
-    'nuxt-auth-core'
+    'nuxt-auth-utils'
   ]
 })
 ```
@@ -190,14 +190,14 @@ npm run release
 ```
 
 <!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-core/latest.svg?style=flat&colorA=18181B&colorB=28CF8D
-[npm-version-href]: https://npmjs.com/package/nuxt-auth-core
+[npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-utils/latest.svg?style=flat&colorA=18181B&colorB=28CF8D
+[npm-version-href]: https://npmjs.com/package/nuxt-auth-utils
 
-[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-auth-core.svg?style=flat&colorA=18181B&colorB=28CF8D
-[npm-downloads-href]: https://npmjs.com/package/nuxt-auth-core
+[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-auth-utils.svg?style=flat&colorA=18181B&colorB=28CF8D
+[npm-downloads-href]: https://npmjs.com/package/nuxt-auth-utils
 
-[license-src]: https://img.shields.io/npm/l/nuxt-auth-core.svg?style=flat&colorA=18181B&colorB=28CF8D
-[license-href]: https://npmjs.com/package/nuxt-auth-core
+[license-src]: https://img.shields.io/npm/l/nuxt-auth-utils.svg?style=flat&colorA=18181B&colorB=28CF8D
+[license-href]: https://npmjs.com/package/nuxt-auth-utils
 
 [nuxt-src]: https://img.shields.io/badge/Nuxt-18181B?logo=nuxt.js
 [nuxt-href]: https://nuxt.com
