@@ -7,7 +7,9 @@
     "build": "nuxi build",
     "generate": "nuxi generate"
   },
-  "devDependencies": {
-    "nuxt": "latest"
+  "dependencies": {
+    "nuxt": "3.8.1",
+    "nuxt-auth-utils": "latest",
+    "vue": "3.3.8"
   }
 }
