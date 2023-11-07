@@ -2,10 +2,7 @@ import type { H3Event } from 'h3'
 import { useSession, createError } from 'h3'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { default as UserSessionFactory } from '#auth-utils-session'
-type UserSession = ReturnType<typeof UserSessionFactory>
-
-export const defineSession = <T extends Record<string, unknown> & { user?: unknown }>(definition: (event: H3Event, result: { provider: string, user: any, tokens: any }) => T) => definition
+import type { UserSession } from '#auth-utils-session'
 
 export async function getUserSession (event: H3Event) {
   return (await _useSession(event)).data as UserSession

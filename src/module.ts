@@ -1,7 +1,6 @@
-import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler, findPath } from '@nuxt/kit'
+import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler } from '@nuxt/kit'
 import { sha256 } from 'ohash'
 import { defu } from 'defu'
-import { resolve } from 'pathe'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {}
@@ -13,7 +12,7 @@ export default defineNuxtModule<ModuleOptions>({
   },
   // Default configuration options of the Nuxt module
   defaults: {},
-  async setup (options, nuxt) {
+  setup (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
     if (!process.env.NUXT_SESSION_PASSWORD) {
@@ -25,10 +24,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    // Allow user to define custom session/user
-    nuxt.options.watch.push('app/auth-utils-session.ts', 'app/auth-utils-session.js', 'app/auth-utils-session.mjs')
-
-    nuxt.options.alias['#auth-utils-session'] = await findFirstExisting(nuxt.options._layers.map(layer => resolve(layer.config.srcDir || layer.cwd, 'app/auth-utils-session'))) || resolver.resolve('./runtime/app/auth-utils-session')
+    nuxt.options.alias['#auth-utils-session'] = resolver.resolve('./runtime/types/auth-utils-session')
 
     // App
     addImportsDir(resolver.resolve('./runtime/composables'))
@@ -70,10 +66,3 @@ export default defineNuxtModule<ModuleOptions>({
     })
   }
 })
-
-async function findFirstExisting (paths: string[]) {
-  for (const path of paths) {
-    const resolvedPath = await findPath(path)
-    if (resolvedPath) { return resolvedPath }
-  }
-}
