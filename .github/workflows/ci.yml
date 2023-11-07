@@ -1,0 +1,66 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# https://github.com/vitejs/vite/blob/main/.github/workflows/ci.yml
+env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+  # install playwright binary manually (because pnpm only runs install script once)
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+
+# Remove default permissions of GITHUB_TOKEN for security
+# https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
+
+jobs:
+  lint:
+    # autofix workflow will be triggered instead for PRs
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - run: corepack enable
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - run: corepack enable
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Prepare module environment
+        run: pnpm dev:prepare
+
+      - name: Run test suite
+        run: pnpm test
