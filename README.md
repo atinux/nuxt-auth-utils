@@ -7,7 +7,8 @@
 
 Minimalist Authentication module for Nuxt exposing Vue composables and server utils.
 
-- [✨ &nbsp;Release Notes](/CHANGELOG.md)
+- [Release Notes](/CHANGELOG.md)
+- [Demo](https://github.com/atinux/nuxt-todos-edge)
 <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/nuxt-auth-utils?file=playground%2Fapp.vue) -->
 <!-- - [📖 &nbsp;Documentation](https://example.com) -->
 
