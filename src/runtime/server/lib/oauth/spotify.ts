@@ -3,6 +3,7 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
+import { useRuntimeConfig } from '#imports'
 
 export interface OAuthSpotifyConfig {
   /**

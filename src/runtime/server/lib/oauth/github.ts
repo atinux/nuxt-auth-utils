@@ -3,6 +3,7 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { ofetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { useRuntimeConfig } from '#imports'
 
 export interface OAuthGitHubConfig {
   /**
