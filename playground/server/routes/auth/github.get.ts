@@ -3,7 +3,8 @@ export default oauth.githubEventHandler({
     await setUserSession(event, {
       user: {
         github: user,
-      }
+      },
+      loggedInAt: Date.now()
     })
 
     return sendRedirect(event, '/')

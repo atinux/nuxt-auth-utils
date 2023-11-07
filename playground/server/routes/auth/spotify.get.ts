@@ -3,7 +3,8 @@ export default oauth.spotifyEventHandler({
     await setUserSession(event, {
       user: {
         spotify: user,
-      }
+      },
+      loggedInAt: Date.now()
     })
 
     return sendRedirect(event, '/')

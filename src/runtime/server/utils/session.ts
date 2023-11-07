@@ -2,11 +2,7 @@ import type { H3Event } from 'h3'
 import { useSession, createError } from 'h3'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-
-export interface UserSession {
-  user?: any
-  [key: string]: any
-}
+import type { UserSession } from '#auth-utils'
 
 export async function getUserSession (event: H3Event) {
   return (await _useSession(event)).data as UserSession

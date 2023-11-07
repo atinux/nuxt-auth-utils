@@ -107,6 +107,16 @@ await clearUserSession(event)
 const session = await requireUserSession(event)
 ```
 
+You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project:
+
+```ts
+declare module '#auth-utils' {
+  interface UserSession {
+    // define the type here
+  }
+}
+```
+
 ### OAuth Event Handlers
 
 All helpers are exposed from the `oauth` global variable and can be used in your server routes or API routes.
