@@ -16,6 +16,10 @@ Minimalist Authentication module for Nuxt.
 - Secured & sealed cookies sessions
 - OAuth Providers
 
+## Requirements
+
+This module only works with SSR (server-side rendering) enabled as it uses server API routes. You cannot use this module with `nuxt generate`.
+
 ## Quick Setup
 
 1. Add `nuxt-auth-core` dependency to your project
@@ -141,7 +145,11 @@ Example: `~/server/routes/auth/github.get.ts`
 ```ts
 export default oauth.githubEventHandler({
   async onSuccess(event, { user, tokens }) {
-    await setUserSession(event, { user })
+    await setUserSession(event, {
+      user: {
+        githubId: user.id
+      }
+    })
     return sendRedirect(event, '/')
   },
   // Optional, will return a json error and 401 status code by default

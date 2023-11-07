@@ -1,10 +1,43 @@
 <script setup>
-const { loggedIn } = useUserSession()
+const { loggedIn, session, clear } = useUserSession()
 </script>
 
 <template>
-  <div>
-    Nuxt module playground!
-    {{ loggedIn ? 'Logged in' : 'Not logged in' }}
-  </div>
+  <UHeader>
+    <template #right>
+      <UButton
+        v-if="!loggedIn || !session.user.github"
+        to="/auth/github"
+        icon="i-simple-icons-github"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with GitHub
+      </UButton>
+      <UButton
+        v-if="!loggedIn || !session.user.spotify"
+        to="/auth/spotify"
+        icon="i-simple-icons-spotify"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with Spotify
+      </UButton>
+      <UButton
+        v-if="loggedIn"
+        color="gray"
+        size="xs"
+        @click="clear"
+      >
+        Logout
+      </UButton>
+    </template>
+  </UHeader>
+  <UMain>
+    <UContainer>
+      <NuxtPage />
+    </UContainer>
+  </UMain>
 </template>

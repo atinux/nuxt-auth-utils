@@ -1,8 +1,8 @@
-export default oauth.githubEventHandler({
+export default oauth.spotifyEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        github: user,
+        spotify: user,
       }
     })
 

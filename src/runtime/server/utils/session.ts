@@ -12,17 +12,18 @@ export async function getUserSession (event: H3Event) {
   return (await _useSession(event)).data as UserSession
 }
 /**
- * Create a user session
+ * Set a user session
  * @param event
  * @param data User session data, please only store public information since it can be decoded with API calls
  */
 export async function setUserSession (event: H3Event, data: UserSession) {
   const session = await _useSession(event)
 
-  await session.update(data)
+  await session.update(defu(data, session.data))
 
   return session.data as UserSession
 }
+
 export async function clearUserSession (event: H3Event) {
   const session = await _useSession(event)
 
