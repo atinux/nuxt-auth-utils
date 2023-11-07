@@ -1,7 +1,7 @@
 import { useState, computed, useRequestFetch } from '#imports'
 import type { UserSession } from '#auth-utils-session'
 
-const useSessionState = () => useState<UserSession | Record<string, unknown>>('nuxt-session', () => ({}))
+const useSessionState = () => useState<UserSession>('nuxt-session', () => ({}))
 
 export const useUserSession = () => {
   const sessionState = useSessionState()
