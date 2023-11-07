@@ -26,6 +26,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:types": "vue-tsc --noEmit",
+    "test:types:playground": "cd playground && vue-tsc --noEmit",
     "test:watch": "vitest watch"
   },
   "dependencies": {
