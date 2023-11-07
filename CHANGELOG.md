@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.0.4
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.3...v0.0.4)
+
+### 🩹 Fixes
+
+- Use import presets ([f16ebc9](https://github.com/Atinux/nuxt-auth-utils/commit/f16ebc9))
+
+### 🏡 Chore
+
+- **release:** V0.0.3 ([9d1342c](https://github.com/Atinux/nuxt-auth-utils/commit/9d1342c))
+- Add comment ([1923dcc](https://github.com/Atinux/nuxt-auth-utils/commit/1923dcc))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
 ## v0.0.3
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.2...v0.0.3)
