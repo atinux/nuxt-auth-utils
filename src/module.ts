@@ -30,9 +30,25 @@ export default defineNuxtModule<ModuleOptions>({
     addImportsDir(resolver.resolve('./runtime/composables'))
     addPlugin(resolver.resolve('./runtime/plugins/session.server'))
     // Server
-    nuxt.options.nitro.imports = nuxt.options.nitro.imports || {}
-    nuxt.options.nitro.imports.dirs = nuxt.options.nitro.imports.dirs || []
-    nuxt.options.nitro.imports.dirs.push(resolver.resolve('./runtime/server/utils'))
+    if (nuxt.options.nitro.imports !== false) {
+      nuxt.options.nitro.imports = defu(nuxt.options.nitro.imports, {
+        presets: [
+          {
+            from: resolver.resolve('./runtime/server/utils/oauth'),
+            imports: ['oauth']
+          },
+          {
+            from: resolver.resolve('./runtime/server/utils/session'),
+            imports: [
+              'getUserSession',
+              'setUserSession',
+              'clearUserSession',
+              'requireUserSession',
+            ]
+          }
+        ]
+      })
+    }
     // Waiting for https://github.com/nuxt/nuxt/pull/24000/files
     // addServerImportsDir(resolver.resolve('./runtime/server/utils'))
     addServerHandler({
