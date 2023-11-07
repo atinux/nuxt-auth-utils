@@ -110,7 +110,7 @@ const session = await requireUserSession(event)
 You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project:
 
 ```ts
-declare module '#auth-utils-session' {
+declare module '#auth-utils' {
   interface UserSession {
     // define the type here
   }

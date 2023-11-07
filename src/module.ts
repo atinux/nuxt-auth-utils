@@ -24,7 +24,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    nuxt.options.alias['#auth-utils-session'] = resolver.resolve('./runtime/types/auth-utils-session')
+    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/auth-utils-session')
 
     // App
     addImportsDir(resolver.resolve('./runtime/composables'))
