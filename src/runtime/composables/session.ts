@@ -1,8 +1,8 @@
 import { useState, computed, useRequestFetch } from '#imports'
-// import { UserSession } from '../server/utils/session'
-interface UserSession {}
+import type { default as UserSessionFactory } from '#auth-utils-session'
+type UserSession = ReturnType<typeof UserSessionFactory>
 
-const useSessionState = () => useState<UserSession>('nuxt-session', () => ({}))
+const useSessionState = () => useState<UserSession | Record<string, unknown>>('nuxt-session', () => ({}))
 
 export const useUserSession = () => {
   const sessionState = useSessionState()

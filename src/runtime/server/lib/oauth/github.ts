@@ -3,6 +3,8 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { ofetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { default as createUserSession } from '#auth-utils-session'
+import { setUserSession } from '../../utils/session'
 
 export interface OAuthGitHubConfig {
   /**
@@ -43,7 +45,7 @@ export interface OAuthGitHubConfig {
 
 interface OAuthConfig {
   config?: OAuthGitHubConfig
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
+  onSuccess?: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
   onError?: (event: H3Event, error: H3Error) => Promise<void> | void
 }
 
@@ -125,6 +127,12 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig) 
         throw new Error('GitHub login failed: no user email found')
       }
       user.email = primaryEmail.email
+    }
+
+    if (!onSuccess) {
+      const session = await createUserSession(event, { provider: 'github', user, tokens })
+      await setUserSession(event, session)
+      return sendRedirect(event, '/')
     }
 
     return onSuccess(event, {

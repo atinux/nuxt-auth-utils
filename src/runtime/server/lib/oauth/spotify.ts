@@ -3,6 +3,7 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
+import { default as createUserSession } from '#auth-utils-session'
 
 export interface OAuthSpotifyConfig {
   /**
@@ -43,7 +44,7 @@ export interface OAuthSpotifyConfig {
 
 interface OAuthConfig {
   config?: OAuthSpotifyConfig
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
+  onSuccess?: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
   onError?: (event: H3Event, error: H3Error) => Promise<void> | void
 }
 
@@ -117,6 +118,12 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig)
         Authorization: `Bearer ${accessToken}`
       }
     })
+
+    if (!onSuccess) {
+      const session = await createUserSession(event, { provider: 'spotify', user, tokens })
+      await setUserSession(event, session)
+      return sendRedirect(event, '/')
+    }
 
     return onSuccess(event, {
       tokens,
