@@ -26,6 +26,16 @@ const { loggedIn, session, clear } = useUserSession()
         Login with Spotify
       </UButton>
       <UButton
+        v-if="!loggedIn || !session.user.google"
+        to="/auth/google"
+        icon="i-simple-icons-google"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with Google
+      </UButton>
+      <UButton
         v-if="loggedIn"
         color="gray"
         size="xs"

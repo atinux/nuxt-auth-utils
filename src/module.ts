@@ -81,5 +81,10 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: ''
     })
+
+    runtimeConfig.oauth.google = defu(runtimeConfig.oauth.google, {
+      clientId: '',
+      clientSecret: ''
+    })
   }
 })
