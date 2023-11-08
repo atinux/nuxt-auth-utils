@@ -81,5 +81,10 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: ''
     })
+    // Twitch Oauth
+    runtimeConfig.oauth.twitch = defu(runtimeConfig.oauth.twitch, {
+      clientId: '',
+      clientSecret: ''
+    })
   }
 })
