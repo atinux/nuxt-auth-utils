@@ -105,12 +105,14 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig)
       return onError(event, error)
     }
 
+    console.log('google tokens', tokens)
     const accessToken = tokens.access_token
-    const user: any = await ofetch('https://api.spotify.com/v1/me', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    })
+    const user: any = {}
+    // await ofetch('https://api.spotify.com/v1/me', {
+    //   headers: {
+    //     Authorization: `Bearer ${accessToken}`
+    //   }
+    // })
 
     return onSuccess(event, {
       tokens,
