@@ -81,5 +81,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: ''
     })
+    // Auth0 Oauth
+    runtimeConfig.oauth.auth0 = defu(runtimeConfig.oauth.auth0, {
+      clientId: '',
+      clientSecret: '',
+      domain: '',
+      audience: ''
+    })
   }
 })
