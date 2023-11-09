@@ -84,7 +84,7 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: parsePath(redirectUrl).pathname,
+          redirect_uri: `${redirectUrl}/auth/discord`,
           scope: config.scope.join('%20')
         })
       )
