@@ -1,7 +1,9 @@
-<script setup>
+<script setup lang="ts">
 const { session } = useUserSession()
 </script>
 
 <template>
-  <pre>{{ session }}</pre>
+  <UPageBody>
+    <pre>{{ session }}</pre>
+  </UPageBody>
 </template>

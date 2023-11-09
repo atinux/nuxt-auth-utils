@@ -79,8 +79,13 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: ''
     })
-
+    // Google Oauth
     runtimeConfig.oauth.google = defu(runtimeConfig.oauth.google, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Twitch Oauth
+    runtimeConfig.oauth.twitch = defu(runtimeConfig.oauth.twitch, {
       clientId: '',
       clientSecret: ''
     })
