@@ -7,7 +7,7 @@ export interface ModuleOptions {}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'auth-core',
+    name: 'auth-utils',
     configKey: 'auth'
   },
   // Default configuration options of the Nuxt module
@@ -15,13 +15,11 @@ export default defineNuxtModule<ModuleOptions>({
   setup (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    if (!process.env.NUXT_SESSION_PASSWORD) {
+    if (!process.env.NUXT_SESSION_PASSWORD && !nuxt.options._prepare) {
       const randomPassword = sha256(`${Date.now()}${Math.random()}`).slice(0, 32)
       process.env.NUXT_SESSION_PASSWORD = randomPassword
-      if (!nuxt.options._prepare) {
-        console.warn('No session password set, using a random password, please set NUXT_SESSION_PASSWORD in your .env file with at least 32 chars')
-        console.log(`NUXT_SESSION_PASSWORD=${randomPassword}`)
-      }
+      console.warn('No session password set, using a random password, please set NUXT_SESSION_PASSWORD in your .env file with at least 32 chars')
+      console.log(`NUXT_SESSION_PASSWORD=${randomPassword}`)
     }
 
     nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/auth-utils-session')
@@ -71,22 +69,30 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
-    // GitHub Oauth
+    // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
       clientSecret: ''
     })
-    // Spotify Oauth
+    // Spotify OAuth
     runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {
       clientId: '',
       clientSecret: ''
     })
-    // Auth0 Oauth
+    // Google OAuth
+    runtimeConfig.oauth.google = defu(runtimeConfig.oauth.google, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Twitch OAuth
+    runtimeConfig.oauth.twitch = defu(runtimeConfig.oauth.twitch, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Auth0 OAuth
     runtimeConfig.oauth.auth0 = defu(runtimeConfig.oauth.auth0, {
       clientId: '',
-      clientSecret: '',
-      domain: '',
-      audience: ''
+      clientSecret: ''
     })
   }
 })

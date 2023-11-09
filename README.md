@@ -148,6 +148,10 @@ It can also be set using environment variables:
 Supported providers:
 - GitHub
 - Spotify
+- Google
+- Twitch
+
+You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 
 ### Example
 
@@ -155,6 +159,9 @@ Example: `~/server/routes/auth/github.get.ts`
 
 ```ts
 export default oauth.githubEventHandler({
+  config: {
+    emailRequired: true
+  },
   async onSuccess(event, { user, tokens }) {
     await setUserSession(event, {
       user: {

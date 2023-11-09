@@ -26,9 +26,29 @@ const { loggedIn, session, clear } = useUserSession()
         Login with Spotify
       </UButton>
       <UButton
-        v-if="!loggedIn || !session.user.auth0"
+        v-if="!loggedIn || !session.user.google"
+        to="/auth/google"
+        icon="i-simple-icons-google"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with Google
+      </UButton>
+      <UButton
+        v-if="!loggedIn || !session.user.twitch"
+        to="/auth/twitch"
+        icon="i-simple-icons-twitch"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with Twitch
+      </UButton>
+      <UButton
+        v-if="!loggedIn || !session.user.google"
         to="/auth/auth0"
-        icon="i-simple-icons-auth0"
+        icon="i-simple-icons-google"
         external
         color="gray"
         size="xs"

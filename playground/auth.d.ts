@@ -3,6 +3,8 @@ declare module '#auth-utils' {
     user: {
       spotify?: any
       github?: any
+      google?: any
+      twitch?: any
       auth0?: any
     }
     loggedInAt: number
