@@ -1,5 +1,5 @@
 <template>
-  <div>basic</div>
+  <div>Nuxt Auth Utils</div>
 </template>
 
 <script setup>

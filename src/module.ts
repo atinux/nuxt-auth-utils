@@ -7,7 +7,7 @@ export interface ModuleOptions {}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'auth-core',
+    name: 'auth-utils',
     configKey: 'auth'
   },
   // Default configuration options of the Nuxt module
@@ -15,13 +15,11 @@ export default defineNuxtModule<ModuleOptions>({
   setup (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    if (!process.env.NUXT_SESSION_PASSWORD) {
+    if (!process.env.NUXT_SESSION_PASSWORD && !nuxt.options._prepare) {
       const randomPassword = sha256(`${Date.now()}${Math.random()}`).slice(0, 32)
       process.env.NUXT_SESSION_PASSWORD = randomPassword
-      if (!nuxt.options._prepare) {
-        console.warn('No session password set, using a random password, please set NUXT_SESSION_PASSWORD in your .env file with at least 32 chars')
-        console.log(`NUXT_SESSION_PASSWORD=${randomPassword}`)
-      }
+      console.warn('No session password set, using a random password, please set NUXT_SESSION_PASSWORD in your .env file with at least 32 chars')
+      console.log(`NUXT_SESSION_PASSWORD=${randomPassword}`)
     }
 
     nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/auth-utils-session')
@@ -78,6 +76,11 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // Spotify Oauth
     runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Google Oauth
+    runtimeConfig.oauth.google = defu(runtimeConfig.oauth.google, {
       clientId: '',
       clientSecret: ''
     })
