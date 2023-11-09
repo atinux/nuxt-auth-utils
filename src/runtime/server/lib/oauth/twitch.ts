@@ -27,6 +27,12 @@ export interface OAuthTwitchConfig {
   scope?: string[]
 
   /**
+   * Require email from user, adds the ['user:read:email'] scope if not present
+   * @default false
+   */
+  emailRequired?: boolean
+
+  /**
    * Twitch OAuth Authorization URL
    * @default 'https://id.twitch.tv/oauth2/authorize'
    */
@@ -65,7 +71,10 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig) 
 
     const redirectUrl = getRequestURL(event).href
     if (!code) {
-      config.scope = config.scope || ['user:read:email']
+      config.scope = config.scope || []
+      if (config.emailRequired && !config.scope.includes('user:read:email')) {
+        config.scope.push('user:read:email')
+      }
       // Redirect to Twitch Oauth page
       return sendRedirect(
         event,
@@ -107,12 +116,24 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig) 
     }
 
     const accessToken = tokens.access_token
-    const user: any = await ofetch('https://api.twitch.tv/helix/users', {
+    const users: any = await ofetch('https://api.twitch.tv/helix/users', {
       headers: {
-        "Client-ID": config.clientId,
+        'Client-ID': config.clientId,
         Authorization: `Bearer ${accessToken}`
       }
     })
+
+    const user = users.data?.[0]
+
+    if (!user) {
+      const error = createError({
+        statusCode: 500,
+        message: 'Could not get Twitch user',
+        data: tokens
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
 
     return onSuccess(event, {
       tokens,
