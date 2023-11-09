@@ -95,5 +95,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       domain: ''
     })
+    // Microsoft OAuth
+    runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
+      clientId: '',
+      clientSecret: '',
+      tenant: '',
+    })
   }
 })

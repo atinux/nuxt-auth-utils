@@ -56,11 +56,16 @@ const { loggedIn, session, clear } = useUserSession()
         Login with Auth0
       </UButton>
       <UButton
-        v-if="loggedIn"
+        v-if="!loggedIn || !session.user.microsoft"
+        to="/auth/microsoft"
+        icon="i-simple-icons-microsoft"
+        external
         color="gray"
         size="xs"
-        @click="clear"
       >
+        Login with Microsoft
+      </UButton>
+      <UButton v-if="loggedIn" color="gray" size="xs" @click="clear">
         Logout
       </UButton>
     </template>
