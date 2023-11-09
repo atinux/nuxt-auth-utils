@@ -93,10 +93,10 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
 
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
     const params = new URLSearchParams({
-      'grant_type': 'authorization_code',
-      'redirect_uri': redirectUrl,
-      'code': code as string,
-    });
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUrl,
+      code: code as string,
+    })
 
     const tokens: any = await ofetch(
       config.tokenURL as string,
