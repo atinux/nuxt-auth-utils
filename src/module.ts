@@ -69,25 +69,31 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
-    // GitHub Oauth
+    // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
       clientSecret: ''
     })
-    // Spotify Oauth
+    // Spotify OAuth
     runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {
       clientId: '',
       clientSecret: ''
     })
-    // Google Oauth
+    // Google OAuth
     runtimeConfig.oauth.google = defu(runtimeConfig.oauth.google, {
       clientId: '',
       clientSecret: ''
     })
-    // Twitch Oauth
+    // Twitch OAuth
     runtimeConfig.oauth.twitch = defu(runtimeConfig.oauth.twitch, {
       clientId: '',
       clientSecret: ''
+    })
+    // Auth0 OAuth
+    runtimeConfig.oauth.auth0 = defu(runtimeConfig.oauth.auth0, {
+      clientId: '',
+      clientSecret: '',
+      domain: ''
     })
   }
 })

@@ -15,7 +15,7 @@ Minimalist Authentication module for Nuxt exposing Vue composables and server ut
 ## Features
 
 - Secured & sealed cookies sessions
-- OAuth Providers
+- [OAuth Providers](#supported-oauth-providers)
 
 ## Requirements
 
@@ -145,11 +145,13 @@ It can also be set using environment variables:
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_ID`
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_SECRET`
 
-Supported providers:
+#### Supported OAuth Providers
+
 - GitHub
 - Spotify
 - Google
 - Twitch
+- Auth0
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 

@@ -36,14 +36,6 @@ const { loggedIn, session, clear } = useUserSession()
         Login with Google
       </UButton>
       <UButton
-        v-if="loggedIn"
-        color="gray"
-        size="xs"
-        @click="clear"
-      >
-        Logout
-      </UButton>
-      <UButton
         v-if="!loggedIn || !session.user.twitch"
         to="/auth/twitch"
         icon="i-simple-icons-twitch"
@@ -52,6 +44,24 @@ const { loggedIn, session, clear } = useUserSession()
         size="xs"
       >
         Login with Twitch
+      </UButton>
+      <UButton
+        v-if="!loggedIn || !session.user.auth0"
+        to="/auth/auth0"
+        icon="i-simple-icons-auth0"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with Auth0
+      </UButton>
+      <UButton
+        v-if="loggedIn"
+        color="gray"
+        size="xs"
+        @click="clear"
+      >
+        Logout
       </UButton>
     </template>
   </UHeader>
