@@ -17,11 +17,6 @@ export interface OAuthDiscordConfig {
    */
   clientSecret?: string
   /**
-   * Discord OAuth Redirect URL
-   * @default process.env.NUXT_OAUTH_DISCORD_DOMAIN
-   */
-  domain?: string
-  /**
    * Discord OAuth Scope
    * @default []
    * @see https://discord.com/developers/docs/topics/oauth2#shared-resources-oauth2-scopes
@@ -58,21 +53,22 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
     config = defu(config, useRuntimeConfig(event).oauth?.discord, {
       authorizationURL: 'https://discord.com/oauth2/authorize',
       tokenURL: 'https://discord.com/api/oauth2/token',
-      profileRequired: false,
+      profileRequired: true,
       scope: ['identify'],
     }) as OAuthDiscordConfig
     const { code } = getQuery(event)
 
-    if (!config.clientId || !config.clientSecret || !config.domain) {
+    if (!config.clientId || !config.clientSecret) {
       const error = createError({
         statusCode: 500,
-        message: 'Missing NUXT_OAUTH_DISCORD_CLIENT_ID or NUXT_OAUTH_DISCORD_CLIENT_SECRET or NUXT_OAUTH_DISCORD_DOMAIN env variables.'
+        message: 'Missing NUXT_OAUTH_DISCORD_CLIENT_ID or NUXT_OAUTH_DISCORD_CLIENT_SECRET env variables.'
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const redirectUrl = parsePath(`${config.domain}/auth/discord`).pathname
+    const redirectUrl = getRequestURL(event).href
+    console.log(redirectUrl)
     if (!code) {
       config.scope = config.scope || []
       if (config.profileRequired && !config.scope.includes('identify')) {
