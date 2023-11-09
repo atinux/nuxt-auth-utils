@@ -1,6 +1,37 @@
 # Changelog
 
 
+## v0.0.5
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.4...v0.0.5)
+
+### 🚀 Enhancements
+
+- Added google as oauth provider ([#3](https://github.com/Atinux/nuxt-auth-utils/pull/3))
+- Added twitch as supported oauth provider ([#5](https://github.com/Atinux/nuxt-auth-utils/pull/5))
+- Added auth0 as oauth provider ([#6](https://github.com/Atinux/nuxt-auth-utils/pull/6))
+
+### 💅 Refactors
+
+- Use `useSession` generic rather than assertion ([#4](https://github.com/Atinux/nuxt-auth-utils/pull/4))
+
+### 📖 Documentation
+
+- Add demo ([cbc8b7a](https://github.com/Atinux/nuxt-auth-utils/commit/cbc8b7a))
+
+### 🏡 Chore
+
+- **release:** V0.0.4 ([2bc6f9a](https://github.com/Atinux/nuxt-auth-utils/commit/2bc6f9a))
+
+### ❤️ Contributors
+
+- Antoine Lassier <toinousp@gmail.com>
+- Gerben Mulder ([@Gerbuuun](http://github.com/Gerbuuun))
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Akshara Hegde <akshara.dt@gmail.com>
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v0.0.4
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.3...v0.0.4)
