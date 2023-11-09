@@ -1,15 +1,15 @@
-import type { H3Event, H3Error } from "h3";
+import type { H3Event, H3Error } from 'h3'
 import {
   eventHandler,
   createError,
   getQuery,
   getRequestURL,
   sendRedirect,
-} from "h3";
-import { withQuery, parsePath } from "ufo";
-import { ofetch } from "ofetch";
-import { defu } from "defu";
-import { useRuntimeConfig } from "#imports";
+} from 'h3'
+import { withQuery, parsePath } from 'ufo'
+import { ofetch } from 'ofetch'
+import { defu } from 'defu'
+import { useRuntimeConfig } from '#imports'
 
 export interface OAuthGoogleConfig {
   /**
@@ -28,7 +28,7 @@ export interface OAuthGoogleConfig {
    * Google OAuth Scope
    * @default []
    * @see https://developers.google.com/identity/protocols/oauth2/scopes#google-sign-in
-   * @example ['email', 'profile']
+   * @example ['email', 'openid', 'profile']
    */
   scope?: string[];
 
@@ -48,7 +48,7 @@ export interface OAuthGoogleConfig {
    * Redirect URL post authenticating via google
    * @default '/auth/google'
    */
-  redirectUrl: "/auth/google";
+  redirectUrl: '/auth/google';
 }
 
 interface OAuthConfig {
@@ -68,73 +68,73 @@ export function googleEventHandler({
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.google, {
-      authorizationURL: "https://accounts.google.com/o/oauth2/v2/auth",
-      tokenURL: "https://oauth2.googleapis.com/token",
-    }) as OAuthGoogleConfig;
-    const { code } = getQuery(event);
+      authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
+      tokenURL: 'https://oauth2.googleapis.com/token',
+    }) as OAuthGoogleConfig
+    const { code } = getQuery(event)
 
     if (!config.clientId) {
       const error = createError({
         statusCode: 500,
-        message: "Missing NUXT_OAUTH_GOOGLE_CLIENT_ID env variables.",
-      });
-      if (!onError) throw error;
-      return onError(event, error);
+        message: 'Missing NUXT_OAUTH_GOOGLE_CLIENT_ID env variables.',
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href;
+    const redirectUrl = getRequestURL(event).href
     if (!code) {
-      config.scope = config.scope || ["email", "profile"];
+      config.scope = config.scope || ['email', 'profile']
       // Redirect to Google Oauth page
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
-          response_type: "code",
+          response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join(" "),
+          scope: config.scope.join(' '),
         })
-      );
+      )
     }
 
     const body: any = {
-      grant_type: "authorization_code",
+      grant_type: 'authorization_code',
       redirect_uri: parsePath(redirectUrl).pathname,
       client_id: config.clientId,
       client_secret: config.clientSecret,
       code,
-    };
+    }
     const tokens: any = await ofetch(config.tokenURL as string, {
-      method: "POST",
+      method: 'POST',
       body,
     }).catch((error) => {
-      return { error };
-    });
+      return { error }
+    })
     if (tokens.error) {
       const error = createError({
         statusCode: 401,
         message: `Google login failed: ${
-          tokens.error?.data?.error_description || "Unknown error"
+          tokens.error?.data?.error_description || 'Unknown error'
         }`,
         data: tokens,
-      });
-      if (!onError) throw error;
-      return onError(event, error);
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
-    const accessToken = tokens.access_token;
+    const accessToken = tokens.access_token
     const user: any = await ofetch(
-      "https://www.googleapis.com/oauth2/v3/userinfo",
+      'https://www.googleapis.com/oauth2/v3/userinfo',
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       }
-    );
+    )
 
     return onSuccess(event, {
       tokens,
       user,
-    });
-  });
+    })
+  })
 }
