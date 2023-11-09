@@ -1,6 +1,6 @@
 export default oauth.discordEventHandler({
     config: {
-        redirect_uri: 'https://<production-domain>/auth/github',
+        redirect_uri: 'https://<production-domain>/auth/discord',
     },
     async onSuccess(event, { user }) {
       await setUserSession(event, {
