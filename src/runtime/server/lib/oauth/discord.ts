@@ -17,6 +17,11 @@ export interface OAuthDiscordConfig {
    */
   clientSecret?: string
   /**
+   * Discord OAuth Redirect URL
+   * @default process.env.NUXT_OAUTH_DISCORD_DOMAIN
+   */
+  domain?: string
+  /**
    * Discord OAuth Scope
    * @default []
    * @see https://discord.com/developers/docs/topics/oauth2#shared-resources-oauth2-scopes
@@ -34,10 +39,6 @@ export interface OAuthDiscordConfig {
    * @default 'https://discord.com/oauth2/authorize'
    */
   authorizationURL?: string
-  /**
-   * Discord OAuth Redirect URL
-   */
-  redirect_uri?: string
   /**
    * Discord OAuth Token URL
    * @default 'https://discord.com/api/oauth2/token'
@@ -62,16 +63,16 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
     }) as OAuthDiscordConfig
     const { code } = getQuery(event)
 
-    if (!config.clientId || !config.clientSecret) {
+    if (!config.clientId || !config.clientSecret || !config.domain) {
       const error = createError({
         statusCode: 500,
-        message: 'Missing NUXT_OAUTH_DISCORD_CLIENT_ID or NUXT_OAUTH_DISCORD_CLIENT_SECRET env variables.'
+        message: 'Missing NUXT_OAUTH_DISCORD_CLIENT_ID or NUXT_OAUTH_DISCORD_CLIENT_SECRET or NUXT_OAUTH_DISCORD_DOMAIN env variables.'
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectUrl = parsePath(`${config.domain}/auth/discord`).pathname
     if (!code) {
       config.scope = config.scope || []
       if (config.profileRequired && !config.scope.includes('identify')) {
@@ -84,7 +85,7 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: `${redirectUrl}/auth/discord`,
+          redirect_uri: redirectUrl,
           scope: config.scope.join('%20')
         })
       )
@@ -93,7 +94,7 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
     const params = new URLSearchParams({
       'grant_type': 'authorization_code',
-      'redirect_uri': `${redirectUrl}/auth/discord`,
+      'redirect_uri': redirectUrl,
       'code': code as string,
     });
 
