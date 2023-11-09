@@ -1,11 +1,11 @@
-import type { H3Event } from 'h3'
+import type { H3Event, SessionConfig } from 'h3'
 import { useSession, createError } from 'h3'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { UserSession } from '#auth-utils'
 
 export async function getUserSession (event: H3Event) {
-  return (await _useSession(event)).data as UserSession
+  return (await _useSession(event)).data
 }
 /**
  * Set a user session
@@ -17,7 +17,7 @@ export async function setUserSession (event: H3Event, data: UserSession) {
 
   await session.update(defu(data, session.data))
 
-  return session.data as UserSession
+  return session.data
 }
 
 export async function clearUserSession (event: H3Event) {
@@ -41,12 +41,12 @@ export async function requireUserSession(event: H3Event) {
   return userSession
 }
 
-let sessionConfig: any
+let sessionConfig: SessionConfig
 
 function _useSession (event: H3Event) {
   if (!sessionConfig) {
     // @ts-ignore
     sessionConfig = defu({ password: process.env.NUXT_SESSION_PASSWORD }, useRuntimeConfig(event).session)
   }
-  return useSession(event, sessionConfig)
+  return useSession<UserSession>(event, sessionConfig)
 }
