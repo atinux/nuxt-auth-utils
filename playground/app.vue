@@ -46,9 +46,9 @@ const { loggedIn, session, clear } = useUserSession()
         Login with Twitch
       </UButton>
       <UButton
-        v-if="!loggedIn || !session.user.google"
+        v-if="!loggedIn || !session.user.auth0"
         to="/auth/auth0"
-        icon="i-simple-icons-google"
+        icon="i-simple-icons-auth0"
         external
         color="gray"
         size="xs"

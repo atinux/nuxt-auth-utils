@@ -34,7 +34,7 @@ export interface OAuthAuth0Config {
    */
   scope?: string[]
   /**
-   * Require email from user, adds the ['user-read-email'] scope if not present
+   * Require email from user, adds the ['email'] scope if not present
    * @default false
    */
   emailRequired?: boolean
