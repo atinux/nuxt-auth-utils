@@ -142,6 +142,7 @@ export default defineNuxtConfig({
 ```
 
 It can also be set using environment variables:
+
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_ID`
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_SECRET`
 
@@ -152,6 +153,7 @@ It can also be set using environment variables:
 - Google
 - Twitch
 - Auth0
+- Battle.net
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 
@@ -181,7 +183,6 @@ export default oauth.githubEventHandler({
 ```
 
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
-
 
 ## Development
 
