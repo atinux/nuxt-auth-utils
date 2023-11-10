@@ -6,6 +6,7 @@ declare module '#auth-utils' {
       google?: any
       twitch?: any
       auth0?: any
+      linkedin?: any
     }
     loggedInAt: number
   }

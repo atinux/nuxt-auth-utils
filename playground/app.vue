@@ -56,6 +56,16 @@ const { loggedIn, session, clear } = useUserSession()
         Login with Auth0
       </UButton>
       <UButton
+        v-if="!loggedIn || !session.user.linkedin"
+        to="/auth/linkedin"
+        icon="i-simple-icons-linkedin"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with LinkedIn
+      </UButton>
+      <UButton
         v-if="loggedIn"
         color="gray"
         size="xs"

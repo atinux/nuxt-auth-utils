@@ -95,5 +95,10 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       domain: ''
     })
+    // LinkedIn OAuth
+    runtimeConfig.oauth.linkedin = defu(runtimeConfig.oauth.linkedin, {
+      clientId: '',
+      clientSecret: ''
+    })
   }
 })
