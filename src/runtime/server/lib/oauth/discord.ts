@@ -1,6 +1,6 @@
 import type { H3Event, H3Error } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
@@ -25,8 +25,13 @@ export interface OAuthDiscordConfig {
    */
   scope?: string[]
   /**
-   * Require profile from user, adds the ['identify', 'email'] scope if not present. 
+   * Require email from user, adds the ['email'] scope if not present.
    * @default false
+   */
+  emailRequired?: boolean,
+  /**
+   * Require profile from user, adds the ['identify'] scope if not present.
+   * @default true
    */
   profileRequired?: boolean
   /**
@@ -53,8 +58,7 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
     config = defu(config, useRuntimeConfig(event).oauth?.discord, {
       authorizationURL: 'https://discord.com/oauth2/authorize',
       tokenURL: 'https://discord.com/api/oauth2/token',
-      profileRequired: true,
-      scope: ['identify'],
+      profileRequired: true
     }) as OAuthDiscordConfig
     const { code } = getQuery(event)
 
@@ -68,9 +72,11 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
     }
 
     const redirectUrl = getRequestURL(event).href
-    console.log(redirectUrl)
     if (!code) {
       config.scope = config.scope || []
+      if (config.emailRequired && !config.scope.includes('email')) {
+        config.scope.push('email')
+      }
       if (config.profileRequired && !config.scope.includes('identify')) {
         config.scope.push('identify')
       }
@@ -82,52 +88,54 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig)
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join('%20')
+          scope: config.scope.join(' ')
         })
       )
     }
 
-    const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
-    const params = new URLSearchParams({
-      grant_type: 'authorization_code',
-      redirect_uri: redirectUrl,
-      code: code as string,
-    })
-
+    const parsedRedirectUrl = parseURL(redirectUrl)
+    parsedRedirectUrl.search = ''
     const tokens: any = await ofetch(
       config.tokenURL as string,
       {
         method: 'POST',
         headers: {
-          Authorization: `Basic ${authCode}`,
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: params
+        body: new URLSearchParams({
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: stringifyParsedURL(parsedRedirectUrl),
+          code: code as string,
+        }).toString()
       }
     ).catch(error => {
       return { error }
     })
     if (tokens.error) {
+      console.log(tokens)
       const error = createError({
         statusCode: 401,
         message: `Discord login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
         data: tokens
       })
-      
+
       if (!onError) throw error
       return onError(event, error)
     }
 
     const accessToken = tokens.access_token
-    const profile: any = await ofetch('https://discord.com/api/oauth2/@me', {
+    const user: any = await ofetch('https://discord.com/api/users/@me', {
       headers: {
+        'user-agent': 'Nuxt Auth Utils',
         Authorization: `Bearer ${accessToken}`
       }
     })
 
     return onSuccess(event, {
       tokens,
-      user: profile.user
+      user
     })
   })
 }
