@@ -57,8 +57,8 @@ const { loggedIn, session, clear } = useUserSession()
       </UButton>
       <UButton
         v-if="!loggedIn || !session.user.discord"
-        to="/auth/auth0"
-        icon="i-simple-icons-auth0"
+        to="/auth/discord"
+        icon="i-simple-icons-discord"
         external
         color="gray"
         size="xs"
@@ -68,7 +68,7 @@ const { loggedIn, session, clear } = useUserSession()
       <UButton
         v-if="!loggedIn || !session.user.linkedin"
         to="/auth/linkedin"
-        icon="i-simple-icons-auth0"
+        icon="i-simple-icons-linkedin"
         external
         color="gray"
         size="xs"

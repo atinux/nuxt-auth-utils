@@ -1,6 +1,6 @@
 import type { H3Event, H3Error } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
@@ -70,20 +70,14 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: parsePath(redirectUrl).pathname,
+          redirect_uri: redirectUrl,
           scope: config.scope.join(' ')
         })
       )
     }
 
-    const tokenParams = new URLSearchParams({
-      grant_type: 'authorization_code',
-      code: code as string,
-      client_id: config.clientId,
-      client_secret: config.clientSecret,
-      redirect_uri: parsePath(redirectUrl).pathname,
-    })
-
+    const parsedRedirectUrl = parseURL(redirectUrl)
+    parsedRedirectUrl.search = ''
     const tokens: any = await ofetch(
       config.tokenURL as string,
       {
@@ -91,7 +85,13 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: tokenParams
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code: code as string,
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          redirect_uri: stringifyParsedURL(parsedRedirectUrl),
+        }).toString()
       }
     ).catch(error => {
       return { error }
@@ -109,6 +109,7 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
     const accessToken = tokens.access_token
     const user: any = await ofetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
+        'user-agent': 'Nuxt Auth Utils',
         Authorization: `Bearer ${accessToken}`
       }
     })
