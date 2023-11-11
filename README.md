@@ -148,11 +148,12 @@ It can also be set using environment variables:
 
 #### Supported OAuth Providers
 
-- GitHub
-- Spotify
-- Google
-- Twitch
 - Auth0
+- Discord
+- GitHub
+- Google
+- Spotify
+- Twitch
 - Battle.net
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).

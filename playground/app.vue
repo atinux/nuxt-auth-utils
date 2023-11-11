@@ -56,6 +56,16 @@ const { loggedIn, session, clear } = useUserSession()
         Login with Auth0
       </UButton>
       <UButton
+        v-if="!loggedIn || !session.user.discord"
+        to="/auth/discord"
+        icon="i-simple-icons-discord"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with Discord
+      </UButton>
+      <UButton
         v-if="!loggedIn || !session.user.auth0"
         to="/auth/battledotnet"
         icon="i-simple-icons-battledotnet"
