@@ -24,10 +24,6 @@ export interface OAuthBattledotnetConfig {
    */
   scope?: string[]
   /**
-   * Require email from user, adds the ['openid'] scope if not present
-   * @default false
-   */
-  /**
    * Battle.net OAuth State
    * @default EU
    * @see https://develop.battle.net/documentation/guides/using-oauth
@@ -35,17 +31,10 @@ export interface OAuthBattledotnetConfig {
    */
   state?: string
   /**
-   * Require email from user, adds the ['openid'] scope if not present
-   * @default false
-   */
-  emailRequired?: boolean
-
-  /**
    * Battle.net OAuth Authorization URL
    * @default 'https://oauth.battle.net/authorize'
    */
   authorizationURL?: string
-
   /**
    * Battle.net OAuth Token URL
    * @default 'https://oauth.battle.net/token'
@@ -68,11 +57,6 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
       tokenURL: 'https://oauth.battle.net/token'
     }) as OAuthBattledotnetConfig
 
-    if (config.state === 'CN') {
-        config.authorizationURL = 'https://oauth.battlenet.com.cn/authorize'
-        config.tokenURL = 'https://oauth.battlenet.com.cn/token'
-    }
-
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret) {
@@ -85,11 +69,14 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     }
 
     if (!code) {
-      config.scope = config.scope || []
+      config.scope = config.scope || ['openid']
       config.state = config.state || 'EU'
-      if (config.emailRequired && !config.scope.includes('openid')) {
-        config.scope.push('openid')
+
+      if (config.state === 'CN') {
+        config.authorizationURL = 'https://oauth.battlenet.com.cn/authorize'
+        config.tokenURL = 'https://oauth.battlenet.com.cn/token'
       }
+    
       // Redirect to Battle.net Oauth page
       const redirectUrl = getRequestURL(event).href
       return sendRedirect(
@@ -103,12 +90,11 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
         })
       )
     }
-
     
     const redirectUrl = getRequestURL(event).href
     config.scope = config.scope || []
     if (!config.scope.includes('openid')) {
-    config.scope.push('openid')
+      config.scope.push('openid')
     }
 
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
@@ -131,7 +117,6 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     ).catch((error) => {
         return { error }
       })
-    
 
     if (tokens.error) {
       const error = createError({
