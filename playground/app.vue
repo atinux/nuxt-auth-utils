@@ -1,56 +1,60 @@
 <script setup lang="ts">
-const { loggedIn, session, clear } = useUserSession()
+const { loggedIn, user, session, clear } = useUserSession()
 
 const providers = computed(() => [
-  [
-    {
-      label: !session.value.user?.github ? 'Github' : session.value.user.github.login,
-      to: !session.value.user?.github ? '/auth/github' : undefined,
-      disabled: session.value.user?.github && true,
-      icon: 'i-simple-icons-github',
-      prefetch: false,
-      external: true,
-    },
-    {
-      label: !session.value.user?.spotify ? 'Spotify' : session.value.user.spotify.display_name,
-      to: !session.value.user?.spotify ? '/auth/spotify' : undefined,
-      disabled: session.value.user?.spotify && true,
-      icon: 'i-simple-icons-spotify',
-      prefetch: false,
-      external: true,
-    },
-    {
-      label: !session.value.user?.google ? 'Google' : session.value.user.google.email,
-      to: !session.value.user?.google ? '/auth/google' : undefined,
-      disabled: session.value.user?.google && true,
-      icon: 'i-simple-icons-google',
-      prefetch: false,
-      external: true,
-    },
-    {
-      label: !session.value.user?.twitch ? 'Twitch' : session.value.user.twitch.login,
-      to: !session.value.user?.twitch ? '/auth/twitch' : undefined,
-      disabled: session.value.user?.twitch && true,
-      icon: 'i-simple-icons-twitch',
-      prefetch: false,
-      external: true,
-    },
-    {
-      label: !session.value.user?.auth0 ? 'Auth0' : session.value.user.auth0.email,
-      to: !session.value.user?.auth0 ? '/auth/auth0' : undefined,
-      disabled: session.value.user?.auth0 && true,
-      icon: 'i-simple-icons-auth0',
-      prefetch: false,
-      external: true,
-    },
-  ],
-])
+  {
+    label: session.value.user?.github?.login || 'GitHub',
+    to: '/auth/github',
+    disabled: Boolean(user.value?.github),
+    icon: 'i-simple-icons-github',
+  },
+  {
+    label: session.value.user?.spotify?.display_name || 'Spotify',
+    to: '/auth/spotify',
+    disabled: Boolean(user.value?.spotify),
+    icon: 'i-simple-icons-spotify',
+  },
+  {
+    label: session.value.user?.google?.email || 'Google',
+    to: '/auth/google',
+    disabled: Boolean(user.value?.google),
+    icon: 'i-simple-icons-google',
+  },
+  {
+    label: session.value.user?.twitch?.login || 'Twitch',
+    to: '/auth/twitch',
+    disabled: Boolean(user.value?.twitch),
+    icon: 'i-simple-icons-twitch',
+  },
+  {
+    label: user.value?.auth0?.email || 'Auth0',
+    to: '/auth/auth0',
+    disabled: Boolean(user.value?.auth0),
+    icon: 'i-simple-icons-auth0',
+  },
+  {
+    label: user.value?.discord?.username || 'Discord',
+    to: '/auth/discord',
+    disabled: Boolean(user.value?.discord),
+    icon: 'i-simple-icons-discord',
+  },
+  {
+    label: user.value?.battledotnet?.battletag || 'Battle.net',
+    to: '/auth/battledotnet',
+    disabled: Boolean(user.value?.battledotnet),
+    icon: 'i-simple-icons-battledotnet',
+  },
+].map(p => ({
+  ...p,
+  prefetch: false,
+  external: true,
+})))
 </script>
 
 <template>
   <UHeader>
     <template #right>
-      <UDropdown :items="providers">
+      <UDropdown :items="[providers]">
         <UButton
           icon="i-heroicons-chevron-down"
           trailing
@@ -60,26 +64,6 @@ const providers = computed(() => [
           Login with
         </UButton>
       </UDropdown>
-      <UButton
-        v-if="!loggedIn || !session.user.discord"
-        to="/auth/discord"
-        icon="i-simple-icons-discord"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with Discord
-      </UButton>
-      <UButton
-        v-if="!loggedIn || !session.user.auth0"
-        to="/auth/battledotnet"
-        icon="i-simple-icons-battledotnet"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with Battle.net
-      </UButton>
       <UButton
         v-if="loggedIn"
         color="gray"
