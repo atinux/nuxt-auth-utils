@@ -1,9 +1,9 @@
-import type { H3Event, H3Error } from 'h3'
+import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { ofetch } from 'ofetch'
 import { withQuery } from 'ufo'
-import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '~/src/runtime/types/auth0'
 
 export interface OAuthGitHubConfig {
   /**
@@ -42,13 +42,7 @@ export interface OAuthGitHubConfig {
   tokenURL?: string
 }
 
-interface OAuthConfig {
-  config?: OAuthGitHubConfig
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.github, {

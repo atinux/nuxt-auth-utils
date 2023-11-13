@@ -1,9 +1,16 @@
-import type { H3Event, H3Error } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
+import type { H3Event } from 'h3'
+import {
+  eventHandler,
+  createError,
+  getQuery,
+  getRequestURL,
+  sendRedirect,
+} from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '~/src/runtime/types/auth0'
 
 export interface OAuthAuth0Config {
   /**
@@ -40,13 +47,7 @@ export interface OAuthAuth0Config {
   emailRequired?: boolean
 }
 
-interface OAuthConfig {
-  config?: OAuthAuth0Config
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.auth0) as OAuthAuth0Config
@@ -82,22 +83,19 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig) {
       )
     }
 
-    const tokens: any = await ofetch(
-      tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: {
-          grant_type: 'authorization_code',
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          redirect_uri: parsePath(redirectUrl).pathname,
-          code,
-        }
-      }
-    ).catch(error => {
+    const tokens: any = await ofetch(tokenURL as string, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: parsePath(redirectUrl).pathname,
+        code,
+      },
+    }).catch((error) => {
       return { error }
     })
     if (tokens.error) {
