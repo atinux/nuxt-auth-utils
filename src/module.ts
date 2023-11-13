@@ -102,5 +102,15 @@ export default defineNuxtModule<ModuleOptions>({
       tenant: '',
       usGov: false
     })
+    // Discord OAuth
+    runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Battle.net OAuth
+    runtimeConfig.oauth.battledotnet = defu(runtimeConfig.oauth.battledotnet, {
+      clientId: '',
+      clientSecret: ''
+    })
   }
 })
