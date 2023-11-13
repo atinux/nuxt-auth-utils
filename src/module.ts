@@ -100,5 +100,10 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: ''
     })
+    // Battle.net OAuth
+    runtimeConfig.oauth.battledotnet = defu(runtimeConfig.oauth.battledotnet, {
+      clientId: '',
+      clientSecret: ''
+    })
   }
 })
