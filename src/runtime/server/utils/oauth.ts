@@ -4,6 +4,7 @@ import { spotifyEventHandler } from '../lib/oauth/spotify'
 import { twitchEventHandler } from '../lib/oauth/twitch'
 import { auth0EventHandler } from '../lib/oauth/auth0'
 import { discordEventHandler } from '../lib/oauth/discord'
+import { battledotnetEventHandler } from '../lib/oauth/battledotnet'
 
 export const oauth = {
   githubEventHandler,
@@ -11,5 +12,6 @@ export const oauth = {
   googleEventHandler,
   twitchEventHandler,
   auth0EventHandler,
-  discordEventHandler
+  discordEventHandler,
+  battledotnetEventHandler
 }
