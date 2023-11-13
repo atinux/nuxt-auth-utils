@@ -4,6 +4,7 @@ import { ofetch } from 'ofetch'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
+import { randomUUID } from 'crypto'
 
 export interface OAuthBattledotnetConfig {
   /**
@@ -24,12 +25,12 @@ export interface OAuthBattledotnetConfig {
    */
   scope?: string[]
   /**
-   * Battle.net OAuth State
+   * Battle.net OAuth Region
    * @default EU
    * @see https://develop.battle.net/documentation/guides/using-oauth
    * @example EU (possible values: US, EU, APAC)
    */
-  state?: string
+  region?: string
   /**
    * Battle.net OAuth Authorization URL
    * @default 'https://oauth.battle.net/authorize'
@@ -49,15 +50,26 @@ interface OAuthConfig {
 }
 
 export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig) {
-    return eventHandler(async (event: H3Event) => { 
-        
+    return eventHandler(async (event: H3Event) => {
+
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.battledotnet, {
       authorizationURL: 'https://oauth.battle.net/authorize',
       tokenURL: 'https://oauth.battle.net/token'
     }) as OAuthBattledotnetConfig
 
-    const { code } = getQuery(event)
+    const query = getQuery(event)
+    const { code } = query
+
+    if (query.error) {
+      const error = createError({
+        statusCode: 401,
+        message: `Battle.net login failed: ${query.error || 'Unknown error'}`,
+        data: query
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
 
     if (!config.clientId || !config.clientSecret) {
       const error = createError({
@@ -70,13 +82,13 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
 
     if (!code) {
       config.scope = config.scope || ['openid']
-      config.state = config.state || 'EU'
+      config.region = config.region || 'EU'
 
-      if (config.state === 'CN') {
+      if (config.region === 'CN') {
         config.authorizationURL = 'https://oauth.battlenet.com.cn/authorize'
         config.tokenURL = 'https://oauth.battlenet.com.cn/token'
       }
-    
+
       // Redirect to Battle.net Oauth page
       const redirectUrl = getRequestURL(event).href
       return sendRedirect(
@@ -84,13 +96,13 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join('%20'),
-          state: config.state,
+          scope: config.scope.join(' '),
+          state: randomUUID(), // Todo: handle PKCE flow
           response_type: 'code',
         })
       )
     }
-    
+
     const redirectUrl = getRequestURL(event).href
     config.scope = config.scope || []
     if (!config.scope.includes('openid')) {
@@ -98,7 +110,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     }
 
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
-      
+
     const tokens: any = await $fetch(
       config.tokenURL as string,
       {
@@ -110,7 +122,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
           params: {
           code,
           grant_type: 'authorization_code',
-          scope: config.scope.join('%20'),
+          scope: config.scope.join(' '),
           redirect_uri: parsePath(redirectUrl).pathname,
         }
       }
@@ -129,7 +141,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     }
 
     const accessToken = tokens.access_token
-    
+
     const user: any = await ofetch('https://oauth.battle.net/userinfo', {
       headers: {
         'User-Agent': `Battledotnet-OAuth-${config.clientId}`,
