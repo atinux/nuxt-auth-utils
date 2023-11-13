@@ -28,6 +28,12 @@ export interface OAuthMicrosoftConfig {
    * @example ['User.Read']
    */
   scope?: string[]
+  /**
+   * Microsoft OAuth US Government
+   * @see https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-aad-auth-qs
+   * @default false
+   */
+  usGov?: boolean
 }
 
 interface OAuthConfig {
@@ -50,8 +56,9 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       if (!onError) throw error
       return onError(event, error)
     }
-    const authorizationURL = `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/authorize`
-    const tokenURL = `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/token`
+
+    const authorizationURL = `https://login.microsoftonline.${config.usGov ? 'us' : 'com'}/${config.tenant}/oauth2/v2.0/authorize`
+    const tokenURL = `https://login.microsoftonline.${config.usGov ? 'us' : 'com'}/${config.tenant}/oauth2/v2.0/token`
 
     const redirectUrl = getRequestURL(event).href
     if (!code) {
@@ -100,7 +107,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
-    const user: any = await ofetch('https://graph.microsoft.com/v1.0/me', {
+    const user: any = await ofetch(`https://graph.microsoft.${config.usGov ? 'us' : 'com'}/v1.0/me`, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`
       }
