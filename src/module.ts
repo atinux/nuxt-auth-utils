@@ -100,6 +100,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       tenant: '',
+      usGov: false
     })
   }
 })
