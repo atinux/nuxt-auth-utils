@@ -95,5 +95,10 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       domain: ''
     })
+    // Discord OAuth
+    runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
+      clientId: '',
+      clientSecret: ''
+    })
   }
 })

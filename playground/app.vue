@@ -61,6 +61,16 @@ const providers = computed(() => [
         </UButton>
       </UDropdown>
       <UButton
+        v-if="!loggedIn || !session.user.discord"
+        to="/auth/discord"
+        icon="i-simple-icons-discord"
+        external
+        color="gray"
+        size="xs"
+      >
+        Login with Discord
+      </UButton>
+      <UButton
         v-if="loggedIn"
         color="gray"
         size="xs"
