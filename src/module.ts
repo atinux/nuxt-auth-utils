@@ -65,7 +65,10 @@ export default defineNuxtModule<ModuleOptions>({
     const runtimeConfig = nuxt.options.runtimeConfig
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
-      password: ''
+      password: '',
+      cookie: {
+        sameSite: 'lax'
+      }
     })
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
