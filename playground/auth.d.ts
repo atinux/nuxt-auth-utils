@@ -5,6 +5,7 @@ declare module '#auth-utils' {
       github?: any
       google?: any
       twitch?: any
+      jwt?: any
     }
     loggedInAt: number
   }

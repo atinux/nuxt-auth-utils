@@ -3,7 +3,7 @@ import { sha256 } from 'ohash'
 import { defu } from 'defu'
 
 // Module options TypeScript interface definition
-export interface ModuleOptions {}
+export interface ModuleOptions { }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -35,6 +35,10 @@ export default defineNuxtModule<ModuleOptions>({
           {
             from: resolver.resolve('./runtime/server/utils/oauth'),
             imports: ['oauth']
+          },
+          {
+            from: resolver.resolve('./runtime/server/utils/local'),
+            imports: ['local']
           },
           {
             from: resolver.resolve('./runtime/server/utils/session'),
@@ -69,6 +73,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
+
     // GitHub Oauth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
@@ -89,5 +94,15 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: ''
     })
+
+    // Local settings
+    runtimeConfig.local = defu(runtimeConfig.local, {})
+
+    // JWT Local
+    runtimeConfig.local.jwt = defu(runtimeConfig.local.jwt, {
+      loginURL: '',
+      userURL: ''
+    })
+
   }
 })
