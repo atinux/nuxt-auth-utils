@@ -65,6 +65,7 @@ const { loggedIn, session, clear } = useUserSession()
       >
         Login with Microsoft
       </UButton>
+      <UButton
         v-if="!loggedIn || !session.user.discord"
         to="/auth/discord"
         icon="i-simple-icons-discord"
