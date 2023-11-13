@@ -1,5 +1,13 @@
 <script setup>
 const { loggedIn, session, clear } = useUserSession()
+const jwt = function(){
+  $fetch('/auth/jwt', {
+    body:{email:'admin@admin.com',password:'admin'}
+    ,method:'POST'})
+    .then((res)=>{
+      session.value = res
+        
+})}
 </script>
 
 <template>
@@ -52,6 +60,17 @@ const { loggedIn, session, clear } = useUserSession()
         size="xs"
       >
         Login with Twitch
+      </UButton>
+      <UButton
+        v-if="!loggedIn || !session.user.jwt"
+        icon="i-logos-jwt-icon"
+        
+        external
+        color="gray"
+        size="xs"
+        @click="jwt"
+      >
+        Login with JWT
       </UButton>
     </template>
   </UHeader>
