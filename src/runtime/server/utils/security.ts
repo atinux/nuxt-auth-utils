@@ -70,11 +70,11 @@ export const checks = {
       console.log('pkceChallenge', pkceChallenge)
       res['code_challenge'] = pkceChallenge
       res['code_challenge_method'] = 'S256'
-      setCookie(event, 'nuxt-auth-util-verifier', pkceVerifier, { maxAge: 60 * 15, secure: true, httpOnly: true })
+      setCookie(event, 'nuxt-auth-util-verifier', pkceVerifier, { maxAge: 60 * 15, secure: true, httpOnly: true, sameSite: 'lax' })
     }
     if (checks?.includes('state')) {
       res['state'] = generateState()
-      setCookie(event, 'nuxt-auth-util-state', res['state'], { maxAge: 60 * 15, secure: true, httpOnly: true })
+      setCookie(event, 'nuxt-auth-util-state', res['state'], { maxAge: 60 * 15, secure: true, httpOnly: true, sameSite: 'lax' })
     }
     return res
   },
