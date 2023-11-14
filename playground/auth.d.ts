@@ -7,6 +7,7 @@ declare module '#auth-utils' {
       twitch?: any
       auth0?: any
       discord?: any
+      battledotnet?: any
     }
     loggedInAt: number
   }

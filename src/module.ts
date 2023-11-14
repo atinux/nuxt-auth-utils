@@ -65,7 +65,10 @@ export default defineNuxtModule<ModuleOptions>({
     const runtimeConfig = nuxt.options.runtimeConfig
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
-      password: ''
+      password: '',
+      cookie: {
+        sameSite: 'lax'
+      }
     })
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
@@ -97,6 +100,11 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Battle.net OAuth
+    runtimeConfig.oauth.battledotnet = defu(runtimeConfig.oauth.battledotnet, {
       clientId: '',
       clientSecret: ''
     })
