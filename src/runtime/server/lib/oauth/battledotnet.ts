@@ -128,9 +128,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
         return onError(event, error)
     }
 
-      const codeVerifier = await useStorage().getItem('codeVerifierBattledotnet')
-
-      console.log('codeVerifier', codeVerifier)
+    const codeVerifier = await useStorage().getItem('codeVerifierBattledotnet')
 
     const hash = createHash('sha3-256')
     const codeChallenge = hash.update(codeVerifier as string).digest('base64')
