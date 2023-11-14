@@ -1,10 +1,10 @@
 import type { H3Event, H3Error } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { ofetch } from 'ofetch'
-import { withQuery, parsePath } from 'ufo'
+import { withQuery, parsePath, getQuery as ufoGetQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import { randomUUID } from 'crypto'
+import { randomUUID, createHash } from 'crypto'
 
 export interface OAuthBattledotnetConfig {
   /**
@@ -79,7 +79,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
       if (!onError) throw error
       return onError(event, error)
     }
-
+    
     if (!code) {
       config.scope = config.scope || ['openid']
       config.region = config.region || 'EU'
@@ -89,6 +89,13 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
         config.tokenURL = 'https://oauth.battlenet.com.cn/token'
       }
 
+      // PKCE flow
+      const stateGen = randomUUID()
+      const hash = createHash('sha3-256')
+      const hashedState = hash.update(stateGen).digest('base64')
+
+      await useStorage().setItem('stateBattledotnet', hashedState)
+
       // Redirect to Battle.net Oauth page
       const redirectUrl = getRequestURL(event).href
       return sendRedirect(
@@ -97,7 +104,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
           client_id: config.clientId,
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
-          state: randomUUID(), // Todo: handle PKCE flow
+          state: hashedState, // Todo: handle PKCE flow
           response_type: 'code',
         })
       )
@@ -107,6 +114,30 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     config.scope = config.scope || []
     if (!config.scope.includes('openid')) {
       config.scope.push('openid')
+    }
+
+    const { state } = ufoGetQuery(redirectUrl)
+
+    if (!state) {
+        const error = createError({
+          statusCode: 401,
+          message: 'State is required',
+          data: query
+        })
+        if (!onError) throw error
+        return onError(event, error)
+    }
+
+    const storageState = await useStorage().getItem('stateBattledotnet')
+
+    if (storageState !== (state as string).replace(/\s/g, '+')) {
+      const error = createError({
+        statusCode: 401,
+        message: 'State is not valid',
+        data: query
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
@@ -128,7 +159,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
       }
     ).catch((error) => {
         return { error }
-      })
+    })
 
     if (tokens.error) {
       const error = createError({
