@@ -90,11 +90,11 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
       }
 
       // PKCE flow
-      const stateGen = randomUUID()
+      const codeVerifier = randomUUID()
       const hash = createHash('sha3-256')
-      const hashedState = hash.update(stateGen).digest('base64')
+      const codeChallenge = hash.update(codeVerifier).digest('base64')
 
-      await useStorage().setItem('stateBattledotnet', hashedState)
+      await useStorage().setItem('codeVerifierBattledotnet', codeVerifier)
 
       // Redirect to Battle.net Oauth page
       const redirectUrl = getRequestURL(event).href
@@ -104,7 +104,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
           client_id: config.clientId,
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
-          state: hashedState, // Todo: handle PKCE flow
+          state: codeChallenge, // Todo: handle PKCE flow
           response_type: 'code',
         })
       )
@@ -128,9 +128,14 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
         return onError(event, error)
     }
 
-    const storageState = await useStorage().getItem('stateBattledotnet')
+      const codeVerifier = await useStorage().getItem('codeVerifierBattledotnet')
 
-    if (storageState !== (state as string).replace(/\s/g, '+')) {
+      console.log('codeVerifier', codeVerifier)
+
+    const hash = createHash('sha3-256')
+    const codeChallenge = hash.update(codeVerifier as string).digest('base64')
+
+    if (codeChallenge !== (state as string).replace(/\s/g, '+')) {
       const error = createError({
         statusCode: 401,
         message: 'State is not valid',
