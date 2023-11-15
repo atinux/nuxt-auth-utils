@@ -53,13 +53,13 @@ export default defineNuxtConfig({
 NUXT_SESSION_PASSWORD=password-with-at-least-32-characters
 ```
 
-Nuxt Auth Core can generate one for you when running Nuxt in development the first time when no `NUXT_SESSION_PASSWORD` is set.
+Nuxt Auth Utils can generate one for you when running Nuxt in development the first time when no `NUXT_SESSION_PASSWORD` is set.
 
 4. That's it! You can now add authentication to your Nuxt app ✨
 
 ## Vue Composables
 
-Nuxt Neo automatically add some plugins to fetch the current user session to let you access it from your Vue components.
+Nuxt Auth Utils automatically adds some plugins to fetch the current user session to let you access it from your Vue components.
 
 ### User Session
 
