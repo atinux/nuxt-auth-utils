@@ -1,10 +1,11 @@
-import type { H3Event, H3Error } from 'h3'
+import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { ofetch } from 'ofetch'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import { randomUUID } from 'crypto'
+import type { OAuthConfig } from '~/src/runtime/types/auth0'
 
 export interface OAuthBattledotnetConfig {
   /**
@@ -43,13 +44,7 @@ export interface OAuthBattledotnetConfig {
   tokenURL?: string
 }
 
-interface OAuthConfig {
-  config?: OAuthBattledotnetConfig
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
     return eventHandler(async (event: H3Event) => {
 
     // @ts-ignore
