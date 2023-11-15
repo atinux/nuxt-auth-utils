@@ -4,7 +4,7 @@ import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '~/src/runtime/types/auth0'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthTwitchConfig {
   /**

@@ -5,7 +5,7 @@ import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import { randomUUID } from 'crypto'
-import type { OAuthConfig } from '~/src/runtime/types/auth0'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthBattledotnetConfig {
   /**

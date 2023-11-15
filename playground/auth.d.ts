@@ -12,3 +12,5 @@ declare module '#auth-utils' {
     loggedInAt: number
   }
 }
+
+export {}
