@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { ofetch } from 'ofetch'
 import { withQuery } from 'ufo'
+import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '~/src/runtime/types/auth0'
 

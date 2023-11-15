@@ -1,11 +1,5 @@
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  createError,
-  getQuery,
-  getRequestURL,
-  sendRedirect,
-} from 'h3'
+import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
@@ -83,19 +77,22 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
       )
     }
 
-    const tokens: any = await ofetch(tokenURL as string, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {
-        grant_type: 'authorization_code',
-        client_id: config.clientId,
-        client_secret: config.clientSecret,
-        redirect_uri: parsePath(redirectUrl).pathname,
-        code,
-      },
-    }).catch((error) => {
+    const tokens: any = await ofetch(
+      tokenURL as string,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: {
+          grant_type: 'authorization_code',
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          redirect_uri: parsePath(redirectUrl).pathname,
+          code,
+        }
+      }
+    ).catch(error => {
       return { error }
     })
     if (tokens.error) {
