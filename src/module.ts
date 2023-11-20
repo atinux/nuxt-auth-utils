@@ -22,7 +22,7 @@ export default defineNuxtModule<ModuleOptions>({
       console.log(`NUXT_SESSION_PASSWORD=${randomPassword}`)
     }
 
-    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/auth-utils-session')
+    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
 
     // App
     addImportsDir(resolver.resolve('./runtime/composables'))
