@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v0.0.7
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.6...v0.0.7)
+
+### 🩹 Fixes
+
+- **oauth:** Add generic OAuthConfig type ([#18](https://github.com/Atinux/nuxt-auth-utils/pull/18))
+
+### 📖 Documentation
+
+- Use consistent reference to module ([13daa78](https://github.com/Atinux/nuxt-auth-utils/commit/13daa78))
+
+### 🏡 Chore
+
+- Add SameSite=lax ([1b296e2](https://github.com/Atinux/nuxt-auth-utils/commit/1b296e2))
+
+### ❤️ Contributors
+
+- Sigve Hansen ([@sifferhans](http://github.com/sifferhans))
+- Daniel Roe <daniel@roe.dev>
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
 ## v0.0.6
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.5...v0.0.6)
