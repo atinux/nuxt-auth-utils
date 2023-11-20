@@ -23,17 +23,28 @@ export interface OAuthMicrosoftConfig {
   tenant?: string
   /**
    * Microsoft  OAuth Scope
-   * @default []
+   * @default ['User.Read']
    * @see https://learn.microsoft.com/en-us/entra/identity-platform/scopes-oidc
-   * @example ['User.Read']
    */
   scope?: string[]
   /**
-   * Microsoft OAuth US Government
-   * @see https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-aad-auth-qs
-   * @default false
+   * Microsoft OAuth Authorization URL
+   * @default https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize
+   * @see https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
    */
-  usGov?: boolean
+  authorizationURL?: string
+  /**
+   * Microsoft OAuth Token URL
+   * @default https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token
+   * @see https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
+   */
+  tokenURL?: string
+  /**
+   * Microsoft OAuth User URL
+   * @default https://graph.microsoft.com/v1.0/me
+   * @see https://docs.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0&tabs=http
+   */
+  userURL?: string
 }
 
 interface OAuthConfig {
@@ -57,13 +68,13 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       return onError(event, error)
     }
 
-    const authorizationURL = `https://login.microsoftonline.${config.usGov ? 'us' : 'com'}/${config.tenant}/oauth2/v2.0/authorize`
-    const tokenURL = `https://login.microsoftonline.${config.usGov ? 'us' : 'com'}/${config.tenant}/oauth2/v2.0/token`
+    const authorizationURL = config.authorizationURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/authorize`
+    const tokenURL = config.tokenURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/token`
 
     const redirectUrl = getRequestURL(event).href
     if (!code) {
       
-      config.scope = config.scope || ['User.Read']
+      const scope = config.scope && config.scope.length > 0 ? config.scope : ['User.Read']
       // Redirect to Microsoft Oauth page
       return sendRedirect(
         event,
@@ -71,7 +82,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
           client_id: config.clientId,
           response_type: 'code',
           redirect_uri: redirectUrl,
-          scope: config.scope.join('%20'),
+          scope: scope.join('%20'),
         })
       )
     }
@@ -107,7 +118,8 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
-    const user: any = await ofetch(`https://graph.microsoft.${config.usGov ? 'us' : 'com'}/v1.0/me`, {
+    const userURL = config.userURL || 'https://graph.microsoft.com/v1.0/me'
+    const user: any = await ofetch(userURL, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`
       }
