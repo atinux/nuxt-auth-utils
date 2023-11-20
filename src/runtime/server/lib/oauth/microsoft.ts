@@ -111,7 +111,19 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       headers: {
         Authorization: `${tokenType} ${accessToken}`
       }
+    }).catch(error => {
+      return { error }
     })
+    if (user.error) {
+      console.log(user.error)
+      const error = createError({
+        statusCode: 401,
+        message: `Microsoft login failed: ${user.error || 'Unknown error'}`,
+        data: user
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
 
     return onSuccess(event, {
       tokens,
