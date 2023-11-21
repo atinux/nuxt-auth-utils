@@ -53,6 +53,9 @@ const providers = computed(() => [
 
 <template>
   <UHeader>
+    <template #logo>
+      Nuxt Auth Utils
+    </template>
     <template #right>
       <UDropdown :items="[providers]">
         <UButton
