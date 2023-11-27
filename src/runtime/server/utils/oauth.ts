@@ -5,6 +5,7 @@ import { twitchEventHandler } from '../lib/oauth/twitch'
 import { auth0EventHandler } from '../lib/oauth/auth0'
 import { discordEventHandler } from '../lib/oauth/discord'
 import { battledotnetEventHandler } from '../lib/oauth/battledotnet'
+import { keycloakEventHandler } from '../lib/oauth/keycloak'
 
 export const oauth = {
   githubEventHandler,
@@ -13,5 +14,6 @@ export const oauth = {
   twitchEventHandler,
   auth0EventHandler,
   discordEventHandler,
-  battledotnetEventHandler
+  battledotnetEventHandler,
+  keycloakEventHandler
 }

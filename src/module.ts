@@ -108,5 +108,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: ''
     })
+    // Keycloak OAuth
+    runtimeConfig.oauth.keycloak = defu(runtimeConfig.oauth.keycloak, {
+      clientId: '',
+      clientSecret: '',
+      serverUrl: '',
+      realm: ''
+    })
   }
 })

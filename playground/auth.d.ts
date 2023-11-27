@@ -8,6 +8,7 @@ declare module '#auth-utils' {
       auth0?: any
       discord?: any
       battledotnet?: any
+      keycloak?: any
     }
     loggedInAt: number
   }
