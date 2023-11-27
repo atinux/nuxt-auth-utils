@@ -1,4 +1,4 @@
-import type { H3Event, H3Error } from 'h3'
+import type { H3Event } from 'h3'
 import {
   eventHandler,
   createError,
@@ -10,6 +10,7 @@ import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthGoogleConfig {
   /**
@@ -51,20 +52,11 @@ export interface OAuthGoogleConfig {
   redirectUrl: '/auth/google';
 }
 
-interface OAuthConfig {
-  config?: OAuthGoogleConfig;
-  onSuccess: (
-    event: H3Event,
-    result: { user: any; tokens: any }
-  ) => Promise<void> | void;
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void;
-}
-
 export function googleEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig) {
+}: OAuthConfig<OAuthGoogleConfig>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.google, {

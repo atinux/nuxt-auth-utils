@@ -4,6 +4,7 @@ import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '#auth-utils'
 import { type OAuthChecks, checks } from '../../utils/security'
 
 export interface OAuthAuth0Config {
@@ -48,13 +49,7 @@ export interface OAuthAuth0Config {
   checks?: OAuthChecks[]
 }
 
-interface OAuthConfig {
-  config?: OAuthAuth0Config
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.auth0) as OAuthAuth0Config

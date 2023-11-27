@@ -1,9 +1,10 @@
-import type { H3Event, H3Error } from 'h3'
+import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthDiscordConfig {
   /**
@@ -46,13 +47,7 @@ export interface OAuthDiscordConfig {
   tokenURL?: string
 }
 
-interface OAuthConfig {
-  config?: OAuthDiscordConfig
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDiscordConfig>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.discord, {
