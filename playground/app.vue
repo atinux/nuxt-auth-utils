@@ -44,6 +44,13 @@ const providers = computed(() => [
     disabled: Boolean(user.value?.battledotnet),
     icon: 'i-simple-icons-battledotnet',
   },
+  {
+    label: user.value?.microsoft?.displayName || 'Microsoft',
+    to: '/auth/microsoft',
+    disabled: Boolean(user.value?.microsoft),
+    icon: 'i-simple-icons-microsoft',
+  }
+
 ].map(p => ({
   ...p,
   prefetch: false,

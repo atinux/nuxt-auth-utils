@@ -41,6 +41,12 @@ export interface OAuthAuth0Config {
    */
   emailRequired?: boolean
   /**
+   * Maximum Authentication Age. If the elapsed time is greater than this value, the OP must attempt to actively re-authenticate the end-user.
+   * @default 0
+   * @see https://auth0.com/docs/authenticate/login/max-age-reauthentication
+   */
+  maxAge?: number
+  /** 
    * checks
    * @default []
    * @see https://auth0.com/docs/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce
@@ -82,6 +88,7 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
           audience: config.audience || '',
+          max_age: config.maxAge || 0,
           ...authParam
         })
       )
