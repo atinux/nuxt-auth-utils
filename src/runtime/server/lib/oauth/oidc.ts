@@ -40,7 +40,7 @@ export interface OAuthOidcConfig {
   userinfoUrl?: string
   /**
    * OIDC Redirect URI
-   * @default process.env.NUXT_OAUTH_OIDC_TOKEN_URL
+   * @default process.env.NUXT_OAUTH_OIDC_USERINFO_URL
    */
   redirectUri?: string
   /**
