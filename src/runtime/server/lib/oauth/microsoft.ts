@@ -73,7 +73,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
 
     const redirectUrl = getRequestURL(event).href
     if (!code) {
-      
+
       const scope = config.scope && config.scope.length > 0 ? config.scope : ['User.Read']
       // Redirect to Microsoft Oauth page
       return sendRedirect(
@@ -127,7 +127,6 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       return { error }
     })
     if (user.error) {
-      console.log(user.error)
       const error = createError({
         statusCode: 401,
         message: `Microsoft login failed: ${user.error || 'Unknown error'}`,
