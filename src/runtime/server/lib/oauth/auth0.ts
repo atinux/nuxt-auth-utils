@@ -1,9 +1,10 @@
-import type { H3Event, H3Error } from 'h3'
+import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthAuth0Config {
   /**
@@ -38,15 +39,15 @@ export interface OAuthAuth0Config {
    * @default false
    */
   emailRequired?: boolean
+  /**
+   * Maximum Authentication Age. If the elapsed time is greater than this value, the OP must attempt to actively re-authenticate the end-user.
+   * @default 0
+   * @see https://auth0.com/docs/authenticate/login/max-age-reauthentication
+   */
+  maxAge?: number
 }
 
-interface OAuthConfig {
-  config?: OAuthAuth0Config
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.auth0) as OAuthAuth0Config
@@ -78,6 +79,7 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig) {
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
           audience: config.audience || '',
+          max_age: config.maxAge || 0,
         })
       )
     }

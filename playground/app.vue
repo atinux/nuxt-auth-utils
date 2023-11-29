@@ -51,7 +51,7 @@ const providers = computed(() => [
     icon: 'i-simple-icons-microsoft',
   },
   {
-    label: user.value?.microsoft?.displayName || 'LinkedIn',
+    label: user.value?.linkedin?.email || 'LinkedIn',
     to: '/auth/linkedin',
     disabled: Boolean(user.value?.linkedin),
     icon: 'i-simple-icons-linkedin',
