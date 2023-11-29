@@ -109,7 +109,6 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<
       return { error }
     })
     if (tokens.error) {
-      console.log(tokens)
       const error = createError({
         statusCode: 401,
         message: `Discord login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,

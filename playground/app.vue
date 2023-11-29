@@ -45,11 +45,17 @@ const providers = computed(() => [
     icon: 'i-simple-icons-battledotnet',
   },
   {
-    label: user.value?.keycloak?.username || 'Keycloak',
+    label: user.value?.microsoft?.displayName || 'Microsoft',
+    to: '/auth/microsoft',
+    disabled: Boolean(user.value?.microsoft),
+    icon: 'i-simple-icons-microsoft',
+  },
+  {
+    label: user.value?.keycloak?.preferred_username || 'Keycloak',
     to: '/auth/keycloak',
     disabled: Boolean(user.value?.keycloak),
     icon: 'i-simple-icons-redhat'
-  },
+  }
 ].map(p => ({
   ...p,
   prefetch: false,

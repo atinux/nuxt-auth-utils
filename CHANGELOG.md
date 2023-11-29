@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v0.0.9
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.8...v0.0.9)
+
+### 🚀 Enhancements
+
+- Add max_age param for auth0 ([#26](https://github.com/Atinux/nuxt-auth-utils/pull/26))
+- Added Microsoft as oauth provider ([#8](https://github.com/Atinux/nuxt-auth-utils/pull/8))
+
+### ❤️ Contributors
+
+- Jakub Frelik <j.frelik.it@outlook.com>
+- Uģis ([@BerzinsU](http://github.com/BerzinsU))
+
 ## v0.0.8
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.7...v0.0.8)
