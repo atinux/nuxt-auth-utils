@@ -15,7 +15,11 @@ export const useUserSession = () => {
 }
 
 async function fetch() {
-  useSessionState().value = await useRequestFetch()('/api/_auth/session').catch(() => ({}))
+  useSessionState().value = await useRequestFetch()('/api/_auth/session', {
+    headers: {
+      Accept: 'text/json'
+    }
+  }).catch(() => ({}))
 }
 
 async function clear() {

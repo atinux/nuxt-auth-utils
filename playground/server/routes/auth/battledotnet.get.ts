@@ -1,11 +1,8 @@
-export default oauth.linkedinEventHandler({
-  config: {
-    emailRequired: true
-  },
+export default oauth.battledotnetEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        linkedin: user,
+        battledotnet: user,
       },
       loggedInAt: Date.now()
     })

@@ -53,13 +53,13 @@ export default defineNuxtConfig({
 NUXT_SESSION_PASSWORD=password-with-at-least-32-characters
 ```
 
-Nuxt Auth Core can generate one for you when running Nuxt in development the first time when no `NUXT_SESSION_PASSWORD` is set.
+Nuxt Auth Utils can generate one for you when running Nuxt in development the first time when no `NUXT_SESSION_PASSWORD` is set.
 
 4. That's it! You can now add authentication to your Nuxt app ✨
 
 ## Vue Composables
 
-Nuxt Neo automatically add some plugins to fetch the current user session to let you access it from your Vue components.
+Nuxt Auth Utils automatically adds some plugins to fetch the current user session to let you access it from your Vue components.
 
 ### User Session
 
@@ -108,7 +108,7 @@ await clearUserSession(event)
 const session = await requireUserSession(event)
 ```
 
-You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project:
+You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project to augment the `UserSession` type:
 
 ```ts
 declare module '#auth-utils' {
@@ -116,6 +116,7 @@ declare module '#auth-utils' {
     // define the type here
   }
 }
+export {}
 ```
 
 ### OAuth Event Handlers
@@ -142,15 +143,18 @@ export default defineNuxtConfig({
 ```
 
 It can also be set using environment variables:
+
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_ID`
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_SECRET`
 
 #### Supported OAuth Providers
 
 - Auth0
+- Battle.net
 - Discord
 - GitHub
 - Google
+- Microsoft
 - Spotify
 - Twitch
 
@@ -182,7 +186,6 @@ export default oauth.githubEventHandler({
 ```
 
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
-
 
 ## Development
 

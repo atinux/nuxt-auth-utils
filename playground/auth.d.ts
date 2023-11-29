@@ -6,9 +6,13 @@ declare module '#auth-utils' {
       google?: any
       twitch?: any
       auth0?: any
+      microsoft?: any;
       discord?: any
+      battledotnet?: any
       linkedin?: any
     }
     loggedInAt: number
   }
 }
+
+export {}

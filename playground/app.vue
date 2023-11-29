@@ -1,80 +1,85 @@
-<script setup>
-const { loggedIn, session, clear } = useUserSession()
+<script setup lang="ts">
+const { loggedIn, user, session, clear } = useUserSession()
+
+const providers = computed(() => [
+  {
+    label: session.value.user?.github?.login || 'GitHub',
+    to: '/auth/github',
+    disabled: Boolean(user.value?.github),
+    icon: 'i-simple-icons-github',
+  },
+  {
+    label: session.value.user?.spotify?.display_name || 'Spotify',
+    to: '/auth/spotify',
+    disabled: Boolean(user.value?.spotify),
+    icon: 'i-simple-icons-spotify',
+  },
+  {
+    label: session.value.user?.google?.email || 'Google',
+    to: '/auth/google',
+    disabled: Boolean(user.value?.google),
+    icon: 'i-simple-icons-google',
+  },
+  {
+    label: session.value.user?.twitch?.login || 'Twitch',
+    to: '/auth/twitch',
+    disabled: Boolean(user.value?.twitch),
+    icon: 'i-simple-icons-twitch',
+  },
+  {
+    label: user.value?.auth0?.email || 'Auth0',
+    to: '/auth/auth0',
+    disabled: Boolean(user.value?.auth0),
+    icon: 'i-simple-icons-auth0',
+  },
+  {
+    label: user.value?.discord?.username || 'Discord',
+    to: '/auth/discord',
+    disabled: Boolean(user.value?.discord),
+    icon: 'i-simple-icons-discord',
+  },
+  {
+    label: user.value?.battledotnet?.battletag || 'Battle.net',
+    to: '/auth/battledotnet',
+    disabled: Boolean(user.value?.battledotnet),
+    icon: 'i-simple-icons-battledotnet',
+  },
+  {
+    label: user.value?.microsoft?.displayName || 'Microsoft',
+    to: '/auth/microsoft',
+    disabled: Boolean(user.value?.microsoft),
+    icon: 'i-simple-icons-microsoft',
+  },
+  {
+    label: user.value?.microsoft?.displayName || 'LinkedIn',
+    to: '/auth/linkedin',
+    disabled: Boolean(user.value?.linkedin),
+    icon: 'i-simple-icons-linkedin',
+  }
+
+].map(p => ({
+  ...p,
+  prefetch: false,
+  external: true,
+})))
 </script>
 
 <template>
   <UHeader>
+    <template #logo>
+      Nuxt Auth Utils
+    </template>
     <template #right>
-      <UButton
-        v-if="!loggedIn || !session.user.github"
-        to="/auth/github"
-        icon="i-simple-icons-github"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with GitHub
-      </UButton>
-      <UButton
-        v-if="!loggedIn || !session.user.spotify"
-        to="/auth/spotify"
-        icon="i-simple-icons-spotify"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with Spotify
-      </UButton>
-      <UButton
-        v-if="!loggedIn || !session.user.google"
-        to="/auth/google"
-        icon="i-simple-icons-google"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with Google
-      </UButton>
-      <UButton
-        v-if="!loggedIn || !session.user.twitch"
-        to="/auth/twitch"
-        icon="i-simple-icons-twitch"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with Twitch
-      </UButton>
-      <UButton
-        v-if="!loggedIn || !session.user.auth0"
-        to="/auth/auth0"
-        icon="i-simple-icons-auth0"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with Auth0
-      </UButton>
-      <UButton
-        v-if="!loggedIn || !session.user.discord"
-        to="/auth/discord"
-        icon="i-simple-icons-discord"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with Discord
-      </UButton>
-      <UButton
-        v-if="!loggedIn || !session.user.linkedin"
-        to="/auth/linkedin"
-        icon="i-simple-icons-linkedin"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with LinkedIn
-      </UButton>
+      <UDropdown :items="[providers]">
+        <UButton
+          icon="i-heroicons-chevron-down"
+          trailing
+          color="gray"
+          size="xs"
+        >
+          Login with
+        </UButton>
+      </UDropdown>
       <UButton
         v-if="loggedIn"
         color="gray"

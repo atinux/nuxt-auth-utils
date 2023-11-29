@@ -22,7 +22,7 @@ export default defineNuxtModule<ModuleOptions>({
       console.log(`NUXT_SESSION_PASSWORD=${randomPassword}`)
     }
 
-    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/auth-utils-session')
+    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
 
     // App
     addImportsDir(resolver.resolve('./runtime/composables'))
@@ -65,7 +65,10 @@ export default defineNuxtModule<ModuleOptions>({
     const runtimeConfig = nuxt.options.runtimeConfig
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
-      password: ''
+      password: '',
+      cookie: {
+        sameSite: 'lax'
+      }
     })
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
@@ -95,16 +98,33 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       domain: ''
     })
+    // Microsoft OAuth
+    runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
+      clientId: '',
+      clientSecret: '',
+      tenant: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: ''
+    })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
       clientId: '',
-      clientSecret: '',
+      clientSecret: ''
+    })
+    // Battle.net OAuth
+    runtimeConfig.oauth.battledotnet = defu(runtimeConfig.oauth.battledotnet, {
+      clientId: '',
+      clientSecret: ''
     })
     // LinkedIn OAuth
     runtimeConfig.oauth.linkedin = defu(runtimeConfig.oauth.linkedin, {
       clientId: '',
       clientSecret: '',
     })
-
   }
 })
+
+
+
