@@ -1,11 +1,11 @@
-import type { H3Event } from 'h3'
+import type { H3Event, H3Error } from 'h3'
 import { eventHandler, createError, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
-import { createHash, randomBytes } from 'node:crypto'
+import { type OAuthChecks, checks } from '../../utils/security'
 
 export interface OAuthOidcConfig {
   /**
@@ -69,10 +69,17 @@ export interface OAuthOidcConfig {
    * @example ['openid']
    */
   scope?: string[]
+  /**
+   * checks
+   * @default []
+   * @see https://auth0.com/docs/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce
+   * @see https://auth0.com/docs/protocols/oauth2/oauth-state
+   */
+  checks?: OAuthChecks[]
 }
 
 function validateConfig(config: any) {
-  const requiredConfigKeys = ['clientId', 'clientSecret', 'authorizationUrl', 'tokenUrl', 'userinfoUrl', 'redirectUri']
+  const requiredConfigKeys = ['clientId', 'clientSecret', 'authorizationUrl', 'tokenUrl', 'userinfoUrl', 'redirectUri', 'responseType']
   const missingConfigKeys: string[] = []
   requiredConfigKeys.forEach(key => {
     if (!config[key]) {
@@ -82,7 +89,7 @@ function validateConfig(config: any) {
   if (missingConfigKeys.length) {
     const error = createError({
       statusCode: 500,
-      message: `Missing config keys:${missingConfigKeys.join(', ')}`
+      message: `Missing config keys: ${missingConfigKeys.join(', ')}`
     })
 
     return {
@@ -93,21 +100,11 @@ function validateConfig(config: any) {
   return { valid: true }
 }
 
-function createCodeChallenge(verifier: string) {
-  return createHash('sha256')
-    .update(verifier)
-    .digest('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
-}
-
 export function oidcEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthOidcConfig>) {
   return eventHandler(async (event: H3Event) => {
-    const storage = useStorage('redis')
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.oidc) as OAuthOidcConfig
-    const { code, state } = getQuery(event)
+    const { code } = getQuery(event)
 
     const validationResult = validateConfig(config)
 
@@ -116,12 +113,8 @@ export function oidcEventHandler({ config, onSuccess, onError }: OAuthConfig<OAu
       return onError(event, validationResult.error)
     }
 
-    if (!code && !state) {
-      const state = randomBytes(10).toString('hex')
-      const codeVerifier = randomBytes(52).toString('hex')
-      const challenge = createCodeChallenge(codeVerifier)
-      await storage.setItem('oidc:verifier:' + state, codeVerifier)
-      await storage.setItem('oidc:challenge:' + state, challenge)
+    if (!code) {
+      const authParams = await checks.create(event, config.checks) // Initialize checks
       // Redirect to OIDC login page
       return sendRedirect(
         event,
@@ -133,14 +126,19 @@ export function oidcEventHandler({ config, onSuccess, onError }: OAuthConfig<OAu
           claims: config?.claims || {},
           grant_type: config.grantType || 'authorization_code',
           audience: config.audience || null,
-          state: state,
-          code_challenge: config.codeChallengeMethod ? challenge : null,
-          code_challenge_method: config.codeChallengeMethod,
+          ...authParams
         })
       )
     }
 
-    const codeVerifier: string = await storage.getItem('oidc:verifier:' + state) || ''
+    // Verify checks
+    let checkResult
+    try {
+      checkResult = await checks.use(event, config.checks)
+    } catch (error) {
+      if (!onError) throw error
+      return onError(event, error as H3Error)
+    }
 
     // @ts-ignore
     const queryString = new URLSearchParams({
@@ -150,9 +148,10 @@ export function oidcEventHandler({ config, onSuccess, onError }: OAuthConfig<OAu
       redirect_uri: config.redirectUri,
       response_type: config.responseType,
       grant_type: config.grantType || 'authorization_code',
-      code_verifier: codeVerifier,
+      ...checkResult
     })
 
+    // Request tokens.
     const tokens: any = await ofetch(
       config.tokenUrl as string,
       {
@@ -178,6 +177,8 @@ export function oidcEventHandler({ config, onSuccess, onError }: OAuthConfig<OAu
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
     const userInfoUrl = config.userinfoUrl || ''
+
+    // Request userinfo.
     const user: any = await ofetch(userInfoUrl, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`

@@ -4,7 +4,7 @@ import { useRuntimeConfig } from '#imports'
 
 export type OAuthChecks = 'pkce' | 'state'
 
-// From oauth4webapi https://github.com/panva/oauth4webapi/blob/4b46a7b4a4ca77a513774c94b718592fe3ad576f/src/index.ts#L567C1-L579C2 
+// From oauth4webapi https://github.com/panva/oauth4webapi/blob/4b46a7b4a4ca77a513774c94b718592fe3ad576f/src/index.ts#L567C1-L579C2
 const CHUNK_SIZE = 0x8000
 export function encodeBase64Url(input: Uint8Array | ArrayBuffer) {
   if (input instanceof ArrayBuffer) {
@@ -23,7 +23,7 @@ function randomBytes() {
   return encodeBase64Url(getRandomValues(new Uint8Array(32)))
 }
 
-/** 
+/**
  * Generate a random `code_verifier` for use in the PKCE flow
  * @see https://tools.ietf.org/html/rfc7636#section-4.1
  */
@@ -31,8 +31,8 @@ export function generateCodeVerifier() {
   return randomBytes()
 }
 
-/** 
- * Generate a random `state` used to prevent CSRF attacks 
+/**
+ * Generate a random `state` used to prevent CSRF attacks
  * @see https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.1
  */
 export function generateState() {
