@@ -63,16 +63,17 @@ export const checks = {
    */
   async create(event: H3Event, checks?: OAuthChecks[]) {
     const res: Record<string, string> = {}
+    const runtimeConfig = useRuntimeConfig()
     if (checks?.includes('pkce')) {
       const pkceVerifier = generateCodeVerifier()
       const pkceChallenge = await pkceCodeChallenge(pkceVerifier)
       res['code_challenge'] = pkceChallenge
       res['code_challenge_method'] = 'S256'
-      setCookie(event, 'nuxt-auth-util-verifier', pkceVerifier, { maxAge: 60 * 15, secure: true, httpOnly: true, sameSite: 'lax' })
+      setCookie(event, 'nuxt-auth-util-verifier', pkceVerifier, { ...runtimeConfig.nuxtAuthUtils.security.cookie })
     }
     if (checks?.includes('state')) {
       res['state'] = generateState()
-      setCookie(event, 'nuxt-auth-util-state', res['state'], { maxAge: 60 * 15, secure: true, httpOnly: true, sameSite: 'lax' })
+      setCookie(event, 'nuxt-auth-util-state', res['state'], { ...runtimeConfig.nuxtAuthUtils.security.cookie })
     }
     return res
   },
