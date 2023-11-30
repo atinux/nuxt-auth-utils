@@ -71,7 +71,7 @@ export interface OAuthOidcConfig {
    */
   scope?: string[]
   /**
-   * checks
+   * A list of checks to add to the OIDC Flow (eg. 'state' or 'pkce')
    * @default []
    * @see https://auth0.com/docs/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce
    * @see https://auth0.com/docs/protocols/oauth2/oauth-state
