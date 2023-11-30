@@ -97,14 +97,14 @@ export const checks = {
         if (!state || !stateInCookie) {
           const error = createError({
             statusCode: 401,
-            message: 'Auth0 login failed: state is missing'
+            message: 'Login failed: state is missing'
           })
           throw error
         }
         if (state !== stateInCookie) {
           const error = createError({
             statusCode: 401,
-            message: 'Auth0 login failed: state does not match'
+            message: 'Login failed: state does not match'
           })
           throw error
         }
