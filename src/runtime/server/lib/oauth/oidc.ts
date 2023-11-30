@@ -6,6 +6,7 @@ import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 import { type OAuthChecks, checks } from '../../utils/security'
+import { validateConfig } from '../../utils/config'
 
 export interface OAuthOidcConfig {
   /**
@@ -78,35 +79,13 @@ export interface OAuthOidcConfig {
   checks?: OAuthChecks[]
 }
 
-function validateConfig(config: any) {
-  const requiredConfigKeys = ['clientId', 'clientSecret', 'authorizationUrl', 'tokenUrl', 'userinfoUrl', 'redirectUri', 'responseType']
-  const missingConfigKeys: string[] = []
-  requiredConfigKeys.forEach(key => {
-    if (!config[key]) {
-      missingConfigKeys.push(key)
-    }
-  })
-  if (missingConfigKeys.length) {
-    const error = createError({
-      statusCode: 500,
-      message: `Missing config keys: ${missingConfigKeys.join(', ')}`
-    })
-
-    return {
-      valid: false,
-      error
-    }
-  }
-  return { valid: true }
-}
-
 export function oidcEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthOidcConfig>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.oidc) as OAuthOidcConfig
     const { code } = getQuery(event)
 
-    const validationResult = validateConfig(config)
+    const validationResult = validateConfig(config, ['clientId', 'clientSecret', 'authorizationUrl', 'tokenUrl', 'userinfoUrl', 'redirectUri', 'responseType'])
 
     if (!validationResult.valid && validationResult.error) {
       if (!onError) throw validationResult.error
