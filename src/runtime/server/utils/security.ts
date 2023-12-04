@@ -1,5 +1,6 @@
-import type { H3Event } from 'h3'
+import { type H3Event, setCookie, getCookie, getQuery, createError } from 'h3'
 import { subtle, getRandomValues } from 'uncrypto'
+import { useRuntimeConfig } from '#imports'
 
 export type OAuthChecks = 'pkce' | 'state'
 
@@ -69,11 +70,11 @@ export const checks = {
       const pkceChallenge = await pkceCodeChallenge(pkceVerifier)
       res['code_challenge'] = pkceChallenge
       res['code_challenge_method'] = 'S256'
-      setCookie(event, 'nuxt-auth-util-verifier', pkceVerifier, { ...runtimeConfig.nuxtAuthUtils.security.cookie })
+      setCookie(event, 'nuxt-auth-util-verifier', pkceVerifier, runtimeConfig.nuxtAuthUtils.security.cookie)
     }
     if (checks?.includes('state')) {
       res['state'] = generateState()
-      setCookie(event, 'nuxt-auth-util-state', res['state'], { ...runtimeConfig.nuxtAuthUtils.security.cookie })
+      setCookie(event, 'nuxt-auth-util-state', res['state'], runtimeConfig.nuxtAuthUtils.security.cookie)
     }
     return res
   },
