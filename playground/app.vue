@@ -49,6 +49,12 @@ const providers = computed(() => [
     to: '/auth/microsoft',
     disabled: Boolean(user.value?.microsoft),
     icon: 'i-simple-icons-microsoft',
+  },
+  {
+    label: user.value?.linkedin?.email || 'LinkedIn',
+    to: '/auth/linkedin',
+    disabled: Boolean(user.value?.linkedin),
+    icon: 'i-simple-icons-linkedin',
   }
 
 ].map(p => ({

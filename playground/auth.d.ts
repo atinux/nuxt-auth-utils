@@ -9,6 +9,7 @@ declare module '#auth-utils' {
       microsoft?: any;
       discord?: any
       battledotnet?: any
+      linkedin?: any
     }
     loggedInAt: number
   }

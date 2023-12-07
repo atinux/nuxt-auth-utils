@@ -6,6 +6,7 @@ import { auth0EventHandler } from '../lib/oauth/auth0'
 import { microsoftEventHandler} from '../lib/oauth/microsoft'
 import { discordEventHandler } from '../lib/oauth/discord'
 import { battledotnetEventHandler } from '../lib/oauth/battledotnet'
+import { linkedinEventHandler } from '../lib/oauth/linkedin'
 
 export const oauth = {
   githubEventHandler,
@@ -15,5 +16,6 @@ export const oauth = {
   auth0EventHandler,
   microsoftEventHandler,
   discordEventHandler,
-  battledotnetEventHandler
+  battledotnetEventHandler,
+  linkedinEventHandler,
 }
