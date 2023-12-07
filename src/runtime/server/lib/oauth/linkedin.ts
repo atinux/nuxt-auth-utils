@@ -18,15 +18,15 @@ export interface OAuthLinkedInConfig {
   clientSecret?: string
   /**
    * LinkedIn OAuth Scope
-   * @default []
-   * @example ['openid', 'profile', 'email']
+   * @default ['openid', 'profile', 'email']
+   * @example ['openid', 'profile']
    */
   scope?: string[]
   /**
-   * Require email from user, adds the ['user:email'] scope if not present
+   * Require email from user, adds the ['email'] scope if not present
    * @default false
    */
-    emailRequired?: boolean
+  emailRequired?: boolean
 
   /**
    * LinkedIn OAuth Authorization URL
@@ -67,14 +67,11 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
     const redirectUrl = getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || []
+      if (!config.scope.length) {
+        config.scope.push('profile', 'openid', 'email')
+      }
       if (config.emailRequired && !config.scope.includes('email')) {
         config.scope.push('email')
-        if (!config.scope.includes('profile')) {
-          config.scope.push('profile')
-        }
-        if (!config.scope.includes('openid')) {
-          config.scope.push('openid')
-        }
       }
       // Redirect to LinkedIn Oauth page
       return sendRedirect(
