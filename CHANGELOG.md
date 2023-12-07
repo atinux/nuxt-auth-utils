@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v0.0.10
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.9...v0.0.10)
+
+### 🚀 Enhancements
+
+- Added linkedIn auth provider ([#13](https://github.com/Atinux/nuxt-auth-utils/pull/13))
+
+### 🩹 Fixes
+
+- Add audience to auth0 runtime config types ([#27](https://github.com/Atinux/nuxt-auth-utils/pull/27))
+
+### 📖 Documentation
+
+- Add LinkedIn in providers ([c9b9925](https://github.com/Atinux/nuxt-auth-utils/commit/c9b9925))
+
+### 🏡 Chore
+
+- Update deps ([bb3a510](https://github.com/Atinux/nuxt-auth-utils/commit/bb3a510))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- José Manuel Madriaza Caravia 
+- H+ <serdar@justserdar.dev>
+
 ## v0.0.9
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.8...v0.0.9)
