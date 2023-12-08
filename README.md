@@ -155,6 +155,7 @@ It can also be set using environment variables:
 - GitHub
 - Google
 - Keycloak
+- LinkedIn
 - Microsoft
 - Spotify
 - Twitch

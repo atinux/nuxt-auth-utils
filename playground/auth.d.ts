@@ -10,6 +10,7 @@ declare module '#auth-utils' {
       discord?: any
       battledotnet?: any
       keycloak?: any
+      linkedin?: any
     }
     loggedInAt: number
   }

@@ -55,6 +55,12 @@ const providers = computed(() => [
     to: '/auth/keycloak',
     disabled: Boolean(user.value?.keycloak),
     icon: 'i-simple-icons-redhat'
+  },
+  {
+    label: user.value?.linkedin?.email || 'LinkedIn',
+    to: '/auth/linkedin',
+    disabled: Boolean(user.value?.linkedin),
+    icon: 'i-simple-icons-linkedin',
   }
 ].map(p => ({
   ...p,

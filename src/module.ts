@@ -96,7 +96,8 @@ export default defineNuxtModule<ModuleOptions>({
     runtimeConfig.oauth.auth0 = defu(runtimeConfig.oauth.auth0, {
       clientId: '',
       clientSecret: '',
-      domain: ''
+      domain: '',
+      audience: ''
     })
     // Microsoft OAuth
     runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
@@ -124,6 +125,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       serverUrl: '',
       realm: ''
+    })
+    // LinkedIn OAuth
+    runtimeConfig.oauth.linkedin = defu(runtimeConfig.oauth.linkedin, {
+      clientId: '',
+      clientSecret: ''
     })
   }
 })
