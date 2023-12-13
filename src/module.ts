@@ -39,6 +39,7 @@ export default defineNuxtModule<ModuleOptions>({
           {
             from: resolver.resolve('./runtime/server/utils/session'),
             imports: [
+              'sessionHooks',
               'getUserSession',
               'setUserSession',
               'clearUserSession',

@@ -11,6 +11,7 @@ declare module '#auth-utils' {
       battledotnet?: any
       linkedin?: any
     }
+    extended?: any
     loggedInAt: number
   }
 }

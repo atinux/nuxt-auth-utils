@@ -188,6 +188,25 @@ export default oauth.githubEventHandler({
 
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
 
+### Extend Session
+
+We leverage hooks to let you extend the session data with your own data or to log when the user clear its session.
+
+```ts
+// server/plugins/session.ts
+export default defineNitroPlugin(() => {
+  sessionHooks.hook('verify', async (session, event) => {
+    // extend User Session by calling your database
+    // or
+    // throw createError({ ... }) if session is invalid for example
+  })
+
+  sessionHooks.hook('clear', async (session, event) => {
+    // Log that user logged out
+  })
+})
+```
+
 ## Development
 
 ```bash
