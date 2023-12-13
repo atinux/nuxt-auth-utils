@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.13
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.12...v0.0.13)
+
+### 🏡 Chore
+
+- Rename session from verify to fetch ([10694e9](https://github.com/Atinux/nuxt-auth-utils/commit/10694e9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
 ## v0.0.12
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.11...v0.0.12)
