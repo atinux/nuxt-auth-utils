@@ -1,5 +1,5 @@
 export default defineNitroPlugin(() => {
-  sessionHooks.hook('verify', async (session) => {
+  sessionHooks.hook('fetch', async (session) => {
     // Extend User Session
     // Or throw createError({ ... }) if session is invalid
     session.extended = {
@@ -7,8 +7,9 @@ export default defineNitroPlugin(() => {
     }
   })
 
-  sessionHooks.hook('clear', async () => {
+  sessionHooks.hook('clear', async (session) => {
     // Log that user logged out
+    console.log('User logged out')
   })
 })
 
