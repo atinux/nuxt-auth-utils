@@ -39,7 +39,7 @@ export async function setUserSession (event: H3Event, data: UserSession) {
 export async function clearUserSession (event: H3Event) {
   const session = await _useSession(event)
 
-  await sessionHooks.callHookParallel('clear', event, session)
+  await sessionHooks.callHookParallel('clear', session.data, event)
   await session.clear()
 
   return true
