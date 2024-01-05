@@ -120,10 +120,17 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: ''
     })
+    // Keycloak OAuth
+    runtimeConfig.oauth.keycloak = defu(runtimeConfig.oauth.keycloak, {
+      clientId: '',
+      clientSecret: '',
+      serverUrl: '',
+      realm: ''
+    })
     // LinkedIn OAuth
     runtimeConfig.oauth.linkedin = defu(runtimeConfig.oauth.linkedin, {
       clientId: '',
-      clientSecret: '',
+      clientSecret: ''
     })
   }
 })
