@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v0.0.14
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.13...v0.0.14)
+
+### 🚀 Enhancements
+
+- Added keycloak as oauth provider ([#23](https://github.com/Atinux/nuxt-auth-utils/pull/23))
+
+### 🏡 Chore
+
+- Test bundler module resolution ([#32](https://github.com/Atinux/nuxt-auth-utils/pull/32))
+- Update deps ([9d6b258](https://github.com/Atinux/nuxt-auth-utils/commit/9d6b258))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Yue JIN 
+- Daniel Roe <daniel@roe.dev>
+
 ## v0.0.13
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.12...v0.0.13)
