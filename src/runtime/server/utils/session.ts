@@ -48,7 +48,7 @@ export async function clearUserSession (event: H3Event) {
 export async function requireUserSession(event: H3Event) {
   const userSession = await getUserSession(event)
 
-  if (!userSession.user) {
+  if (Object.keys(userSession).length === 0) {
     throw createError({
       statusCode: 401,
       message: 'Unauthorized'

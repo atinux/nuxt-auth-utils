@@ -6,8 +6,7 @@ const useSessionState = () => useState<UserSession>('nuxt-session', () => ({}))
 export const useUserSession = () => {
   const sessionState = useSessionState()
   return {
-    loggedIn: computed(() => Boolean(sessionState.value.user)),
-    user: computed(() => sessionState.value.user || null),
+    loggedIn: computed(() => Object.keys(sessionState.value).length > 0),
     session: sessionState,
     fetch,
     clear

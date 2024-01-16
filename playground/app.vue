@@ -1,65 +1,65 @@
 <script setup lang="ts">
-const { loggedIn, user, session, clear } = useUserSession()
+const { loggedIn, session, clear } = useUserSession()
 
 const providers = computed(() => [
   {
-    label: session.value.user?.github?.login || 'GitHub',
+    label: session.value?.user.github?.login || 'GitHub',
     to: '/auth/github',
-    disabled: Boolean(user.value?.github),
+    disabled: Boolean(session.value?.user.github),
     icon: 'i-simple-icons-github',
   },
   {
-    label: session.value.user?.spotify?.display_name || 'Spotify',
+    label: session.value?.user.spotify?.display_name || 'Spotify',
     to: '/auth/spotify',
-    disabled: Boolean(user.value?.spotify),
+    disabled: Boolean(session.value?.user.spotify),
     icon: 'i-simple-icons-spotify',
   },
   {
-    label: session.value.user?.google?.email || 'Google',
+    label: session.value?.user.google?.email || 'Google',
     to: '/auth/google',
-    disabled: Boolean(user.value?.google),
+    disabled: Boolean(session.value?.user.google),
     icon: 'i-simple-icons-google',
   },
   {
-    label: session.value.user?.twitch?.login || 'Twitch',
+    label: session.value?.user.twitch?.login || 'Twitch',
     to: '/auth/twitch',
-    disabled: Boolean(user.value?.twitch),
+    disabled: Boolean(session.value?.user.twitch),
     icon: 'i-simple-icons-twitch',
   },
   {
-    label: user.value?.auth0?.email || 'Auth0',
+    label: session.value?.user.auth0?.email || 'Auth0',
     to: '/auth/auth0',
-    disabled: Boolean(user.value?.auth0),
+    disabled: Boolean(session.value?.user.auth0),
     icon: 'i-simple-icons-auth0',
   },
   {
-    label: user.value?.discord?.username || 'Discord',
+    label: session.value?.user.discord?.username || 'Discord',
     to: '/auth/discord',
-    disabled: Boolean(user.value?.discord),
+    disabled: Boolean(session.value?.user.discord),
     icon: 'i-simple-icons-discord',
   },
   {
-    label: user.value?.battledotnet?.battletag || 'Battle.net',
+    label: session.value?.user.battledotnet?.battletag || 'Battle.net',
     to: '/auth/battledotnet',
-    disabled: Boolean(user.value?.battledotnet),
+    disabled: Boolean(session.value?.user.battledotnet),
     icon: 'i-simple-icons-battledotnet',
   },
   {
-    label: user.value?.microsoft?.displayName || 'Microsoft',
+    label: session.value?.user.microsoft?.displayName || 'Microsoft',
     to: '/auth/microsoft',
-    disabled: Boolean(user.value?.microsoft),
+    disabled: Boolean(session.value?.user.microsoft),
     icon: 'i-simple-icons-microsoft',
   },
   {
-    label: user.value?.keycloak?.preferred_username || 'Keycloak',
+    label: session.value?.user.keycloak?.preferred_username || 'Keycloak',
     to: '/auth/keycloak',
-    disabled: Boolean(user.value?.keycloak),
+    disabled: Boolean(session.value?.user.keycloak),
     icon: 'i-simple-icons-redhat'
   },
   {
-    label: user.value?.linkedin?.email || 'LinkedIn',
+    label: session.value?.user.linkedin?.email || 'LinkedIn',
     to: '/auth/linkedin',
-    disabled: Boolean(user.value?.linkedin),
+    disabled: Boolean(session.value?.user.linkedin),
     icon: 'i-simple-icons-linkedin',
   }
 ].map(p => ({
