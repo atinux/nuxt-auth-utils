@@ -47,7 +47,7 @@ export interface OAuthAuth0Config {
   maxAge?: number
   /**
    * Login connection. If no connection is specified, it will redirect to the standard Auth0 login page and show the Login Widget.
-   * @default '''
+   * @default ''
    * @see https://auth0.com/docs/api/authentication#social
    * @example 'github'
    */
