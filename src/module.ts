@@ -22,7 +22,7 @@ export default defineNuxtModule<ModuleOptions>({
       console.log(`NUXT_SESSION_PASSWORD=${randomPassword}`)
     }
 
-    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/auth-utils-session')
+    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
 
     // App
     addImportsDir(resolver.resolve('./runtime/composables'))
@@ -39,6 +39,7 @@ export default defineNuxtModule<ModuleOptions>({
           {
             from: resolver.resolve('./runtime/server/utils/session'),
             imports: [
+              'sessionHooks',
               'getUserSession',
               'setUserSession',
               'clearUserSession',
@@ -65,27 +66,67 @@ export default defineNuxtModule<ModuleOptions>({
     const runtimeConfig = nuxt.options.runtimeConfig
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
-      password: ''
+      password: '',
+      cookie: {
+        sameSite: 'lax'
+      }
     })
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
-    // GitHub Oauth
+    // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
       clientSecret: ''
     })
-    // Spotify Oauth
+    // Spotify OAuth
     runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {
       clientId: '',
       clientSecret: ''
     })
-    // Google Oauth
+    // Google OAuth
     runtimeConfig.oauth.google = defu(runtimeConfig.oauth.google, {
       clientId: '',
       clientSecret: ''
     })
-    // Twitch Oauth
+    // Twitch OAuth
     runtimeConfig.oauth.twitch = defu(runtimeConfig.oauth.twitch, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Auth0 OAuth
+    runtimeConfig.oauth.auth0 = defu(runtimeConfig.oauth.auth0, {
+      domain: '',
+      audience: ''
+    })
+    // Microsoft OAuth
+    runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
+      clientId: '',
+      clientSecret: '',
+      tenant: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: ''
+    })
+    // Discord OAuth
+    runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Battle.net OAuth
+    runtimeConfig.oauth.battledotnet = defu(runtimeConfig.oauth.battledotnet, {
+      clientId: '',
+      clientSecret: ''
+    })
+    // Keycloak OAuth
+    runtimeConfig.oauth.keycloak = defu(runtimeConfig.oauth.keycloak, {
+      clientId: '',
+      clientSecret: '',
+      serverUrl: '',
+      realm: ''
+    })
+    // LinkedIn OAuth
+    runtimeConfig.oauth.linkedin = defu(runtimeConfig.oauth.linkedin, {
       clientId: '',
       clientSecret: ''
     })

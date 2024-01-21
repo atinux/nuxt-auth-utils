@@ -15,7 +15,7 @@ Minimalist Authentication module for Nuxt exposing Vue composables and server ut
 ## Features
 
 - Secured & sealed cookies sessions
-- OAuth Providers
+- [OAuth Providers](#supported-oauth-providers)
 
 ## Requirements
 
@@ -53,13 +53,13 @@ export default defineNuxtConfig({
 NUXT_SESSION_PASSWORD=password-with-at-least-32-characters
 ```
 
-Nuxt Auth Core can generate one for you when running Nuxt in development the first time when no `NUXT_SESSION_PASSWORD` is set.
+Nuxt Auth Utils can generate one for you when running Nuxt in development the first time when no `NUXT_SESSION_PASSWORD` is set.
 
 4. That's it! You can now add authentication to your Nuxt app ✨
 
 ## Vue Composables
 
-Nuxt Neo automatically add some plugins to fetch the current user session to let you access it from your Vue components.
+Nuxt Auth Utils automatically adds some plugins to fetch the current user session to let you access it from your Vue components.
 
 ### User Session
 
@@ -108,7 +108,7 @@ await clearUserSession(event)
 const session = await requireUserSession(event)
 ```
 
-You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project:
+You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project to augment the `UserSession` type:
 
 ```ts
 declare module '#auth-utils' {
@@ -116,6 +116,7 @@ declare module '#auth-utils' {
     // define the type here
   }
 }
+export {}
 ```
 
 ### OAuth Event Handlers
@@ -142,13 +143,21 @@ export default defineNuxtConfig({
 ```
 
 It can also be set using environment variables:
+
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_ID`
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_SECRET`
 
-Supported providers:
+#### Supported OAuth Providers
+
+- Auth0
+- Battle.net
+- Discord
 - GitHub
-- Spotify
 - Google
+- Keycloak
+- LinkedIn
+- Microsoft
+- Spotify
 - Twitch
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
@@ -180,6 +189,27 @@ export default oauth.githubEventHandler({
 
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
 
+### Extend Session
+
+We leverage hooks to let you extend the session data with your own data or to log when the user clear its session.
+
+```ts
+// server/plugins/session.ts
+export default defineNitroPlugin(() => {
+  // Called when the session is fetched during SSR for the Vue composable (/api/_auth/session)
+  // Or when we call useUserSession().fetch()
+  sessionHooks.hook('fetch', async (session, event) => {
+    // extend User Session by calling your database
+    // or
+    // throw createError({ ... }) if session is invalid for example
+  })
+
+  // Called when we call useServerSession().clear() or clearUserSession(event)
+  sessionHooks.hook('clear', async (session, event) => {
+    // Log that user logged out
+  })
+})
+```
 
 ## Development
 
