@@ -93,16 +93,6 @@ const providers = computed(() => [
       >
         Logout
       </UButton>
-      <UButton
-        v-if="!loggedIn || !session.user.twitch"
-        to="/auth/twitch"
-        icon="i-simple-icons-twitch"
-        external
-        color="gray"
-        size="xs"
-      >
-        Login with Twitch
-      </UButton>
     </template>
   </UHeader>
   <UMain>
