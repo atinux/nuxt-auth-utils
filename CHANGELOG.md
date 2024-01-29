@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v0.0.15
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.14...v0.0.15)
+
+### 🚀 Enhancements
+
+- Add auth0 connection parameter to config ([#39](https://github.com/Atinux/nuxt-auth-utils/pull/39))
+- Added aws cognito provider ([#36](https://github.com/Atinux/nuxt-auth-utils/pull/36))
+
+### 🩹 Fixes
+
+- Replace encoded space characters with regular spaces ([#40](https://github.com/Atinux/nuxt-auth-utils/pull/40))
+
+### 🏡 Chore
+
+- Up deps ([a7bd06b](https://github.com/Atinux/nuxt-auth-utils/commit/a7bd06b))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Dvir Hazout <dvir@dazz.io>
+- Silvio Eckl <silvio@whitespace.no>
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+
 ## v0.0.14
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.13...v0.0.14)
