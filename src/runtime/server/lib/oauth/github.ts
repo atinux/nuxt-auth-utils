@@ -73,7 +73,7 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join('%20')
+          scope: config.scope.join(' ')
         })
       )
     }

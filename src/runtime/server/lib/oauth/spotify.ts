@@ -74,7 +74,7 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join('%20')
+          scope: config.scope.join(' ')
         })
       )
     }

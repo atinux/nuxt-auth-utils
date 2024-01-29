@@ -77,7 +77,7 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<O
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join('%20')
+          scope: config.scope.join(' ')
         })
       )
     }
