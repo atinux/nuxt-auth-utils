@@ -8,8 +8,8 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
-    "nuxt": "^3.9.0",
+    "nuxt": "^3.9.3",
     "nuxt-auth-utils": "latest",
-    "vue": "^3.4.5"
+    "vue": "^3.4.15"
   }
 }
