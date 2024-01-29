@@ -150,6 +150,7 @@ It can also be set using environment variables:
 #### Supported OAuth Providers
 
 - Auth0
+- AWS Cognito
 - Battle.net
 - Discord
 - GitHub
