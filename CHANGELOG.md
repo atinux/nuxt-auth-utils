@@ -1,6 +1,85 @@
 # Changelog
 
 
+## v0.0.15
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.14...v0.0.15)
+
+### 🚀 Enhancements
+
+- Add auth0 connection parameter to config ([#39](https://github.com/Atinux/nuxt-auth-utils/pull/39))
+- Added aws cognito provider ([#36](https://github.com/Atinux/nuxt-auth-utils/pull/36))
+
+### 🩹 Fixes
+
+- Replace encoded space characters with regular spaces ([#40](https://github.com/Atinux/nuxt-auth-utils/pull/40))
+
+### 🏡 Chore
+
+- Up deps ([a7bd06b](https://github.com/Atinux/nuxt-auth-utils/commit/a7bd06b))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Dvir Hazout <dvir@dazz.io>
+- Silvio Eckl <silvio@whitespace.no>
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+
+## v0.0.14
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.13...v0.0.14)
+
+### 🚀 Enhancements
+
+- Added keycloak as oauth provider ([#23](https://github.com/Atinux/nuxt-auth-utils/pull/23))
+
+### 🏡 Chore
+
+- Test bundler module resolution ([#32](https://github.com/Atinux/nuxt-auth-utils/pull/32))
+- Update deps ([9d6b258](https://github.com/Atinux/nuxt-auth-utils/commit/9d6b258))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Yue JIN 
+- Daniel Roe <daniel@roe.dev>
+
+## v0.0.13
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.12...v0.0.13)
+
+### 🏡 Chore
+
+- Rename session from verify to fetch ([10694e9](https://github.com/Atinux/nuxt-auth-utils/commit/10694e9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
+## v0.0.12
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.11...v0.0.12)
+
+### 🩹 Fixes
+
+- Correct arguments for hooks ([6e0193e](https://github.com/Atinux/nuxt-auth-utils/commit/6e0193e))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
+## v0.0.11
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.10...v0.0.11)
+
+### 🚀 Enhancements
+
+- Add sessionHooks to extend user sessions ([c470319](https://github.com/Atinux/nuxt-auth-utils/commit/c470319))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
 ## v0.0.10
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.9...v0.0.10)

@@ -46,13 +46,20 @@ export interface OAuthAuth0Config {
    * @see https://auth0.com/docs/authenticate/login/max-age-reauthentication
    */
   maxAge?: number
-  /** 
+  /**
    * checks
    * @default []
    * @see https://auth0.com/docs/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce
    * @see https://auth0.com/docs/protocols/oauth2/oauth-state
    */
   checks?: OAuthChecks[]
+  /**
+   * Login connection. If no connection is specified, it will redirect to the standard Auth0 login page and show the Login Widget.
+   * @default ''
+   * @see https://auth0.com/docs/api/authentication#social
+   * @example 'github'
+   */
+  connection?: string
 }
 
 export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
@@ -89,7 +96,11 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
           scope: config.scope.join(' '),
           audience: config.audience || '',
           max_age: config.maxAge || 0,
+<<<<<<< HEAD
           ...authParam
+=======
+          connection: config.connection || ''
+>>>>>>> main
         })
       )
     }

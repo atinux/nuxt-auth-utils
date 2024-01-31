@@ -51,12 +51,23 @@ const providers = computed(() => [
     icon: 'i-simple-icons-microsoft',
   },
   {
+    label: user.value?.keycloak?.preferred_username || 'Keycloak',
+    to: '/auth/keycloak',
+    disabled: Boolean(user.value?.keycloak),
+    icon: 'i-simple-icons-redhat'
+  },
+  {
     label: user.value?.linkedin?.email || 'LinkedIn',
     to: '/auth/linkedin',
     disabled: Boolean(user.value?.linkedin),
     icon: 'i-simple-icons-linkedin',
+  },
+  {
+    label: user.value?.cognito?.email || 'Cognito',
+    to: '/auth/cognito',
+    disabled: Boolean(user.value?.cognito),
+    icon: 'i-simple-icons-amazonaws',
   }
-
 ].map(p => ({
   ...p,
   prefetch: false,

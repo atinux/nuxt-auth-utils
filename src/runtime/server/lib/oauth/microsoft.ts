@@ -82,7 +82,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
           client_id: config.clientId,
           response_type: 'code',
           redirect_uri: redirectUrl,
-          scope: scope.join('%20'),
+          scope: scope.join(' '),
         })
       )
     }
