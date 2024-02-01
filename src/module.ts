@@ -3,7 +3,17 @@ import { sha256 } from 'ohash'
 import { defu } from 'defu'
 
 // Module options TypeScript interface definition
-export interface ModuleOptions {}
+export interface ModuleOptions {
+  serverHandler: {
+    getSession: ServerHandlerOption,
+    deleteSession: ServerHandlerOption,
+  }
+}
+
+export interface ServerHandlerOption {
+  route: string,
+  method: 'get' | 'delete' | 'post' | 'put'
+}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -11,7 +21,18 @@ export default defineNuxtModule<ModuleOptions>({
     configKey: 'auth'
   },
   // Default configuration options of the Nuxt module
-  defaults: {},
+  defaults: {
+    serverHandler: {
+      getSession: {
+        route: '/api/_auth/session',
+        method: 'get'
+      },
+      deleteSession: {
+        route: '/api/_auth/session',
+        method: 'delete'
+      },
+    }
+  },
   setup (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
@@ -49,21 +70,10 @@ export default defineNuxtModule<ModuleOptions>({
         ]
       })
     }
-    // Waiting for https://github.com/nuxt/nuxt/pull/24000/files
-    // addServerImportsDir(resolver.resolve('./runtime/server/utils'))
-    addServerHandler({
-      handler: resolver.resolve('./runtime/server/api/session.delete'),
-      route: '/api/_auth/session',
-      method: 'delete'
-    })
-    addServerHandler({
-      handler: resolver.resolve('./runtime/server/api/session.get'),
-      route: '/api/_auth/session',
-      method: 'get'
-    })
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
+    runtimeConfig.auth = defu(runtimeConfig.auth, options)
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
       password: '',
@@ -138,6 +148,20 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       region: '',
       userPoolId: ''
+    })
+
+    // Waiting for https://github.com/nuxt/nuxt/pull/24000/files
+    // addServerImportsDir(resolver.resolve('./runtime/server/utils'))
+
+    addServerHandler({
+      handler: resolver.resolve('./runtime/server/api/session.delete'),
+      route: runtimeConfig.auth.serverHandler.deleteSession.route,
+      method: runtimeConfig.auth.serverHandler.deleteSession.method
+    })
+    addServerHandler({
+      handler: resolver.resolve('./runtime/server/api/session.get'),
+      route: runtimeConfig.auth.serverHandler.getSession.route,
+      method: runtimeConfig.auth.serverHandler.getSession.method
     })
   }
 })

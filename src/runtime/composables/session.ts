@@ -15,14 +15,17 @@ export const useUserSession = () => {
 }
 
 async function fetch() {
-  useSessionState().value = await useRequestFetch()('/api/_auth/session', {
+  const {auth: config } = useRuntimeConfig()
+  useSessionState().value = await useRequestFetch()(config.serverHandler.getSession.route, {
     headers: {
       Accept: 'text/json'
-    }
+    },
+    methods: config.serverHandler.getSession.method,
   }).catch(() => ({}))
 }
 
 async function clear() {
-  await $fetch('/api/_auth/session', { method: 'DELETE' })
+  const {auth: config } = useRuntimeConfig()
+  await $fetch(config.serverHandler.deleteSession.route, { method: config.serverHandler.deleteSession.method })
   useSessionState().value = {}
 }
