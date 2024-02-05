@@ -4,9 +4,9 @@ import { defu } from 'defu'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
-  serverHandler: {
-    getSession: ServerHandlerOption,
-    deleteSession: ServerHandlerOption,
+  serverHandler?: {
+    getSession?: ServerHandlerOption,
+    deleteSession?: ServerHandlerOption,
   }
 }
 
@@ -21,18 +21,7 @@ export default defineNuxtModule<ModuleOptions>({
     configKey: 'auth'
   },
   // Default configuration options of the Nuxt module
-  defaults: {
-    serverHandler: {
-      getSession: {
-        route: '/api/_auth/session',
-        method: 'get'
-      },
-      deleteSession: {
-        route: '/api/_auth/session',
-        method: 'delete'
-      },
-    }
-  },
+  defaults: {},
   setup (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
@@ -153,15 +142,20 @@ export default defineNuxtModule<ModuleOptions>({
     // Waiting for https://github.com/nuxt/nuxt/pull/24000/files
     // addServerImportsDir(resolver.resolve('./runtime/server/utils'))
 
-    addServerHandler({
-      handler: resolver.resolve('./runtime/server/api/session.delete'),
-      route: runtimeConfig.auth.serverHandler.deleteSession.route,
-      method: runtimeConfig.auth.serverHandler.deleteSession.method
-    })
-    addServerHandler({
-      handler: resolver.resolve('./runtime/server/api/session.get'),
-      route: runtimeConfig.auth.serverHandler.getSession.route,
-      method: runtimeConfig.auth.serverHandler.getSession.method
-    })
+    if (!runtimeConfig?.auth?.serverHandler?.getSession) {
+      addServerHandler({
+        handler: resolver.resolve('./runtime/server/api/session.delete'),
+        route: '/api/_auth/session',
+        method: 'get'
+      })
+    }
+
+    if (!runtimeConfig?.auth?.serverHandler?.deleteSession) {
+      addServerHandler({
+        handler: resolver.resolve('./runtime/server/api/session.get'),
+        route: '/api/_auth/session',
+        method: 'delete'
+      })
+    }
   }
 })
