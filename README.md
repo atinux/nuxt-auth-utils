@@ -57,6 +57,28 @@ Nuxt Auth Utils can generate one for you when running Nuxt in development the fi
 
 4. That's it! You can now add authentication to your Nuxt app ✨
 
+## Module Options
+
+### serverHandler (optional)
+Define custom server handler endpoints. Makes it possible to use your own custom server handler endpoints for fetching and deleting a session.
+
+```js
+export default defineNuxtConfig({
+  auth: {
+    serverHandler: {
+      getSession: {
+        route: '/api/custom/auth/session',
+        method: 'get'
+      },
+      deleteSession: {
+        route: '/api/custom/auth/session',
+        method: 'delete'
+      },
+    }
+  }
+})
+```
+
 ## Vue Composables
 
 Nuxt Auth Utils automatically adds some plugins to fetch the current user session to let you access it from your Vue components.

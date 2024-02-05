@@ -1,6 +1,7 @@
 import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler } from '@nuxt/kit'
 import { sha256 } from 'ohash'
 import { defu } from 'defu'
+import { type RouterMethod } from 'h3'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -12,7 +13,7 @@ export interface ModuleOptions {
 
 export interface ServerHandlerOption {
   route: string,
-  method: 'get' | 'delete' | 'post' | 'put'
+  method: "get" | "head" | "patch" | "post" | "put" | "delete" | "connect" | "options" | "trace";
 }
 
 export default defineNuxtModule<ModuleOptions>({
