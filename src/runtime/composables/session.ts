@@ -15,7 +15,7 @@ export const useUserSession = () => {
 }
 
 async function fetch() {
-  const { auth: config } = useRuntimeConfig()
+  const { public: { auth: config } } = useRuntimeConfig()
   useSessionState().value = await useRequestFetch()(config?.serverHandler?.getSession?.route || '/api/_auth/session', {
     headers: {
       Accept: 'text/json'

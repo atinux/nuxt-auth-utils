@@ -1,7 +1,6 @@
 import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler } from '@nuxt/kit'
 import { sha256 } from 'ohash'
 import { defu } from 'defu'
-import { type RouterMethod } from 'h3'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -63,7 +62,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
-    runtimeConfig.auth = defu(runtimeConfig.auth, options)
+    runtimeConfig.public.auth = defu(runtimeConfig.public.auth, options)
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
       password: '',
@@ -143,7 +142,7 @@ export default defineNuxtModule<ModuleOptions>({
     // Waiting for https://github.com/nuxt/nuxt/pull/24000/files
     // addServerImportsDir(resolver.resolve('./runtime/server/utils'))
 
-    if (!runtimeConfig?.auth?.serverHandler?.getSession) {
+    if (!runtimeConfig?.public?.auth?.serverHandler?.getSession) {
       addServerHandler({
         handler: resolver.resolve('./runtime/server/api/session.delete'),
         route: '/api/_auth/session',
@@ -151,7 +150,7 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (!runtimeConfig?.auth?.serverHandler?.deleteSession) {
+    if (!runtimeConfig?.public?.auth?.serverHandler?.deleteSession) {
       addServerHandler({
         handler: resolver.resolve('./runtime/server/api/session.get'),
         route: '/api/_auth/session',

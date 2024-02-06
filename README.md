@@ -64,16 +64,20 @@ Define custom server handler endpoints. Makes it possible to use your own custom
 
 ```js
 export default defineNuxtConfig({
-  auth: {
-    serverHandler: {
-      getSession: {
-        route: '/api/custom/auth/session',
-        method: 'get'
-      },
-      deleteSession: {
-        route: '/api/custom/auth/session',
-        method: 'delete'
-      },
+  runtimeConfig: {
+    public: {
+      auth: {
+        serverHandler: {
+          getSession: {
+            route: '/api/custom/auth/session',
+            method: 'get'
+          },
+          deleteSession: {
+            route: '/api/custom/auth/session',
+            method: 'delete'
+          },
+        }
+      }
     }
   }
 })
