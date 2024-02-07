@@ -13,7 +13,7 @@ export interface UserSession {
 // explicitly type
 export interface UserSessionApi {
   loggedIn: ComputedRef<boolean>
-  user: ComputedRef<ResolvedUserSession>
+  user: ComputedRef<UserSessionUserData | null>
   session: Ref<UserSession>,
   fetch: () => Promise<void>,
   clear: () => Promise<void>

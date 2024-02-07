@@ -1,5 +1,5 @@
 import { useState, computed, useRequestFetch } from '#imports'
-import type { UserSession, UserSessionApi, ResolvedUserSession } from '#auth-utils'
+import type { UserSession, UserSessionApi } from '#auth-utils'
 
 const useSessionState = () => useState<UserSession>('nuxt-session', () => ({}))
 
@@ -7,7 +7,7 @@ export function useUserSession(): UserSessionApi {
   const sessionState = useSessionState()
   return {
     loggedIn: computed(() => Boolean(sessionState.value.user)),
-    user: computed(() => (sessionState.value.user || null) as ResolvedUserSession),
+    user: computed(() => (sessionState.value.user || null)),
     session: sessionState,
     fetch,
     clear
