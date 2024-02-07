@@ -2,10 +2,6 @@ import type { ComputedRef, Ref } from 'vue'
 
 export interface UserSessionUserData {}
 
-export interface ResolvedUserSession {
-  user: UserSessionUserData | null
-}
-
 export interface UserSession {
   user?: UserSessionUserData
 }
