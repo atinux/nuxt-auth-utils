@@ -44,12 +44,6 @@ export interface OAuthGoogleConfig {
    * @default 'https://oauth2.googleapis.com/token'
    */
   tokenURL?: string;
-
-  /**
-   * Redirect URL post authenticating via google
-   * @default '/auth/google'
-   */
-  redirectUrl: '/auth/google';
 }
 
 export function googleEventHandler({
