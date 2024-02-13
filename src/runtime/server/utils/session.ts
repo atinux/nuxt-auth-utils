@@ -44,6 +44,7 @@ export async function setUserSession (event: H3Event, data: UserSession) {
 export async function replaceUserSession (event: H3Event, data: UserSession) {
   const session = await _useSession(event)
 
+  await session.clear()
   await session.update(data)
 
   return session.data
