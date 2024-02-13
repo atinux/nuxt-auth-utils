@@ -90,6 +90,7 @@ The following helpers are auto-imported in your `server/` directory.
 ```ts
 // Set a user session, note that this data is encrypted in the cookie but can be decrypted with an API call
 // Only store the data that allow you to recognize an user, but do not store sensitive data
+// Merges new data with existing data using defu()
 await setUserSession(event, {
   user: {
     // ... user data
@@ -97,6 +98,9 @@ await setUserSession(event, {
   loggedInAt: new Date()
   // Any extra fields
 })
+
+// Replace a user session. Same behaviour as setUserSession, except it does not merge data with existing data
+await replaceUserSession(event, data)
 
 // Get the current user session
 const session = await getUserSession(event)
