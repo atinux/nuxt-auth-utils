@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Minimalist Auth module for Nuxt with SSR",
   "repository": "Atinux/nuxt-auth-utils",
   "license": "MIT",
