@@ -90,6 +90,7 @@ The following helpers are auto-imported in your `server/` directory.
 ```ts
 // Set a user session, note that this data is encrypted in the cookie but can be decrypted with an API call
 // Only store the data that allow you to recognize an user, but do not store sensitive data
+// Merges new data with existing data using defu()
 await setUserSession(event, {
   user: {
     // ... user data
@@ -97,6 +98,9 @@ await setUserSession(event, {
   loggedInAt: new Date()
   // Any extra fields
 })
+
+// Replace a user session. Same behaviour as setUserSession, except it does not merge data with existing data
+await replaceUserSession(event, data)
 
 // Get the current user session
 const session = await getUserSession(event)
@@ -244,14 +248,14 @@ npm run release
 ```
 
 <!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-utils/latest.svg?style=flat&colorA=18181B&colorB=28CF8D
+[npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-utils/latest.svg?style=flat&colorA=020420&colorB=00DC82
 [npm-version-href]: https://npmjs.com/package/nuxt-auth-utils
 
-[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-auth-utils.svg?style=flat&colorA=18181B&colorB=28CF8D
+[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-auth-utils.svg?style=flat&colorA=020420&colorB=00DC82
 [npm-downloads-href]: https://npmjs.com/package/nuxt-auth-utils
 
-[license-src]: https://img.shields.io/npm/l/nuxt-auth-utils.svg?style=flat&colorA=18181B&colorB=28CF8D
+[license-src]: https://img.shields.io/npm/l/nuxt-auth-utils.svg?style=flat&colorA=020420&colorB=00DC82
 [license-href]: https://npmjs.com/package/nuxt-auth-utils
 
-[nuxt-src]: https://img.shields.io/badge/Nuxt-18181B?logo=nuxt.js
+[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
 [nuxt-href]: https://nuxt.com

@@ -1,6 +1,48 @@
 # Changelog
 
 
+## v0.0.17
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.16...v0.0.17)
+
+### 🩹 Fixes
+
+- UserSession user type augmentation ([#54](https://github.com/Atinux/nuxt-auth-utils/pull/54))
+
+### 🏡 Chore
+
+- Update deps ([fdaa88c](https://github.com/Atinux/nuxt-auth-utils/commit/fdaa88c))
+- Add api test route ([9aed7fe](https://github.com/Atinux/nuxt-auth-utils/commit/9aed7fe))
+- Update deps in playground ([95c657f](https://github.com/Atinux/nuxt-auth-utils/commit/95c657f))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Gerben Mulder ([@Gerbuuun](http://github.com/Gerbuuun))
+
+## v0.0.16
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.15...v0.0.16)
+
+### 🚀 Enhancements
+
+- Add replaceUserSession() ([#44](https://github.com/Atinux/nuxt-auth-utils/pull/44))
+
+### 🩹 Fixes
+
+- **google:** Remove `redirectUrl` type ([#52](https://github.com/Atinux/nuxt-auth-utils/pull/52))
+
+### 🏡 Chore
+
+- Better server types ([#51](https://github.com/Atinux/nuxt-auth-utils/pull/51))
+- Update deps ([b930118](https://github.com/Atinux/nuxt-auth-utils/commit/b930118))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Maximilian Götz-Mikus ([@maximilianmikus](http://github.com/maximilianmikus))
+- Harlan Wilton ([@harlan-zw](http://github.com/harlan-zw))
+
 ## v0.0.15
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.14...v0.0.15)

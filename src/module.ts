@@ -42,6 +42,7 @@ export default defineNuxtModule<ModuleOptions>({
               'sessionHooks',
               'getUserSession',
               'setUserSession',
+              'replaceUserSession',
               'clearUserSession',
               'requireUserSession',
             ]
