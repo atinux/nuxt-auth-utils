@@ -1,3 +1,6 @@
+export interface User {
+}
+
 export interface UserSession {
-  user?: {}
+  user?: User
 }

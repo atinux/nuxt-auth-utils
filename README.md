@@ -116,10 +116,15 @@ You can define the type for your user session by creating a type declaration fil
 
 ```ts
 declare module '#auth-utils' {
+  interface User {
+    // Add your own fields
+  }
+
   interface UserSession {
-    // define the type here
+    // Add your own fields
   }
 }
+
 export {}
 ```
 
