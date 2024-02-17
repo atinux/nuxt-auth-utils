@@ -7,7 +7,7 @@ export interface UserSession {
   user?: User
 }
 
-export interface UserSessionApi {
+export interface UserSessionComposable {
   loggedIn: ComputedRef<boolean>
   user: ComputedRef<User | null>
   session: Ref<UserSession>,

@@ -1,9 +1,9 @@
 import { useState, computed, useRequestFetch } from '#imports'
-import type { UserSession, UserSessionApi } from '#auth-utils'
+import type { UserSession, UserSessionComposable } from '#auth-utils'
 
 const useSessionState = () => useState<UserSession>('nuxt-session', () => ({}))
 
-export function useUserSession(): UserSessionApi  {
+export function useUserSession(): UserSessionComposable  {
   const sessionState = useSessionState()
   return {
     loggedIn: computed(() => Boolean(sessionState.value.user)),
