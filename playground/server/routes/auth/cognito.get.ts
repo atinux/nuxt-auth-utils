@@ -2,7 +2,7 @@ export default oauth.cognitoEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        cognito: user,
+        cognito: user.email
       },
       loggedInAt: Date.now()
     })

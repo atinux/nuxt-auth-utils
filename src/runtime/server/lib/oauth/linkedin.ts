@@ -38,6 +38,11 @@ export interface OAuthLinkedInConfig {
    * @default 'https://www.linkedin.com/oauth/v2/accessToken'
    */
   tokenURL?: string
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?context=linkedin/context
+   */
+  authorizationParams?: Record<string, string>
 }
 
 interface OAuthConfig {
@@ -52,6 +57,7 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
     config = defu(config, useRuntimeConfig(event).oauth?.linkedin, {
       authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
       tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
+      authorizationParams: {}
     }) as OAuthLinkedInConfig
     const { code } = getQuery(event)
 
@@ -80,7 +86,8 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join(' ')
+          scope: config.scope.join(' '),
+          ...config.authorizationParams
         })
       )
     }

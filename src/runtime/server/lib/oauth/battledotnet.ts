@@ -42,6 +42,11 @@ export interface OAuthBattledotnetConfig {
    * @default 'https://oauth.battle.net/token'
    */
   tokenURL?: string
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see https://develop.battle.net/documentation/guides/using-oauth/authorization-code-flow
+   */
+  authorizationParams?: Record<string, string>
 }
 
 export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
@@ -50,7 +55,8 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.battledotnet, {
       authorizationURL: 'https://oauth.battle.net/authorize',
-      tokenURL: 'https://oauth.battle.net/token'
+      tokenURL: 'https://oauth.battle.net/token',
+      authorizationParams: {}
     }) as OAuthBattledotnetConfig
 
     const query = getQuery(event)
@@ -94,6 +100,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
           scope: config.scope.join(' '),
           state: randomUUID(), // Todo: handle PKCE flow
           response_type: 'code',
+          ...config.authorizationParams
         })
       )
     }

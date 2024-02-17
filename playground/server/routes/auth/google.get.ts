@@ -1,8 +1,13 @@
 export default oauth.googleEventHandler({
+  config: {
+    authorizationParams: {
+      access_type: 'offline'
+    }
+  },
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        google: user,
+        google: user.email
       },
       loggedInAt: Date.now()
     })

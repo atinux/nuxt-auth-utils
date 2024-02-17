@@ -44,6 +44,13 @@ export interface OAuthTwitchConfig {
    * @default 'https://id.twitch.tv/oauth2/token'
    */
   tokenURL?: string
+
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow
+   * @example { force_verify: 'true' }
+   */
+  authorizationParams?: Record<string, string>
 }
 
 export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig>) {
@@ -51,7 +58,8 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<O
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.twitch, {
       authorizationURL: 'https://id.twitch.tv/oauth2/authorize',
-      tokenURL: 'https://id.twitch.tv/oauth2/token'
+      tokenURL: 'https://id.twitch.tv/oauth2/token',
+      authorizationParams: {}
     }) as OAuthTwitchConfig
     const { code } = getQuery(event)
 
@@ -77,7 +85,8 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<O
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join(' ')
+          scope: config.scope.join(' '),
+          ...config.authorizationParams
         })
       )
     }

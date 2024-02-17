@@ -32,12 +32,19 @@ export interface OAuthCognitoConfig {
    * @default []
    */
   scope?: string[]
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html
+   */
+  authorizationParams?: Record<string, string>
 }
 
 export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
-    config = defu(config, useRuntimeConfig(event).oauth?.cognito) as OAuthCognitoConfig
+    config = defu(config, useRuntimeConfig(event).oauth?.cognito, {
+      authorizationParams: {}
+    }) as OAuthCognitoConfig
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.userPoolId || !config.region) {
@@ -63,6 +70,7 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
           redirect_uri: redirectUrl,
           response_type: 'code',
           scope: config.scope.join(' '),
+          ...config.authorizationParams
         })
       )
     }

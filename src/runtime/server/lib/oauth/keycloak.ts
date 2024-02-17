@@ -41,6 +41,10 @@ export interface OAuthKeycloakConfig {
    * @example ['openid']
    */
   scope?: string[]
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   */
+  authorizationParams?: Record<string, string>
 }
 
 export function keycloakEventHandler({
@@ -49,11 +53,10 @@ export function keycloakEventHandler({
   onError,
 }: OAuthConfig<OAuthKeycloakConfig>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(
-      config,
-      // @ts-ignore
-      useRuntimeConfig(event).oauth?.keycloak
-    ) as OAuthKeycloakConfig
+    // @ts-ignore
+    config = defu(config, useRuntimeConfig(event).oauth?.keycloak, {
+      authorizationParams: {},
+    }) as OAuthKeycloakConfig
 
     const query = getQuery(event)
     const { code } = query
@@ -100,6 +103,7 @@ export function keycloakEventHandler({
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
           response_type: 'code',
+          ...config.authorizationParams,
         })
       )
     }
