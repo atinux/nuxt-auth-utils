@@ -52,12 +52,20 @@ export interface OAuthAuth0Config {
    * @example 'github'
    */
   connection?: string
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see https://auth0.com/docs/api/authentication#social
+   * @example { display: 'popup' }
+   */
+  authorizationParams?: Record<string, string>
 }
 
 export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
   return eventHandler(async (event: H3Event) => {
     // @ts-ignore
-    config = defu(config, useRuntimeConfig(event).oauth?.auth0) as OAuthAuth0Config
+    config = defu(config, useRuntimeConfig(event).oauth?.auth0, {
+      authorizationParams: {}
+    }) as OAuthAuth0Config
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
@@ -87,7 +95,8 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
           scope: config.scope.join(' '),
           audience: config.audience || '',
           max_age: config.maxAge || 0,
-          connection: config.connection || ''
+          connection: config.connection || '',
+          ...config.authorizationParams
         })
       )
     }

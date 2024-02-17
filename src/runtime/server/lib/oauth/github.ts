@@ -41,6 +41,13 @@ export interface OAuthGitHubConfig {
    * @default 'https://github.com/login/oauth/access_token'
    */
   tokenURL?: string
+
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#1-request-a-users-github-identity
+   * @example { allow_signup: 'true' }
+   */
+  authorizationParams?: Record<string, string>
 }
 
 export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
@@ -48,7 +55,8 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.github, {
       authorizationURL: 'https://github.com/login/oauth/authorize',
-      tokenURL: 'https://github.com/login/oauth/access_token'
+      tokenURL: 'https://github.com/login/oauth/access_token',
+      authorizationParams: {}
     }) as OAuthGitHubConfig
     const { code } = getQuery(event)
 
@@ -73,7 +81,8 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join(' ')
+          scope: config.scope.join(' '),
+          ...config.authorizationParams
         })
       )
     }

@@ -45,6 +45,13 @@ export interface OAuthDiscordConfig {
    * @default 'https://discord.com/api/oauth2/token'
    */
   tokenURL?: string
+
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see 'https://discord.com/developers/docs/topics/oauth2#authorization-code-grant'
+   * @example { allow_signup: 'true' }
+   */
+  authorizationParams?: Record<string, string>
 }
 
 export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDiscordConfig>) {
@@ -53,7 +60,8 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<
     config = defu(config, useRuntimeConfig(event).oauth?.discord, {
       authorizationURL: 'https://discord.com/oauth2/authorize',
       tokenURL: 'https://discord.com/api/oauth2/token',
-      profileRequired: true
+      profileRequired: true,
+      authorizationParams: {}
     }) as OAuthDiscordConfig
     const { code } = getQuery(event)
 
@@ -83,7 +91,8 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join(' ')
+          scope: config.scope.join(' '),
+          ...config.authorizationParams
         })
       )
     }

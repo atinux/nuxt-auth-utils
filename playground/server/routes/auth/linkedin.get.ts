@@ -5,7 +5,7 @@ export default oauth.linkedinEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        linkedin: user,
+        linkedin: user.email
       },
       loggedInAt: Date.now()
     })

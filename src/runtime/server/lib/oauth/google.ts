@@ -44,6 +44,13 @@ export interface OAuthGoogleConfig {
    * @default 'https://oauth2.googleapis.com/token'
    */
   tokenURL?: string;
+
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see https://developers.google.com/identity/protocols/oauth2/web-server#httprest_3
+   * @example { access_type: 'offline' }
+   */
+  authorizationParams?: Record<string, string>;
 }
 
 export function googleEventHandler({
@@ -56,6 +63,7 @@ export function googleEventHandler({
     config = defu(config, useRuntimeConfig(event).oauth?.google, {
       authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
       tokenURL: 'https://oauth2.googleapis.com/token',
+      authorizationParams: {}
     }) as OAuthGoogleConfig
     const { code } = getQuery(event)
 
@@ -79,6 +87,7 @@ export function googleEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
+          ...config.authorizationParams
         })
       )
     }

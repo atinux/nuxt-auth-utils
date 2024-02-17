@@ -1,15 +1,16 @@
 declare module '#auth-utils' {
   interface User {
-    spotify?: any
-    github?: any
-    google?: any
-    twitch?: any
-    auth0?: any
-    microsoft?: any;
-    discord?: any
-    battledotnet?: any
-    keycloak?: any
-    linkedin?: any
+    spotify?: string
+    github?: string
+    google?: string
+    twitch?: string
+    auth0?: string
+    microsoft?: string
+    discord?: string
+    battledotnet?: string
+    keycloak?: string
+    linkedin?: string
+    cognito?: string
   }
 
   interface UserSession {

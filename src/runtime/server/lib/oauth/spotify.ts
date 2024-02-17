@@ -41,6 +41,13 @@ export interface OAuthSpotifyConfig {
    * @default 'https://accounts.spotify.com/api/token'
    */
   tokenURL?: string
+
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @see 'https://developer.spotify.com/documentation/web-api/tutorials/code-flow'
+   * @example { show_dialog: 'true' }
+   */
+  authorizationParams?: Record<string, string>
 }
 
 export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
@@ -48,7 +55,8 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
     // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.spotify, {
       authorizationURL: 'https://accounts.spotify.com/authorize',
-      tokenURL: 'https://accounts.spotify.com/api/token'
+      tokenURL: 'https://accounts.spotify.com/api/token',
+      authorizationParams: {}
     }) as OAuthSpotifyConfig
     const { code } = getQuery(event)
 
@@ -74,7 +82,8 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectUrl,
-          scope: config.scope.join(' ')
+          scope: config.scope.join(' '),
+          ...config.authorizationParams
         })
       )
     }
