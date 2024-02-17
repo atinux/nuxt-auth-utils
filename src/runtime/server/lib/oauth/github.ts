@@ -58,7 +58,17 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
       tokenURL: 'https://github.com/login/oauth/access_token',
       authorizationParams: {}
     }) as OAuthGitHubConfig
-    const { code } = getQuery(event)
+    const query = getQuery(event)
+
+    if (query.error) {
+      const error = createError({
+        statusCode: 401,
+        message: `GitHub login failed: ${query.error || 'Unknown error'}`,
+        data: query,
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
 
     if (!config.clientId || !config.clientSecret) {
       const error = createError({
@@ -69,7 +79,7 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
       return onError(event, error)
     }
 
-    if (!code) {
+    if (!query.code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('user:email')) {
         config.scope.push('user:email')
@@ -94,7 +104,7 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
         body: {
           client_id: config.clientId,
           client_secret: config.clientSecret,
-          code
+          code: query.code
         }
       }
     )
