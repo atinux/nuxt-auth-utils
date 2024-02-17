@@ -1,6 +1,35 @@
 # Changelog
 
 
+## v0.0.18
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.16...v0.0.18)
+
+### 🚀 Enhancements
+
+- Add authorizationParams in oauth config ([#56](https://github.com/Atinux/nuxt-auth-utils/pull/56))
+
+### 🩹 Fixes
+
+- UserSession user type augmentation ([#54](https://github.com/Atinux/nuxt-auth-utils/pull/54))
+- User session types ([#55](https://github.com/Atinux/nuxt-auth-utils/pull/55))
+
+### 📖 Documentation
+
+- Update badge colors ([ff868a6](https://github.com/Atinux/nuxt-auth-utils/commit/ff868a6))
+
+### 🏡 Chore
+
+- Update deps ([fdaa88c](https://github.com/Atinux/nuxt-auth-utils/commit/fdaa88c))
+- Add api test route ([9aed7fe](https://github.com/Atinux/nuxt-auth-utils/commit/9aed7fe))
+- Update deps in playground ([95c657f](https://github.com/Atinux/nuxt-auth-utils/commit/95c657f))
+- **release:** V0.0.17 ([a814b58](https://github.com/Atinux/nuxt-auth-utils/commit/a814b58))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Gerben Mulder ([@Gerbuuun](http://github.com/Gerbuuun))
+
 ## v0.0.17
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.16...v0.0.17)
