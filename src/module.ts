@@ -1,6 +1,8 @@
 import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler } from '@nuxt/kit'
-import { sha256 } from 'ohash'
+import { join } from 'pathe'
 import { defu } from 'defu'
+import { randomUUID } from 'uncrypto'
+import { writeFile, readFile } from 'node:fs/promises'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {}
@@ -12,14 +14,20 @@ export default defineNuxtModule<ModuleOptions>({
   },
   // Default configuration options of the Nuxt module
   defaults: {},
-  setup (options, nuxt) {
+  async setup (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    if (!process.env.NUXT_SESSION_PASSWORD && !nuxt.options._prepare) {
-      const randomPassword = sha256(`${Date.now()}${Math.random()}`).slice(0, 32)
-      process.env.NUXT_SESSION_PASSWORD = randomPassword
-      console.warn('No session password set, using a random password, please set NUXT_SESSION_PASSWORD in your .env file with at least 32 chars')
-      console.log(`NUXT_SESSION_PASSWORD=${randomPassword}`)
+    // Generate the session password
+    if (nuxt.options.dev && !process.env.NUXT_SESSION_PASSWORD) {
+      process.env.NUXT_SESSION_PASSWORD = randomUUID().replace(/-/g, '')
+      // Add it to .env
+      const envPath = join(nuxt.options.rootDir, '.env')
+      const envContent = await readFile(envPath, 'utf-8').catch(() => '')
+      if (!envContent.includes('NUXT_SESSION_PASSWORD')) {
+        await writeFile(envPath, `${envContent ? envContent + '\n' : envContent}NUXT_SESSION_PASSWORD=${process.env.NUXT_SESSION_PASSWORD}`, 'utf-8')
+      }
+    } else if (!nuxt.options._prepare && !process.env.NUXT_SESSION_PASSWORD) {
+      throw new Error('NUXT_SESSION_PASSWORD environment variable is not set')
     }
 
     nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
