@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.0.19
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.18...v0.0.19)
+
+### 🚀 Enhancements
+
+- Generate NUXT_SESSION_PASSWORD and throw if not set in production ([de890ed](https://github.com/Atinux/nuxt-auth-utils/commit/de890ed))
+
+### 🩹 Fixes
+
+- Leverage runtimeConfig to check password ([7c23543](https://github.com/Atinux/nuxt-auth-utils/commit/7c23543))
+
+### 🏡 Chore
+
+- Fix types ([34dfb7b](https://github.com/Atinux/nuxt-auth-utils/commit/34dfb7b))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
 ## v0.0.18
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.16...v0.0.18)
