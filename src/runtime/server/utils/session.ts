@@ -72,7 +72,7 @@ export async function requireUserSession(event: H3Event): Promise<UserSession & 
   return userSession as UserSession & { user: User }
 }
 
-const sessionConfig: SessionConfig = useRuntimeConfig().session
+const sessionConfig = useRuntimeConfig().session as SessionConfig
 
 function _useSession (event: H3Event) {
   return useSession<UserSession>(event, sessionConfig)
