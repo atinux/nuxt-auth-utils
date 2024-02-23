@@ -17,19 +17,6 @@ export default defineNuxtModule<ModuleOptions>({
   async setup (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    // Generate the session password
-    if (nuxt.options.dev && !process.env.NUXT_SESSION_PASSWORD) {
-      process.env.NUXT_SESSION_PASSWORD = randomUUID().replace(/-/g, '')
-      // Add it to .env
-      const envPath = join(nuxt.options.rootDir, '.env')
-      const envContent = await readFile(envPath, 'utf-8').catch(() => '')
-      if (!envContent.includes('NUXT_SESSION_PASSWORD')) {
-        await writeFile(envPath, `${envContent ? envContent + '\n' : envContent}NUXT_SESSION_PASSWORD=${process.env.NUXT_SESSION_PASSWORD}`, 'utf-8')
-      }
-    } else if (!nuxt.options._prepare && !process.env.NUXT_SESSION_PASSWORD) {
-      throw new Error('NUXT_SESSION_PASSWORD environment variable is not set')
-    }
-
     nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
 
     // App
@@ -75,11 +62,25 @@ export default defineNuxtModule<ModuleOptions>({
     const runtimeConfig = nuxt.options.runtimeConfig
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
-      password: '',
+      password: process.env.NUXT_SESSION_PASSWORD || '',
       cookie: {
         sameSite: 'lax'
       }
     })
+
+    // Generate the session password
+    if (nuxt.options.dev && !runtimeConfig.session.password) {
+      runtimeConfig.session.password = randomUUID().replace(/-/g, '')
+      // Add it to .env
+      const envPath = join(nuxt.options.rootDir, '.env')
+      const envContent = await readFile(envPath, 'utf-8').catch(() => '')
+      if (!envContent.includes('NUXT_SESSION_PASSWORD')) {
+        await writeFile(envPath, `${envContent ? envContent + '\n' : envContent}NUXT_SESSION_PASSWORD=${runtimeConfig.session.password}`, 'utf-8')
+      }
+    } else if (!nuxt.options._prepare && !runtimeConfig.session.password) {
+      throw new Error('NUXT_SESSION_PASSWORD environment variable or runtimeConfig.session.password not set')
+    }
+
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
     // GitHub OAuth

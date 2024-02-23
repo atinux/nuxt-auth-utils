@@ -53,9 +53,10 @@ export default defineNuxtConfig({
 NUXT_SESSION_PASSWORD=password-with-at-least-32-characters
 ```
 
-Nuxt Auth Utils can generate one for you when running Nuxt in development the first time when no `NUXT_SESSION_PASSWORD` is set.
+Nuxt Auth Utils generates one for you when running Nuxt in development the first time if no `NUXT_SESSION_PASSWORD` is set.
 
-4. That's it! You can now add authentication to your Nuxt app ✨
+3. That's it! You can now add authentication to your Nuxt app ✨
+
 
 ## Vue Composables
 
