@@ -77,8 +77,6 @@ export default defineNuxtModule<ModuleOptions>({
       if (!envContent.includes('NUXT_SESSION_PASSWORD')) {
         await writeFile(envPath, `${envContent ? envContent + '\n' : envContent}NUXT_SESSION_PASSWORD=${runtimeConfig.session.password}`, 'utf-8')
       }
-    } else if (!nuxt.options._prepare && !runtimeConfig.session.password) {
-      throw new Error('NUXT_SESSION_PASSWORD environment variable or runtimeConfig.session.password not set')
     }
 
     // OAuth settings

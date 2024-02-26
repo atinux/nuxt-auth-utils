@@ -72,8 +72,12 @@ export async function requireUserSession(event: H3Event): Promise<UserSession & 
   return userSession as UserSession & { user: User }
 }
 
-const sessionConfig = useRuntimeConfig().session as SessionConfig
+let sessionConfig: SessionConfig
 
 function _useSession (event: H3Event) {
+  if (!sessionConfig) {
+    // @ts-ignore
+    sessionConfig = defu({ password: process.env.NUXT_SESSION_PASSWORD }, useRuntimeConfig(event).session)
+  }
   return useSession<UserSession>(event, sessionConfig)
 }
