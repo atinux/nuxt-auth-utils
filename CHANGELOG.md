@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.20
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.19...v0.0.20)
+
+### 🩹 Fixes
+
+- Leverage NUXT_SESSION_PASSWORD provided at runtime ([4932959](https://github.com/Atinux/nuxt-auth-utils/commit/4932959))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
 ## v0.0.19
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.18...v0.0.19)
