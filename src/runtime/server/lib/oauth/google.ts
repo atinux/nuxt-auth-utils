@@ -46,6 +46,12 @@ export interface OAuthGoogleConfig {
   tokenURL?: string;
 
   /**
+   * Google OAuth User Info URL
+   * @default 'https://www.googleapis.com/oauth2/v3/userinfo'
+   */
+  userInfoURL?: string;
+
+  /**
    * Extra authorization parameters to provide to the authorization URL
    * @see https://developers.google.com/identity/protocols/oauth2/web-server#httprest_3
    * @example { access_type: 'offline' }
@@ -59,10 +65,10 @@ export function googleEventHandler({
   onError,
 }: OAuthConfig<OAuthGoogleConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.google, {
       authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
       tokenURL: 'https://oauth2.googleapis.com/token',
+      userInfoURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
       authorizationParams: {}
     }) as OAuthGoogleConfig
     const { code } = getQuery(event)
@@ -119,7 +125,7 @@ export function googleEventHandler({
 
     const accessToken = tokens.access_token
     const user: any = await ofetch(
-      'https://www.googleapis.com/oauth2/v3/userinfo',
+      config.userInfoURL,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
