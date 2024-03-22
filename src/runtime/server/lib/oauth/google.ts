@@ -46,10 +46,10 @@ export interface OAuthGoogleConfig {
   tokenURL?: string;
 
   /**
-   * Google OAuth User Info URL
+   * Google OAuth User URL
    * @default 'https://www.googleapis.com/oauth2/v3/userinfo'
    */
-  userInfoURL?: string;
+  userURL?: string;
 
   /**
    * Extra authorization parameters to provide to the authorization URL
@@ -65,10 +65,11 @@ export function googleEventHandler({
   onError,
 }: OAuthConfig<OAuthGoogleConfig>) {
   return eventHandler(async (event: H3Event) => {
+    // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.google, {
       authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
       tokenURL: 'https://oauth2.googleapis.com/token',
-      userInfoURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
+      userURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
       authorizationParams: {}
     }) as OAuthGoogleConfig
     const { code } = getQuery(event)
@@ -125,7 +126,7 @@ export function googleEventHandler({
 
     const accessToken = tokens.access_token
     const user: any = await ofetch(
-      config.userInfoURL,
+      config.userURL as string,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
