@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.21
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.20...v0.0.21)
+
+### 🏡 Chore
+
+- Update deps ([c8b8eb9](https://github.com/Atinux/nuxt-auth-utils/commit/c8b8eb9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
 ## v0.0.20
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.19...v0.0.20)
