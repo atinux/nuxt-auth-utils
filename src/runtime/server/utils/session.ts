@@ -4,7 +4,7 @@ import { defu } from 'defu'
 import { createHooks } from 'hookable'
 import { useRuntimeConfig } from '#imports'
 import type { UserSession } from '#auth-utils'
-import { ActiveUserSession } from '../../types/session'
+import type { ActiveUserSession } from '../../types/session'
 
 export interface SessionHooks {
   /**
