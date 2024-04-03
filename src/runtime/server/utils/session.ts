@@ -3,8 +3,7 @@ import { useSession, createError } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
 import { useRuntimeConfig } from '#imports'
-import type { UserSession } from '#auth-utils'
-import type { ActiveUserSession } from '../../types/session'
+import type { UserSession, UserSessionRequired } from '#auth-utils'
 
 export interface SessionHooks {
   /**
@@ -12,7 +11,7 @@ export interface SessionHooks {
    * - Add extra properties to the session
    * - Throw an error if the session could not be verified (with a database for example)
    */
-  'fetch': (session: ActiveUserSession, event: H3Event) => void | Promise<void>
+  'fetch': (session: UserSessionRequired, event: H3Event) => void | Promise<void>
   /**
    * Called before clearing the session
    */
@@ -60,7 +59,7 @@ export async function clearUserSession (event: H3Event) {
   return true
 }
 
-export async function requireUserSession(event: H3Event): Promise<ActiveUserSession> {
+export async function requireUserSession(event: H3Event): Promise<UserSessionRequired> {
   const userSession = await getUserSession(event)
 
   if (!userSession.user) {
@@ -70,7 +69,7 @@ export async function requireUserSession(event: H3Event): Promise<ActiveUserSess
     })
   }
 
-  return userSession as ActiveUserSession
+  return userSession as UserSessionRequired
 }
 
 let sessionConfig: SessionConfig

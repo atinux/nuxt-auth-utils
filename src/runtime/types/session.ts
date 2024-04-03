@@ -7,7 +7,7 @@ export interface UserSession {
   user?: User
 }
 
-export interface ActiveUserSession extends UserSession {
+export interface UserSessionRequired extends UserSession {
   user: User
 }
 
