@@ -23,23 +23,13 @@ This module only works with SSR (server-side rendering) enabled as it uses serve
 
 ## Quick Setup
 
-1. Add `nuxt-auth-utils` dependency to your project
+1. Add `nuxt-auth-utils` in your Nuxt project
 
 ```bash
 npx nuxi@latest module add auth-utils
 ```
 
-2. Add `nuxt-auth-utils` to the `modules` section of `nuxt.config.ts`
-
-```js
-export default defineNuxtConfig({
-  modules: [
-    'nuxt-auth-utils'
-  ]
-})
-```
-
-3. Add a `NUXT_SESSION_PASSWORD` env variable with at least 32 characters in the `.env`.
+2. Add a `NUXT_SESSION_PASSWORD` env variable with at least 32 characters in the `.env`.
 
 ```bash
 # .env
@@ -49,7 +39,6 @@ NUXT_SESSION_PASSWORD=password-with-at-least-32-characters
 Nuxt Auth Utils generates one for you when running Nuxt in development the first time if no `NUXT_SESSION_PASSWORD` is set.
 
 3. That's it! You can now add authentication to your Nuxt app ✨
-
 
 ## Vue Composables
 
