@@ -26,14 +26,7 @@ This module only works with SSR (server-side rendering) enabled as it uses serve
 1. Add `nuxt-auth-utils` dependency to your project
 
 ```bash
-# Using pnpm
-pnpm add -D nuxt-auth-utils
-
-# Using yarn
-yarn add --dev nuxt-auth-utils
-
-# Using npm
-npm install --save-dev nuxt-auth-utils
+npx nuxi@latest module add auth-utils
 ```
 
 2. Add `nuxt-auth-utils` to the `modules` section of `nuxt.config.ts`
