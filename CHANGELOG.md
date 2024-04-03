@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v0.0.22
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.21...v0.0.22)
+
+### 🚀 Enhancements
+
+- Add `redirectUrl` to OAuthMicrosoftConfig for HTTP vs HTTPS Handling ([50ba6fe](https://github.com/Atinux/nuxt-auth-utils/commit/50ba6fe))
+
+### 🩹 Fixes
+
+- **types:** Narrowed session type passed to fetch session hook ([77c82e7](https://github.com/Atinux/nuxt-auth-utils/commit/77c82e7))
+
+### 📖 Documentation
+
+- Use new nuxi module add command in installation ([d64b9d3](https://github.com/Atinux/nuxt-auth-utils/commit/d64b9d3))
+- Improve readme ([00c8287](https://github.com/Atinux/nuxt-auth-utils/commit/00c8287))
+
+### ❤️ Contributors
+
+- Gerben Mulder <github.undergo381@passmail.net>
+- André Agro Ferreira ([@andreagroferreira](http://github.com/andreagroferreira))
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v0.0.21
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.20...v0.0.21)
