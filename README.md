@@ -98,6 +98,7 @@ const session = await requireUserSession(event)
 You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project to augment the `UserSession` type:
 
 ```ts
+// auth.d.ts
 declare module '#auth-utils' {
   interface User {
     // Add your own fields
@@ -203,6 +204,37 @@ export default defineNitroPlugin(() => {
   })
 })
 ```
+
+## Configuration
+
+We leverage `runtimeConfig.session` to give the defaults option to [h3 `useSession`](https://h3.unjs.io/examples/handle-session).
+
+You can overwrite the options in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-auth-utils'],
+  runtimeConfig: {
+    session: {
+      maxAge: 60 * 60 * 24 * 7 // 1 week
+    }
+  }
+})
+```
+
+Our defaults are:
+
+```ts
+{
+  name: 'nuxt-session',
+  password: process.env.NUXT_SESSION_PASSWORD || '',
+  cookie: {
+    sameSite: 'lax'
+  }
+}
+```
+
+Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15c1647e1369e7d7ef19f567d/src/utils/session.ts#L20) for all options.
 
 ## Development
 
