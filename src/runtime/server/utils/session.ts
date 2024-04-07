@@ -59,13 +59,18 @@ export async function clearUserSession (event: H3Event) {
   return true
 }
 
-export async function requireUserSession(event: H3Event): Promise<UserSessionRequired> {
+/**
+ * Require a user session
+ * @param event
+ * @param opts Options to customize the error message and status code
+ */
+export async function requireUserSession(event: H3Event, opts:{statusCode?: number, message?:string} = {}): Promise<UserSessionRequired> {
   const userSession = await getUserSession(event)
 
   if (!userSession.user) {
     throw createError({
-      statusCode: 401,
-      message: 'Unauthorized'
+      statusCode: opts.statusCode ||401,
+      message: opts.message || 'Unauthorized'
     })
   }
 
