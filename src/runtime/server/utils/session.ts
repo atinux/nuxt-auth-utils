@@ -69,7 +69,7 @@ export async function requireUserSession(event: H3Event, opts: { statusCode?: nu
 
   if (!userSession.user) {
     throw createError({
-      statusCode: opts.statusCode ||401,
+      statusCode: opts.statusCode || 401,
       message: opts.message || 'Unauthorized'
     })
   }
