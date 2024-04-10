@@ -59,7 +59,7 @@ const { loggedIn, user, session, clear } = useUserSession()
   </div>
   <div v-else>
     <h1>Not logged in</h1>
-    <a href="/api/auth/github">Login with GitHub</a>
+    <a href="/auth/github">Login with GitHub</a>
   </div>
 </template>
 ```
