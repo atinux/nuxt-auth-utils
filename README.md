@@ -59,7 +59,7 @@ const { loggedIn, user, session, clear } = useUserSession()
   </div>
   <div v-else>
     <h1>Not logged in</h1>
-    <a href="/api/auth/github">Login with GitHub</a>
+    <a href="/auth/github">Login with GitHub</a>
   </div>
 </template>
 ```
@@ -190,7 +190,7 @@ We leverage hooks to let you extend the session data with your own data or to lo
 ```ts
 // server/plugins/session.ts
 export default defineNitroPlugin(() => {
-  // Called when the session is fetched during SSR for the Vue composable (/api/_auth/session)
+  // Called when the session is fetched during SSR for the Vue composable (/_auth/session)
   // Or when we call useUserSession().fetch()
   sessionHooks.hook('fetch', async (session, event) => {
     // extend User Session by calling your database
