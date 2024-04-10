@@ -190,7 +190,7 @@ We leverage hooks to let you extend the session data with your own data or to lo
 ```ts
 // server/plugins/session.ts
 export default defineNitroPlugin(() => {
-  // Called when the session is fetched during SSR for the Vue composable (/_auth/session)
+  // Called when the session is fetched during SSR for the Vue composable (/api/_auth/session)
   // Or when we call useUserSession().fetch()
   sessionHooks.hook('fetch', async (session, event) => {
     // extend User Session by calling your database
