@@ -41,7 +41,7 @@
   "devDependencies": {
     "@iconify-json/simple-icons": "^1.1.96",
     "@nuxt/devtools": "latest",
-    "@nuxt/eslint-config": "^0.2.0",
+    "@nuxt/eslint-config": "^0.3.6",
     "@nuxt/module-builder": "^0.5.5",
     "@nuxt/schema": "^3.11.1",
     "@nuxt/test-utils": "^3.12.0",
@@ -49,7 +49,7 @@
     "@nuxt/ui-pro": "^1.0.2",
     "@types/node": "^20.11.30",
     "changelogen": "^0.5.5",
-    "eslint": "^8.57.0",
+    "eslint": "^9.0.0",
     "nuxt": "^3.11.1",
     "typescript": "^5.4.3",
     "vitest": "^1.4.0",

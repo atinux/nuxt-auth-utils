@@ -1,8 +1,8 @@
+import { writeFile, readFile } from 'node:fs/promises'
 import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler } from '@nuxt/kit'
 import { join } from 'pathe'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
-import { writeFile, readFile } from 'node:fs/promises'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {}
@@ -10,11 +10,11 @@ export interface ModuleOptions {}
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'auth-utils',
-    configKey: 'auth'
+    configKey: 'auth',
   },
   // Default configuration options of the Nuxt module
   defaults: {},
-  async setup (options, nuxt) {
+  async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
     nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
@@ -29,7 +29,7 @@ export default defineNuxtModule<ModuleOptions>({
         presets: [
           {
             from: resolver.resolve('./runtime/server/utils/oauth'),
-            imports: ['oauth']
+            imports: ['oauth'],
           },
           {
             from: resolver.resolve('./runtime/server/utils/session'),
@@ -40,9 +40,9 @@ export default defineNuxtModule<ModuleOptions>({
               'replaceUserSession',
               'clearUserSession',
               'requireUserSession',
-            ]
-          }
-        ]
+            ],
+          },
+        ],
       })
     }
     // Waiting for https://github.com/nuxt/nuxt/pull/24000/files
@@ -50,12 +50,12 @@ export default defineNuxtModule<ModuleOptions>({
     addServerHandler({
       handler: resolver.resolve('./runtime/server/api/session.delete'),
       route: '/api/_auth/session',
-      method: 'delete'
+      method: 'delete',
     })
     addServerHandler({
       handler: resolver.resolve('./runtime/server/api/session.get'),
       route: '/api/_auth/session',
-      method: 'get'
+      method: 'get',
     })
 
     // Runtime Config
@@ -64,8 +64,8 @@ export default defineNuxtModule<ModuleOptions>({
       name: 'nuxt-session',
       password: process.env.NUXT_SESSION_PASSWORD || '',
       cookie: {
-        sameSite: 'lax'
-      }
+        sameSite: 'lax',
+      },
     })
 
     // Generate the session password
@@ -84,29 +84,29 @@ export default defineNuxtModule<ModuleOptions>({
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
-      clientSecret: ''
+      clientSecret: '',
     })
     // Spotify OAuth
     runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {
       clientId: '',
-      clientSecret: ''
+      clientSecret: '',
     })
     // Google OAuth
     runtimeConfig.oauth.google = defu(runtimeConfig.oauth.google, {
       clientId: '',
-      clientSecret: ''
+      clientSecret: '',
     })
     // Twitch OAuth
     runtimeConfig.oauth.twitch = defu(runtimeConfig.oauth.twitch, {
       clientId: '',
-      clientSecret: ''
+      clientSecret: '',
     })
     // Auth0 OAuth
     runtimeConfig.oauth.auth0 = defu(runtimeConfig.oauth.auth0, {
       clientId: '',
       clientSecret: '',
       domain: '',
-      audience: ''
+      audience: '',
     })
     // Microsoft OAuth
     runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
@@ -116,36 +116,36 @@ export default defineNuxtModule<ModuleOptions>({
       scope: [],
       authorizationURL: '',
       tokenURL: '',
-      userURL: ''
+      userURL: '',
     })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
       clientId: '',
-      clientSecret: ''
+      clientSecret: '',
     })
     // Battle.net OAuth
     runtimeConfig.oauth.battledotnet = defu(runtimeConfig.oauth.battledotnet, {
       clientId: '',
-      clientSecret: ''
+      clientSecret: '',
     })
     // Keycloak OAuth
     runtimeConfig.oauth.keycloak = defu(runtimeConfig.oauth.keycloak, {
       clientId: '',
       clientSecret: '',
       serverUrl: '',
-      realm: ''
+      realm: '',
     })
     // LinkedIn OAuth
     runtimeConfig.oauth.linkedin = defu(runtimeConfig.oauth.linkedin, {
       clientId: '',
-      clientSecret: ''
+      clientSecret: '',
     })
     // Cognito OAuth
     runtimeConfig.oauth.cognito = defu(runtimeConfig.oauth.cognito, {
       clientId: '',
       clientSecret: '',
       region: '',
-      userPoolId: ''
+      userPoolId: '',
     })
-  }
+  },
 })

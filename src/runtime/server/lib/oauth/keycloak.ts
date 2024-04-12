@@ -53,7 +53,7 @@ export function keycloakEventHandler({
   onError,
 }: OAuthConfig<OAuthKeycloakConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-ignore
+    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.keycloak, {
       authorizationParams: {},
     }) as OAuthKeycloakConfig
@@ -72,10 +72,10 @@ export function keycloakEventHandler({
     }
 
     if (
-      !config.clientId ||
-      !config.clientSecret ||
-      !config.serverUrl ||
-      !config.realm
+      !config.clientId
+      || !config.clientSecret
+      || !config.serverUrl
+      || !config.realm
     ) {
       const error = createError({
         statusCode: 500,
@@ -104,7 +104,7 @@ export function keycloakEventHandler({
           scope: config.scope.join(' '),
           response_type: 'code',
           ...config.authorizationParams,
-        })
+        }),
       )
     }
 
@@ -150,7 +150,7 @@ export function keycloakEventHandler({
           Authorization: `Bearer ${accessToken}`,
           Accept: 'application/json',
         },
-      }
+      },
     )
 
     if (!user) {

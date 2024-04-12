@@ -1,15 +1,15 @@
 export default oauth.linkedinEventHandler({
   config: {
-    emailRequired: true
+    emailRequired: true,
   },
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        linkedin: user.email
+        linkedin: user.email,
       },
-      loggedInAt: Date.now()
+      loggedInAt: Date.now(),
     })
 
     return sendRedirect(event, '/')
-  }
+  },
 })

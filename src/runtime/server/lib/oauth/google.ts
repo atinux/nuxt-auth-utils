@@ -17,13 +17,13 @@ export interface OAuthGoogleConfig {
    * Google OAuth Client ID
    * @default process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID
    */
-  clientId?: string;
+  clientId?: string
 
   /**
    * Google OAuth Client Secret
    * @default process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET
    */
-  clientSecret?: string;
+  clientSecret?: string
 
   /**
    * Google OAuth Scope
@@ -31,32 +31,32 @@ export interface OAuthGoogleConfig {
    * @see https://developers.google.com/identity/protocols/oauth2/scopes#google-sign-in
    * @example ['email', 'openid', 'profile']
    */
-  scope?: string[];
+  scope?: string[]
 
   /**
    * Google OAuth Authorization URL
    * @default 'https://accounts.google.com/o/oauth2/v2/auth'
    */
-  authorizationURL?: string;
+  authorizationURL?: string
 
   /**
    * Google OAuth Token URL
    * @default 'https://oauth2.googleapis.com/token'
    */
-  tokenURL?: string;
+  tokenURL?: string
 
   /**
    * Google OAuth User URL
    * @default 'https://www.googleapis.com/oauth2/v3/userinfo'
    */
-  userURL?: string;
+  userURL?: string
 
   /**
    * Extra authorization parameters to provide to the authorization URL
    * @see https://developers.google.com/identity/protocols/oauth2/web-server#httprest_3
    * @example { access_type: 'offline' }
    */
-  authorizationParams?: Record<string, string>;
+  authorizationParams?: Record<string, string>
 }
 
 export function googleEventHandler({
@@ -65,12 +65,12 @@ export function googleEventHandler({
   onError,
 }: OAuthConfig<OAuthGoogleConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-ignore
+    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.google, {
       authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
       tokenURL: 'https://oauth2.googleapis.com/token',
       userURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
-      authorizationParams: {}
+      authorizationParams: {},
     }) as OAuthGoogleConfig
     const { code } = getQuery(event)
 
@@ -94,8 +94,8 @@ export function googleEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
-          ...config.authorizationParams
-        })
+          ...config.authorizationParams,
+        }),
       )
     }
 
@@ -131,7 +131,7 @@ export function googleEventHandler({
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     )
 
     return onSuccess(event, {

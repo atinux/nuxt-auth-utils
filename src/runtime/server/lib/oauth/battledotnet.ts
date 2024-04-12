@@ -1,10 +1,10 @@
+import { randomUUID } from 'node:crypto'
 import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { ofetch } from 'ofetch'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import { randomUUID } from 'crypto'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthBattledotnetConfig {
@@ -50,13 +50,12 @@ export interface OAuthBattledotnetConfig {
 }
 
 export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
-    return eventHandler(async (event: H3Event) => {
-
-    // @ts-ignore
+  return eventHandler(async (event: H3Event) => {
+    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.battledotnet, {
       authorizationURL: 'https://oauth.battle.net/authorize',
       tokenURL: 'https://oauth.battle.net/token',
-      authorizationParams: {}
+      authorizationParams: {},
     }) as OAuthBattledotnetConfig
 
     const query = getQuery(event)
@@ -66,7 +65,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
       const error = createError({
         statusCode: 401,
         message: `Battle.net login failed: ${query.error || 'Unknown error'}`,
-        data: query
+        data: query,
       })
       if (!onError) throw error
       return onError(event, error)
@@ -75,7 +74,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     if (!config.clientId || !config.clientSecret) {
       const error = createError({
         statusCode: 500,
-        message: 'Missing NUXT_OAUTH_BATTLEDOTNET_CLIENT_ID or NUXT_OAUTH_BATTLEDOTNET_CLIENT_SECRET env variables.'
+        message: 'Missing NUXT_OAUTH_BATTLEDOTNET_CLIENT_ID or NUXT_OAUTH_BATTLEDOTNET_CLIENT_SECRET env variables.',
       })
       if (!onError) throw error
       return onError(event, error)
@@ -100,8 +99,8 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
           scope: config.scope.join(' '),
           state: randomUUID(), // Todo: handle PKCE flow
           response_type: 'code',
-          ...config.authorizationParams
-        })
+          ...config.authorizationParams,
+        }),
       )
     }
 
@@ -116,27 +115,27 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     const tokens: any = await $fetch(
       config.tokenURL as string,
       {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Basic ${authCode}`,
-          },
-          params: {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${authCode}`,
+        },
+        params: {
           code,
           grant_type: 'authorization_code',
           scope: config.scope.join(' '),
           redirect_uri: parsePath(redirectUrl).pathname,
-        }
-      }
+        },
+      },
     ).catch((error) => {
-        return { error }
-      })
+      return { error }
+    })
 
     if (tokens.error) {
       const error = createError({
         statusCode: 401,
         message: `Battle.net login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens
+        data: tokens,
       })
       if (!onError) throw error
       return onError(event, error)
@@ -147,19 +146,19 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     const user: any = await ofetch('https://oauth.battle.net/userinfo', {
       headers: {
         'User-Agent': `Battledotnet-OAuth-${config.clientId}`,
-        Authorization: `Bearer ${accessToken}`
-      }
+        'Authorization': `Bearer ${accessToken}`,
+      },
     })
 
     if (!user) {
-        const error = createError({
-          statusCode: 500,
-          message: 'Could not get Battle.net user',
-          data: tokens
-        })
-        if (!onError) throw error
-        return onError(event, error)
-      }
+      const error = createError({
+        statusCode: 500,
+        message: 'Could not get Battle.net user',
+        data: tokens,
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
 
     return onSuccess(event, {
       user,

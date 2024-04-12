@@ -53,18 +53,18 @@ interface OAuthConfig {
 
 export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-ignore
+    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.linkedin, {
       authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
       tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
-      authorizationParams: {}
+      authorizationParams: {},
     }) as OAuthLinkedInConfig
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret) {
       const error = createError({
         statusCode: 500,
-        message: 'Missing NUXT_OAUTH_LINKEDIN_CLIENT_ID or NUXT_OAUTH_LINKEDIN_CLIENT_SECRET env variables.'
+        message: 'Missing NUXT_OAUTH_LINKEDIN_CLIENT_ID or NUXT_OAUTH_LINKEDIN_CLIENT_SECRET env variables.',
       })
       if (!onError) throw error
       return onError(event, error)
@@ -87,8 +87,8 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
           client_id: config.clientId,
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
-          ...config.authorizationParams
-        })
+          ...config.authorizationParams,
+        }),
       )
     }
 
@@ -99,7 +99,7 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
           grant_type: 'authorization_code',
@@ -107,16 +107,16 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
           client_id: config.clientId,
           client_secret: config.clientSecret,
           redirect_uri: stringifyParsedURL(parsedRedirectUrl),
-        }).toString()
-      }
-    ).catch(error => {
+        }).toString(),
+      },
+    ).catch((error) => {
       return { error }
     })
     if (tokens.error) {
       const error = createError({
         statusCode: 401,
         message: `LinkedIn login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens
+        data: tokens,
       })
       if (!onError) throw error
       return onError(event, error)
@@ -126,13 +126,13 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
     const user: any = await ofetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
         'user-agent': 'Nuxt Auth Utils',
-        Authorization: `Bearer ${accessToken}`
-      }
+        'Authorization': `Bearer ${accessToken}`,
+      },
     })
 
     return onSuccess(event, {
       tokens,
-      user
+      user,
     })
   })
 }

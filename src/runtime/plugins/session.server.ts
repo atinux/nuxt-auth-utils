@@ -4,7 +4,7 @@ import { useUserSession } from '#imports'
 export default defineNuxtPlugin({
   name: 'session-fetch-plugin',
   enforce: 'pre',
-  async setup () {
+  async setup() {
     await useUserSession().fetch()
-  }
+  },
 })

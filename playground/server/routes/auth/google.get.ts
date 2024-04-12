@@ -1,17 +1,17 @@
 export default oauth.googleEventHandler({
   config: {
     authorizationParams: {
-      access_type: 'offline'
-    }
+      access_type: 'offline',
+    },
   },
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        google: user.email
+        google: user.email,
       },
-      loggedInAt: Date.now()
+      loggedInAt: Date.now(),
     })
 
     return sendRedirect(event, '/')
-  }
+  },
 })
