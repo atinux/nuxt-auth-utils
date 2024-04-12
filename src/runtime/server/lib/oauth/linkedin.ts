@@ -47,13 +47,13 @@ export interface OAuthLinkedInConfig {
 
 interface OAuthConfig {
   config?: OAuthLinkedInConfig
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
   onError?: (event: H3Event, error: H3Error) => Promise<void> | void
 }
 
 export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.linkedin, {
       authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
       tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
@@ -94,6 +94,8 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
 
     const parsedRedirectUrl = parseURL(redirectUrl)
     parsedRedirectUrl.search = ''
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       config.tokenURL as string,
       {
@@ -123,6 +125,8 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
     }
 
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
         'user-agent': 'Nuxt Auth Utils',

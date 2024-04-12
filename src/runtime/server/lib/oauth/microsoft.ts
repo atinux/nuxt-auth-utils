@@ -60,13 +60,13 @@ export interface OAuthMicrosoftConfig {
 
 interface OAuthConfig {
   config?: OAuthMicrosoftConfig
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
   onError?: (event: H3Event, error: H3Error) => Promise<void> | void
 }
 
 export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfig) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.microsoft, {
       authorizationParams: {},
     }) as OAuthMicrosoftConfig
@@ -107,6 +107,8 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
     data.append('redirect_uri', parsePath(redirectUrl).pathname)
     data.append('code', String(code))
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       tokenURL as string,
       {
@@ -132,6 +134,8 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
     const userURL = config.userURL || 'https://graph.microsoft.com/v1.0/me'
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch(userURL, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,

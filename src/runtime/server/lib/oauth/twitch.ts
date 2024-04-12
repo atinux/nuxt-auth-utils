@@ -55,7 +55,6 @@ export interface OAuthTwitchConfig {
 
 export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.twitch, {
       authorizationURL: 'https://id.twitch.tv/oauth2/authorize',
       tokenURL: 'https://id.twitch.tv/oauth2/token',
@@ -91,6 +90,8 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<O
       )
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       config.tokenURL as string,
       {
@@ -120,6 +121,8 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<O
     }
 
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const users: any = await ofetch('https://api.twitch.tv/helix/users', {
       headers: {
         'Client-ID': config.clientId,

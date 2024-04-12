@@ -76,6 +76,8 @@ let sessionConfig: SessionConfig
 
 function _useSession(event: H3Event) {
   if (!sessionConfig) {
+    // TODO: add explanation
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     sessionConfig = defu({ password: process.env.NUXT_SESSION_PASSWORD }, useRuntimeConfig(event).session)
   }

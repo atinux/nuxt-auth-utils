@@ -51,7 +51,6 @@ export interface OAuthBattledotnetConfig {
 
 export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.battledotnet, {
       authorizationURL: 'https://oauth.battle.net/authorize',
       tokenURL: 'https://oauth.battle.net/token',
@@ -112,6 +111,8 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
 
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await $fetch(
       config.tokenURL as string,
       {
@@ -143,6 +144,8 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
 
     const accessToken = tokens.access_token
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch('https://oauth.battle.net/userinfo', {
       headers: {
         'User-Agent': `Battledotnet-OAuth-${config.clientId}`,

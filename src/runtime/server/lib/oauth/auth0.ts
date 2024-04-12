@@ -62,7 +62,6 @@ export interface OAuthAuth0Config {
 
 export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.auth0, {
       authorizationParams: {},
     }) as OAuthAuth0Config
@@ -101,6 +100,8 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
       )
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       tokenURL as string,
       {
@@ -131,6 +132,9 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
+
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch(`https://${config.domain}/userinfo`, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,

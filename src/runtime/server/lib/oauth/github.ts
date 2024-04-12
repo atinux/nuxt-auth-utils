@@ -52,7 +52,6 @@ export interface OAuthGitHubConfig {
 
 export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.github, {
       authorizationURL: 'https://github.com/login/oauth/authorize',
       tokenURL: 'https://github.com/login/oauth/access_token',
@@ -97,6 +96,8 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
       )
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await $fetch(
       config.tokenURL as string,
       {
@@ -119,6 +120,8 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
     }
 
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch('https://api.github.com/user', {
       headers: {
         'User-Agent': `Github-OAuth-${config.clientId}`,
@@ -128,12 +131,16 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
 
     // if no public email, check the private ones
     if (!user.email && config.emailRequired) {
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const emails: any[] = await ofetch('https://api.github.com/user/emails', {
         headers: {
           'User-Agent': `Github-OAuth-${config.clientId}`,
           'Authorization': `token ${accessToken}`,
         },
       })
+      // TODO: improve typing
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const primaryEmail = emails.find((email: any) => email.primary)
       // Still no email
       if (!primaryEmail) {

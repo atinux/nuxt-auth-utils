@@ -53,7 +53,6 @@ export function keycloakEventHandler({
   onError,
 }: OAuthConfig<OAuthKeycloakConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.keycloak, {
       authorizationParams: {},
     }) as OAuthKeycloakConfig
@@ -113,6 +112,8 @@ export function keycloakEventHandler({
       config.scope.push('openid')
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(tokenURL, {
       method: 'POST',
       headers: {
@@ -143,6 +144,8 @@ export function keycloakEventHandler({
 
     const accessToken = tokens.access_token
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch(
       `${realmURL}/protocol/openid-connect/userinfo`,
       {

@@ -41,7 +41,6 @@ export interface OAuthCognitoConfig {
 
 export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.cognito, {
       authorizationParams: {},
     }) as OAuthCognitoConfig
@@ -75,6 +74,8 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
       )
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       tokenURL as string,
       {
@@ -100,6 +101,8 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch(`https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/userInfo`, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,

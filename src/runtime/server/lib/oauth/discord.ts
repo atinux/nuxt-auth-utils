@@ -56,7 +56,6 @@ export interface OAuthDiscordConfig {
 
 export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDiscordConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.discord, {
       authorizationURL: 'https://discord.com/oauth2/authorize',
       tokenURL: 'https://discord.com/api/oauth2/token',
@@ -99,6 +98,8 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<
 
     const parsedRedirectUrl = parseURL(redirectUrl)
     parsedRedirectUrl.search = ''
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       config.tokenURL as string,
       {
@@ -129,6 +130,8 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<
     }
 
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch('https://discord.com/api/users/@me', {
       headers: {
         'user-agent': 'Nuxt Auth Utils',

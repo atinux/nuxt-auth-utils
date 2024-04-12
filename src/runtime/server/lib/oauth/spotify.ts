@@ -52,7 +52,6 @@ export interface OAuthSpotifyConfig {
 
 export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.spotify, {
       authorizationURL: 'https://accounts.spotify.com/authorize',
       tokenURL: 'https://accounts.spotify.com/api/token',
@@ -89,6 +88,8 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
     }
 
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       config.tokenURL as string,
       {
@@ -117,6 +118,8 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
     }
 
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch('https://api.spotify.com/v1/me', {
       headers: {
         Authorization: `Bearer ${accessToken}`,

@@ -65,7 +65,6 @@ export function googleEventHandler({
   onError,
 }: OAuthConfig<OAuthGoogleConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-expect-error
     config = defu(config, useRuntimeConfig(event).oauth?.google, {
       authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
       tokenURL: 'https://oauth2.googleapis.com/token',
@@ -99,6 +98,8 @@ export function googleEventHandler({
       )
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body: any = {
       grant_type: 'authorization_code',
       redirect_uri: parsePath(redirectUrl).pathname,
@@ -106,6 +107,8 @@ export function googleEventHandler({
       client_secret: config.clientSecret,
       code,
     }
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(config.tokenURL as string, {
       method: 'POST',
       body,
@@ -125,6 +128,8 @@ export function googleEventHandler({
     }
 
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch(
       config.userURL as string,
       {
