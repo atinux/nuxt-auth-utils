@@ -52,18 +52,17 @@ export interface OAuthSpotifyConfig {
 
 export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.spotify, {
       authorizationURL: 'https://accounts.spotify.com/authorize',
       tokenURL: 'https://accounts.spotify.com/api/token',
-      authorizationParams: {}
+      authorizationParams: {},
     }) as OAuthSpotifyConfig
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret) {
       const error = createError({
         statusCode: 500,
-        message: 'Missing NUXT_OAUTH_SPOTIFY_CLIENT_ID or NUXT_OAUTH_SPOTIFY_CLIENT_SECRET env variables.'
+        message: 'Missing NUXT_OAUTH_SPOTIFY_CLIENT_ID or NUXT_OAUTH_SPOTIFY_CLIENT_SECRET env variables.',
       })
       if (!onError) throw error
       return onError(event, error)
@@ -83,49 +82,53 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
           client_id: config.clientId,
           redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
-          ...config.authorizationParams
-        })
+          ...config.authorizationParams,
+        }),
       )
     }
 
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       config.tokenURL as string,
       {
         method: 'POST',
         headers: {
-          Authorization: `Basic ${authCode}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Authorization': `Basic ${authCode}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         params: {
           grant_type: 'authorization_code',
           redirect_uri: parsePath(redirectUrl).pathname,
-          code
-        }
-      }
-    ).catch(error => {
+          code,
+        },
+      },
+    ).catch((error) => {
       return { error }
     })
     if (tokens.error) {
       const error = createError({
         statusCode: 401,
         message: `Spotify login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens
+        data: tokens,
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch('https://api.spotify.com/v1/me', {
       headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     })
 
     return onSuccess(event, {
       tokens,
-      user
+      user,
     })
   })
 }

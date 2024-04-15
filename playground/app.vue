@@ -54,7 +54,7 @@ const providers = computed(() => [
     label: user.value?.keycloak || 'Keycloak',
     to: '/auth/keycloak',
     disabled: Boolean(user.value?.keycloak),
-    icon: 'i-simple-icons-redhat'
+    icon: 'i-simple-icons-redhat',
   },
   {
     label: user.value?.linkedin || 'LinkedIn',
@@ -67,7 +67,7 @@ const providers = computed(() => [
     to: '/auth/cognito',
     disabled: Boolean(user.value?.cognito),
     icon: 'i-simple-icons-amazonaws',
-  }
+  },
 ].map(p => ({
   ...p,
   prefetch: false,

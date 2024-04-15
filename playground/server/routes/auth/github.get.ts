@@ -2,11 +2,11 @@ export default oauth.githubEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        github: user.login
+        github: user.login,
       },
-      loggedInAt: Date.now()
+      loggedInAt: Date.now(),
     })
 
     return sendRedirect(event, '/')
-  }
+  },
 })

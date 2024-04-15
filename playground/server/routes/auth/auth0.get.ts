@@ -5,11 +5,11 @@ export default oauth.auth0EventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        auth0: user.email
+        auth0: user.email,
       },
-      loggedInAt: Date.now()
+      loggedInAt: Date.now(),
     })
 
     return sendRedirect(event, '/')
-  }
+  },
 })

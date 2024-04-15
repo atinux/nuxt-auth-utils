@@ -2,14 +2,14 @@ export default defineNuxtConfig({
   extends: ['@nuxt/ui-pro'],
   modules: [
     'nuxt-auth-utils',
-    '@nuxt/ui'
+    '@nuxt/ui',
   ],
   auth: {},
   ui: {
-    icons: ['simple-icons']
+    icons: ['simple-icons'],
   },
   devtools: { enabled: true },
   imports: {
-    autoImport: true
-  }
+    autoImport: true,
+  },
 })

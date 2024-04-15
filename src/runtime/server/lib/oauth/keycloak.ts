@@ -53,7 +53,6 @@ export function keycloakEventHandler({
   onError,
 }: OAuthConfig<OAuthKeycloakConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.keycloak, {
       authorizationParams: {},
     }) as OAuthKeycloakConfig
@@ -72,10 +71,10 @@ export function keycloakEventHandler({
     }
 
     if (
-      !config.clientId ||
-      !config.clientSecret ||
-      !config.serverUrl ||
-      !config.realm
+      !config.clientId
+      || !config.clientSecret
+      || !config.serverUrl
+      || !config.realm
     ) {
       const error = createError({
         statusCode: 500,
@@ -104,7 +103,7 @@ export function keycloakEventHandler({
           scope: config.scope.join(' '),
           response_type: 'code',
           ...config.authorizationParams,
-        })
+        }),
       )
     }
 
@@ -113,6 +112,8 @@ export function keycloakEventHandler({
       config.scope.push('openid')
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(tokenURL, {
       method: 'POST',
       headers: {
@@ -143,6 +144,8 @@ export function keycloakEventHandler({
 
     const accessToken = tokens.access_token
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch(
       `${realmURL}/protocol/openid-connect/userinfo`,
       {
@@ -150,7 +153,7 @@ export function keycloakEventHandler({
           Authorization: `Bearer ${accessToken}`,
           Accept: 'application/json',
         },
-      }
+      },
     )
 
     if (!user) {

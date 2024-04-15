@@ -3,22 +3,22 @@ import type { UserSession, UserSessionComposable } from '#auth-utils'
 
 const useSessionState = () => useState<UserSession>('nuxt-session', () => ({}))
 
-export function useUserSession(): UserSessionComposable  {
+export function useUserSession(): UserSessionComposable {
   const sessionState = useSessionState()
   return {
     loggedIn: computed(() => Boolean(sessionState.value.user)),
     user: computed(() => sessionState.value.user || null),
     session: sessionState,
     fetch,
-    clear
+    clear,
   }
 }
 
 async function fetch() {
   useSessionState().value = await useRequestFetch()('/api/_auth/session', {
     headers: {
-      Accept: 'text/json'
-    }
+      Accept: 'text/json',
+    },
   }).catch(() => ({}))
 }
 

@@ -2,11 +2,11 @@ export default oauth.cognitoEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        cognito: user.email
+        cognito: user.email,
       },
-      loggedInAt: Date.now()
+      loggedInAt: Date.now(),
     })
 
     return sendRedirect(event, '/')
-  }
+  },
 })
