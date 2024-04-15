@@ -5,11 +5,11 @@ export default oauth.twitchEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        twitch: user.login
+        twitch: user.login,
       },
-      loggedInAt: Date.now()
+      loggedInAt: Date.now(),
     })
 
     return sendRedirect(event, '/')
-  }
+  },
 })

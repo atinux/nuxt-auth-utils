@@ -3,13 +3,12 @@ export default defineNitroPlugin(() => {
     // Extend User Session
     // Or throw createError({ ... }) if session is invalid
     session.extended = {
-      fromHooks: true
+      fromHooks: true,
     }
   })
 
-  sessionHooks.hook('clear', async (session) => {
+  sessionHooks.hook('clear', async (_session) => {
     // Log that user logged out
     console.log('User logged out')
   })
 })
-

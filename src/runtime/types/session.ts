@@ -14,7 +14,7 @@ export interface UserSessionRequired extends UserSession {
 export interface UserSessionComposable {
   loggedIn: ComputedRef<boolean>
   user: ComputedRef<User | null>
-  session: Ref<UserSession>,
-  fetch: () => Promise<void>,
+  session: Ref<UserSession>
+  fetch: () => Promise<void>
   clear: () => Promise<void>
 }

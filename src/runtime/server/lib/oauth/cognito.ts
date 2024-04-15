@@ -41,16 +41,15 @@ export interface OAuthCognitoConfig {
 
 export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.cognito, {
-      authorizationParams: {}
+      authorizationParams: {},
     }) as OAuthCognitoConfig
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.userPoolId || !config.region) {
       const error = createError({
         statusCode: 500,
-        message: 'Missing NUXT_OAUTH_COGNITO_CLIENT_ID, NUXT_OAUTH_COGNITO_CLIENT_SECRET, NUXT_OAUTH_COGNITO_USER_POOL_ID, or NUXT_OAUTH_COGNITO_REGION env variables.'
+        message: 'Missing NUXT_OAUTH_COGNITO_CLIENT_ID, NUXT_OAUTH_COGNITO_CLIENT_SECRET, NUXT_OAUTH_COGNITO_USER_POOL_ID, or NUXT_OAUTH_COGNITO_REGION env variables.',
       })
       if (!onError) throw error
       return onError(event, error)
@@ -70,11 +69,13 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
           redirect_uri: redirectUrl,
           response_type: 'code',
           scope: config.scope.join(' '),
-          ...config.authorizationParams
-        })
+          ...config.authorizationParams,
+        }),
       )
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       tokenURL as string,
       {
@@ -83,8 +84,8 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: `grant_type=authorization_code&client_id=${config.clientId}&client_secret=${config.clientSecret}&redirect_uri=${parsePath(redirectUrl).pathname}&code=${code}`,
-      }
-    ).catch(error => {
+      },
+    ).catch((error) => {
       return { error }
     })
 
@@ -92,7 +93,7 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
       const error = createError({
         statusCode: 401,
         message: `Cognito login failed: ${tokens.error_description || 'Unknown error'}`,
-        data: tokens
+        data: tokens,
       })
       if (!onError) throw error
       return onError(event, error)
@@ -100,15 +101,17 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch(`https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/userInfo`, {
       headers: {
-        Authorization: `${tokenType} ${accessToken}`
-      }
+        Authorization: `${tokenType} ${accessToken}`,
+      },
     })
 
     return onSuccess(event, {
       tokens,
-      user
+      user,
     })
   })
 }

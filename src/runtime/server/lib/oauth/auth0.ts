@@ -62,16 +62,15 @@ export interface OAuthAuth0Config {
 
 export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
   return eventHandler(async (event: H3Event) => {
-    // @ts-ignore
     config = defu(config, useRuntimeConfig(event).oauth?.auth0, {
-      authorizationParams: {}
+      authorizationParams: {},
     }) as OAuthAuth0Config
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
       const error = createError({
         statusCode: 500,
-        message: 'Missing NUXT_OAUTH_AUTH0_CLIENT_ID or NUXT_OAUTH_AUTH0_CLIENT_SECRET or NUXT_OAUTH_AUTH0_DOMAIN env variables.'
+        message: 'Missing NUXT_OAUTH_AUTH0_CLIENT_ID or NUXT_OAUTH_AUTH0_CLIENT_SECRET or NUXT_OAUTH_AUTH0_DOMAIN env variables.',
       })
       if (!onError) throw error
       return onError(event, error)
@@ -96,17 +95,19 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
           audience: config.audience || '',
           max_age: config.maxAge || 0,
           connection: config.connection || '',
-          ...config.authorizationParams
-        })
+          ...config.authorizationParams,
+        }),
       )
     }
 
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await ofetch(
       tokenURL as string,
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: {
           grant_type: 'authorization_code',
@@ -114,16 +115,16 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
           client_secret: config.clientSecret,
           redirect_uri: parsePath(redirectUrl).pathname,
           code,
-        }
-      }
-    ).catch(error => {
+        },
+      },
+    ).catch((error) => {
       return { error }
     })
     if (tokens.error) {
       const error = createError({
         statusCode: 401,
         message: `Auth0 login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens
+        data: tokens,
       })
       if (!onError) throw error
       return onError(event, error)
@@ -131,15 +132,18 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
+
+    // TODO: improve typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await ofetch(`https://${config.domain}/userinfo`, {
       headers: {
-        Authorization: `${tokenType} ${accessToken}`
-      }
+        Authorization: `${tokenType} ${accessToken}`,
+      },
     })
 
     return onSuccess(event, {
       tokens,
-      user
+      user,
     })
   })
 }
