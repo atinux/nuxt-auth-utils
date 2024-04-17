@@ -19,7 +19,7 @@ async function fetch() {
     headers: {
       Accept: 'text/json',
     },
-    retry: false
+    retry: false,
   }).catch(() => ({}))
 }
 
