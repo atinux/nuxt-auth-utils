@@ -1,6 +1,36 @@
 # Changelog
 
 
+## v0.0.23
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.22...v0.0.23)
+
+### 🚀 Enhancements
+
+- Add opts to requireUserSession for error message and status code customization ([015e847](https://github.com/Atinux/nuxt-auth-utils/commit/015e847))
+
+### 🩹 Fixes
+
+- Avoid duplicate trigger of session fetch hook due to request retry ([5fac9a1](https://github.com/Atinux/nuxt-auth-utils/commit/5fac9a1))
+
+### 📖 Documentation
+
+- Removed reference to /api in readme ([#77](https://github.com/Atinux/nuxt-auth-utils/pull/77))
+
+### 🏡 Chore
+
+- Migrate to eslint v9 ([964b67b](https://github.com/Atinux/nuxt-auth-utils/commit/964b67b))
+- Update deps ([a77a334](https://github.com/Atinux/nuxt-auth-utils/commit/a77a334))
+- Add vscode settings for eslint ([4f1afc9](https://github.com/Atinux/nuxt-auth-utils/commit/4f1afc9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Deth <gabriel@rosa.dev.br>
+- Conrawl Rogers <diizzayy@gmail.com>
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Max ([@onmax](http://github.com/onmax))
+
 ## v0.0.22
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.21...v0.0.22)
