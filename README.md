@@ -151,7 +151,7 @@ It can also be set using environment variables:
 - Keycloak
 - LinkedIn
 - Microsoft
-- Spotifyi
+- Spotify
 - Twitch
 - Facebook
 
