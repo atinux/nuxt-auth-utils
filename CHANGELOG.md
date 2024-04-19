@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.0.24
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.23...v0.0.24)
+
+### 🚀 Enhancements
+
+- Add facebook OAuth provider ([777d8b2](https://github.com/Atinux/nuxt-auth-utils/commit/777d8b2))
+
+### 🏡 Chore
+
+- Update deps ([3e42be4](https://github.com/Atinux/nuxt-auth-utils/commit/3e42be4))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Adam Hudák ([@adam-hudak](http://github.com/adam-hudak))
+
 ## v0.0.23
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.22...v0.0.23)
