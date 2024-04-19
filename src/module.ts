@@ -147,5 +147,10 @@ export default defineNuxtModule<ModuleOptions>({
       region: '',
       userPoolId: '',
     })
+    // Facebook OAuth
+    runtimeConfig.oauth.facebook = defu(runtimeConfig.oauth.facebook, {
+      clientId: '',
+      clientSecret: '',
+    })
   },
 })

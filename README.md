@@ -146,6 +146,7 @@ It can also be set using environment variables:
 - AWS Cognito
 - Battle.net
 - Discord
+- Facebook
 - GitHub
 - Google
 - Keycloak
