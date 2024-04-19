@@ -146,6 +146,7 @@ It can also be set using environment variables:
 - AWS Cognito
 - Battle.net
 - Discord
+- Facebook
 - GitHub
 - Google
 - Keycloak
@@ -153,7 +154,6 @@ It can also be set using environment variables:
 - Microsoft
 - Spotify
 - Twitch
-- Facebook
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 
