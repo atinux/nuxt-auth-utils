@@ -9,8 +9,8 @@ Minimalist Authentication module for Nuxt exposing Vue composables and server ut
 
 - [Release Notes](/CHANGELOG.md)
 - [Demo](https://github.com/atinux/nuxt-todos-edge)
-  <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/nuxt-auth-utils?file=playground%2Fapp.vue) -->
-  <!-- - [📖 &nbsp;Documentation](https://example.com) -->
+<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/nuxt-auth-utils?file=playground%2Fapp.vue) -->
+<!-- - [📖 &nbsp;Documentation](https://example.com) -->
 
 ## Features
 
@@ -48,7 +48,7 @@ Nuxt Auth Utils automatically adds some plugins to fetch the current user sessio
 
 ```vue
 <script setup>
-const { loggedIn, user, session, clear } = useUserSession();
+const { loggedIn, user, session, clear } = useUserSession()
 </script>
 
 <template>
@@ -78,28 +78,28 @@ await setUserSession(event, {
   user: {
     // ... user data
   },
-  loggedInAt: new Date(),
+  loggedInAt: new Date()
   // Any extra fields
-});
+})
 
 // Replace a user session. Same behaviour as setUserSession, except it does not merge data with existing data
-await replaceUserSession(event, data);
+await replaceUserSession(event, data)
 
 // Get the current user session
-const session = await getUserSession(event);
+const session = await getUserSession(event)
 
 // Clear the current user session
-await clearUserSession(event);
+await clearUserSession(event)
 
 // Require a user session (send back 401 if no `user` key in session)
-const session = await requireUserSession(event);
+const session = await requireUserSession(event)
 ```
 
 You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project to augment the `UserSession` type:
 
 ```ts
 // auth.d.ts
-declare module "#auth-utils" {
+declare module '#auth-utils' {
   interface User {
     // Add your own fields
   }
@@ -109,7 +109,7 @@ declare module "#auth-utils" {
   }
 }
 
-export {};
+export {}
 ```
 
 ### OAuth Event Handlers
@@ -151,7 +151,7 @@ It can also be set using environment variables:
 - Keycloak
 - LinkedIn
 - Microsoft
-- Spotify
+- Spotifyi
 - Twitch
 - Facebook
 
@@ -164,22 +164,22 @@ Example: `~/server/routes/auth/github.get.ts`
 ```ts
 export default oauth.githubEventHandler({
   config: {
-    emailRequired: true,
+    emailRequired: true
   },
   async onSuccess(event, { user, tokens }) {
     await setUserSession(event, {
       user: {
-        githubId: user.id,
-      },
-    });
-    return sendRedirect(event, "/");
+        githubId: user.id
+      }
+    })
+    return sendRedirect(event, '/')
   },
   // Optional, will return a json error and 401 status code by default
   onError(event, error) {
-    console.error("GitHub OAuth error:", error);
-    return sendRedirect(event, "/");
+    console.error('GitHub OAuth error:', error)
+    return sendRedirect(event, '/')
   },
-});
+})
 ```
 
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
@@ -193,17 +193,17 @@ We leverage hooks to let you extend the session data with your own data or to lo
 export default defineNitroPlugin(() => {
   // Called when the session is fetched during SSR for the Vue composable (/api/_auth/session)
   // Or when we call useUserSession().fetch()
-  sessionHooks.hook("fetch", async (session, event) => {
+  sessionHooks.hook('fetch', async (session, event) => {
     // extend User Session by calling your database
     // or
     // throw createError({ ... }) if session is invalid for example
-  });
+  })
 
   // Called when we call useServerSession().clear() or clearUserSession(event)
-  sessionHooks.hook("clear", async (session, event) => {
+  sessionHooks.hook('clear', async (session, event) => {
     // Log that user logged out
-  });
-});
+  })
+})
 ```
 
 ## Configuration
@@ -214,13 +214,13 @@ You can overwrite the options in your `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["nuxt-auth-utils"],
+  modules: ['nuxt-auth-utils'],
   runtimeConfig: {
     session: {
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-    },
-  },
-});
+      maxAge: 60 * 60 * 24 * 7 // 1 week
+    }
+  }
+})
 ```
 
 Our defaults are:
@@ -264,12 +264,14 @@ npm run release
 ```
 
 <!-- Badges -->
-
 [npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-utils/latest.svg?style=flat&colorA=020420&colorB=00DC82
 [npm-version-href]: https://npmjs.com/package/nuxt-auth-utils
+
 [npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-auth-utils.svg?style=flat&colorA=020420&colorB=00DC82
 [npm-downloads-href]: https://npmjs.com/package/nuxt-auth-utils
+
 [license-src]: https://img.shields.io/npm/l/nuxt-auth-utils.svg?style=flat&colorA=020420&colorB=00DC82
 [license-href]: https://npmjs.com/package/nuxt-auth-utils
+
 [nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
 [nuxt-href]: https://nuxt.com
