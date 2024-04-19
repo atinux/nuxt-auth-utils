@@ -11,6 +11,7 @@ declare module '#auth-utils' {
     keycloak?: string
     linkedin?: string
     cognito?: string
+    facebook?: string
   }
 
   interface UserSession {
