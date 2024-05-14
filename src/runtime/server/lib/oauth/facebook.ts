@@ -133,7 +133,7 @@ export function facebookEventHandler({
     config.fields = config.fields || ['id', 'name']
     const fields = config.fields.join(',')
 
-    const user: any = await ofetch(
+    const user = await ofetch(
       `https://graph.facebook.com/v19.0/me?fields=${fields}&access_token=${accessToken}`,
     )
 
