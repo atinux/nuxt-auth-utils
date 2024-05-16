@@ -1,5 +1,5 @@
 import { writeFile, readFile } from 'node:fs/promises'
-import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler } from '@nuxt/kit'
+import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler, addServerPlugin } from '@nuxt/kit'
 import { join } from 'pathe'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
@@ -45,6 +45,7 @@ export default defineNuxtModule<ModuleOptions>({
         ],
       })
     }
+    addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     // Waiting for https://github.com/nuxt/nuxt/pull/24000/files
     // addServerImportsDir(resolver.resolve('./runtime/server/utils'))
     addServerHandler({

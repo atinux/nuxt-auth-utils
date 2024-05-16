@@ -32,6 +32,14 @@ export interface OAuthFacebookConfig {
   scope?: string[]
 
   /**
+   * Facebook OAuth User Fields
+   * @default [ 'id', 'name'],
+   * @see https://developers.facebook.com/docs/graph-api/guides/field-expansion
+   * @example [ 'id', 'name', 'email' ],
+   */
+  fields?: string[]
+
+  /**
    * Facebook OAuth Authorization URL
    * @default 'https://www.facebook.com/v19.0/dialog/oauth'
    */
@@ -121,9 +129,12 @@ export function facebookEventHandler({
 
     const accessToken = tokens.access_token
     // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch(
-      `https://graph.facebook.com/v19.0/me?fields=id,name&access_token=${accessToken}`,
+
+    config.fields = config.fields || ['id', 'name']
+    const fields = config.fields.join(',')
+
+    const user = await ofetch(
+      `https://graph.facebook.com/v19.0/me?fields=${fields}&access_token=${accessToken}`,
     )
 
     if (!user) {
