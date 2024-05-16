@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.0.25
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.24...v0.0.25)
+
+### 🚀 Enhancements
+
+- Add fields support to facebook provider ([8e53936](https://github.com/Atinux/nuxt-auth-utils/commit/8e53936))
+
+### 🏡 Chore
+
+- Update to latest `@nuxt/module-builder` ([c9e4ff7](https://github.com/Atinux/nuxt-auth-utils/commit/c9e4ff7))
+
+### ❤️ Contributors
+
+- Ozan Cakir ([@ozancakir](http://github.com/ozancakir))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v0.0.24
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.23...v0.0.24)
