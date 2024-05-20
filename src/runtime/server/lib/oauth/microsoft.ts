@@ -3,6 +3,7 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
+import jwtDecode from 'jwt-decode'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthMicrosoftConfig {
@@ -46,6 +47,13 @@ export interface OAuthMicrosoftConfig {
    */
   userURL?: string
   /**
+   * Flag to call the "me" endpoint. May not be callable depending on scopes used.
+   * If not used, Name and Email will be parsed from the returned JWT token.
+   * @default false
+   * @see https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens
+   */
+  useUser?: boolean
+  /**
    * Extra authorization parameters to provide to the authorization URL
    * @see https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
    */
@@ -69,7 +77,9 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.microsoft, {
       authorizationParams: {},
+      useUser: false,
     }) as OAuthMicrosoftConfig
+
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.tenant) {
@@ -133,24 +143,47 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
-    const userURL = config.userURL || 'https://graph.microsoft.com/v1.0/me'
+
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch(userURL, {
-      headers: {
-        Authorization: `${tokenType} ${accessToken}`,
-      },
-    }).catch((error) => {
-      return { error }
-    })
-    if (user.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Microsoft login failed: ${user.error || 'Unknown error'}`,
-        data: user,
+    let user: any = {}
+
+    if (config.useUser) {
+      const userURL = config.userURL || 'https://graph.microsoft.com/v1.0/me'
+      user = await ofetch(userURL, {
+        headers: {
+          Authorization: `${tokenType} ${accessToken}`,
+        },
+      }).catch((error) => {
+        return { error }
       })
-      if (!onError) throw error
-      return onError(event, error)
+      if (user.error) {
+        const error = createError({
+          statusCode: 401,
+          message: `Microsoft login failed: ${user.error || 'Unknown error'}`,
+          data: user,
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
+    }
+    else {
+      // use of any is required as MS has two token versions
+      // see: https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const decodedToken = jwtDecode<any>(accessToken)
+      const msJwtVersion: '1.0' | '2.0' = decodedToken.ver
+
+      if (msJwtVersion === '2.0') {
+        user.displayName = decodedToken.name
+        user.mail = decodedToken.preferred_username
+      }
+      else {
+        const firstName = decodedToken.given_name
+        const lastName = decodedToken.family_name
+        user.displayName = `${firstName} ${lastName}`
+        user.mail = decodedToken.unique_name
+      }
     }
 
     return onSuccess(event, {
