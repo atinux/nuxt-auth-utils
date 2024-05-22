@@ -3,7 +3,8 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
-import jwtDecode from 'jwt-decode'
+import jwt from 'jsonwebtoken'
+import jwksClient from 'jwks-rsa'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthMicrosoftConfig {
@@ -168,22 +169,61 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       }
     }
     else {
-      // use of any is required as MS has two token versions
-      // see: https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const decodedToken = jwtDecode<any>(accessToken)
-      const msJwtVersion: '1.0' | '2.0' = decodedToken.ver
+      // required to unsafely decode to get the Kid from the header
+      const decoded = jwt.decode(accessToken, { complete: true })
+      if (!decoded) {
+        const error = createError({
+          statusCode: 401,
+          message: `Microsoft login failed: ${user.error || 'Failed to decoded JWT'}`,
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
 
-      if (msJwtVersion === '2.0') {
-        user.displayName = decodedToken.name
-        user.mail = decodedToken.preferred_username
+      const kid = decoded.header.kid
+      if (!kid) {
+        const error = createError({
+          statusCode: 401,
+          message: `Microsoft login failed: ${user.error || 'Missing Kid'}`,
+        })
+        if (!onError) throw error
+        return onError(event, error)
       }
-      else {
-        const firstName = decodedToken.given_name
-        const lastName = decodedToken.family_name
-        user.displayName = `${firstName} ${lastName}`
-        user.mail = decodedToken.unique_name
-      }
+
+      const client = jwksClient({
+        jwksUri: 'https://login.microsoftonline.com/common/discovery/keys',
+      })
+
+      // use kid to validate signature and get signingKey
+      const key = await client.getSigningKey(kid)
+      const signingKey = key.getPublicKey()
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      jwt.verify(accessToken, signingKey, function (err: any, decoded: any) {
+        if (decoded) {
+          const msJwtVersion: '1.0' | '2.0' = decoded.ver
+
+          if (msJwtVersion === '2.0') {
+            user.displayName = decoded.name
+            user.mail = decoded.preferred_username
+          }
+          else {
+            const firstName = decoded.given_name
+            const lastName = decoded.family_name
+            user.displayName = `${firstName} ${lastName}`
+            user.mail = decoded.unique_name
+          }
+        }
+        else {
+          const error = createError({
+            statusCode: 401,
+            message: `Microsoft login failed: ${user.error || 'Token verification failed'}`,
+            data: err,
+          })
+          if (!onError) throw error
+          return onError(event, error)
+        }
+      })
     }
 
     return onSuccess(event, {
