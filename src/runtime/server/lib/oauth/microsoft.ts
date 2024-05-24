@@ -168,7 +168,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       if (user.error) {
         const error = createError({
           statusCode: 401,
-          message: `Microsoft login failed: ${user.error || 'Unknown error'}`,
+          message: `Microsoft login failed: Unknown error`,
           data: user,
         })
         if (!onError) throw error
@@ -181,7 +181,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       if (!decoded) {
         const error = createError({
           statusCode: 401,
-          message: `Microsoft login failed: ${user.error || 'Failed to decoded JWT'}`,
+          message: `Microsoft login failed: Failed to decoded JWT`,
         })
         if (!onError) throw error
         return onError(event, error)
@@ -191,7 +191,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       if (!kid) {
         const error = createError({
           statusCode: 401,
-          message: `Microsoft login failed: ${user.error || 'Missing Kid'}`,
+          message: `Microsoft login failed: Missing Kid`,
         })
         if (!onError) throw error
         return onError(event, error)
@@ -224,7 +224,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
         else {
           const error = createError({
             statusCode: 401,
-            message: `Microsoft login failed: ${user.error || 'Token verification failed'}`,
+            message: `Microsoft login failed: Token verification failed`,
             data: err,
           })
           if (!onError) throw error
