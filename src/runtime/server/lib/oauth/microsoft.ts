@@ -55,6 +55,12 @@ export interface OAuthMicrosoftConfig {
    */
   useUser?: boolean
   /**
+   * JWKS url for verification of the JWT Token. Only used when useUser is false to verify JWT before decoding.
+   * @default https://login.microsoftonline.com/common/discovery/keys
+   * @see https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens#keys-document-and-signing-key-issuer
+   */
+  jwksUrl?: string
+  /**
    * Extra authorization parameters to provide to the authorization URL
    * @see https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
    */
@@ -94,6 +100,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
 
     const authorizationURL = config.authorizationURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/authorize`
     const tokenURL = config.tokenURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/token`
+    const jwksUrl = config.jwksUrl || 'https://login.microsoftonline.com/common/discovery/keys'
 
     const redirectUrl = config.redirectUrl || getRequestURL(event).href
     if (!code) {
@@ -191,7 +198,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
       }
 
       const client = jwksClient({
-        jwksUri: 'https://login.microsoftonline.com/common/discovery/keys',
+        jwksUri: jwksUrl,
       })
 
       // use kid to validate signature and get signingKey
