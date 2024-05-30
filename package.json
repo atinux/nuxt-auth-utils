@@ -5,6 +5,7 @@
   "repository": "Atinux/nuxt-auth-utils",
   "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@9.1.3",
   "exports": {
     ".": {
       "types": "./dist/types.d.ts",
