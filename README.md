@@ -72,7 +72,7 @@ The following helpers are auto-imported in your `server/` directory.
 
 ```ts
 // Set a user session, note that this data is encrypted in the cookie but can be decrypted with an API call
-// Only store the data that allow you to recognize an user, but do not store sensitive data
+// Only store the data that allow you to recognize a user, but do not store sensitive data
 // Merges new data with existing data using defu()
 await setUserSession(event, {
   user: {
@@ -118,7 +118,7 @@ All helpers are exposed from the `oauth` global variable and can be used in your
 
 The pattern is `oauth.<provider>EventHandler({ onSuccess, config?, onError? })`, example: `oauth.githubEventHandler`.
 
-The helper returns an event handler that automatically redirects to the provider authorization page and then call `onSuccess` or `onError` depending on the result.
+The helper returns an event handler that automatically redirects to the provider authorization page and then calls `onSuccess` or `onError` depending on the result.
 
 The `config` can be defined directly from the `runtimeConfig` in your `nuxt.config.ts`:
 
@@ -186,7 +186,7 @@ Make sure to set the callback URL in your OAuth app settings as `<your-domain>/a
 
 ### Extend Session
 
-We leverage hooks to let you extend the session data with your own data or to log when the user clear its session.
+We leverage hooks to let you extend the session data with your own data or log when the user clears the session.
 
 ```ts
 // server/plugins/session.ts
