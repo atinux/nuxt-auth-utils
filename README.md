@@ -208,14 +208,19 @@ export default defineNitroPlugin(() => {
 
 ## Server-Side Rendering
 
-You can make authenticated requests both from the client and the server. However, you must use `useRequestFetch()` to make authenticated requests during SSR.
+You can make authenticated requests both from the client and the server. However, you must use `useRequestFetch()` to make authenticated requests during SSR if you are not using `useFetch()`
 
-```ts 
-// In your script setup 
-const { data } = await useRequestFetch()('/api/protected-endpoint');
+```vue
+<script setup lang="ts">
+// When using useAsyncData
+const { data } = await useAsyncData('team', () => useRequestFetch()('/api/protected-endpoint'))
+
+// useFetch will automatically use useRequestFetch during SSR
+const { data } = await useFetch('/api/protected-endpoint')
+</script>
 ```
 
-> There's [an open issue](https://github.com/nuxt/nuxt/issues/24813) to include credentials in `$fetch`/`useFetch` in Nuxt.
+> There's [an open issue](https://github.com/nuxt/nuxt/issues/24813) to include credentials in `$fetch` in Nuxt.
 
 ## Configuration
 
