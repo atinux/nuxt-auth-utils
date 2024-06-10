@@ -206,6 +206,17 @@ export default defineNitroPlugin(() => {
 })
 ```
 
+## Server-Side Rendering
+
+You can make authenticated requests both from the client and the server. However, you must use `useRequestFetch()` to make authenticated requests during SSR.
+
+```ts 
+// In your script setup 
+const { data } = await useRequestFetch()('/api/protected-endpoint');
+```
+
+> There's [an open issue](https://github.com/nuxt/nuxt/issues/24813) to include credentials in `$fetch`/`useFetch` in Nuxt.
+
 ## Configuration
 
 We leverage `runtimeConfig.session` to give the defaults option to [h3 `useSession`](https://h3.unjs.io/examples/handle-session).
