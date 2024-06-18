@@ -14,12 +14,13 @@ Minimalist Authentication module for Nuxt exposing Vue composables and server ut
 
 ## Features
 
+- Support for Hybrid Rendering (SSR / CSR / SWR / Prerendering)
 - Secured & sealed cookies sessions
 - [OAuth Providers](#supported-oauth-providers)
 
 ## Requirements
 
-This module only works with SSR (server-side rendering) enabled as it uses server API routes. You cannot use this module with `nuxt generate`.
+This module only works with the Nuxt server running as it uses server API routes. This means that you cannot use this module with `nuxt generate`.
 
 ## Quick Setup
 
@@ -221,6 +222,53 @@ const { data } = await useFetch('/api/protected-endpoint')
 ```
 
 > There's [an open issue](https://github.com/nuxt/nuxt/issues/24813) to include credentials in `$fetch` in Nuxt.
+
+## Hybrid Rendering
+
+When using [Nuxt `routeRules`](https://nuxt.com/docs/guide/concepts/rendering#hybrid-rendering) to prerender or cache your pages, Nuxt Auth Utils will not fetch the user session during prerendering but instead fetch it on the client-side (after hydration).
+
+This is because the user session is stored in a secure cookie and cannot be accessed during prerendering.
+
+**This means that you should not rely on the user session during prerendering.**
+
+### `<AuthState>` component
+
+You can use the `<AuthState>` component to safely display auth-related data in your components without worrying about the rendering mode.
+
+One common use case if the Login button in the header:
+
+```vue
+<template>
+  <header>
+    <AuthState v-slot="{ loggedIn, clear }">
+      <button v-if="loggedIn" @click="clear">Logout</button>
+      <NuxtLink v-else to="/login">Login</NuxtLink>
+    </AuthState>
+  </header>
+</template>
+```
+
+If the page is cached or prerendered, nothing will be rendered until the user session is fetched on the client-side.
+
+You can use the `placeholder` slot to show a placeholder on server-side and while the user session is being fetched on client-side for the prerendered pages:
+
+```vue
+<template>
+  <header>
+    <AuthState>
+      <template #default="{ loggedIn, clear }">
+        <button v-if="loggedIn" @click="clear">Logout</button>
+        <NuxtLink v-else to="/login">Login</NuxtLink>
+      </template>
+      <template #placeholder>
+        <button disabled>Loading...</button>
+      </template>
+    </AuthState>
+  </header>
+</template>
+```
+
+If you are caching your routes with `routeRules`, please make sure to use [`nitro-nightly`](https://nitro.unjs.io/guide/nightly) or Nitro >= `2.10.0` to support the client-side fetching of the user session.
 
 ## Configuration
 
