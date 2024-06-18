@@ -5,7 +5,7 @@
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-Minimalist Authentication module for Nuxt exposing Vue composables and server utils.
+Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 
 - [Release Notes](/CHANGELOG.md)
 - [Demo](https://github.com/atinux/nuxt-todos-edge)
@@ -14,13 +14,20 @@ Minimalist Authentication module for Nuxt exposing Vue composables and server ut
 
 ## Features
 
-- Support for Hybrid Rendering (SSR / CSR / SWR / Prerendering)
-- Secured & sealed cookies sessions
-- [OAuth Providers](#supported-oauth-providers)
+- [Hybrid Rendering](#hybrid-rendering) support (SSR / CSR / SWR / Prerendering)
+- [10+ OAuth Providers](#supported-oauth-providers)
+- [Vue composable](#vue-composable)
+- [Server utils](#server-utils)
+- [`<AuthState>` component](#authstate-component)
+- [Extendable with hooks](#extend-session)
 
 ## Requirements
 
-This module only works with the Nuxt server running as it uses server API routes. This means that you cannot use this module with `nuxt generate`.
+This module only works with a Nuxt server running as it uses server API routes (`nuxt build`).
+
+This means that you cannot use this module with `nuxt generate`.
+
+You can anyway use [Hybrid Rendering](#hybrid-rendering) to pre-render pages of your application or disable server-side rendering completely.
 
 ## Quick Setup
 
@@ -41,7 +48,7 @@ Nuxt Auth Utils generates one for you when running Nuxt in development the first
 
 3. That's it! You can now add authentication to your Nuxt app ✨
 
-## Vue Composables
+## Vue Composable
 
 Nuxt Auth Utils automatically adds some plugins to fetch the current user session to let you access it from your Vue components.
 
