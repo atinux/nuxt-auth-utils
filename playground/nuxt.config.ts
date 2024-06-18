@@ -1,4 +1,5 @@
 export default defineNuxtConfig({
+  compatibilityDate: '2024-06-17',
   extends: ['@nuxt/ui-pro'],
   modules: [
     'nuxt-auth-utils',
@@ -11,5 +12,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   imports: {
     autoImport: true,
+  },
+  routeRules: {
+    '/': {
+      // prerender: true,
+      // swr: 5,
+      // ssr: false,
+    },
   },
 })
