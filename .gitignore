@@ -46,3 +46,6 @@ coverage
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# tar (npm pack)
+*.tgz

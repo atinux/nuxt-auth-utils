@@ -3,6 +3,8 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { withQuery, parsePath } from 'ufo'
 import { ofetch } from 'ofetch'
 import { defu } from 'defu'
+import jwt from 'jsonwebtoken'
+import jwksClient from 'jwks-rsa'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthMicrosoftConfig {
@@ -46,6 +48,19 @@ export interface OAuthMicrosoftConfig {
    */
   userURL?: string
   /**
+   * Flag to call the "me" endpoint. May not be callable depending on scopes used.
+   * If not used, Name and Email will be parsed from the returned JWT token.
+   * @default false
+   * @see https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens
+   */
+  useUser?: boolean
+  /**
+   * JWKS url for verification of the JWT Token. Only used when useUser is false to verify JWT before decoding.
+   * @default https://login.microsoftonline.com/common/discovery/keys
+   * @see https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens#keys-document-and-signing-key-issuer
+   */
+  jwksUrl?: string
+  /**
    * Extra authorization parameters to provide to the authorization URL
    * @see https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
    */
@@ -69,7 +84,9 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.microsoft, {
       authorizationParams: {},
+      useUser: false,
     }) as OAuthMicrosoftConfig
+
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.tenant) {
@@ -83,6 +100,7 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
 
     const authorizationURL = config.authorizationURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/authorize`
     const tokenURL = config.tokenURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/token`
+    const jwksUrl = config.jwksUrl || 'https://login.microsoftonline.com/common/discovery/keys'
 
     const redirectUrl = config.redirectUrl || getRequestURL(event).href
     if (!code) {
@@ -133,24 +151,86 @@ export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfi
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
-    const userURL = config.userURL || 'https://graph.microsoft.com/v1.0/me'
+
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch(userURL, {
-      headers: {
-        Authorization: `${tokenType} ${accessToken}`,
-      },
-    }).catch((error) => {
-      return { error }
-    })
-    if (user.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Microsoft login failed: ${user.error || 'Unknown error'}`,
-        data: user,
+    let user: any = {}
+
+    if (config.useUser) {
+      const userURL = config.userURL || 'https://graph.microsoft.com/v1.0/me'
+      user = await ofetch(userURL, {
+        headers: {
+          Authorization: `${tokenType} ${accessToken}`,
+        },
+      }).catch((error) => {
+        return { error }
       })
-      if (!onError) throw error
-      return onError(event, error)
+      if (user.error) {
+        const error = createError({
+          statusCode: 401,
+          message: `Microsoft login failed: Unknown error`,
+          data: user,
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
+    }
+    else {
+      // required to unsafely decode to get the Kid from the header
+      const decoded = jwt.decode(accessToken, { complete: true })
+      if (!decoded) {
+        const error = createError({
+          statusCode: 401,
+          message: `Microsoft login failed: Failed to decoded JWT`,
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
+
+      const kid = decoded.header.kid
+      if (!kid) {
+        const error = createError({
+          statusCode: 401,
+          message: `Microsoft login failed: Missing Kid`,
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
+
+      const client = jwksClient({
+        jwksUri: jwksUrl,
+      })
+
+      // use kid to validate signature and get signingKey
+      const key = await client.getSigningKey(kid)
+      const signingKey = key.getPublicKey()
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      jwt.verify(accessToken, signingKey, function (err: any, decoded: any) {
+        if (decoded) {
+          const msJwtVersion: '1.0' | '2.0' = decoded.ver
+
+          if (msJwtVersion === '2.0') {
+            user.displayName = decoded.name
+            user.mail = decoded.preferred_username
+          }
+          else {
+            const firstName = decoded.given_name
+            const lastName = decoded.family_name
+            user.displayName = `${firstName} ${lastName}`
+            user.mail = decoded.unique_name
+          }
+        }
+        else {
+          const error = createError({
+            statusCode: 401,
+            message: `Microsoft login failed: Token verification failed`,
+            data: err,
+          })
+          if (!onError) throw error
+          return onError(event, error)
+        }
+      })
     }
 
     return onSuccess(event, {
