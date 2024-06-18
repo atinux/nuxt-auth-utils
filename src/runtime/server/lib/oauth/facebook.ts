@@ -6,7 +6,6 @@ import {
   getRequestURL,
   sendRedirect,
 } from 'h3'
-import { ofetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
@@ -133,7 +132,7 @@ export function facebookEventHandler({
     config.fields = config.fields || ['id', 'name']
     const fields = config.fields.join(',')
 
-    const user = await ofetch(
+    const user = await $fetch(
       `https://graph.facebook.com/v19.0/me?fields=${fields}&access_token=${accessToken}`,
     )
 

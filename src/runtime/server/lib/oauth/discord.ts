@@ -1,7 +1,6 @@
 import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
-import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -100,7 +99,7 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<
     parsedRedirectUrl.search = ''
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await ofetch(
+    const tokens: any = await $fetch(
       config.tokenURL as string,
       {
         method: 'POST',
@@ -132,7 +131,7 @@ export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch('https://discord.com/api/users/@me', {
+    const user: any = await $fetch('https://discord.com/api/users/@me', {
       headers: {
         'user-agent': 'Nuxt Auth Utils',
         'Authorization': `Bearer ${accessToken}`,
