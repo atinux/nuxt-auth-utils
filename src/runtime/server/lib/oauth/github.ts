@@ -1,6 +1,5 @@
 import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { ofetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
@@ -122,7 +121,7 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch('https://api.github.com/user', {
+    const user: any = await $fetch('https://api.github.com/user', {
       headers: {
         'User-Agent': `Github-OAuth-${config.clientId}`,
         'Authorization': `token ${accessToken}`,
@@ -133,7 +132,7 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
     if (!user.email && config.emailRequired) {
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emails: any[] = await ofetch('https://api.github.com/user/emails', {
+      const emails: any[] = await $fetch('https://api.github.com/user/emails', {
         headers: {
           'User-Agent': `Github-OAuth-${config.clientId}`,
           'Authorization': `token ${accessToken}`,

@@ -7,7 +7,6 @@ import {
   sendRedirect,
 } from 'h3'
 import { withQuery, parsePath } from 'ufo'
-import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -109,7 +108,7 @@ export function googleEventHandler({
     }
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await ofetch(config.tokenURL as string, {
+    const tokens: any = await $fetch(config.tokenURL as string, {
       method: 'POST',
       body,
     }).catch((error) => {
@@ -130,7 +129,7 @@ export function googleEventHandler({
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch(
+    const user: any = await $fetch(
       config.userURL as string,
       {
         headers: {

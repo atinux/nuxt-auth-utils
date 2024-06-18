@@ -1,7 +1,6 @@
 import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
-import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -90,7 +89,7 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await ofetch(
+    const tokens: any = await $fetch(
       config.tokenURL as string,
       {
         method: 'POST',
@@ -120,7 +119,7 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch('https://api.spotify.com/v1/me', {
+    const user: any = await $fetch('https://api.spotify.com/v1/me', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

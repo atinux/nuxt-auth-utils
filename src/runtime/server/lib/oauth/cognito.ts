@@ -1,7 +1,6 @@
 import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
-import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -76,7 +75,7 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await ofetch(
+    const tokens: any = await $fetch(
       tokenURL as string,
       {
         method: 'POST',
@@ -103,7 +102,7 @@ export function cognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch(`https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/userInfo`, {
+    const user: any = await $fetch(`https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/userInfo`, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },

@@ -6,7 +6,6 @@ import {
   getRequestURL,
   sendRedirect,
 } from 'h3'
-import { ofetch } from 'ofetch'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
@@ -114,7 +113,7 @@ export function keycloakEventHandler({
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await ofetch(tokenURL, {
+    const tokens: any = await $fetch(tokenURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -146,7 +145,7 @@ export function keycloakEventHandler({
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch(
+    const user: any = await $fetch(
       `${realmURL}/protocol/openid-connect/userinfo`,
       {
         headers: {

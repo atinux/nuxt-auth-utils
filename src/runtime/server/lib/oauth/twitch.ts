@@ -1,7 +1,6 @@
 import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
-import { ofetch } from 'ofetch'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -92,7 +91,7 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<O
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await ofetch(
+    const tokens: any = await $fetch(
       config.tokenURL as string,
       {
         method: 'POST',
@@ -123,7 +122,7 @@ export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<O
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const users: any = await ofetch('https://api.twitch.tv/helix/users', {
+    const users: any = await $fetch('https://api.twitch.tv/helix/users', {
       headers: {
         'Client-ID': config.clientId,
         'Authorization': `Bearer ${accessToken}`,
