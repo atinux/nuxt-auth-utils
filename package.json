@@ -55,8 +55,5 @@
     "typescript": "^5.4.5",
     "vitest": "^1.6.0",
     "vue-tsc": "^2.0.21"
-  },
-  "resolutions": {
-    "nitropack": "npm:nitropack-nightly@latest"
   }
 }

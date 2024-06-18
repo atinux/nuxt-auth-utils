@@ -95,6 +95,7 @@ let sessionConfig: SessionConfig
 
 function _useSession(event: H3Event) {
   if (!sessionConfig) {
+    // @ts-expect-error hard to define with defu
     sessionConfig = defu({ password: process.env.NUXT_SESSION_PASSWORD }, useRuntimeConfig(event).session)
   }
   return useSession<UserSession>(event, sessionConfig)
