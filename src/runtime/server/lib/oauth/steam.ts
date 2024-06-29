@@ -7,7 +7,7 @@ import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthSteamConfig {
   /**
-   * Steam API Key URL
+   * Steam API Key
    * @default process.env.NUXT_OAUTH_STEAM_API_KEY
    * @see https://steamcommunity.com/dev
    */
