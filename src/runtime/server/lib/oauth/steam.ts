@@ -44,7 +44,7 @@ export function steamEventHandler({ config, onSuccess, onError }: OAuthConfig<OA
         'openid.return_to': redirectUrl,
         'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
         'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
-      };
+      }
       // Redirect to Steam Oauth page
       return sendRedirect(event, withQuery(config.authorizationURL as string, steamOpenIdParams))
     }
@@ -52,7 +52,7 @@ export function steamEventHandler({ config, onSuccess, onError }: OAuthConfig<OA
     // Validate OpenID Authentication
     const validateAuth: string = await $fetch(withQuery(config.authorizationURL as string, {
       ...query,
-      'openid.mode': 'check_authentication'
+      'openid.mode': 'check_authentication',
     }))
 
     if (!validateAuth.includes('is_valid:true')) {
@@ -63,19 +63,19 @@ export function steamEventHandler({ config, onSuccess, onError }: OAuthConfig<OA
       if (!onError) throw error
       return onError(event, error)
     }
-  
-    const steamId = query['openid.claimed_id'].split('/').pop();
+
+    const steamId = query['openid.claimed_id'].split('/').pop()
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(withQuery("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/", {
+    const user: any = await $fetch(withQuery('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
       key: config.apiKey,
-      steamids: steamId
-    }));
+      steamids: steamId,
+    }))
 
     return onSuccess(event, {
       user: user.response.players[0],
-      tokens: null
+      tokens: null,
     })
   })
 }
