@@ -25,5 +25,5 @@ export const oauth = {
   linkedinEventHandler,
   cognitoEventHandler,
   facebookEventHandler,
-  xEventHandler
+  xEventHandler,
 }
