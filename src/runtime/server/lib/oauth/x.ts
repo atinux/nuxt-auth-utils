@@ -143,7 +143,7 @@ export function xEventHandler({
           Authorization: `Bearer ${accessToken}`,
         },
         query: {
-          'user.fields': 'description, id, name, profile_image_url, username, verified, verified_type',
+          'user.fields': 'description,id,name,profile_image_url,username,verified,verified_type',
         },
       },
     ).catch((error) => {
