@@ -142,6 +142,9 @@ export function xEventHandler({
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
+        query: {
+          'user.fields': 'description, id, name, profile_image_url, username, verified, verified_type',
+        },
       },
     ).catch((error) => {
       return error
