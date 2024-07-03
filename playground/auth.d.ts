@@ -14,6 +14,7 @@ declare module '#auth-utils' {
     cognito?: string
     facebook?: string
     paypal?: string
+    steam?: string
   }
 
   interface UserSession {

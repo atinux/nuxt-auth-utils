@@ -11,6 +11,7 @@ import { linkedinEventHandler } from '../lib/oauth/linkedin'
 import { cognitoEventHandler } from '../lib/oauth/cognito'
 import { facebookEventHandler } from '../lib/oauth/facebook'
 import { paypalEventHandler } from '../lib/oauth/paypal'
+import { steamEventHandler } from '../lib/oauth/steam'
 
 export const oauth = {
   githubEventHandler,
@@ -26,4 +27,5 @@ export const oauth = {
   cognitoEventHandler,
   facebookEventHandler,
   paypalEventHandler,
+  steamEventHandler,
 }

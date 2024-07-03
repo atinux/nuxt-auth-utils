@@ -107,6 +107,12 @@ const providers = computed(() => [
     disabled: Boolean(user.value?.paypal),
     icon: 'i-simple-icons-paypal',
   },
+  {
+    label: user.value?.steam || 'Steam',
+    to: '/auth/steam',
+    disabled: Boolean(user.value?.steam),
+    icon: 'i-simple-icons-steam',
+  },
 ].map(p => ({
   ...p,
   prefetch: false,
