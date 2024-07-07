@@ -15,6 +15,7 @@ declare module '#auth-utils' {
     facebook?: string
     paypal?: string
     steam?: string
+    x?: string
   }
 
   interface UserSession {

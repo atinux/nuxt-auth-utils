@@ -141,5 +141,10 @@ export default defineNuxtModule<ModuleOptions>({
     runtimeConfig.oauth.steam = defu(runtimeConfig.oauth.steam, {
       apiKey: '',
     })
+    // X OAuth
+    runtimeConfig.oauth.x = defu(runtimeConfig.oauth.x, {
+      clientId: '',
+      clientSecret: '',
+    })
   },
 })

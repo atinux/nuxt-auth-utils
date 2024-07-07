@@ -12,6 +12,7 @@ import { cognitoEventHandler } from '../lib/oauth/cognito'
 import { facebookEventHandler } from '../lib/oauth/facebook'
 import { paypalEventHandler } from '../lib/oauth/paypal'
 import { steamEventHandler } from '../lib/oauth/steam'
+import { xEventHandler } from '../lib/oauth/x'
 
 export const oauth = {
   githubEventHandler,
@@ -28,4 +29,5 @@ export const oauth = {
   facebookEventHandler,
   paypalEventHandler,
   steamEventHandler,
+  xEventHandler,
 }
