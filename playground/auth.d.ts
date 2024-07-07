@@ -1,5 +1,6 @@
 declare module '#auth-utils' {
   interface User {
+    password?: string
     spotify?: string
     github?: string
     google?: string
@@ -12,6 +13,9 @@ declare module '#auth-utils' {
     linkedin?: string
     cognito?: string
     facebook?: string
+    paypal?: string
+    steam?: string
+    x?: string
     xsuaa?: string
   }
 

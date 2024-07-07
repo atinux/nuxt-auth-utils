@@ -1,5 +1,32 @@
 <script setup lang="ts">
-const { loggedIn, user, session, clear } = useUserSession()
+const { loggedIn, user, session, clear, fetch } = useUserSession()
+const loginModal = ref(false)
+const logging = ref(false)
+const password = ref('')
+const toast = useToast()
+
+async function login() {
+  if (logging.value || !password.value) return
+  logging.value = true
+  await $fetch('/api/login', {
+    method: 'POST',
+    body: {
+      password: password.value,
+    },
+  })
+    .then(() => {
+      fetch()
+      loginModal.value = false
+    })
+    .catch((err) => {
+      console.log(err)
+      toast.add({
+        color: 'red',
+        title: err.data?.message || err.message,
+      })
+    })
+  logging.value = false
+}
 
 const providers = computed(() => [
   {
@@ -75,11 +102,29 @@ const providers = computed(() => [
     icon: 'i-simple-icons-redhat',
   },
   {
+    label: session.value.user?.paypal || 'PayPal',
+    to: '/auth/paypal',
+    disabled: Boolean(user.value?.paypal),
+    icon: 'i-simple-icons-paypal',
+  },
+  {
+    label: user.value?.steam || 'Steam',
+    to: '/auth/steam',
+    disabled: Boolean(user.value?.steam),
+    icon: 'i-simple-icons-steam',
+  },
+  {
+    label: user.value?.x || 'X',
+    to: '/auth/x',
+    disabled: Boolean(user.value?.x),
+    icon: 'i-simple-icons-x',
+  },
+  {
     label: user.value?.xsuaa || 'XSUAA',
     to: '/auth/xsuaa',
     disabled: Boolean(user.value?.xsuaa),
     icon: 'i-simple-icons-sap',
-  },
+  }
 ].map(p => ({
   ...p,
   prefetch: false,
@@ -93,24 +138,43 @@ const providers = computed(() => [
       Nuxt Auth Utils
     </template>
     <template #right>
-      <UDropdown :items="[providers]">
+      <AuthState>
         <UButton
-          icon="i-heroicons-chevron-down"
-          trailing
+          v-if="!loggedIn"
+          size="xs"
+          color="gray"
+          @click="loginModal = true"
+        >
+          Login
+        </UButton>
+        <UDropdown :items="[providers]">
+          <UButton
+            icon="i-heroicons-chevron-down"
+            trailing
+            color="gray"
+            size="xs"
+          >
+            Login with
+          </UButton>
+        </UDropdown>
+        <UButton
+          v-if="loggedIn"
           color="gray"
           size="xs"
+          @click="clear"
         >
-          Login with
+          Logout
         </UButton>
-      </UDropdown>
-      <UButton
-        v-if="loggedIn"
-        color="gray"
-        size="xs"
-        @click="clear"
-      >
-        Logout
-      </UButton>
+        <template #placeholder>
+          <UButton
+            size="xs"
+            color="gray"
+            disabled
+          >
+            Loading...
+          </UButton>
+        </template>
+      </AuthState>
     </template>
   </UHeader>
   <UMain>
@@ -118,4 +182,28 @@ const providers = computed(() => [
       <NuxtPage />
     </UContainer>
   </UMain>
+  <UDashboardModal
+    v-model="loginModal"
+    title="Login with password"
+    description="Use the password: 123456"
+  >
+    <form @submit.prevent="login">
+      <UFormGroup label="Password">
+        <UInput
+          v-model="password"
+          name="password"
+          type="password"
+        />
+      </UFormGroup>
+      <UButton
+        type="submit"
+        :disabled="!password"
+        color="black"
+        class="mt-2"
+      >
+        Login
+      </UButton>
+    </form>
+  </UDashboardModal>
+  <UNotifications />
 </template>

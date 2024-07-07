@@ -1,6 +1,35 @@
 # Changelog
 
 
+## v0.1.0
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.25...v0.1.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Support hybrid rendering ([#104](https://github.com/Atinux/nuxt-auth-utils/pull/104))
+
+### 📖 Documentation
+
+- Fix typos ([149448a](https://github.com/Atinux/nuxt-auth-utils/commit/149448a))
+- Include SSR instructions in the README, fixes #97 ([#99](https://github.com/Atinux/nuxt-auth-utils/pull/99), [#97](https://github.com/Atinux/nuxt-auth-utils/issues/97))
+
+### 🏡 Chore
+
+- Add packageManager ([c323edc](https://github.com/Atinux/nuxt-auth-utils/commit/c323edc))
+- Add link to nuxt-authorization ([1b06908](https://github.com/Atinux/nuxt-auth-utils/commit/1b06908))
+- Update deps ([2fb5cff](https://github.com/Atinux/nuxt-auth-utils/commit/2fb5cff))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Support hybrid rendering ([#104](https://github.com/Atinux/nuxt-auth-utils/pull/104))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Paulo Queiroz ([@raggesilver](http://github.com/raggesilver))
+- Timi Omoyeni ([@Timibadass](http://github.com/Timibadass))
+
 ## v0.0.25
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.24...v0.0.25)

@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { ofetch } from 'ofetch'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
@@ -146,7 +145,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await ofetch('https://oauth.battle.net/userinfo', {
+    const user: any = await $fetch('https://oauth.battle.net/userinfo', {
       headers: {
         'User-Agent': `Battledotnet-OAuth-${config.clientId}`,
         'Authorization': `Bearer ${accessToken}`,
