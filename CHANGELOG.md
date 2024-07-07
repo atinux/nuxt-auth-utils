@@ -1,6 +1,51 @@
 # Changelog
 
 
+## v0.2.0
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.25...v0.2.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Support hybrid rendering ([#104](https://github.com/Atinux/nuxt-auth-utils/pull/104))
+- Add steam as supported oauth provider ([c8b02d0](https://github.com/Atinux/nuxt-auth-utils/commit/c8b02d0))
+- Add paypal as supported oauth provider ([57ea01e](https://github.com/Atinux/nuxt-auth-utils/commit/57ea01e))
+- Add x(formerly twitter) as supported oauth provider ([a0be1f2](https://github.com/Atinux/nuxt-auth-utils/commit/a0be1f2))
+- Add xsuaa provider ([9afb9eb](https://github.com/Atinux/nuxt-auth-utils/commit/9afb9eb))
+
+### 💅 Refactors
+
+- Replace ofetch with $fetch ([a7df1b5](https://github.com/Atinux/nuxt-auth-utils/commit/a7df1b5))
+
+### 📖 Documentation
+
+- Fix typos ([149448a](https://github.com/Atinux/nuxt-auth-utils/commit/149448a))
+- Include SSR instructions in the README, fixes #97 ([#99](https://github.com/Atinux/nuxt-auth-utils/pull/99), [#97](https://github.com/Atinux/nuxt-auth-utils/issues/97))
+- Update readme ([7a4dcfb](https://github.com/Atinux/nuxt-auth-utils/commit/7a4dcfb))
+- Add X in readme ([b452d60](https://github.com/Atinux/nuxt-auth-utils/commit/b452d60))
+
+### 🏡 Chore
+
+- Add packageManager ([c323edc](https://github.com/Atinux/nuxt-auth-utils/commit/c323edc))
+- Add link to nuxt-authorization ([1b06908](https://github.com/Atinux/nuxt-auth-utils/commit/1b06908))
+- Update deps ([2fb5cff](https://github.com/Atinux/nuxt-auth-utils/commit/2fb5cff))
+- **release:** V0.1.0 ([6ea5685](https://github.com/Atinux/nuxt-auth-utils/commit/6ea5685))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Support hybrid rendering ([#104](https://github.com/Atinux/nuxt-auth-utils/pull/104))
+
+### ❤️ Contributors
+
+- Jan Fröhlich ([@zanfee](http://github.com/zanfee))
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Stonegate 
+- Yizack Rangel ([@Yizack](http://github.com/Yizack))
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Yue JIN ([@kingyue737](http://github.com/kingyue737))
+- Paulo Queiroz ([@raggesilver](http://github.com/raggesilver))
+- Timi Omoyeni ([@Timibadass](http://github.com/Timibadass))
+
 ## v0.1.0
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.25...v0.1.0)
