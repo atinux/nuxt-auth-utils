@@ -10,8 +10,9 @@ import { keycloakEventHandler } from '../lib/oauth/keycloak'
 import { linkedinEventHandler } from '../lib/oauth/linkedin'
 import { cognitoEventHandler } from '../lib/oauth/cognito'
 import { facebookEventHandler } from '../lib/oauth/facebook'
-import { xEventHandler } from '../lib/oauth/x'
+import { paypalEventHandler } from '../lib/oauth/paypal'
 import { steamEventHandler } from '../lib/oauth/steam'
+import { xEventHandler } from '../lib/oauth/x'
 
 export const oauth = {
   githubEventHandler,
@@ -26,6 +27,7 @@ export const oauth = {
   linkedinEventHandler,
   cognitoEventHandler,
   facebookEventHandler,
-  xEventHandler,
+  paypalEventHandler,
   steamEventHandler,
+  xEventHandler,
 }

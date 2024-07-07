@@ -13,8 +13,9 @@ declare module '#auth-utils' {
     linkedin?: string
     cognito?: string
     facebook?: string
-    x?: string
+    paypal?: string
     steam?: string
+    x?: string
   }
 
   interface UserSession {
