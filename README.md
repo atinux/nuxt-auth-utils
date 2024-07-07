@@ -15,7 +15,7 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 ## Features
 
 - [Hybrid Rendering](#hybrid-rendering) support (SSR / CSR / SWR / Prerendering)
-- [15 OAuth Providers](#supported-oauth-providers)
+- [15+ OAuth Providers](#supported-oauth-providers)
 - [Vue composable](#vue-composable)
 - [Server utils](#server-utils)
 - [`<AuthState>` component](#authstate-component)
@@ -165,6 +165,7 @@ It can also be set using environment variables:
 - Steam
 - Twitch
 - X (Twitter)
+- XSUAA
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 
