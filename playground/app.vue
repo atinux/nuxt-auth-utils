@@ -102,6 +102,12 @@ const providers = computed(() => [
     icon: 'i-simple-icons-redhat',
   },
   {
+    label: session.value.user?.paypal || 'PayPal',
+    to: '/auth/paypal',
+    disabled: Boolean(user.value?.paypal),
+    icon: 'i-simple-icons-paypal',
+  },
+  {
     label: user.value?.steam || 'Steam',
     to: '/auth/steam',
     disabled: Boolean(user.value?.steam),
