@@ -5,8 +5,8 @@ export default oauth.yandexEventHandler({
         yandex: user.default_email,
       },
       loggedInAt: Date.now(),
-    });
+    })
 
-    return sendRedirect(event, "/");
+    return sendRedirect(event, '/')
   },
-});
+})
