@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { useUserSession } from '#imports'
 
 const userSession = useUserSession()
