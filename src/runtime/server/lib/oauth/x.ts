@@ -27,9 +27,15 @@ export interface OAuthXConfig {
    * X OAuth Scope
    * @default []
    * @see https://developer.x.com/en/docs/authentication/oauth-2-0/user-access-token
-   * @example [ 'tweet.read','users.read','offline.access ],
+   * @example [ 'tweet.read','users.read','offline.access' ],
    */
   scope?: string[]
+
+  /**
+   * Require email from user
+   * @default false
+   */
+  emailRequired?: boolean
 
   /**
    * X OAuth Authorization URL
@@ -149,6 +155,33 @@ export function xEventHandler({
     ).catch((error) => {
       return error
     })
+
+    if (config.emailRequired) {
+      // Fetch email if required
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const emailData: any = await $fetch('https://api.twitter.com/1.1/account/verify_credentials.json', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        query: {
+          include_email: 'true',
+          skip_status: 'true',
+        },
+      }).catch((error) => {
+        return error
+      })
+      
+      if (emailData && emailData.email) {
+        user.email = emailData.email
+      } else {
+        const error = createError({
+          statusCode: 401,
+          message: 'Twitter login failed: no user email found',
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
+    }
 
     return onSuccess(event, {
       tokens,
