@@ -6,7 +6,7 @@ import {
   getRequestURL,
   sendRedirect,
 } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -31,6 +31,12 @@ export interface OAuthYandexConfig {
    * @example ["login:avatar", "login:birthday", "login:email", "login:info", "login:default_phone"]
    */
   scope?: string[]
+
+  /**
+   * Require email from user, adds the ['login:email'] scope if not present
+   * @default false
+   */
+  emailRequired?: boolean
 
   /**
    * Yandex OAuth Authorization URL
@@ -78,11 +84,10 @@ export function yandexEventHandler({
     const redirectUrl = getRequestURL(event).href
 
     if (!code) {
-      config.scope = config.scope || [
-        'login:avatar',
-        'login:email',
-        'login:info',
-      ]
+      config.scope = config.scope || []
+      if (config.emailRequired && !config.scope.includes('login:email')) {
+        config.scope.push('login:email')
+      }
       // Redirect to Yandex Oauth page
       return sendRedirect(
         event,
@@ -97,18 +102,18 @@ export function yandexEventHandler({
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const formData: any = new FormData()
-    formData.append('grant_type', 'authorization_code')
-    formData.append('client_id', config.clientId)
-    formData.append('client_secret', config.clientSecret)
-    formData.append('redirect_uri', parsePath(redirectUrl).pathname)
-    formData.append('code', code)
-
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokens: any = await $fetch(config.tokenURL as string, {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        grant_type: 'authorization_code',
+        redirect_uri: stringifyParsedURL(parseURL(redirectUrl)),
+        code: code as string,
+      }).toString(),
     }).catch((error) => {
       return { error }
     })
