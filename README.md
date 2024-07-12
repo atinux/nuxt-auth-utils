@@ -122,7 +122,7 @@ export {}
 
 ### OAuth Event Handlers
 
-All helpers are exposed from the `oauth` global variable and can be used in your server routes or API routes.
+All handlers can be auto-imported and used in your server routes or API routes.
 
 The pattern is `auth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `authGithubEventHandler`.
 
