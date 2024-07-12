@@ -124,7 +124,7 @@ export {}
 
 All helpers are exposed from the `oauth` global variable and can be used in your server routes or API routes.
 
-The pattern is `oauth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `authGithubEventHandler`.
+The pattern is `auth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `authGithubEventHandler`.
 
 The helper returns an event handler that automatically redirects to the provider authorization page and then calls `onSuccess` or `onError` depending on the result.
 
