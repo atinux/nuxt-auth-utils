@@ -124,7 +124,7 @@ export {}
 
 All helpers are exposed from the `oauth` global variable and can be used in your server routes or API routes.
 
-The pattern is `oauth.<provider>EventHandler({ onSuccess, config?, onError? })`, example: `oauth.githubEventHandler`.
+The pattern is `oauth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `authGithubEventHandler`.
 
 The helper returns an event handler that automatically redirects to the provider authorization page and then calls `onSuccess` or `onError` depending on the result.
 
@@ -174,7 +174,7 @@ You can add your favorite provider by creating a new file in [src/runtime/server
 Example: `~/server/routes/auth/github.get.ts`
 
 ```ts
-export default oauth.githubEventHandler({
+export default authGithubEventHandler({
   config: {
     emailRequired: true
   },

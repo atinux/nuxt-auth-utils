@@ -1,4 +1,4 @@
-export default oauth.githubEventHandler({
+export default authGithubEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

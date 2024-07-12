@@ -1,4 +1,4 @@
-export default oauth.microsoftEventHandler({
+export default authMicrosoftEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

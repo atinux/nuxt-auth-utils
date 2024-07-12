@@ -1,4 +1,4 @@
-export default oauth.discordEventHandler({
+export default authDiscordEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

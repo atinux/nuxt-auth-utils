@@ -1,35 +1,16 @@
-import { githubEventHandler } from '../lib/oauth/github'
-import { googleEventHandler } from '../lib/oauth/google'
-import { spotifyEventHandler } from '../lib/oauth/spotify'
-import { twitchEventHandler } from '../lib/oauth/twitch'
-import { auth0EventHandler } from '../lib/oauth/auth0'
-import { microsoftEventHandler } from '../lib/oauth/microsoft'
-import { discordEventHandler } from '../lib/oauth/discord'
-import { battledotnetEventHandler } from '../lib/oauth/battledotnet'
-import { keycloakEventHandler } from '../lib/oauth/keycloak'
-import { linkedinEventHandler } from '../lib/oauth/linkedin'
-import { cognitoEventHandler } from '../lib/oauth/cognito'
-import { facebookEventHandler } from '../lib/oauth/facebook'
-import { paypalEventHandler } from '../lib/oauth/paypal'
-import { steamEventHandler } from '../lib/oauth/steam'
-import { xEventHandler } from '../lib/oauth/x'
-import { xsuaaEventHandler } from '../lib/oauth/xsuaa'
-
-export const oauth = {
-  githubEventHandler,
-  spotifyEventHandler,
-  googleEventHandler,
-  twitchEventHandler,
-  auth0EventHandler,
-  microsoftEventHandler,
-  discordEventHandler,
-  battledotnetEventHandler,
-  keycloakEventHandler,
-  linkedinEventHandler,
-  cognitoEventHandler,
-  facebookEventHandler,
-  paypalEventHandler,
-  steamEventHandler,
-  xEventHandler,
-  xsuaaEventHandler,
-}
+export { githubEventHandler as authGithubEventHandler } from '../lib/oauth/github'
+export { googleEventHandler as authGoogleEventHandler } from '../lib/oauth/google'
+export { spotifyEventHandler as authSpotifyEventHandler } from '../lib/oauth/spotify'
+export { twitchEventHandler as authTwitchEventHandler } from '../lib/oauth/twitch'
+export { auth0EventHandler as authAuth0EventHandler } from '../lib/oauth/auth0'
+export { microsoftEventHandler as authMicrosoftEventHandler } from '../lib/oauth/microsoft'
+export { discordEventHandler as authDiscordEventHandler } from '../lib/oauth/discord'
+export { battledotnetEventHandler as authBattledotnetEventHandler } from '../lib/oauth/battledotnet'
+export { keycloakEventHandler as authKeycloakEventHandler } from '../lib/oauth/keycloak'
+export { linkedinEventHandler as authLinkedinEventHandler } from '../lib/oauth/linkedin'
+export { cognitoEventHandler as authCognitoEventHandler } from '../lib/oauth/cognito'
+export { facebookEventHandler as authFacebookEventHandler } from '../lib/oauth/facebook'
+export { paypalEventHandler as authPaypalEventHandler } from '../lib/oauth/paypal'
+export { steamEventHandler as authSteamEventHandler } from '../lib/oauth/steam'
+export { xEventHandler as authXEventHandler } from '../lib/oauth/x'
+export { xsuaaEventHandler as authXsuaaEventHandler } from '../lib/oauth/xsuaa'

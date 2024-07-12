@@ -1,4 +1,4 @@
-export default oauth.xsuaaEventHandler({
+export default authXsuaaEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
