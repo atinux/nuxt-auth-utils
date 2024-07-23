@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { loggedIn, user, session, clear, fetch } = useUserSession()
+const { user, session, fetch } = useUserSession()
 const loginModal = ref(false)
 const logging = ref(false)
 const password = ref('')
@@ -147,32 +147,36 @@ const providers = computed(() =>
     </template>
     <template #right>
       <AuthState>
-        <UButton
-          v-if="!loggedIn"
-          size="xs"
-          color="gray"
-          @click="loginModal = true"
+        <template
+          #default="{ loggedIn, clear }"
         >
-          Login
-        </UButton>
-        <UDropdown :items="[providers]">
           <UButton
-            icon="i-heroicons-chevron-down"
-            trailing
+            v-if="!loggedIn"
+            size="xs"
+            color="gray"
+            @click="loginModal = true"
+          >
+            Login
+          </UButton>
+          <UDropdown :items="[providers]">
+            <UButton
+              icon="i-heroicons-chevron-down"
+              trailing
+              color="gray"
+              size="xs"
+            >
+              Login with
+            </UButton>
+          </UDropdown>
+          <UButton
+            v-if="loggedIn"
             color="gray"
             size="xs"
+            @click="clear"
           >
-            Login with
+            Logout
           </UButton>
-        </UDropdown>
-        <UButton
-          v-if="loggedIn"
-          color="gray"
-          size="xs"
-          @click="clear"
-        >
-          Logout
-        </UButton>
+        </template>
         <template #placeholder>
           <UButton
             size="xs"
