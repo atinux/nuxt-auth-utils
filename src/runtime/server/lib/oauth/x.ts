@@ -170,10 +170,11 @@ export function xEventHandler({
       }).catch((error) => {
         return error
       })
-      
+
       if (emailData && emailData.email) {
         user.email = emailData.email
-      } else {
+      }
+      else {
         const error = createError({
           statusCode: 401,
           message: 'Twitter login failed: no user email found',
