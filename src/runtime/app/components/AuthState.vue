@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import { useUserSession } from '#imports'
 
-const userSession = useUserSession()
-const { ready } = userSession
+const { loggedIn, user, clear, ready } = useUserSession()
 </script>
 
 <template>
   <slot
     v-if="ready"
-    v-bind="userSession"
+    v-bind="{ loggedIn, user, clear }"
   />
   <slot
     v-else
