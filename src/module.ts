@@ -26,9 +26,7 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    nuxt.options.alias['#auth-utils'] = resolver.resolve(
-      './runtime/types/index',
-    )
+    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
 
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
@@ -68,9 +66,7 @@ export default defineNuxtModule<ModuleOptions>({
       if (!envContent.includes('NUXT_SESSION_PASSWORD')) {
         await writeFile(
           envPath,
-          `${
-            envContent ? envContent + '\n' : envContent
-          }NUXT_SESSION_PASSWORD=${runtimeConfig.session.password}`,
+          `${envContent ? envContent + '\n' : envContent}NUXT_SESSION_PASSWORD=${runtimeConfig.session.password}`,
           'utf-8',
         )
       }
