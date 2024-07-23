@@ -27,7 +27,7 @@ export interface OAuthXConfig {
    * X OAuth Scope
    * @default []
    * @see https://developer.x.com/en/docs/authentication/oauth-2-0/user-access-token
-   * @example [ 'tweet.read','users.read','offline.access' ],
+   * @example ['tweet.read', 'users.read', 'offline.access'],
    */
   scope?: string[]
 
