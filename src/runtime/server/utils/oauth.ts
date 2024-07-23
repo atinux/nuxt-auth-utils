@@ -14,6 +14,7 @@ import { paypalEventHandler } from '../lib/oauth/paypal'
 import { steamEventHandler } from '../lib/oauth/steam'
 import { xEventHandler } from '../lib/oauth/x'
 import { xsuaaEventHandler } from '../lib/oauth/xsuaa'
+import { yandexEventHandler } from '../lib/oauth/yandex'
 
 export const oauth = {
   githubEventHandler,
@@ -32,4 +33,5 @@ export const oauth = {
   steamEventHandler,
   xEventHandler,
   xsuaaEventHandler,
+  yandexEventHandler,
 }
