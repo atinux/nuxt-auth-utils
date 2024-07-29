@@ -157,7 +157,7 @@ export {}
 
 All handlers can be auto-imported and used in your server routes or API routes.
 
-The pattern is `oauth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `authGitHubEventHandler`.
+The pattern is `oauth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `oauthGitHubEventHandler`.
 
 The helper returns an event handler that automatically redirects to the provider authorization page and then calls `onSuccess` or `onError` depending on the result.
 
