@@ -14,3 +14,4 @@ export { paypalEventHandler as authPaypalEventHandler } from '../lib/oauth/paypa
 export { steamEventHandler as authSteamEventHandler } from '../lib/oauth/steam'
 export { xEventHandler as authXEventHandler } from '../lib/oauth/x'
 export { xsuaaEventHandler as authXsuaaEventHandler } from '../lib/oauth/xsuaa'
+export { yandexEventHandler as authYanderEventHandler } from '../lib/oauth/yandex'

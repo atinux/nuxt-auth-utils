@@ -4,13 +4,10 @@ export default defineNuxtConfig({
     host: '127.0.0.1',
   },
   extends: ['@nuxt/ui-pro'],
-  modules: [
-    'nuxt-auth-utils',
-    '@nuxt/ui',
-  ],
+  modules: ['nuxt-auth-utils', '@nuxt/ui'],
   auth: {},
   ui: {
-    icons: ['simple-icons'],
+    icons: ['simple-icons', 'gravity-ui'],
   },
   devtools: { enabled: true },
   imports: {

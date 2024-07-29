@@ -1,5 +1,14 @@
 import { writeFile, readFile } from 'node:fs/promises'
-import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addServerHandler, addServerPlugin, addServerImportsDir, addComponentsDir } from '@nuxt/kit'
+import {
+  defineNuxtModule,
+  addPlugin,
+  createResolver,
+  addImportsDir,
+  addServerHandler,
+  addServerPlugin,
+  addServerImportsDir,
+  addComponentsDir,
+} from '@nuxt/kit'
 import { join } from 'pathe'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
@@ -55,7 +64,11 @@ export default defineNuxtModule<ModuleOptions>({
       const envPath = join(nuxt.options.rootDir, '.env')
       const envContent = await readFile(envPath, 'utf-8').catch(() => '')
       if (!envContent.includes('NUXT_SESSION_PASSWORD')) {
-        await writeFile(envPath, `${envContent ? envContent + '\n' : envContent}NUXT_SESSION_PASSWORD=${runtimeConfig.session.password}`, 'utf-8')
+        await writeFile(
+          envPath,
+          `${envContent ? envContent + '\n' : envContent}NUXT_SESSION_PASSWORD=${runtimeConfig.session.password}`,
+          'utf-8',
+        )
       }
     }
 
@@ -151,6 +164,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       domain: '',
+    })
+    // Yandex OAuth
+    runtimeConfig.oauth.yandex = defu(runtimeConfig.oauth.yandex, {
+      clientId: '',
+      clientSecret: '',
     })
   },
 })

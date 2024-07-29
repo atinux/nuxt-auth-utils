@@ -56,7 +56,7 @@ Nuxt Auth Utils automatically adds some plugins to fetch the current user sessio
 
 ```vue
 <script setup>
-const { loggedIn, user, session, clear } = useUserSession()
+const { loggedIn, user, session, fetch, clear } = useUserSession()
 </script>
 
 <template>
@@ -70,6 +70,37 @@ const { loggedIn, user, session, clear } = useUserSession()
     <a href="/auth/github">Login with GitHub</a>
   </div>
 </template>
+```
+
+**TypeScript Signature:**
+
+```ts
+interface UserSessionComposable {
+  /**
+   * Computed indicating if the auth session is ready
+   */
+  ready: ComputedRef<boolean>
+  /**
+   * Computed indicating if the user is logged in.
+   */
+  loggedIn: ComputedRef<boolean>
+  /**
+   * The user object if logged in, null otherwise.
+   */
+  user: ComputedRef<User | null>
+  /**
+   * The session object.
+   */
+  session: Ref<UserSession>
+  /**
+   * Fetch the user session from the server.
+   */
+  fetch: () => Promise<void>
+  /**
+   * Clear the user session and remove the session cookie.
+   */
+  clear: () => Promise<void>
+}
 ```
 
 ## Server Utils
@@ -166,6 +197,7 @@ It can also be set using environment variables:
 - Twitch
 - X (Twitter)
 - XSUAA
+- Yandex
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 

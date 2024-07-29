@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v0.2.1
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.2.0...v0.2.1)
+
+### 🚀 Enhancements
+
+- X/Twitter email requirement enhancement ([65d6324](https://github.com/Atinux/nuxt-auth-utils/commit/65d6324))
+- Add yandex oauth ([22bd974](https://github.com/Atinux/nuxt-auth-utils/commit/22bd974))
+
+### 🎨 Styles
+
+- Add lint script ([af884ff](https://github.com/Atinux/nuxt-auth-utils/commit/af884ff))
+
+### ❤️ Contributors
+
+- Alex <dev.blumgart@yandex.ru>
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+- Fayaz Ahmed ([@fayazara](http://github.com/fayazara))
+
 ## v0.2.0
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.25...v0.2.0)
