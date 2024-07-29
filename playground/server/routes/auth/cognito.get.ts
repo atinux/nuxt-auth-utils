@@ -1,4 +1,4 @@
-export default oauth.cognitoEventHandler({
+export default oauthCognitoEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

@@ -1,4 +1,4 @@
-export default oauth.auth0EventHandler({
+export default oauthAuth0EventHandler({
   config: {
     emailRequired: true,
   },

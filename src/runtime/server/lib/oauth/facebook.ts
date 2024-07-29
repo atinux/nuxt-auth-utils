@@ -57,7 +57,7 @@ export interface OAuthFacebookConfig {
   authorizationParams?: Record<string, string>
 }
 
-export function facebookEventHandler({
+export function oauthFacebookEventHandler({
   config,
   onSuccess,
   onError,

@@ -58,7 +58,7 @@ export interface OAuthPaypalConfig {
   authorizationParams?: Record<string, string>
 }
 
-export function paypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
+export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.paypal, {
       sandbox: import.meta.dev,

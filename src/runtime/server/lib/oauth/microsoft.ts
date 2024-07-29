@@ -64,7 +64,7 @@ interface OAuthConfig {
   onError?: (event: H3Event, error: H3Error) => Promise<void> | void
 }
 
-export function microsoftEventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuthConfig) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.microsoft, {
       authorizationParams: {},

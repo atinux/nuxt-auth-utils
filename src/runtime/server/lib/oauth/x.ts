@@ -62,7 +62,7 @@ export interface OAuthXConfig {
   authorizationParams: Record<string, string>
 }
 
-export function xEventHandler({
+export function oauthXEventHandler({
   config,
   onSuccess,
   onError,
