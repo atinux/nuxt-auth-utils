@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v0.3.0
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.2.1...v0.3.0)
+
+### 🔥 Performance
+
+- ⚠️  One export per provider for tree-shaking ([4f98b53](https://github.com/Atinux/nuxt-auth-utils/commit/4f98b53))
+
+### 📖 Documentation
+
+- Add TS signature ([04a5d88](https://github.com/Atinux/nuxt-auth-utils/commit/04a5d88))
+- Add note about dependencies ([67b5542](https://github.com/Atinux/nuxt-auth-utils/commit/67b5542))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  One export per provider for tree-shaking ([4f98b53](https://github.com/Atinux/nuxt-auth-utils/commit/4f98b53))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+
 ## v0.2.1
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.2.0...v0.2.1)
