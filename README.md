@@ -21,6 +21,8 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 - [`<AuthState>` component](#authstate-component)
 - [Extendable with hooks](#extend-session)
 
+It has few dependencies (only from [UnJS](https://github.com/unjs)), run on multiple JS environments (Node, Deno, Workers) and is fully typed with TypeScript.
+
 ## Requirements
 
 This module only works with a Nuxt server running as it uses server API routes (`nuxt build`).
