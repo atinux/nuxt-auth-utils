@@ -52,7 +52,7 @@ export interface OAuthTwitchConfig {
   authorizationParams?: Record<string, string>
 }
 
-export function twitchEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig>) {
+export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.twitch, {
       authorizationURL: 'https://id.twitch.tv/oauth2/authorize',

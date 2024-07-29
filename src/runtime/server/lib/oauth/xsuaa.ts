@@ -30,7 +30,7 @@ export interface OAuthXSUAAConfig {
   scope?: string[]
 }
 
-export function xsuaaEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthXSUAAConfig>) {
+export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthXSUAAConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.xsuaa) as OAuthXSUAAConfig
     const { code } = getQuery(event)

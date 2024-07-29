@@ -1,4 +1,4 @@
-export default authPaypalEventHandler({
+export default oauthPaypalEventHandler({
   config: {
     emailRequired: true,
   },

@@ -1,4 +1,4 @@
-export default authFacebookEventHandler({
+export default oauthFacebookEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

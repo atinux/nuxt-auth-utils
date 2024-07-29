@@ -1,4 +1,4 @@
-export default authSpotifyEventHandler({
+export default oauthSpotifyEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

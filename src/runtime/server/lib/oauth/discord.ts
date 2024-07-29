@@ -53,7 +53,7 @@ export interface OAuthDiscordConfig {
   authorizationParams?: Record<string, string>
 }
 
-export function discordEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDiscordConfig>) {
+export function oauthDiscordEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDiscordConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.discord, {
       authorizationURL: 'https://discord.com/oauth2/authorize',

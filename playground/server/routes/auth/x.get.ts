@@ -1,4 +1,4 @@
-export default authXEventHandler({
+export default oauthXEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

@@ -58,7 +58,7 @@ export interface OAuthGoogleConfig {
   authorizationParams?: Record<string, string>
 }
 
-export function googleEventHandler({
+export function oauthGoogleEventHandler({
   config,
   onSuccess,
   onError,

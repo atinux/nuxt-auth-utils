@@ -1,4 +1,4 @@
-export default authTwitchEventHandler({
+export default oauthTwitchEventHandler({
   config: {
     emailRequired: true,
   },

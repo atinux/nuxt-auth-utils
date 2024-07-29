@@ -1,4 +1,4 @@
-export default authLinkedinEventHandler({
+export default oauthLinkedInEventHandler({
   config: {
     emailRequired: true,
   },

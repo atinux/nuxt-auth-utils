@@ -46,7 +46,7 @@ export interface OAuthKeycloakConfig {
   authorizationParams?: Record<string, string>
 }
 
-export function keycloakEventHandler({
+export function oauthKeycloakEventHandler({
   config,
   onSuccess,
   onError,

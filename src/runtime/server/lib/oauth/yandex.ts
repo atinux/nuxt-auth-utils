@@ -57,7 +57,7 @@ export interface OAuthYandexConfig {
   userURL?: string
 }
 
-export function yandexEventHandler({
+export function oauthYandexEventHandler({
   config,
   onSuccess,
   onError,

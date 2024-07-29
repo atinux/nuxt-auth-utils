@@ -155,7 +155,7 @@ export {}
 
 All handlers can be auto-imported and used in your server routes or API routes.
 
-The pattern is `auth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `authGithubEventHandler`.
+The pattern is `oauth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `authGitHubEventHandler`.
 
 The helper returns an event handler that automatically redirects to the provider authorization page and then calls `onSuccess` or `onError` depending on the result.
 
@@ -165,6 +165,7 @@ The `config` can be defined directly from the `runtimeConfig` in your `nuxt.conf
 export default defineNuxtConfig({
   runtimeConfig: {
     oauth: {
+      // provider in lowercase (github, google, etc.)
       <provider>: {
         clientId: '...',
         clientSecret: '...'
@@ -178,6 +179,8 @@ It can also be set using environment variables:
 
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_ID`
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_SECRET`
+
+> Provider is in uppercase (GITHUB, GOOGLE, etc.)
 
 #### Supported OAuth Providers
 
@@ -206,7 +209,7 @@ You can add your favorite provider by creating a new file in [src/runtime/server
 Example: `~/server/routes/auth/github.get.ts`
 
 ```ts
-export default authGithubEventHandler({
+export default oauthGitHubEventHandler({
   config: {
     emailRequired: true
   },
