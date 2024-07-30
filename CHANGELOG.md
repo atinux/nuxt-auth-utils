@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.3.2
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.1...v0.3.2)
+
+### 🩹 Fixes
+
+- Add missing session in AuthState ([3e39727](https://github.com/Atinux/nuxt-auth-utils/commit/3e39727))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
 ## v0.3.1
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.0...v0.3.1)
