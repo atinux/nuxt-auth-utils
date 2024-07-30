@@ -20,4 +20,10 @@ describe('ssr', async () => {
     const html = await $fetch('/')
     expect(html).toContain('<div>Nuxt Auth Utils</div>')
   })
+
+  it('returns an empty session', async () => {
+    // Get response to a server-rendered page with `$fetch`.
+    const session = await $fetch('/api/_auth/session')
+    expect(session).toStrictEqual({})
+  })
 })
