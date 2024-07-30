@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v0.3.1
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.0...v0.3.1)
+
+### 🩹 Fixes
+
+- Always return 200 for session endpoint ([#130](https://github.com/Atinux/nuxt-auth-utils/pull/130))
+
+### 📖 Documentation
+
+- Fix event handler name in example ([a4cfa89](https://github.com/Atinux/nuxt-auth-utils/commit/a4cfa89))
+
+### 🏡 Chore
+
+- Update deps ([0132ea0](https://github.com/Atinux/nuxt-auth-utils/commit/0132ea0))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+
 ## v0.3.0
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.2.1...v0.3.0)
