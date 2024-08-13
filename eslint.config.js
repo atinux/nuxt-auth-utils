@@ -11,4 +11,6 @@ export default createConfigForNuxt({
       './playground',
     ],
   },
+}).overrideRules({
+  '@typescript-eslint/no-empty-object-type': 'off',
 })

@@ -54,9 +54,6 @@ importers:
       '@nuxt/ui-pro':
         specifier: ^1.4.1
         version: 1.4.1(magicast@0.3.4)(rollup@3.29.4)(vue@3.4.34(typescript@5.5.4))
-      '@types/node':
-        specifier: ^22.2.0
-        version: 22.2.0
       changelogen:
         specifier: ^0.5.5
         version: 0.5.5(magicast@0.3.4)
@@ -83,7 +80,7 @@ importers:
         version: 3.12.4(@parcel/watcher@2.4.1)(@types/node@22.2.0)(eslint@9.9.0(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.4)(rollup@4.19.1)(terser@5.31.3)(typescript@5.5.4)(vite@5.3.5(@types/node@22.2.0)(terser@5.31.3))(vue-tsc@2.0.29(typescript@5.5.4))
       nuxt-auth-utils:
         specifier: latest
-        version: 0.3.0(magicast@0.3.4)(rollup@4.19.1)
+        version: 0.3.2(magicast@0.3.4)(rollup@4.19.1)
     devDependencies:
       '@iconify-json/gravity-ui':
         specifier: ^1.1.4
@@ -3406,8 +3403,8 @@ packages:
     engines: {node: ^16.10.0 || >=18.0.0}
     hasBin: true
 
-  nuxt-auth-utils@0.3.0:
-    resolution: {integrity: sha512-iuQFyQRQ3rPGfEttKBO1t6oEjvSawF8q/aJrWdb6EShvg0CTiMmWtRkbBsJNJTg5Y6uYOFX651UTE9WC+EWrZg==}
+  nuxt-auth-utils@0.3.2:
+    resolution: {integrity: sha512-A2gRelkEQxLoosIUw6TFFsMaq06XJ6dVdUYKRSKzxfMepBUq5v7GXiw+gZ9TVAXb0YjN9obmqJOBzf2qNI77yw==}
 
   nuxt@3.12.4:
     resolution: {integrity: sha512-/ddvyc2kgYYIN2UEjP8QIz48O/W3L0lZm7wChIDbOCj0vF/yLLeZHBaTb3aNvS9Hwp269nfjrm8j/mVxQK4RhA==}
@@ -8772,7 +8769,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  nuxt-auth-utils@0.3.0(magicast@0.3.4)(rollup@4.19.1):
+  nuxt-auth-utils@0.3.2(magicast@0.3.4)(rollup@4.19.1):
     dependencies:
       '@nuxt/kit': 3.12.4(magicast@0.3.4)(rollup@4.19.1)
       defu: 6.1.4
