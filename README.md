@@ -316,7 +316,7 @@ You can use the `placeholder` slot to show a placeholder on server-side and whil
 </template>
 ```
 
-If you are caching your routes with `routeRules`, please make sure to use [`nitro-nightly`](https://nitro.unjs.io/guide/nightly) or Nitro >= `2.10.0` to support the client-side fetching of the user session.
+If you are caching your routes with `routeRules`, please make sure to use [Nitro](https://github.com/unjs/nitro) >= `2.9.7` to support the client-side fetching of the user session.
 
 ## Configuration
 
