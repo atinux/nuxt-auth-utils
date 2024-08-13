@@ -1,6 +1,31 @@
 # Changelog
 
 
+## v0.3.3
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.2...v0.3.3)
+
+### 🚀 Enhancements
+
+- Support `NUXT_OAUTH_MICROSOFT_REDIRECT_URL` ([9979f0d](https://github.com/Atinux/nuxt-auth-utils/commit/9979f0d))
+- Add support nitro prefix env ([58ebf85](https://github.com/Atinux/nuxt-auth-utils/commit/58ebf85))
+
+### 📖 Documentation
+
+- Update nitro version ([848cebe](https://github.com/Atinux/nuxt-auth-utils/commit/848cebe))
+
+### 🏡 Chore
+
+- Typo in comment ([b96a017](https://github.com/Atinux/nuxt-auth-utils/commit/b96a017))
+- Update deps ([d8ab3f4](https://github.com/Atinux/nuxt-auth-utils/commit/d8ab3f4))
+- Lint fix ([a8928a3](https://github.com/Atinux/nuxt-auth-utils/commit/a8928a3))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Alexander <a.hywax@gmail.com>
+- TcarterBAMF ([@tcarterBAMF](http://github.com/tcarterBAMF))
+
 ## v0.3.2
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.1...v0.3.2)
