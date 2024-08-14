@@ -90,7 +90,7 @@ export function oauthGoogleEventHandler({
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: config.redirectUrl ?? redirectUrl,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
@@ -101,7 +101,7 @@ export function oauthGoogleEventHandler({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body: any = {
       grant_type: 'authorization_code',
-      redirect_uri: parsePath(redirectUrl).pathname,
+      redirect_uri: config.redirectUrl ?? parsePath(redirectUrl).pathname,
       client_id: config.clientId,
       client_secret: config.clientSecret,
       code,
