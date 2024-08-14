@@ -56,6 +56,13 @@ export interface OAuthGoogleConfig {
    * @example { access_type: 'offline' }
    */
   authorizationParams?: Record<string, string>
+
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_GOOGLE_REDIRECT_URL
+   * @see https://developers.google.com/identity/protocols/oauth2/web-server
+   */
+  redirectUrl?: string
 }
 
 export function oauthGoogleEventHandler({
@@ -81,7 +88,7 @@ export function oauthGoogleEventHandler({
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectUrl = config.redirectUrl || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || ['email', 'profile']
       // Redirect to Google Oauth page
@@ -90,7 +97,7 @@ export function oauthGoogleEventHandler({
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: config.redirectUrl ?? redirectUrl,
+          redirect_uri: redirectUrl,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
@@ -101,7 +108,7 @@ export function oauthGoogleEventHandler({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body: any = {
       grant_type: 'authorization_code',
-      redirect_uri: config.redirectUrl ?? parsePath(redirectUrl).pathname,
+      redirect_uri: parsePath(redirectUrl).pathname,
       client_id: config.clientId,
       client_secret: config.clientSecret,
       code,
