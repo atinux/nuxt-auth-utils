@@ -1,5 +1,5 @@
 {
-  // "extends": "./.nuxt/tsconfig.json",
+  "extends": "./.nuxt/tsconfig.json",
   "exclude": [
     "playground",
     "src/module/runtime/server",
