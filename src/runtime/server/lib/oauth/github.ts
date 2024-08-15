@@ -47,6 +47,13 @@ export interface OAuthGitHubConfig {
    * @example { allow_signup: 'true' }
    */
   authorizationParams?: Record<string, string>
+
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_GITHUB_REDIRECT_URL
+   * @see https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps
+   */
+  redirectUrl?: string
 }
 
 export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
@@ -83,7 +90,7 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
         config.scope.push('user:email')
       }
       // Redirect to GitHub Oauth page
-      const redirectUrl = getRequestURL(event).href
+      const redirectUrl = config.redirectUrl || getRequestURL(event).href
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
