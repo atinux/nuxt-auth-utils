@@ -46,6 +46,11 @@ export interface OAuthBattledotnetConfig {
    * @see https://develop.battle.net/documentation/guides/using-oauth/authorization-code-flow
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_BATTLEDOTNET_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
@@ -78,6 +83,7 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
       return onError(event, error)
     }
 
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || ['openid']
       config.region = config.region || 'EU'
@@ -88,12 +94,11 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
       }
 
       // Redirect to Battle.net Oauth page
-      const redirectUrl = getRequestURL(event).href
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           state: randomUUID(), // Todo: handle PKCE flow
           response_type: 'code',
@@ -102,7 +107,6 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
       )
     }
 
-    const redirectUrl = getRequestURL(event).href
     config.scope = config.scope || []
     if (!config.scope.includes('openid')) {
       config.scope.push('openid')
@@ -124,7 +128,7 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
           code,
           grant_type: 'authorization_code',
           scope: config.scope.join(' '),
-          redirect_uri: parsePath(redirectUrl).pathname,
+          redirect_uri: parsePath(redirectURL).pathname,
         },
       },
     ).catch((error) => {

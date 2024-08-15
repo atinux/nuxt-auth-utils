@@ -55,6 +55,12 @@ export interface OAuthYandexConfig {
    * @default 'https://login.yandex.ru/info'
    */
   userURL?: string
+
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_YANDEX_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthYandexEventHandler({
@@ -81,7 +87,7 @@ export function oauthYandexEventHandler({
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
 
     if (!code) {
       config.scope = config.scope || []
@@ -94,7 +100,7 @@ export function oauthYandexEventHandler({
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
         }),
       )
@@ -111,7 +117,7 @@ export function oauthYandexEventHandler({
         client_id: config.clientId,
         client_secret: config.clientSecret,
         grant_type: 'authorization_code',
-        redirect_uri: stringifyParsedURL(parseURL(redirectUrl)),
+        redirect_uri: stringifyParsedURL(parseURL(redirectURL)),
         code: code as string,
       }).toString(),
     }).catch((error) => {

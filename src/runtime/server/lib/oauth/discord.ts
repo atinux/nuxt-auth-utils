@@ -51,6 +51,11 @@ export interface OAuthDiscordConfig {
    * @example { allow_signup: 'true' }
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_DISCORD_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthDiscordEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDiscordConfig>) {
@@ -72,7 +77,7 @@ export function oauthDiscordEventHandler({ config, onSuccess, onError }: OAuthCo
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('email')) {
@@ -88,14 +93,14 @@ export function oauthDiscordEventHandler({ config, onSuccess, onError }: OAuthCo
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
       )
     }
 
-    const parsedRedirectUrl = parseURL(redirectUrl)
+    const parsedRedirectUrl = parseURL(redirectURL)
     parsedRedirectUrl.search = ''
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

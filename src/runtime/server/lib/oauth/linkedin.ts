@@ -42,6 +42,11 @@ export interface OAuthLinkedInConfig {
    * @see https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?context=linkedin/context
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_LINKEDIN_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 interface OAuthConfig {
@@ -69,7 +74,7 @@ export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthC
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || []
       if (!config.scope.length) {
@@ -84,14 +89,14 @@ export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthC
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
       )
     }
 
-    const parsedRedirectUrl = parseURL(redirectUrl)
+    const parsedRedirectUrl = parseURL(redirectURL)
     parsedRedirectUrl.search = ''
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

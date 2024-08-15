@@ -47,6 +47,11 @@ export interface OAuthSpotifyConfig {
    * @example { show_dialog: 'true' }
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_SPOTIFY_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthSpotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
@@ -67,7 +72,7 @@ export function oauthSpotifyEventHandler({ config, onSuccess, onError }: OAuthCo
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('user-read-email')) {
@@ -79,7 +84,7 @@ export function oauthSpotifyEventHandler({ config, onSuccess, onError }: OAuthCo
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
@@ -99,7 +104,7 @@ export function oauthSpotifyEventHandler({ config, onSuccess, onError }: OAuthCo
         },
         params: {
           grant_type: 'authorization_code',
-          redirect_uri: parsePath(redirectUrl).pathname,
+          redirect_uri: parsePath(redirectURL).pathname,
           code,
         },
       },

@@ -233,6 +233,8 @@ export default oauthGitHubEventHandler({
 
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
 
+If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
+
 ### Extend Session
 
 We leverage hooks to let you extend the session data with your own data or log when the user clears the session.
