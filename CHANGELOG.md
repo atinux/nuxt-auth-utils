@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.3.4
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.3...v0.3.4)
+
+### 🚀 Enhancements
+
+- Support redirectURL config for all providers ([cdca787](https://github.com/Atinux/nuxt-auth-utils/commit/cdca787))
+
+### ❤️ Contributors
+
+- Kevin Olson ([@acidjazz](http://github.com/acidjazz))
+
 ## v0.3.3
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.2...v0.3.3)
