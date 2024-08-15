@@ -54,7 +54,7 @@ export interface OAuthMicrosoftConfig {
    * @default process.env.NUXT_OAUTH_MICROSOFT_REDIRECT_URL
    * @see https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
    */
-  redirectUrl?: string
+  redirectURL?: string
 }
 
 interface OAuthConfig {
@@ -83,7 +83,7 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
     const authorizationURL = config.authorizationURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/authorize`
     const tokenURL = config.tokenURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/token`
 
-    const redirectUrl = config.redirectUrl || getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       const scope = config.scope && config.scope.length > 0 ? config.scope : ['User.Read']
       // Redirect to Microsoft Oauth page
@@ -92,7 +92,7 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
         withQuery(authorizationURL as string, {
           client_id: config.clientId,
           response_type: 'code',
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: scope.join(' '),
           ...config.authorizationParams,
         }),
@@ -103,7 +103,7 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
     data.append('grant_type', 'authorization_code')
     data.append('client_id', config.clientId)
     data.append('client_secret', config.clientSecret)
-    data.append('redirect_uri', parsePath(redirectUrl).pathname)
+    data.append('redirect_uri', parsePath(redirectURL).pathname)
     data.append('code', String(code))
 
     // TODO: improve typing

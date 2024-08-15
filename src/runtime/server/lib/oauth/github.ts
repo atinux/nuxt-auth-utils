@@ -53,7 +53,7 @@ export interface OAuthGitHubConfig {
    * @default process.env.NUXT_OAUTH_GITHUB_REDIRECT_URL
    * @see https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps
    */
-  redirectUrl?: string
+  redirectURL?: string
 }
 
 export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
@@ -90,12 +90,12 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
         config.scope.push('user:email')
       }
       // Redirect to GitHub Oauth page
-      const redirectUrl = config.redirectUrl || getRequestURL(event).href
+      const redirectURL = config.redirectURL || getRequestURL(event).href
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),

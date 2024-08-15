@@ -57,6 +57,11 @@ export interface OAuthAuth0Config {
    * @example { display: 'popup' }
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_AUTH0_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
@@ -77,7 +82,7 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
     const authorizationURL = `https://${config.domain}/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || ['openid', 'offline_access']
       if (config.emailRequired && !config.scope.includes('email')) {
@@ -89,7 +94,7 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
         withQuery(authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           audience: config.audience || '',
           max_age: config.maxAge || 0,
@@ -112,7 +117,7 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
           grant_type: 'authorization_code',
           client_id: config.clientId,
           client_secret: config.clientSecret,
-          redirect_uri: parsePath(redirectUrl).pathname,
+          redirect_uri: parsePath(redirectURL).pathname,
           code,
         },
       },

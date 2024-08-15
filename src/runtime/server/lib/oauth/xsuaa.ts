@@ -28,6 +28,11 @@ export interface OAuthXSUAAConfig {
    * @example ['openid']
    */
   scope?: string[]
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_XSUAA_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthXSUAAConfig>) {
@@ -46,7 +51,7 @@ export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConf
     const authorizationURL = `https://${config.domain}/oauth/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || []
       // Redirect to XSUAA Oauth page
@@ -55,7 +60,7 @@ export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConf
         withQuery(authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
         }),
       )
@@ -74,7 +79,7 @@ export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConf
           grant_type: 'authorization_code',
           client_id: config.clientId,
           client_secret: config.clientSecret,
-          redirect_uri: parsePath(redirectUrl).pathname,
+          redirect_uri: parsePath(redirectURL).pathname,
           code: `${code}`,
         }),
       },

@@ -55,6 +55,11 @@ export interface OAuthFacebookConfig {
    * @see https://developers.facebook.com/docs/facebook-login/guides/advanced/manual-flow/
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_FACEBOOK_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthFacebookEventHandler({
@@ -90,8 +95,7 @@ export function oauthFacebookEventHandler({
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
-
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!query.code) {
       config.scope = config.scope || []
       // Redirect to Facebook Oauth page
@@ -99,7 +103,7 @@ export function oauthFacebookEventHandler({
         event,
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
         }),
       )
@@ -112,7 +116,7 @@ export function oauthFacebookEventHandler({
       body: {
         client_id: config.clientId,
         client_secret: config.clientSecret,
-        redirect_uri: redirectUrl,
+        redirect_uri: redirectURL,
         code: query.code,
       },
     })

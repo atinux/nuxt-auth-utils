@@ -18,6 +18,12 @@ export interface OAuthSteamConfig {
    * @default 'https://steamcommunity.com/openid/login'
    */
   authorizationURL?: string
+
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_STEAM_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSteamConfig>) {
@@ -37,11 +43,11 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
     }
 
     if (!query['openid.claimed_id']) {
-      const redirectUrl = getRequestURL(event).href
+      const redirectURL = config.redirectURL || getRequestURL(event).href
       const steamOpenIdParams = {
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',
-        'openid.return_to': redirectUrl,
+        'openid.return_to': redirectURL,
         'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
         'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
       }

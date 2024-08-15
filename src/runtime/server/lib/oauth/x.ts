@@ -60,6 +60,12 @@ export interface OAuthXConfig {
    * @see https://developer.x.com/en/docs/authentication/oauth-2-0/user-access-token
    */
   authorizationParams: Record<string, string>
+
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_X_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthXEventHandler({
@@ -88,7 +94,7 @@ export function oauthXEventHandler({
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || ['tweet.read', 'users.read', 'offline.access']
       // Redirect to X Oauth page
@@ -98,7 +104,7 @@ export function oauthXEventHandler({
           response_type: 'code',
           client_id: config.clientId,
           code_challenge_method: 'plain',
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
@@ -110,7 +116,7 @@ export function oauthXEventHandler({
     const params: any = {
       grant_type: 'authorization_code',
       code_verifier: config.authorizationParams.code_challenge,
-      redirect_uri: parsePath(redirectUrl).pathname,
+      redirect_uri: parsePath(redirectURL).pathname,
       code,
     }
 

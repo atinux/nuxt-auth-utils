@@ -36,6 +36,11 @@ export interface OAuthCognitoConfig {
    * @see https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_COGNITO_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
@@ -57,7 +62,7 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
     const authorizationURL = `https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/authorize`
     const tokenURL = `https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/token`
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || ['openid', 'profile']
       // Redirect to Cognito login page
@@ -65,7 +70,7 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
         event,
         withQuery(authorizationURL as string, {
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           response_type: 'code',
           scope: config.scope.join(' '),
           ...config.authorizationParams,
@@ -82,7 +87,7 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `grant_type=authorization_code&client_id=${config.clientId}&client_secret=${config.clientSecret}&redirect_uri=${parsePath(redirectUrl).pathname}&code=${code}`,
+        body: `grant_type=authorization_code&client_id=${config.clientId}&client_secret=${config.clientSecret}&redirect_uri=${parsePath(redirectURL).pathname}&code=${code}`,
       },
     ).catch((error) => {
       return { error }

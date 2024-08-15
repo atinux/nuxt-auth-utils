@@ -50,6 +50,11 @@ export interface OAuthTwitchConfig {
    * @example { force_verify: 'true' }
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_TWITCH_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig>) {
@@ -70,7 +75,7 @@ export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthCon
       return onError(event, error)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('user:read:email')) {
@@ -82,7 +87,7 @@ export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthCon
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
@@ -100,7 +105,7 @@ export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthCon
         },
         params: {
           grant_type: 'authorization_code',
-          redirect_uri: parsePath(redirectUrl).pathname,
+          redirect_uri: parsePath(redirectURL).pathname,
           client_id: config.clientId,
           client_secret: config.clientSecret,
           code,

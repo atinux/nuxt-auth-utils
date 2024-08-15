@@ -81,21 +81,25 @@ export default defineNuxtModule<ModuleOptions>({
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // Spotify OAuth
     runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // Google OAuth
     runtimeConfig.oauth.google = defu(runtimeConfig.oauth.google, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // Twitch OAuth
     runtimeConfig.oauth.twitch = defu(runtimeConfig.oauth.twitch, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // Auth0 OAuth
     runtimeConfig.oauth.auth0 = defu(runtimeConfig.oauth.auth0, {
@@ -103,6 +107,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       domain: '',
       audience: '',
+      redirectURL: '',
     })
     // Microsoft OAuth
     runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
@@ -113,17 +118,19 @@ export default defineNuxtModule<ModuleOptions>({
       authorizationURL: '',
       tokenURL: '',
       userURL: '',
-      redirectUrl: '',
+      redirectURL: '',
     })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // Battle.net OAuth
     runtimeConfig.oauth.battledotnet = defu(runtimeConfig.oauth.battledotnet, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // Keycloak OAuth
     runtimeConfig.oauth.keycloak = defu(runtimeConfig.oauth.keycloak, {
@@ -131,11 +138,13 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       serverUrl: '',
       realm: '',
+      redirectURL: '',
     })
     // LinkedIn OAuth
     runtimeConfig.oauth.linkedin = defu(runtimeConfig.oauth.linkedin, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // Cognito OAuth
     runtimeConfig.oauth.cognito = defu(runtimeConfig.oauth.cognito, {
@@ -143,36 +152,43 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       region: '',
       userPoolId: '',
+      redirectURL: '',
     })
     // Facebook OAuth
     runtimeConfig.oauth.facebook = defu(runtimeConfig.oauth.facebook, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // PayPal OAuth
     runtimeConfig.oauth.paypal = defu(runtimeConfig.oauth.paypal, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // Steam OAuth
     runtimeConfig.oauth.steam = defu(runtimeConfig.oauth.steam, {
       apiKey: '',
+      redirectURL: '',
     })
     // X OAuth
     runtimeConfig.oauth.x = defu(runtimeConfig.oauth.x, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
     // XSUAA OAuth
     runtimeConfig.oauth.xsuaa = defu(runtimeConfig.oauth.xsuaa, {
       clientId: '',
       clientSecret: '',
       domain: '',
+      redirectURL: '',
     })
     // Yandex OAuth
     runtimeConfig.oauth.yandex = defu(runtimeConfig.oauth.yandex, {
       clientId: '',
       clientSecret: '',
+      redirectURL: '',
     })
   },
 })

@@ -56,6 +56,11 @@ export interface OAuthPaypalConfig {
    * @example { flowEntry: 'static' }
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_PAYPAL_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
 export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
@@ -85,7 +90,7 @@ export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthCon
       config.tokenURL = `https://${paypalAPI}/v1/oauth2/token`
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
       config.scope = config.scope || []
       if (!config.scope.includes('openid')) {
@@ -101,7 +106,7 @@ export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthCon
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           flowEntry: 'static',
           ...config.authorizationParams,
@@ -122,7 +127,7 @@ export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthCon
         },
         params: {
           grant_type: 'authorization_code',
-          redirect_uri: encodeURIComponent(parsePath(redirectUrl).pathname),
+          redirect_uri: encodeURIComponent(parsePath(redirectURL).pathname),
           code,
         },
       },
