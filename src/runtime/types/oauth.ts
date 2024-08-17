@@ -6,19 +6,19 @@ export interface OAuthUser<RawUser = Record<string, unknown>> {
   /**
    * The user's username
    */
-  nickname: string
+  nickname?: string
   /**
    * The user's full name
    */
-  name: string
+  name?: string
   /**
    * The user's email address
    */
-  email: string
+  email?: string
   /**
    * The user's profile picture URL
    */
-  avatar: string
+  avatar?: string
 
   /**
    * The raw user object from the provider
@@ -26,21 +26,43 @@ export interface OAuthUser<RawUser = Record<string, unknown>> {
   raw: RawUser
 }
 
-export interface OAuthTokens {
+export interface OAuthToken {
   /**
    * The access token to use for API requests
    */
-  token: string
+  token?: string
   /**
    * The refresh token to use to get a new access token
    */
-  refreshToken: string
+  refreshToken?: string
   /**
    * The token type
    */
-  expiresIn: number
+  expiresIn?: number
   /**
    * The scope of the access token
    */
-  approvedScopes: string[]
+  approvedScopes?: string[]
+}
+
+/**
+ * The successful response from the OAuth provider when exchanging a code for an access token.
+ * @see https://datatracker.ietf.org/doc/html/rfc6749#section-5.1
+ */
+export interface OAuthAccessTokenSuccess {
+  access_token: string
+  token_type: string
+  expires_in?: number
+  refresh_token?: string
+  scope?: string
+}
+
+/**
+ * The error response from the OAuth provider when exchanging a code for an access token.
+ * @see https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
+ */
+export interface OAuthAccessTokenError {
+  error: string
+  error_description?: string
+  error_uri?: string
 }

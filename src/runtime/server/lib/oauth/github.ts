@@ -3,20 +3,11 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig, OAuthTokens, OAuthUser } from '#auth-utils'
+import type { OAuthConfig, OAuthToken, OAuthUser, OAuthAccessTokenSuccess, OAuthAccessTokenError } from '#auth-utils'
 
-type GitHubError = {
-  error: string
-  error_description: string
-  error_uri: string
-}
-
-type GitHubTokens = {
-  access_token: string
-  token_type: string
-  scope: string
-}
-
+/**
+ * @see https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-the-authenticated-user
+ */
 type GitHubUser = {
   login: string
   id: number
@@ -24,6 +15,8 @@ type GitHubUser = {
   avatar_url: string
   name: string
   email: string
+
+  [key: string]: unknown
 }
 
 /**
@@ -47,12 +40,10 @@ function normalizeGitHubUser(user: GitHubUser): OAuthUser<GitHubUser> {
   }
 }
 
-function normalizeGitHubTokens(tokens: GitHubTokens): OAuthTokens {
+function normalizeGitHubToken(tokens: OAuthAccessTokenSuccess): OAuthToken {
   return {
     token: tokens.access_token,
-    refreshToken: '',
-    expiresIn: 0,
-    approvedScopes: tokens.scope.split(','),
+    approvedScopes: tokens.scope?.split(','),
   }
 }
 
@@ -164,17 +155,18 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
         },
       },
     )
-    if ((tokens as GitHubError).error) {
+
+    if ((tokens as OAuthAccessTokenError).error) {
       const error = createError({
         statusCode: 401,
-        message: `GitHub login failed: ${(tokens as GitHubError).error || 'Unknown error'}`,
-        data: tokens as GitHubError,
+        message: `GitHub login failed: ${(tokens as OAuthAccessTokenError).error || 'Unknown error'}`,
+        data: tokens as OAuthAccessTokenError,
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const accessToken = (tokens as GitHubTokens).access_token
+    const accessToken = (tokens as OAuthAccessTokenSuccess).access_token
     const user: GitHubUser = await $fetch('https://api.github.com/user', {
       headers: {
         'User-Agent': `Github-OAuth-${config.clientId}`,
@@ -200,7 +192,7 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
 
     return onSuccess(event, {
       user: normalizeGitHubUser(user),
-      tokens: normalizeGitHubTokens(tokens as GitHubTokens),
+      tokens: normalizeGitHubToken(tokens as OAuthAccessTokenSuccess),
     })
   })
 }

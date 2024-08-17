@@ -2,7 +2,7 @@ export default oauthDiscordEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        discord: user.username,
+        discord: user.nickname,
       },
       loggedInAt: Date.now(),
     })
