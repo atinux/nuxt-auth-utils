@@ -1,9 +1,27 @@
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '#auth-utils'
+import type { OAuthConfig, OAuthUser } from '#auth-utils'
+
+/**
+ * @see https://partner.steamgames.com/doc/webapi/ISteamUser#GetPlayerSummaries
+ */
+type SteamUser = {
+  steamid: string
+  personaname: string
+  avatar: string
+}
+
+function normalizeSteamUser(user: SteamUser): OAuthUser<SteamUser> {
+  return {
+    id: user.steamid,
+    nickname: user.personaname,
+    avatar: user.avatar,
+    raw: user,
+  }
+}
 
 export interface OAuthSteamConfig {
   /**
@@ -26,7 +44,7 @@ export interface OAuthSteamConfig {
   redirectURL?: string
 }
 
-export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSteamConfig>) {
+export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSteamConfig>): EventHandler {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.steam, {
       authorizationURL: 'https://steamcommunity.com/openid/login',
@@ -72,15 +90,13 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
 
     const steamId = query['openid.claimed_id'].split('/').pop()
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(withQuery('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
+    const user = await $fetch<{ response: { players: SteamUser[] } }>(withQuery('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
       key: config.apiKey,
       steamids: steamId,
     }))
 
     return onSuccess(event, {
-      user: user.response.players[0],
+      user: normalizeSteamUser(user.response.players[0]),
       tokens: null,
     })
   })

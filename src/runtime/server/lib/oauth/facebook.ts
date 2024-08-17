@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import {
   eventHandler,
   createError,
@@ -106,7 +106,7 @@ export function oauthFacebookEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthFacebookConfig>) {
+}: OAuthConfig<OAuthFacebookConfig>): EventHandler {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.facebook, {
       authorizationURL: 'https://www.facebook.com/v19.0/dialog/oauth',

@@ -5,7 +5,7 @@ export interface OAuthConfig<TConfig, TUser = Record<string, unknown>> {
   config?: TConfig
   onSuccess: (
     event: H3Event,
-    result: { user: OAuthUser<TUser>, tokens: OAuthToken }
+    result: { user: OAuthUser<TUser>, tokens: OAuthToken | null }
   ) => Promise<void> | void
   onError?: (event: H3Event, error: H3Error) => Promise<void> | void
 }
