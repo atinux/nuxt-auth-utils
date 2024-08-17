@@ -167,7 +167,7 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
     }
 
     const accessToken = (tokens as OAuthAccessTokenSuccess).access_token
-    const user: GitHubUser = await $fetch('https://api.github.com/user', {
+    const user = await $fetch<GitHubUser>('https://api.github.com/user', {
       headers: {
         'User-Agent': `Github-OAuth-${config.clientId}`,
         'Authorization': `token ${accessToken}`,
@@ -176,7 +176,7 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
 
     // if no public email, check the private ones
     if (!user.email && config.emailRequired) {
-      const emails: GitHubEmail[] = await $fetch('https://api.github.com/user/emails', {
+      const emails = await $fetch<GitHubEmail[]>('https://api.github.com/user/emails', {
         headers: {
           'User-Agent': `Github-OAuth-${config.clientId}`,
           'Authorization': `token ${accessToken}`,

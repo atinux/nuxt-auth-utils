@@ -3,7 +3,7 @@ import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from
 import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthAccessTokenError, OAuthAccessTokenSuccess, OAuthConfig, OAuthToken } from '#auth-utils'
+import type { OAuthAccessTokenError, OAuthAccessTokenSuccess, OAuthConfig, OAuthToken, OAuthUser } from '#auth-utils'
 
 /**
  * @see https://discord.com/developers/docs/resources/user#user-object
@@ -16,7 +16,7 @@ type DiscordUser = {
   email?: string
 }
 
-function normalizeDiscordUser(user: DiscordUser) {
+function normalizeDiscordUser(user: DiscordUser): OAuthUser<DiscordUser> {
   return {
     id: user.id,
     nickname: user.username,
