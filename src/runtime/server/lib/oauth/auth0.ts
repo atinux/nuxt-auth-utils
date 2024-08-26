@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery } from 'ufo'
+import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { handleAccessTokenErrorResponse } from '../utils'
 import { useRuntimeConfig } from '#imports'
