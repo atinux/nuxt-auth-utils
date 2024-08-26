@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -34,12 +35,7 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
     const query: Record<string, string> = getQuery(event)
 
     if (!config.apiKey) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_STEAM_API_KEY env variable.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'steam', ['apiKey'], onError)
     }
 
     if (!query['openid.claimed_id']) {
