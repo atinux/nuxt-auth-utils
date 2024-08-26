@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
+import { getRequestURL } from 'h3'
 import { FetchError } from 'ofetch'
-import { getRequestURL } from '#imports'
 
 export function getOAuthRedirectURL(event: H3Event): string {
   const requestURL = getRequestURL(event)
