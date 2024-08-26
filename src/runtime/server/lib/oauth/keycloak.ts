@@ -3,11 +3,11 @@ import {
   eventHandler,
   createError,
   getQuery,
-  getRequestURL,
   sendRedirect,
 } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -61,8 +61,7 @@ export function oauthKeycloakEventHandler({
       authorizationParams: {},
     }) as OAuthKeycloakConfig
 
-    const query = getQuery(event)
-    const { code } = query
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -93,9 +92,9 @@ export function oauthKeycloakEventHandler({
 
     const authorizationURL = `${realmURL}/protocol/openid-connect/auth`
     const tokenURL = `${realmURL}/protocol/openid-connect/token`
-    const redirectURL = config.redirectURL || getRequestURL(event).href
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
-    if (!code) {
+    if (!query.code) {
       config.scope = config.scope || ['openid']
 
       // Redirect to Keycloak Oauth page
@@ -116,23 +115,14 @@ export function oauthKeycloakEventHandler({
       config.scope.push('openid')
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(tokenURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
+    const tokens = await requestAccessToken(tokenURL, {
+      body: {
+        grant_type: 'authorization_code',
         client_id: config.clientId,
         client_secret: config.clientSecret,
-        grant_type: 'authorization_code',
-        redirect_uri: parsePath(redirectURL).pathname,
-        code: code as string,
-      }).toString(),
-    }).catch((error) => {
-      return { error }
-    })
+        redirect_uri: redirectURL,
+        code: query.code,
+      } })
 
     if (tokens.error) {
       const error = createError({

@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, createError, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -38,7 +39,8 @@ export interface OAuthXSUAAConfig {
 export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthXSUAAConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.xsuaa) as OAuthXSUAAConfig
-    const { code } = getQuery(event)
+
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
       const error = createError({
@@ -51,8 +53,9 @@ export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConf
     const authorizationURL = `https://${config.domain}/oauth/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || []
       // Redirect to XSUAA Oauth page
       return sendRedirect(
@@ -66,26 +69,16 @@ export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConf
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          redirect_uri: parsePath(redirectURL).pathname,
-          code: `${code}`,
-        }),
+    const tokens = await requestAccessToken(tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
+        code: query.code,
       },
-    ).catch((error) => {
-      return { error }
     })
+
     if (tokens.error) {
       const error = createError({
         statusCode: 401,

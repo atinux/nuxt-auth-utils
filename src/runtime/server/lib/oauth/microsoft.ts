@@ -1,7 +1,8 @@
 import type { H3Event, H3Error } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, createError, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthMicrosoftConfig {
@@ -69,7 +70,8 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
     config = defu(config, useRuntimeConfig(event).oauth?.microsoft, {
       authorizationParams: {},
     }) as OAuthMicrosoftConfig
-    const { code } = getQuery(event)
+
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret || !config.tenant) {
       const error = createError({
@@ -83,8 +85,9 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
     const authorizationURL = config.authorizationURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/authorize`
     const tokenURL = config.tokenURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/token`
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       const scope = config.scope && config.scope.length > 0 ? config.scope : ['User.Read']
       // Redirect to Microsoft Oauth page
       return sendRedirect(
@@ -99,27 +102,16 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
       )
     }
 
-    const data = new URLSearchParams()
-    data.append('grant_type', 'authorization_code')
-    data.append('client_id', config.clientId)
-    data.append('client_secret', config.clientSecret)
-    data.append('redirect_uri', parsePath(redirectURL).pathname)
-    data.append('code', String(code))
-
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: data,
+    const tokens = await requestAccessToken(tokenURL, {
+      body: {
+        grant_type: 'authorization_code',
+        code: query.code as string,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
       },
-    ).catch((error) => {
-      return { error }
     })
+
     if (tokens.error) {
       const error = createError({
         statusCode: 401,

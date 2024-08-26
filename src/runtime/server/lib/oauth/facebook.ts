@@ -3,11 +3,11 @@ import {
   eventHandler,
   createError,
   getQuery,
-  getRequestURL,
   sendRedirect,
 } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -73,7 +73,8 @@ export function oauthFacebookEventHandler({
       tokenURL: 'https://graph.facebook.com/v19.0/oauth/access_token',
       authorizationParams: {},
     }) as OAuthFacebookConfig
-    const query = getQuery(event)
+
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -95,7 +96,8 @@ export function oauthFacebookEventHandler({
       return onError(event, error)
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
     if (!query.code) {
       config.scope = config.scope || []
       // Redirect to Facebook Oauth page
@@ -109,17 +111,16 @@ export function oauthFacebookEventHandler({
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(config.tokenURL as string, {
-      method: 'POST',
+    const tokens = await requestAccessToken(config.tokenURL as string, {
       body: {
         client_id: config.clientId,
         client_secret: config.clientSecret,
+        grant_type: 'authorization_code',
         redirect_uri: redirectURL,
         code: query.code,
       },
     })
+
     if (tokens.error) {
       const error = createError({
         statusCode: 401,

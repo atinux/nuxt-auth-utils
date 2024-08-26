@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, createError, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -48,7 +49,6 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
     config = defu(config, useRuntimeConfig(event).oauth?.cognito, {
       authorizationParams: {},
     }) as OAuthCognitoConfig
-    const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.userPoolId || !config.region) {
       const error = createError({
@@ -62,8 +62,10 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
     const authorizationURL = `https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/authorize`
     const tokenURL = `https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/token`
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const query = getQuery<{ code?: string }>(event)
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || ['openid', 'profile']
       // Redirect to Cognito login page
       return sendRedirect(
@@ -78,20 +80,18 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
+    const tokens = await requestAccessToken(
       tokenURL as string,
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+        body: {
+          grant_type: 'authorization_code',
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          redirect_uri: redirectURL,
+          code: query.code,
         },
-        body: `grant_type=authorization_code&client_id=${config.clientId}&client_secret=${config.clientSecret}&redirect_uri=${parsePath(redirectURL).pathname}&code=${code}`,
       },
-    ).catch((error) => {
-      return { error }
-    })
+    )
 
     if (tokens.error) {
       const error = createError({

@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
+import { eventHandler, createError, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -63,7 +64,8 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
       tokenURL: 'https://github.com/login/oauth/access_token',
       authorizationParams: {},
     }) as OAuthGitHubConfig
-    const query = getQuery(event)
+
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -84,13 +86,14 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
       return onError(event, error)
     }
 
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
     if (!query.code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('user:email')) {
         config.scope.push('user:email')
       }
-      // Redirect to GitHub Oauth page
-      const redirectURL = config.redirectURL || getRequestURL(event).href
+
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
@@ -102,19 +105,16 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        body: {
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          code: query.code,
-        },
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
+        code: query.code,
       },
-    )
+    })
+
     if (tokens.error) {
       const error = createError({
         statusCode: 401,
