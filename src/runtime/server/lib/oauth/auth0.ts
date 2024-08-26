@@ -1,9 +1,23 @@
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '#auth-utils'
+import type { OAuthAccessTokenError, OAuthAccessTokenSuccess, OAuthConfig, OAuthToken, OAuthUser } from '#auth-utils'
+
+/**
+ * Auth0 User
+ *
+ * @see https://auth0.com/docs/api/authentication#user-profile
+ */
+type Auth0User = {
+  email: string
+  email_verified: boolean
+  name: string
+  picture: string
+  sub: string
+  updated_at: string
+}
 
 export interface OAuthAuth0Config {
   /**
@@ -64,7 +78,7 @@ export interface OAuthAuth0Config {
   redirectURL?: string
 }
 
-export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
+export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config, Auth0User>): EventHandler {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.auth0, {
       authorizationParams: {},
@@ -104,9 +118,7 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
+    const tokens = await $fetch<unknown>(
       tokenURL as string,
       {
         method: 'POST',
@@ -121,33 +133,50 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
           code,
         },
       },
-    ).catch((error) => {
-      return { error }
-    })
-    if (tokens.error) {
+    )
+
+    if ((tokens as OAuthAccessTokenError).error) {
       const error = createError({
         statusCode: 401,
-        message: `Auth0 login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
+        message: `Auth0 login failed: ${(tokens as OAuthAccessTokenError).error || 'Unknown error'}`,
         data: tokens,
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const tokenType = tokens.token_type
-    const accessToken = tokens.access_token
+    const tokenType = (tokens as OAuthAccessTokenSuccess).token_type
+    const accessToken = (tokens as OAuthAccessTokenSuccess).access_token
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(`https://${config.domain}/userinfo`, {
+    const user = await $fetch<Auth0User>(`https://${config.domain}/userinfo`, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },
     })
 
     return onSuccess(event, {
-      tokens,
-      user,
+      user: normalizeAuth0User(user),
+      tokens: normalizeAuth0Tokens(tokens as OAuthAccessTokenSuccess),
     })
   })
+}
+
+function normalizeAuth0User(user: Auth0User): OAuthUser<Auth0User> {
+  return {
+    id: user.sub,
+    nickname: user.name,
+    name: user.name,
+    email: user.email,
+    avatar: user.picture,
+    raw: user,
+  }
+}
+
+function normalizeAuth0Tokens(tokens: OAuthAccessTokenSuccess): OAuthToken {
+  return {
+    token: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresIn: tokens.expires_in,
+    approvedScopes: tokens.scope?.split(' ') || [],
+  }
 }

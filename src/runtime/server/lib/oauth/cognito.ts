@@ -1,9 +1,25 @@
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '#auth-utils'
+import type { OAuthConfig, OAuthToken, OAuthUser, OAuthAccessTokenSuccess, OAuthAccessTokenError } from '#auth-utils'
+
+/**
+ * AWS Cognito User
+ *
+ * @see https://docs.aws.amazon.com/cognito/latest/developerguide/userinfo-endpoint.html
+ */
+type CognitoUser = {
+  sub: string
+  email_verified: boolean
+  email: string
+  username: string
+  name: string
+  picture: string
+  phone_number_verified: boolean
+  phone_number: string
+}
 
 export interface OAuthCognitoConfig {
   /**
@@ -43,7 +59,7 @@ export interface OAuthCognitoConfig {
   redirectURL?: string
 }
 
-export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
+export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig, CognitoUser>): EventHandler {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.cognito, {
       authorizationParams: {},
@@ -78,9 +94,7 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
+    const tokens = await $fetch<unknown>(
       tokenURL as string,
       {
         method: 'POST',
@@ -93,29 +107,48 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
       return { error }
     })
 
-    if (tokens.error) {
+    if ((tokens as OAuthAccessTokenError).error) {
       const error = createError({
         statusCode: 401,
-        message: `Cognito login failed: ${tokens.error_description || 'Unknown error'}`,
-        data: tokens,
+        message: `Cognito login failed: ${(tokens as OAuthAccessTokenError).error || 'Unknown error'}`,
+        data: tokens as OAuthAccessTokenError,
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const tokenType = tokens.token_type
-    const accessToken = tokens.access_token
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(`https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/userInfo`, {
+    const tokenType = (tokens as OAuthAccessTokenSuccess).token_type
+    const accessToken = (tokens as OAuthAccessTokenSuccess).access_token
+
+    const user = await $fetch<CognitoUser>(`https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/userInfo`, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },
     })
 
     return onSuccess(event, {
-      tokens,
-      user,
+      user: normalizeCognitoUser(user),
+      tokens: normalizeCognitoToken(tokens as OAuthAccessTokenSuccess),
     })
   })
+}
+
+function normalizeCognitoUser(user: CognitoUser): OAuthUser<CognitoUser> {
+  return {
+    id: user.sub,
+    email: user.email,
+    nickname: user.username,
+    name: user.name,
+    avatar: user.picture,
+    raw: user,
+  }
+}
+
+function normalizeCognitoToken(tokens: OAuthAccessTokenSuccess): OAuthToken {
+  return {
+    token: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresIn: tokens.expires_in,
+    approvedScopes: tokens.scope?.split(' '),
+  }
 }

@@ -6,6 +6,8 @@ import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig, OAuthToken, OAuthUser, OAuthAccessTokenSuccess, OAuthAccessTokenError } from '#auth-utils'
 
 /**
+ * GitHub User
+ *
  * @see https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-the-authenticated-user
  */
 type GitHubUser = {
@@ -20,6 +22,8 @@ type GitHubUser = {
 }
 
 /**
+ * GitHub Email
+ *
  * @see https://docs.github.com/en/rest/users/emails?apiVersion=2022-11-28#list-email-addresses-for-the-authenticated-user
  */
 type GitHubEmail = {
@@ -27,24 +31,6 @@ type GitHubEmail = {
   primary: boolean
   verified: boolean
   visibility: string | null
-}
-
-function normalizeGitHubUser(user: GitHubUser): OAuthUser<GitHubUser> {
-  return {
-    id: user.id,
-    nickname: user.login,
-    name: user.name,
-    email: user.email,
-    avatar: user.avatar_url,
-    raw: user,
-  }
-}
-
-function normalizeGitHubToken(tokens: OAuthAccessTokenSuccess): OAuthToken {
-  return {
-    token: tokens.access_token,
-    approvedScopes: tokens.scope?.split(','),
-  }
 }
 
 export interface OAuthGitHubConfig {
@@ -154,7 +140,9 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
           code: query.code,
         },
       },
-    )
+    ).catch((error) => {
+      return { error }
+    })
 
     if ((tokens as OAuthAccessTokenError).error) {
       const error = createError({
@@ -195,4 +183,22 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
       tokens: normalizeGitHubToken(tokens as OAuthAccessTokenSuccess),
     })
   })
+}
+
+function normalizeGitHubUser(user: GitHubUser): OAuthUser<GitHubUser> {
+  return {
+    id: user.id,
+    nickname: user.login,
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar_url,
+    raw: user,
+  }
+}
+
+function normalizeGitHubToken(tokens: OAuthAccessTokenSuccess): OAuthToken {
+  return {
+    token: tokens.access_token,
+    approvedScopes: tokens.scope?.split(','),
+  }
 }
