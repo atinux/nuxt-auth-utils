@@ -2,6 +2,7 @@ import type { H3Event, H3Error } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse } from '../utils'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthMicrosoftConfig {
@@ -121,13 +122,7 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
       return { error }
     })
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Microsoft login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'microsoft', tokens, onError)
     }
 
     const tokenType = tokens.token_type

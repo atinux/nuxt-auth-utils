@@ -8,6 +8,7 @@ import {
 } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -135,15 +136,7 @@ export function oauthKeycloakEventHandler({
     })
 
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Keycloak login failed: ${
-          tokens.error?.data?.error_description || 'Unknown error'
-        }`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'keycloak', tokens, onError)
     }
 
     const accessToken = tokens.access_token

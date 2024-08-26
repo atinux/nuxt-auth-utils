@@ -3,6 +3,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -136,13 +137,7 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
     })
 
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Battle.net login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'battle.net', tokens, onError)
     }
 
     const accessToken = tokens.access_token

@@ -8,6 +8,7 @@ import {
 } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -120,14 +121,9 @@ export function oauthFacebookEventHandler({
         code: query.code,
       },
     })
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Facebook login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'facebook', tokens, onError)
     }
 
     const accessToken = tokens.access_token

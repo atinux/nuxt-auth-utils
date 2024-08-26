@@ -9,6 +9,7 @@ import {
 } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -134,15 +135,7 @@ export function oauthXEventHandler({
       return { error }
     })
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `X login failed: ${
-          tokens.error?.data?.error_description || 'Unknown error'
-        }`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'x', tokens, onError)
     }
 
     const accessToken = tokens.access_token
