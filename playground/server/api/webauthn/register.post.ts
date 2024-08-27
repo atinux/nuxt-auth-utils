@@ -1,13 +1,13 @@
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
 
-export default definePasskeyRegistrationEventHandler({
+export default defineCredentialRegistrationEventHandler({
   storeChallenge: async (_, options, attemptId) => {
-    await useStorage().setItem(`passkeys:${attemptId}`, options)
+    await useStorage().setItem(`attempt:${attemptId}`, options)
   },
   getChallenge: async (_, attemptId) => {
-    const options = await useStorage<PublicKeyCredentialCreationOptionsJSON>().getItem(`passkeys:${attemptId}`)
-    await useStorage().removeItem(`passkeys:${attemptId}`)
+    const options = await useStorage<PublicKeyCredentialCreationOptionsJSON>().getItem(`attempt:${attemptId}`)
+    await useStorage().removeItem(`attempt:${attemptId}`)
     if (!options)
       throw createError({ statusCode: 400 })
 
@@ -24,7 +24,7 @@ export default definePasskeyRegistrationEventHandler({
     await useStorage('db').setItem(`users:${response!.credentialID}`, user)
     await setUserSession(event, {
       user: {
-        passkey: response!.credentialID,
+        credential: response!.credentialID,
       },
       loggedInAt: Date.now(),
     })

@@ -6,14 +6,14 @@ const userName = ref('')
 const displayName = ref('')
 const toast = useToast()
 
-const { register: _register, authenticate: _authenticate, isSupported } = usePasskey({
-  registrationEndpoint: '/api/passkey/register',
-  authenticationEndpoint: '/api/passkey/login',
+const { register: _register, authenticate: _authenticate, isSupported } = useWebauthn({
+  registrationEndpoint: '/api/webauthn/register',
+  authenticationEndpoint: '/api/webauthn/login',
   onRegistrationError: (error) => {
-    console.log('Registration error:', error)
+    console.error('Registration error:', error)
   },
   onAuthenticationError: (error) => {
-    console.log('Authentication error:', error)
+    console.error('Authentication error:', error)
   },
 })
 

@@ -123,7 +123,7 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
-          <PasskeyModal v-if="!loggedIn" />
+          <WebauthnModal v-if="!loggedIn" />
           <PasswordModal v-if="!loggedIn" />
           <UDropdown :items="[providers]">
             <UButton

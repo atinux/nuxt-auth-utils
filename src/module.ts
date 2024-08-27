@@ -77,9 +77,9 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // WebAuthn settings
-    runtimeConfig.passkey = defu(runtimeConfig.passkey, {})
-    runtimeConfig.passkey.registrationOptions = defu(runtimeConfig.passkey.registrationOptions, {}) // TODO: add default values
-    runtimeConfig.passkey.authenticationOptions = defu(runtimeConfig.passkey.authenticationOptions, {}) // TODO: add default values
+    runtimeConfig.webauthn = defu(runtimeConfig.webauthn, {})
+    runtimeConfig.webauthn.registrationOptions = defu(runtimeConfig.webauthn.registrationOptions, {}) // TODO: add default values
+    runtimeConfig.webauthn.authenticationOptions = defu(runtimeConfig.webauthn.authenticationOptions, {}) // TODO: add default values
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})

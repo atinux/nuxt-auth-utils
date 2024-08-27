@@ -10,7 +10,7 @@ import { useRuntimeConfig } from '#imports'
 
 // FIXME: better type name?
 interface AuthenticationData {
-  passkey: {
+  credential: {
     id: string
     publicKey: Uint8Array
     counter: number
@@ -26,7 +26,7 @@ type AuthenticationBody = {
   response: AuthenticationResponseJSON
 }
 
-interface PasskeyAuthenticationEventHandlerOptions {
+interface CredentialAuthenticationEventHandlerOptions {
   authenticationOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
   storeChallenge: (event: H3Event, options: PublicKeyCredentialRequestOptionsJSON, attemptId: string) => void | Promise<void>
   getChallenge: (event: H3Event, attemptId: string) => AuthenticationData | Promise<AuthenticationData>
@@ -34,20 +34,20 @@ interface PasskeyAuthenticationEventHandlerOptions {
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
 
-export function definePasskeyAuthenticationEventHandler({
+export function defineCredentialAuthenticationEventHandler({
   storeChallenge,
   getChallenge,
   onSuccces,
   onError,
   authenticationOptions,
-}: PasskeyAuthenticationEventHandlerOptions) {
+}: CredentialAuthenticationEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<AuthenticationBody>(event)
     if (body.verify === undefined)
       throw createError({ statusCode: 400 })
 
-    const _config = defu(await authenticationOptions?.(event) ?? {}, useRuntimeConfig(event).passkey.authenticationOptions, {
+    const _config = defu(await authenticationOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.authenticationOptions, {
       rpID: url.hostname,
     } satisfies GenerateAuthenticationOptionsOpts)
 
@@ -66,7 +66,7 @@ export function definePasskeyAuthenticationEventHandler({
       if (!attemptId)
         throw createError({ statusCode: 400 })
 
-      const { options, passkey } = await getChallenge(event, attemptId)
+      const { options, credential } = await getChallenge(event, attemptId)
       const verification = await verifyAuthenticationResponse({
         response: body.response,
         expectedChallenge: options.challenge,
@@ -74,9 +74,9 @@ export function definePasskeyAuthenticationEventHandler({
         expectedRPID: url.hostname,
         authenticator: {
           credentialID: body.response.id, // TODO: Is this correct?
-          credentialPublicKey: passkey.publicKey,
-          counter: passkey.counter,
-          transports: passkey.transports,
+          credentialPublicKey: credential.publicKey,
+          counter: credential.counter,
+          transports: credential.transports,
         },
       })
 
@@ -90,7 +90,7 @@ export function definePasskeyAuthenticationEventHandler({
       if (!onError) throw error
       if (error instanceof H3Error)
         return onError(event, error)
-      return onError(event, createError({ statusCode: 500, message: 'Failed to authenticate passkey' }))
+      return onError(event, createError({ statusCode: 500, message: 'Failed to authenticate credential' }))
     }
   })
 }

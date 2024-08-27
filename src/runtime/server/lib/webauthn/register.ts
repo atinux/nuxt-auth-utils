@@ -19,7 +19,7 @@ type RegistrationBody = {
   response: RegistrationResponseJSON
 }
 
-interface PasskeyRegistrationEventHandlerOptions {
+interface CredentialRegistrationEventHandlerOptions {
   registrationOptions?: (event: H3Event) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
   storeChallenge: (event: H3Event, options: PublicKeyCredentialCreationOptionsJSON, attemptId: string) => void | Promise<void>
   getChallenge: (event: H3Event, attemptId: string) => PublicKeyCredentialCreationOptionsJSON | Promise<PublicKeyCredentialCreationOptionsJSON>
@@ -27,20 +27,20 @@ interface PasskeyRegistrationEventHandlerOptions {
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
 
-export function definePasskeyRegistrationEventHandler({
+export function defineCredentialRegistrationEventHandler({
   storeChallenge,
   getChallenge,
   onSuccces,
   onError,
   registrationOptions,
-}: PasskeyRegistrationEventHandlerOptions) {
+}: CredentialRegistrationEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody>(event)
     if (body.verify === undefined || !body.userName)
       throw createError({ statusCode: 400 })
 
-    const _config = defu(await registrationOptions?.(event) ?? {}, useRuntimeConfig(event).passkey.registrationOptions, {
+    const _config = defu(await registrationOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.registrationOptions, {
       rpID: url.hostname,
       rpName: 'Nuxt Auth Utils',
       userName: body.userName,
@@ -84,7 +84,7 @@ export function definePasskeyRegistrationEventHandler({
       if (!onError) throw error
       if (error instanceof H3Error)
         return onError(event, error)
-      return onError(event, createError({ statusCode: 500, message: 'Failed to register passkey' }))
+      return onError(event, createError({ statusCode: 500, message: 'Failed to register credential' }))
     }
   })
 }

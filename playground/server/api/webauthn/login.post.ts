@@ -1,40 +1,40 @@
 import { base64URLStringToBuffer } from '@simplewebauthn/browser'
 import type { AuthenticatorTransportFuture, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
 
-interface PasskeyData {
+interface CredentialData {
   id: string
   publicKey: string
   counter: number
   transports?: AuthenticatorTransportFuture[]
 }
 
-export default definePasskeyAuthenticationEventHandler({
+export default defineCredentialAuthenticationEventHandler({
   storeChallenge: async (_, options, attemptId) => {
-    await useStorage().setItem(`passkeys:${attemptId}`, options)
+    await useStorage().setItem(`attempt:${attemptId}`, options)
   },
   getChallenge: async (event, attemptId) => {
-    const options = await useStorage<PublicKeyCredentialRequestOptionsJSON>().getItem(`passkeys:${attemptId}`)
-    await useStorage().removeItem(`passkeys:${attemptId}`)
+    const options = await useStorage<PublicKeyCredentialRequestOptionsJSON>().getItem(`attempt:${attemptId}`)
+    await useStorage().removeItem(`attempt:${attemptId}`)
     if (!options)
       throw createError({ statusCode: 400 })
 
     const body = await readBody(event)
-    const passkey = await useStorage<PasskeyData>('db').getItem(`users:${body.response.id}`)
-    if (!passkey)
+    const credential = await useStorage<CredentialData>('db').getItem(`users:${body.response.id}`)
+    if (!credential)
       throw createError({ statusCode: 400 })
 
     return {
       options,
-      passkey: {
-        id: passkey.id,
-        publicKey: new Uint8Array(base64URLStringToBuffer(passkey.publicKey)),
-        counter: passkey.counter,
-        transports: passkey.transports,
+      credential: {
+        id: credential.id,
+        publicKey: new Uint8Array(base64URLStringToBuffer(credential.publicKey)),
+        counter: credential.counter,
+        transports: credential.transports,
       },
     }
   },
   onSuccces: async (event, response) => {
-    const user = await useStorage<PasskeyData>('db').getItem(`users:${response!.credentialID}`)
+    const user = await useStorage<CredentialData>('db').getItem(`users:${response!.credentialID}`)
     if (!user)
       throw createError({ statusCode: 400 })
 
@@ -43,7 +43,7 @@ export default definePasskeyAuthenticationEventHandler({
 
     await setUserSession(event, {
       user: {
-        passkey: response!.credentialID,
+        credential: response!.credentialID,
       },
       loggedInAt: Date.now(),
     })

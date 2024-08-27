@@ -7,7 +7,7 @@ import {
 } from '@simplewebauthn/browser'
 import type { VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
-import type { PasskeyComposable } from '#auth-utils'
+import type { WebauthnComposable } from '#auth-utils'
 
 interface RegistrationInitResponse {
   creationOptions: PublicKeyCredentialCreationOptionsJSON
@@ -19,12 +19,12 @@ interface AuthenticationInitResponse {
   attemptId: string
 }
 
-export function usePasskey(options: {
+export function useWebauthn(options: {
   registrationEndpoint: string
   authenticationEndpoint: string
   onRegistrationError?: (error: unknown) => void
   onAuthenticationError?: (error: unknown) => void
-}): PasskeyComposable {
+}): WebauthnComposable {
   async function register(userName: string, displayName?: string) {
     let attestationResponse: RegistrationResponseJSON | null = null
     const { creationOptions, attemptId } = await $fetch<RegistrationInitResponse>(options.registrationEndpoint, {

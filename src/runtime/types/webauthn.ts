@@ -1,4 +1,4 @@
-export interface PasskeyComposable {
+export interface WebauthnComposable {
   /**
    * Helper function that checks if the webauthn API is available
    */
@@ -14,14 +14,14 @@ export interface PasskeyComposable {
    */
   isPlatformAvailable: () => Promise<boolean>
   /**
-   * Register a passkey
+   * Register a credential
    * @param userName The user name to register
    * @param displayName The display name to register
    * @returns true if the registration was successful
    */
   register: (userName: string, displayName?: string) => Promise<boolean>
   /**
-   * Authenticate a passkey
+   * Authenticate a credential
    * @returns true if the authentication was successful
    */
   authenticate: () => Promise<boolean>

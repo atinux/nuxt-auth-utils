@@ -235,9 +235,9 @@ Make sure to set the callback URL in your OAuth app settings as `<your-domain>/a
 
 If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
 
-### Webauthn Event Handlers
+### Webauthn (passkey) Event Handlers
 
-Webauthn and passkeys require multiple requests to be completed. The webauthn event handlers handle this on a single endpoint.
+Webauthn (and passkeys) require multiple requests to be completed. The webauthn event handlers handle this on a single endpoint.
 
 The (very simplified) steps are as follows:
 
@@ -247,7 +247,7 @@ The (very simplified) steps are as follows:
 4. Verify the signature with the created options in the first step
 5. Create a user (store the public key) / login the user and set the session
 
-In this module you are responsible for storing and retrieving the options from a persistent storage, and storing / retrieving the user and passkey.
+In this module you are responsible for storing and retrieving the options from a persistent storage, and storing / retrieving the user and credential.
 
 For this there are two special functions you need to define for this: `storeChallenge` and `getChallenge`.
 
@@ -260,7 +260,7 @@ The `config` function is optional and can be used to overwrite the default crede
 Example: `~/server/routes/auth/webauthn/register.post.ts`
 
 ```ts
-export default definePasskeyRegistrationEventHandler({
+export default defineCredentialRegistrationEventHandler({
   async storeChallenge(event, options, attemptId) {
     // Store the options in a KV store or DB
     await useStorage().setItem(`attempt:${attemptId}`, options)
@@ -279,7 +279,7 @@ export default definePasskeyRegistrationEventHandler({
   async onSuccess(event, response, body) {
     await setUserSession(event, {
       user: {
-        passkeyId: response.credentialID,
+        credential: response.credentialID,
       },
     })
   },
