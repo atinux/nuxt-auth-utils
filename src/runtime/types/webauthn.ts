@@ -1,14 +1,16 @@
 export interface PasskeyComposable {
   /**
-   * Computed indicating if the webauthn is available
+   * Helper function that checks if the webauthn API is available
    */
   isSupported: () => boolean
   /**
-   * Computed indicating if the webauthn autofill is available
+   * Helper function that checks if the browser supports "Conditional UI" for webauthn
+   * @see https://github.com/w3c/webauthn/wiki/Explainer:-WebAuthn-Conditional-UI
    */
   isAutofillSupported: () => Promise<boolean>
   /**
-   * Computed indicating if the webauthn is available on the current platform
+   * Helper function that returns if platform specific authenticators are available (Touch ID, Face ID, Windows Hello, etc.)
+   * You can use this information to prioritize these authenticators over others.
    */
   isPlatformAvailable: () => Promise<boolean>
   /**
