@@ -3,11 +3,11 @@ import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typ
 
 export default definePasskeyRegistrationEventHandler({
   storeChallenge: async (_, options, attemptId) => {
-    await useStorage('db').setItem(`passkeys:${attemptId}`, options)
+    await useStorage().setItem(`passkeys:${attemptId}`, options)
   },
   getChallenge: async (_, attemptId) => {
-    const options = await useStorage<PublicKeyCredentialCreationOptionsJSON>('db').getItem(`passkeys:${attemptId}`)
-    await useStorage<PublicKeyCredentialCreationOptionsJSON>('db').removeItem(`passkeys:${attemptId}`)
+    const options = await useStorage<PublicKeyCredentialCreationOptionsJSON>().getItem(`passkeys:${attemptId}`)
+    await useStorage().removeItem(`passkeys:${attemptId}`)
     if (!options)
       throw createError({ statusCode: 400 })
 
