@@ -1,9 +1,11 @@
 import type { H3Event } from 'h3'
-import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
+import { eventHandler, H3Error, createError, getRequestURL, readBody, getQuery } from 'h3'
 import type { GenerateRegistrationOptionsOpts, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
 import type { PublicKeyCredentialCreationOptionsJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
+import { bufferToBase64URLString } from '@simplewebauthn/browser'
+import { getRandomValues } from 'uncrypto'
 import { useRuntimeConfig } from '#imports'
 
 type RegistrationBody = {
@@ -18,9 +20,9 @@ type RegistrationBody = {
 }
 
 interface PasskeyRegistrationEventHandlerOptions {
-  config?: (event: H3Event) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
-  storeChallenge: (event: H3Event, options: PublicKeyCredentialCreationOptionsJSON) => void | Promise<void>
-  getChallenge: (event: H3Event) => PublicKeyCredentialCreationOptionsJSON | Promise<PublicKeyCredentialCreationOptionsJSON>
+  registrationOptions?: (event: H3Event) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
+  storeChallenge: (event: H3Event, options: PublicKeyCredentialCreationOptionsJSON, attemptId: string) => void | Promise<void>
+  getChallenge: (event: H3Event, attemptId: string) => PublicKeyCredentialCreationOptionsJSON | Promise<PublicKeyCredentialCreationOptionsJSON>
   onSuccces: (event: H3Event, response: VerifiedRegistrationResponse['registrationInfo'], body: RegistrationBody) => void | Promise<void>
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
@@ -30,7 +32,7 @@ export function definePasskeyRegistrationEventHandler({
   getChallenge,
   onSuccces,
   onError,
-  config,
+  registrationOptions,
 }: PasskeyRegistrationEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
@@ -38,7 +40,7 @@ export function definePasskeyRegistrationEventHandler({
     if (body.verify === undefined || !body.userName)
       throw createError({ statusCode: 400 })
 
-    const _config = defu(await config?.(event) ?? {}, useRuntimeConfig(event).passkey.registrationOptions, {
+    const _config = defu(await registrationOptions?.(event) ?? {}, useRuntimeConfig(event).passkey.registrationOptions, {
       rpID: url.hostname,
       rpName: 'Nuxt Auth Utils',
       userName: body.userName,
@@ -51,11 +53,19 @@ export function definePasskeyRegistrationEventHandler({
     try {
       if (!body.verify) {
         const options = await generateRegistrationOptions(_config as GenerateRegistrationOptionsOpts)
-        await storeChallenge(event, options)
-        return options
+        const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+        await storeChallenge(event, options, attemptId)
+        return {
+          creationOptions: options,
+          attemptId,
+        }
       }
 
-      const options = await getChallenge(event)
+      const { attemptId } = getQuery<{ attemptId: string }>(event)
+      if (!attemptId)
+        throw createError({ statusCode: 400 })
+
+      const options = await getChallenge(event, attemptId)
       const verification = await verifyRegistrationResponse({
         response: body.response,
         expectedChallenge: options.challenge,

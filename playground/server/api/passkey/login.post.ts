@@ -1,5 +1,4 @@
-import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
-import { getRandomValues } from 'uncrypto'
+import { base64URLStringToBuffer } from '@simplewebauthn/browser'
 import type { AuthenticatorTransportFuture, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
 
 interface PasskeyData {
@@ -10,16 +9,10 @@ interface PasskeyData {
 }
 
 export default definePasskeyAuthenticationEventHandler({
-  storeChallenge: async (event, options) => {
-    const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+  storeChallenge: async (event, options, attemptId) => {
     await useStorage().setItem(`passkeys:${attemptId}`, options)
-    setCookie(event, 'passkey-attempt-id', attemptId)
   },
-  getChallenge: async (event) => {
-    const attemptId = getCookie(event, 'passkey-attempt-id')
-    if (!attemptId)
-      throw createError({ statusCode: 400 })
-
+  getChallenge: async (event, attemptId) => {
     const options = await useStorage<PublicKeyCredentialRequestOptionsJSON>().getItem(`passkeys:${attemptId}`)
     if (!options)
       throw createError({ statusCode: 400 })
@@ -42,7 +35,6 @@ export default definePasskeyAuthenticationEventHandler({
     }
   },
   onSuccces: async (event, response) => {
-    console.log('Success', response)
     const user = await useStorage<PasskeyData>('db').getItem(`users:${response!.credentialID}`)
     if (!user)
       throw createError({ statusCode: 400 })

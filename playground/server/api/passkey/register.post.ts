@@ -1,18 +1,11 @@
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
-import { getRandomValues } from 'uncrypto'
 import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
 
 export default definePasskeyRegistrationEventHandler({
-  storeChallenge: async (event, options) => {
-    const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+  storeChallenge: async (_, options, attemptId) => {
     await useStorage('db').setItem(`passkeys:${attemptId}`, options)
-    setCookie(event, 'passkey-attempt-id', attemptId)
   },
-  getChallenge: async (event) => {
-    const attemptId = getCookie(event, 'passkey-attempt-id')
-    if (!attemptId)
-      throw createError({ statusCode: 400 })
-
+  getChallenge: async (_, attemptId) => {
     const options = await useStorage<PublicKeyCredentialCreationOptionsJSON>('db').getItem(`passkeys:${attemptId}`)
     if (!options)
       throw createError({ statusCode: 400 })
@@ -36,7 +29,7 @@ export default definePasskeyRegistrationEventHandler({
       loggedInAt: Date.now(),
     })
   },
-  config: async () => {
+  registrationOptions: async () => {
     return {
       rpName: 'My Relying Party Name',
     }

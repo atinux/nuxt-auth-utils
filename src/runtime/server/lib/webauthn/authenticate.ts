@@ -1,9 +1,11 @@
 import type { H3Event } from 'h3'
-import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
+import { eventHandler, H3Error, createError, getRequestURL, readBody, getQuery } from 'h3'
 import type { GenerateAuthenticationOptionsOpts, VerifiedAuthenticationResponse } from '@simplewebauthn/server'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
 import type { AuthenticationResponseJSON, AuthenticatorTransportFuture, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
+import { getRandomValues } from 'uncrypto'
+import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { useRuntimeConfig } from '#imports'
 
 // FIXME: better type name?
@@ -25,9 +27,9 @@ type AuthenticationBody = {
 }
 
 interface PasskeyAuthenticationEventHandlerOptions {
-  config?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
-  storeChallenge: (event: H3Event, options: PublicKeyCredentialRequestOptionsJSON) => void | Promise<void>
-  getChallenge: (event: H3Event) => AuthenticationData | Promise<AuthenticationData>
+  authenticationOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
+  storeChallenge: (event: H3Event, options: PublicKeyCredentialRequestOptionsJSON, attemptId: string) => void | Promise<void>
+  getChallenge: (event: H3Event, attemptId: string) => AuthenticationData | Promise<AuthenticationData>
   onSuccces: (event: H3Event, response: VerifiedAuthenticationResponse['authenticationInfo']) => void | Promise<void>
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
@@ -37,7 +39,7 @@ export function definePasskeyAuthenticationEventHandler({
   getChallenge,
   onSuccces,
   onError,
-  config,
+  authenticationOptions,
 }: PasskeyAuthenticationEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
@@ -45,18 +47,26 @@ export function definePasskeyAuthenticationEventHandler({
     if (body.verify === undefined)
       throw createError({ statusCode: 400 })
 
-    const _config = defu(await config?.(event) ?? {}, useRuntimeConfig(event).passkey.authenticationOptions, {
+    const _config = defu(await authenticationOptions?.(event) ?? {}, useRuntimeConfig(event).passkey.authenticationOptions, {
       rpID: url.hostname,
     } satisfies GenerateAuthenticationOptionsOpts)
 
     try {
       if (!body.verify) {
         const options = await generateAuthenticationOptions(_config as GenerateAuthenticationOptionsOpts)
-        await storeChallenge(event, options)
-        return options
+        const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+        await storeChallenge(event, options, attemptId)
+        return {
+          requestOptions: options,
+          attemptId,
+        }
       }
 
-      const { options, passkey } = await getChallenge(event)
+      const { attemptId } = getQuery<{ attemptId: string }>(event)
+      if (!attemptId)
+        throw createError({ statusCode: 400 })
+
+      const { options, passkey } = await getChallenge(event, attemptId)
       const verification = await verifyAuthenticationResponse({
         response: body.response,
         expectedChallenge: options.challenge,

@@ -9,6 +9,16 @@ import type { VerifiedAuthenticationResponse, VerifiedRegistrationResponse } fro
 import type { AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
 import type { PasskeyComposable } from '#auth-utils'
 
+interface RegistrationInitResponse {
+  creationOptions: PublicKeyCredentialCreationOptionsJSON
+  attemptId: string
+}
+
+interface AuthenticationInitResponse {
+  requestOptions: PublicKeyCredentialRequestOptionsJSON
+  attemptId: string
+}
+
 export function usePasskey(options: {
   registrationEndpoint: string
   authenticationEndpoint: string
@@ -17,7 +27,7 @@ export function usePasskey(options: {
 }): PasskeyComposable {
   async function register(userName: string, displayName?: string) {
     let attestationResponse: RegistrationResponseJSON | null = null
-    const creationOptions = await $fetch<PublicKeyCredentialCreationOptionsJSON>(options.registrationEndpoint, {
+    const { creationOptions, attemptId } = await $fetch<RegistrationInitResponse>(options.registrationEndpoint, {
       method: 'POST',
       body: {
         userName,
@@ -45,6 +55,9 @@ export function usePasskey(options: {
         response: attestationResponse,
         verify: true,
       },
+      query: {
+        attemptId,
+      },
     })
 
     return verificationResponse && verificationResponse.verified
@@ -52,7 +65,7 @@ export function usePasskey(options: {
 
   async function authenticate() {
     let assertionResponse: AuthenticationResponseJSON | null = null
-    const requestOptions = await $fetch<PublicKeyCredentialRequestOptionsJSON>(options.authenticationEndpoint, {
+    const { requestOptions, attemptId } = await $fetch<AuthenticationInitResponse>(options.authenticationEndpoint, {
       method: 'POST',
       body: {
         verify: false,
@@ -75,6 +88,9 @@ export function usePasskey(options: {
       body: {
         response: assertionResponse,
         verify: true,
+      },
+      query: {
+        attemptId,
       },
     })
 
