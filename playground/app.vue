@@ -1,32 +1,5 @@
 <script setup lang="ts">
-const { user, session, fetch } = useUserSession()
-const loginModal = ref(false)
-const logging = ref(false)
-const password = ref('')
-const toast = useToast()
-
-async function login() {
-  if (logging.value || !password.value) return
-  logging.value = true
-  await $fetch('/api/login', {
-    method: 'POST',
-    body: {
-      password: password.value,
-    },
-  })
-    .then(() => {
-      fetch()
-      loginModal.value = false
-    })
-    .catch((err) => {
-      console.log(err)
-      toast.add({
-        color: 'red',
-        title: err.data?.message || err.message,
-      })
-    })
-  logging.value = false
-}
+const { user, session } = useUserSession()
 
 const providers = computed(() =>
   [
@@ -150,14 +123,8 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
-          <UButton
-            v-if="!loggedIn"
-            size="xs"
-            color="gray"
-            @click="loginModal = true"
-          >
-            Login
-          </UButton>
+          <PasskeyModal v-if="!loggedIn" />
+          <PasswordModal v-if="!loggedIn" />
           <UDropdown :items="[providers]">
             <UButton
               icon="i-heroicons-chevron-down"
@@ -194,28 +161,5 @@ const providers = computed(() =>
       <NuxtPage />
     </UContainer>
   </UMain>
-  <UDashboardModal
-    v-model="loginModal"
-    title="Login with password"
-    description="Use the password: 123456"
-  >
-    <form @submit.prevent="login">
-      <UFormGroup label="Password">
-        <UInput
-          v-model="password"
-          name="password"
-          type="password"
-        />
-      </UFormGroup>
-      <UButton
-        type="submit"
-        :disabled="!password"
-        color="black"
-        class="mt-2"
-      >
-        Login
-      </UButton>
-    </form>
-  </UDashboardModal>
   <UNotifications />
 </template>
