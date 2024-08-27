@@ -261,22 +261,15 @@ Example: `~/server/routes/auth/webauthn/register.post.ts`
 
 ```ts
 export default definePasskeyRegistrationEventHandler({
-  async storeChallenge(event, options) {
-    // Here we store the options in a KV store and identify it using an attempt ID
-    const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+  async storeChallenge(event, options, attemptId) {
+    // Store the options in a KV store or DB
     await useStorage().setItem(`attempt:${attemptId}`, options)
-    setCookie(event, 'passkey-attempt-id', attemptId)
   },
-  async getChallenge(event, options) {
-    const attemptId = getCookie(event, 'passkey-attempt-id')
-    if (!attemptId)
-      throw createError({ statusCode: 400 })
-
+  async getChallenge(event, attemptId) {
     const options = await useStorage().getItem(`attempt:${attemptId}`)
 
     // Make sure to always remove the attempt because they are single use only!
     await useStorage().removeItem(`attempt:${attemptId}`)
-    setCookie(event, 'passkey-attempt-id', '', { maxAge: -1 })
 
     if (!options)
       throw createError({ statusCode: 400 })
@@ -293,7 +286,7 @@ export default definePasskeyRegistrationEventHandler({
   onError: (event, error) => {
     console.error('Webauthn registration error:', error)
   },
-  config: async (event) => {
+  registrationOptions: async (event) => {
     return {
       rpName: 'My Custom Relying Party Name',
       // Other webauthn options
