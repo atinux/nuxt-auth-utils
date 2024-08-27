@@ -36,6 +36,7 @@ export default defineNuxtModule<ModuleOptions>({
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
+    addServerImportsDir(resolver.resolve('./runtime/server/lib/webauthn'))
     addServerImportsDir(resolver.resolve('./runtime/server/utils'))
     addServerHandler({
       handler: resolver.resolve('./runtime/server/api/session.delete'),
@@ -74,6 +75,11 @@ export default defineNuxtModule<ModuleOptions>({
         )
       }
     }
+
+    // WebAuthn settings
+    runtimeConfig.passkey = defu(runtimeConfig.passkey, {})
+    runtimeConfig.passkey.registrationOptions = defu(runtimeConfig.passkey.registrationOptions, {}) // TODO: add default values
+    runtimeConfig.passkey.authenticationOptions = defu(runtimeConfig.passkey.authenticationOptions, {}) // TODO: add default values
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
