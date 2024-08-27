@@ -25,7 +25,7 @@ interface PasskeyRegistrationEventHandlerOptions {
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
 
-export default function definePasskeyRegistrationEventHandler({
+export function definePasskeyRegistrationEventHandler({
   storeChallenge,
   getChallenge,
   onSuccces,

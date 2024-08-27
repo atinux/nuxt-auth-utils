@@ -1,7 +1,6 @@
 import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import type { AuthenticatorTransportFuture, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
-import definePasskeyAuthenticationEventHandler from '../../../../src/runtime/server/lib/webauthn/authenticate' // FIXME: autoimport
 
 interface PasskeyData {
   id: string

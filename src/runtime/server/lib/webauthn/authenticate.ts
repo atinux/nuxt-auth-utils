@@ -32,7 +32,7 @@ interface PasskeyAuthenticationEventHandlerOptions {
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
 
-export default function definePasskeyAuthenticationEventHandler({
+export function definePasskeyAuthenticationEventHandler({
   storeChallenge,
   getChallenge,
   onSuccces,

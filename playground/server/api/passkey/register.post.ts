@@ -1,7 +1,6 @@
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
-import definePasskeyRegistrationEventHandler from '../../../../src/runtime/server/lib/webauthn/register' // FIXME: autoimport
 
 export default definePasskeyRegistrationEventHandler({
   storeChallenge: async (event, options) => {
