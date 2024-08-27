@@ -206,7 +206,7 @@ It can also be set using environment variables:
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 
-### Example
+#### Example
 
 Example: `~/server/routes/auth/github.get.ts`
 
@@ -234,6 +234,73 @@ export default oauthGitHubEventHandler({
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
 
 If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
+
+### Webauthn Event Handlers
+
+Webauthn and passkeys require multiple requests to be completed. The webauthn event handlers handle this on a single endpoint.
+
+The (very simplified) steps are as follows:
+
+1. Generate a registration / authentication options object
+2. Store the options in a persistent storage (e.g. a database or KV store (NOT AS A COOKIE!))
+3. Retrieve the options from the persistent storage after the client has created a signature
+4. Verify the signature with the created options in the first step
+5. Create a user (store the public key) / login the user and set the session
+
+In this module you are responsible for storing and retrieving the options from a persistent storage, and storing / retrieving the user and passkey.
+
+For this there are two special functions you need to define for this: `storeChallenge` and `getChallenge`.
+
+And just like with the OAuth event handlers, there is also an `onSuccess` and `onError` function.
+
+The `config` function is optional and can be used to overwrite the default credential creation options and credential request options.
+
+#### Example
+
+Example: `~/server/routes/auth/webauthn/register.post.ts`
+
+```ts
+export default definePasskeyRegistrationEventHandler({
+  async storeChallenge(event, options) {
+    // Here we store the options in a KV store and identify it using an attempt ID
+    const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+    await useStorage().setItem(`attempt:${attemptId}`, options)
+    setCookie(event, 'passkey-attempt-id', attemptId)
+  },
+  async getChallenge(event, options) {
+    const attemptId = getCookie(event, 'passkey-attempt-id')
+    if (!attemptId)
+      throw createError({ statusCode: 400 })
+
+    const options = await useStorage().getItem(`attempt:${attemptId}`)
+
+    // Make sure to always remove the attempt because they are single use only!
+    await useStorage().removeItem(`attempt:${attemptId}`)
+    setCookie(event, 'passkey-attempt-id', '', { maxAge: -1 })
+
+    if (!options)
+      throw createError({ statusCode: 400 })
+
+    return options
+  },
+  async onSuccess(event, response, body) {
+    await setUserSession(event, {
+      user: {
+        passkeyId: response.credentialID,
+      },
+    })
+  },
+  onError: (event, error) => {
+    console.error('Webauthn registration error:', error)
+  },
+  config: async (event) => {
+    return {
+      rpName: 'My Custom Relying Party Name',
+      // Other webauthn options
+    }
+  },
+})
+```
 
 ### Extend Session
 
