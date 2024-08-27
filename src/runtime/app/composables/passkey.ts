@@ -7,18 +7,15 @@ import {
 } from '@simplewebauthn/browser'
 import type { VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
-import { computed } from 'vue'
+import type { PasskeyComposable } from '#auth-utils'
 
 export function usePasskey(options: {
   registrationEndpoint: string
   authenticationEndpoint: string
   onRegistrationError?: (error: unknown) => void
   onAuthenticationError?: (error: unknown) => void
-}) {
-  const isAvailable = computed(() => browserSupportsWebAuthn() || browserSupportsWebAuthnAutofill())
-  const isPlatformAvailable = computed(() => platformAuthenticatorIsAvailable())
-
-  async function register(userName: string, displayName: string) {
+}): PasskeyComposable {
+  async function register(userName: string, displayName?: string) {
     let attestationResponse: RegistrationResponseJSON | null = null
     const creationOptions = await $fetch<PublicKeyCredentialCreationOptionsJSON>(options.registrationEndpoint, {
       method: 'POST',
@@ -87,7 +84,8 @@ export function usePasskey(options: {
   return {
     register,
     authenticate,
-    isAvailable,
-    isPlatformAvailable,
+    isSupported: browserSupportsWebAuthn,
+    isAutofillSupported: browserSupportsWebAuthnAutofill,
+    isPlatformAvailable: platformAuthenticatorIsAvailable,
   }
 }

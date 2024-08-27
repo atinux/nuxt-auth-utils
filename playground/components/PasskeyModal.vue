@@ -56,7 +56,7 @@ async function authenticate() {
 
 <template>
   <UButton
-    v-if="!loggedIn && isAvailable"
+    v-if="!loggedIn && isAvailable()"
     size="xs"
     color="gray"
     @click="show = true"
