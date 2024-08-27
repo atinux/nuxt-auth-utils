@@ -37,16 +37,9 @@ export default definePasskeyRegistrationEventHandler({
       loggedInAt: Date.now(),
     })
   },
-  onError: (_, error) => {
-    console.log('Error', error)
-  },
-  config: async (event) => {
-    const body = await readBody(event)
+  config: async () => {
     return {
-      rpID: getRequestURL(event).hostname,
-      rpName: 'My Passkey',
-      userName: body.userName,
-      userDisplayName: body.displayName,
+      rpName: 'My Relying Party Name',
     }
   },
 })

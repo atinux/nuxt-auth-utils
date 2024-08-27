@@ -32,7 +32,6 @@ export default definePasskeyAuthenticationEventHandler({
     if (!passkey)
       throw createError({ statusCode: 400 })
 
-    console.log('user from response id', passkey)
     return {
       options,
       passkey: {
@@ -58,14 +57,5 @@ export default definePasskeyAuthenticationEventHandler({
       },
       loggedInAt: Date.now(),
     })
-  },
-  onError: (_, error) => {
-    console.log('Error', error)
-  },
-  config: async (event) => {
-    return {
-      rpID: getRequestURL(event).hostname,
-      rpName: 'My Passkey',
-    }
   },
 })

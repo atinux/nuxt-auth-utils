@@ -3,15 +3,26 @@ import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
 import type { GenerateRegistrationOptionsOpts, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
-import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
+import type { PublicKeyCredentialCreationOptionsJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
 import { useRuntimeConfig } from '#imports'
 
+type RegistrationBody = {
+  userName: string
+  displayName?: string
+  verify: false
+} | {
+  userName: string
+  displayName?: string
+  verify: true
+  response: RegistrationResponseJSON
+}
+
 interface PasskeyRegistrationEventHandlerOptions {
+  config?: (event: H3Event) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
   storeChallenge: (event: H3Event, options: PublicKeyCredentialCreationOptionsJSON) => void | Promise<void>
   getChallenge: (event: H3Event) => PublicKeyCredentialCreationOptionsJSON | Promise<PublicKeyCredentialCreationOptionsJSON>
-  onSuccces: (event: H3Event, response: VerifiedRegistrationResponse['registrationInfo'], body: any) => void | Promise<void> // FIXME: type body
-  onError: (event: H3Event, error: H3Error) => void | Promise<void>
-  config: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
+  onSuccces: (event: H3Event, response: VerifiedRegistrationResponse['registrationInfo'], body: RegistrationBody) => void | Promise<void>
+  onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
 
 export default function definePasskeyRegistrationEventHandler({
@@ -23,17 +34,19 @@ export default function definePasskeyRegistrationEventHandler({
 }: PasskeyRegistrationEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
-    const _config = defu(await config(event), useRuntimeConfig(event).passkey.registrationOptions, {
+    const body = await readBody<RegistrationBody>(event)
+    if (body.verify === undefined || !body.userName)
+      throw createError({ statusCode: 400 })
+
+    const _config = defu(await config?.(event) ?? {}, useRuntimeConfig(event).passkey.registrationOptions, {
       rpID: url.hostname,
       rpName: 'Nuxt Auth Utils',
+      userName: body.userName,
+      userDisplayName: body.displayName,
       authenticatorSelection: {
         userVerification: 'preferred',
       },
-    })
-
-    const body = await readBody(event)
-    if (body.verify === undefined || !body.userName)
-      throw createError({ statusCode: 400 })
+    } satisfies GenerateRegistrationOptionsOpts)
 
     try {
       if (!body.verify) {

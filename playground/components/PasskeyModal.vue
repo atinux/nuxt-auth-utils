@@ -6,7 +6,7 @@ const userName = ref('')
 const displayName = ref('')
 const toast = useToast()
 
-const { register: _register, authenticate: _authenticate, isAvailable } = usePasskey({
+const { register: _register, authenticate: _authenticate, isSupported } = usePasskey({
   registrationEndpoint: '/api/passkey/register',
   authenticationEndpoint: '/api/passkey/login',
   onRegistrationError: (error) => {
@@ -56,7 +56,7 @@ async function authenticate() {
 
 <template>
   <UButton
-    v-if="!loggedIn && isAvailable()"
+    v-if="!loggedIn && isSupported()"
     size="xs"
     color="gray"
     @click="show = true"
