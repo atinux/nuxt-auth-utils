@@ -9,15 +9,14 @@ interface PasskeyData {
 }
 
 export default definePasskeyAuthenticationEventHandler({
-  storeChallenge: async (event, options, attemptId) => {
+  storeChallenge: async (_, options, attemptId) => {
     await useStorage().setItem(`passkeys:${attemptId}`, options)
   },
   getChallenge: async (event, attemptId) => {
     const options = await useStorage<PublicKeyCredentialRequestOptionsJSON>().getItem(`passkeys:${attemptId}`)
+    await useStorage().removeItem(`passkeys:${attemptId}`)
     if (!options)
       throw createError({ statusCode: 400 })
-
-    await useStorage<PublicKeyCredentialRequestOptionsJSON>().removeItem(`passkeys:${attemptId}`)
 
     const body = await readBody(event)
     const passkey = await useStorage<PasskeyData>('db').getItem(`users:${body.response.id}`)

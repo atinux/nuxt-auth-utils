@@ -7,10 +7,10 @@ export default definePasskeyRegistrationEventHandler({
   },
   getChallenge: async (_, attemptId) => {
     const options = await useStorage<PublicKeyCredentialCreationOptionsJSON>('db').getItem(`passkeys:${attemptId}`)
+    await useStorage<PublicKeyCredentialCreationOptionsJSON>('db').removeItem(`passkeys:${attemptId}`)
     if (!options)
       throw createError({ statusCode: 400 })
 
-    await useStorage<PublicKeyCredentialCreationOptionsJSON>('db').removeItem(`passkeys:${attemptId}`)
     return options
   },
   onSuccces: async (event, response, body) => {
