@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { eventHandler, H3Error, createError, getRequestURL, readBody, getQuery } from 'h3'
+import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
 import type { GenerateAuthenticationOptionsOpts, VerifiedAuthenticationResponse } from '@simplewebauthn/server'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
@@ -23,6 +23,7 @@ type AuthenticationBody = {
   verify: false
 } | {
   verify: true
+  attemptId: string
   response: AuthenticationResponseJSON
 }
 
@@ -62,11 +63,10 @@ export function defineCredentialAuthenticationEventHandler({
         }
       }
 
-      const { attemptId } = getQuery<{ attemptId: string }>(event)
-      if (!attemptId)
+      if (!body.attemptId)
         throw createError({ statusCode: 400 })
 
-      const { options, credential } = await getChallenge(event, attemptId)
+      const { options, credential } = await getChallenge(event, body.attemptId)
       const verification = await verifyAuthenticationResponse({
         response: body.response,
         expectedChallenge: options.challenge,

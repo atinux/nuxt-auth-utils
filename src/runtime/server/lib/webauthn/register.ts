@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { eventHandler, H3Error, createError, getRequestURL, readBody, getQuery } from 'h3'
+import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
 import type { GenerateRegistrationOptionsOpts, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
@@ -16,6 +16,7 @@ type RegistrationBody = {
   userName: string
   displayName?: string
   verify: true
+  attemptId: string
   response: RegistrationResponseJSON
 }
 
@@ -61,11 +62,10 @@ export function defineCredentialRegistrationEventHandler({
         }
       }
 
-      const { attemptId } = getQuery<{ attemptId: string }>(event)
-      if (!attemptId)
+      if (!body.attemptId)
         throw createError({ statusCode: 400 })
 
-      const options = await getChallenge(event, attemptId)
+      const options = await getChallenge(event, body.attemptId)
       const verification = await verifyRegistrationResponse({
         response: body.response,
         expectedChallenge: options.challenge,

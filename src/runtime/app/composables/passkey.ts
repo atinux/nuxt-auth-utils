@@ -50,13 +50,11 @@ export function useWebauthn(options: {
     const verificationResponse = await $fetch<VerifiedRegistrationResponse>(options.registrationEndpoint, {
       method: 'POST',
       body: {
+        attemptId,
         userName,
         displayName,
         response: attestationResponse,
         verify: true,
-      },
-      query: {
-        attemptId,
       },
     })
 
@@ -86,11 +84,9 @@ export function useWebauthn(options: {
     const verificationResponse = await $fetch<VerifiedAuthenticationResponse>(options.authenticationEndpoint, {
       method: 'POST',
       body: {
+        attemptId,
         response: assertionResponse,
         verify: true,
-      },
-      query: {
-        attemptId,
       },
     })
 
