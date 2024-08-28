@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, requestAccessToken, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -78,12 +78,7 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
     }
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_GITHUB_CLIENT_ID or NUXT_OAUTH_GITHUB_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'github', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)

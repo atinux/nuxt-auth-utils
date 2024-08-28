@@ -8,7 +8,7 @@ import {
 } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, requestAccessToken, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -87,12 +87,7 @@ export function oauthXEventHandler({
     const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_X_CLIENT_ID env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'x', ['clientId'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)

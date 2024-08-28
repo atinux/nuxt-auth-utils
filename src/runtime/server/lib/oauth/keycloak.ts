@@ -7,7 +7,7 @@ import {
 } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, requestAccessToken, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -79,13 +79,7 @@ export function oauthKeycloakEventHandler({
       || !config.serverUrl
       || !config.realm
     ) {
-      const error = createError({
-        statusCode: 500,
-        message:
-          'Missing NUXT_OAUTH_KEYCLOAK_CLIENT_ID or NUXT_OAUTH_KEYCLOAK_CLIENT_SECRET or NUXT_OAUTH_KEYCLOAK_SERVER_URL or NUXT_OAUTH_KEYCLOAK_REALM env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'keycloak', ['clientId', 'clientSecret', 'serverUrl', 'realm'], onError)
     }
 
     const realmURL = `${config.serverUrl}/realms/${config.realm}`

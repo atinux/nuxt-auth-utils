@@ -2,7 +2,7 @@ import type { H3Event, H3Error } from 'h3'
 import { eventHandler, createError, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, requestAccessToken, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthLinkedInConfig {
@@ -67,12 +67,7 @@ export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthC
     const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_LINKEDIN_CLIENT_ID or NUXT_OAUTH_LINKEDIN_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'linkedin', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)

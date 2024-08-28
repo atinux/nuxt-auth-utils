@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, requestAccessToken, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -72,12 +72,7 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
     }) as OAuthAuth0Config
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_AUTH0_CLIENT_ID or NUXT_OAUTH_AUTH0_CLIENT_SECRET or NUXT_OAUTH_AUTH0_DOMAIN env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'auth0', ['clientId', 'clientSecret', 'domain'], onError)
     }
     const authorizationURL = `https://${config.domain}/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
