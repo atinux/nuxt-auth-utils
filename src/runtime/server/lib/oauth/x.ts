@@ -1,9 +1,13 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import {
+  eventHandler,
+  getQuery,
+  sendRedirect,
+} from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
+import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 import { randomUUID } from 'uncrypto'
 
@@ -103,7 +107,7 @@ export function oauthXEventHandler({
       },
       params: {
         grant_type: 'authorization_code',
-        code_verifier: config.authorizationParams.code_challenge,
+        code_verifier: config.authorizationParams?.code_challenge,
         redirect_uri: redirectURL,
         code: query.code,
       },
@@ -129,34 +133,6 @@ export function oauthXEventHandler({
     ).catch((error) => {
       return error
     })
-
-    if (config.emailRequired) {
-      // Fetch email if required
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emailData: any = await $fetch('https://api.twitter.com/1.1/account/verify_credentials.json', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        query: {
-          include_email: 'true',
-          skip_status: 'true',
-        },
-      }).catch((error) => {
-        return error
-      })
-
-      if (emailData && emailData.email) {
-        user.email = emailData.email
-      }
-      else {
-        const error = createError({
-          statusCode: 401,
-          message: 'Twitter login failed: no user email found',
-        })
-        if (!onError) throw error
-        return onError(event, error)
-      }
-    }
 
     return onSuccess(event, {
       tokens,

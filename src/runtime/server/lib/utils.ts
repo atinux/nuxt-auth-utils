@@ -26,7 +26,7 @@ interface RequestAccessTokenBody {
 
 interface RequestAccessTokenOptions {
   body?: RequestAccessTokenBody
-  params?: Record<string, string>
+  params?: Record<string, string | undefined>
   headers?: Record<string, string>
 }
 

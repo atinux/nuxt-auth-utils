@@ -1,11 +1,11 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Minimalist Auth module for Nuxt with SSR",
   "repository": "Atinux/nuxt-auth-utils",
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@9.7.0",
+  "packageManager": "pnpm@9.9.0",
   "exports": {
     ".": {
       "types": "./dist/types.d.ts",
@@ -32,7 +32,7 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.12.4",
+    "@nuxt/kit": "^3.13.0",
     "defu": "^6.1.4",
     "hookable": "^5.5.3",
     "ofetch": "^1.3.4",
@@ -42,17 +42,17 @@
     "uncrypto": "^0.1.3"
   },
   "devDependencies": {
-    "@iconify-json/simple-icons": "^1.1.113",
+    "@iconify-json/simple-icons": "^1.1.115",
     "@nuxt/devtools": "latest",
-    "@nuxt/eslint-config": "^0.5.0",
+    "@nuxt/eslint-config": "^0.5.3",
     "@nuxt/module-builder": "^0.8.3",
-    "@nuxt/schema": "^3.12.4",
-    "@nuxt/test-utils": "^3.14.0",
+    "@nuxt/schema": "^3.13.0",
+    "@nuxt/test-utils": "^3.14.1",
     "@nuxt/ui": "^2.18.4",
     "@nuxt/ui-pro": "^1.4.1",
     "changelogen": "^0.5.5",
-    "eslint": "^9.9.0",
-    "nuxt": "^3.12.4",
+    "eslint": "^9.9.1",
+    "nuxt": "^3.13.0",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5",
     "vue-tsc": "^2.0.29"
