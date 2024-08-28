@@ -1,16 +1,11 @@
-import { randomUUID } from 'node:crypto'
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  createError,
-  getQuery,
-  sendRedirect,
-} from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { getOAuthRedirectURL, requestAccessToken, handleMissingConfiguration } from '../utils'
-import { useRuntimeConfig } from '#imports'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
+import { randomUUID } from 'uncrypto'
 
 export interface OAuthXConfig {
   /**
@@ -30,12 +25,6 @@ export interface OAuthXConfig {
    * @example ['tweet.read', 'users.read', 'offline.access'],
    */
   scope?: string[]
-
-  /**
-   * Require email from user
-   * @default false
-   */
-  emailRequired?: boolean
 
   /**
    * X OAuth Authorization URL
@@ -59,7 +48,7 @@ export interface OAuthXConfig {
    * Extra authorization parameters to provide to the authorization URL
    * @see https://developer.x.com/en/docs/authentication/oauth-2-0/user-access-token
    */
-  authorizationParams: Record<string, string>
+  authorizationParams?: Record<string, string>
 
   /**
    * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
@@ -75,9 +64,9 @@ export function oauthXEventHandler({
 }: OAuthConfig<OAuthXConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.x, {
-      authorizationURL: 'https://twitter.com/i/oauth2/authorize',
-      tokenURL: 'https://api.twitter.com/2/oauth2/token',
-      userURL: 'https://api.twitter.com/2/users/me',
+      authorizationURL: 'https://x.com/i/oauth2/authorize',
+      tokenURL: 'https://api.x.com/2/oauth2/token',
+      userURL: 'https://api.x.com/2/users/me',
       authorizationParams: {
         state: randomUUID(),
         code_challenge: randomUUID(),
@@ -121,15 +110,7 @@ export function oauthXEventHandler({
     })
 
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `X login failed: ${
-          tokens.error?.data?.error_description || 'Unknown error'
-        }`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'x', tokens, onError)
     }
 
     const accessToken = tokens.access_token

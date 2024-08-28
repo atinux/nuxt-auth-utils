@@ -1,14 +1,9 @@
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  createError,
-  getQuery,
-  sendRedirect,
-} from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { getOAuthRedirectURL, requestAccessToken, handleMissingConfiguration } from '../utils'
-import { useRuntimeConfig } from '#imports'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthKeycloakConfig {
@@ -119,15 +114,7 @@ export function oauthKeycloakEventHandler({
       } })
 
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Keycloak login failed: ${
-          tokens.error?.data?.error_description || 'Unknown error'
-        }`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'keycloak', tokens, onError)
     }
 
     const accessToken = tokens.access_token
