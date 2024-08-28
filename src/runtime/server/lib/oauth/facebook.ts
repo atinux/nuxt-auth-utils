@@ -8,6 +8,7 @@ import {
 } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -86,13 +87,7 @@ export function oauthFacebookEventHandler({
     }
 
     if (!config.clientId) {
-      const error = createError({
-        statusCode: 500,
-        message:
-          'Missing NUXT_OAUTH_FACEBOOK_CLIENT_ID or NUXT_OAUTH_FACEBOOK_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'facebook', ['clientId'], onError)
     }
 
     const redirectURL = config.redirectURL || getRequestURL(event).href

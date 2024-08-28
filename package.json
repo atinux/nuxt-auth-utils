@@ -38,6 +38,7 @@
     "ofetch": "^1.3.4",
     "ohash": "^1.1.3",
     "pathe": "^1.1.2",
+    "scule": "^1.3.0",
     "uncrypto": "^0.1.3"
   },
   "devDependencies": {
