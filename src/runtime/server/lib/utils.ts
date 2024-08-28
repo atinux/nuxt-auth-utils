@@ -62,8 +62,6 @@ export async function requestAccessToken(url: string, options: RequestAccessToke
     if (error instanceof FetchError && error.status === 401) {
       return error.data
     }
-
-    console.log(error.data)
     throw error
   })
 }

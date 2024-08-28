@@ -102,6 +102,9 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
     }
 
     const tokens = await requestAccessToken(tokenURL as string, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: {
         grant_type: 'authorization_code',
         client_id: config.clientId,
