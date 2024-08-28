@@ -1,4 +1,4 @@
-import type { H3Event, H3Error } from 'h3'
+import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
