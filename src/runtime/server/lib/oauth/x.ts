@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto'
 import type { H3Event } from 'h3'
 import {
   eventHandler,
-  createError,
   getQuery,
   getRequestURL,
   sendRedirect,
