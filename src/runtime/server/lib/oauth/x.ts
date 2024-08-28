@@ -105,7 +105,7 @@ export function oauthXEventHandler({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {
       grant_type: 'authorization_code',
-      code_verifier: config.authorizationParams.code_challenge,
+      code_verifier: config.authorizationParams?.code_challenge,
       redirect_uri: parsePath(redirectURL).pathname,
       code,
     }
@@ -143,34 +143,6 @@ export function oauthXEventHandler({
     ).catch((error) => {
       return error
     })
-
-    if (config.emailRequired) {
-      // Fetch email if required
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emailData: any = await $fetch('https://api.twitter.com/1.1/account/verify_credentials.json', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        query: {
-          include_email: 'true',
-          skip_status: 'true',
-        },
-      }).catch((error) => {
-        return error
-      })
-
-      if (emailData && emailData.email) {
-        user.email = emailData.email
-      }
-      else {
-        const error = createError({
-          statusCode: 401,
-          message: 'Twitter login failed: no user email found',
-        })
-        if (!onError) throw error
-        return onError(event, error)
-      }
-    }
 
     return onSuccess(event, {
       tokens,
