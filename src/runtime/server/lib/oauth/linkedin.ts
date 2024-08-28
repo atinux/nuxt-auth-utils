@@ -1,8 +1,8 @@
 import type { H3Event, H3Error } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
+import { eventHandler, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration } from '../utils'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthLinkedInConfig {
@@ -115,13 +115,7 @@ export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthC
       return { error }
     })
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `LinkedIn login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'linkedin', tokens, onError)
     }
 
     const accessToken = tokens.access_token
