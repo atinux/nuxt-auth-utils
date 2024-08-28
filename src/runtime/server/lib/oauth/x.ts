@@ -6,10 +6,10 @@ import {
 } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { randomUUID } from 'uncrypto'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
-import { randomUUID } from 'uncrypto'
 
 export interface OAuthXConfig {
   /**
