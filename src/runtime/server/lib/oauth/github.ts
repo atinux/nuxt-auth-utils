@@ -1,9 +1,37 @@
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '#auth-utils'
+import type { OAuthConfig, OAuthToken, OAuthUser, OAuthAccessTokenSuccess, OAuthAccessTokenError } from '#auth-utils'
+
+/**
+ * GitHub User
+ *
+ * @see https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-the-authenticated-user
+ */
+type GitHubUser = {
+  login: string
+  id: number
+  node_id: string
+  avatar_url: string
+  name: string
+  email: string
+
+  [key: string]: unknown
+}
+
+/**
+ * GitHub Email
+ *
+ * @see https://docs.github.com/en/rest/users/emails?apiVersion=2022-11-28#list-email-addresses-for-the-authenticated-user
+ */
+type GitHubEmail = {
+  email: string
+  primary: boolean
+  verified: boolean
+  visibility: string | null
+}
 
 export interface OAuthGitHubConfig {
   /**
@@ -56,7 +84,7 @@ export interface OAuthGitHubConfig {
   redirectURL?: string
 }
 
-export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
+export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig, GitHubUser>): EventHandler {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.github, {
       authorizationURL: 'https://github.com/login/oauth/authorize',
@@ -102,9 +130,7 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
+    const tokens = await $fetch<unknown>(
       config.tokenURL as string,
       {
         method: 'POST',
@@ -114,21 +140,22 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
           code: query.code,
         },
       },
-    )
-    if (tokens.error) {
+    ).catch((error) => {
+      return { error }
+    })
+
+    if ((tokens as OAuthAccessTokenError).error) {
       const error = createError({
         statusCode: 401,
-        message: `GitHub login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
+        message: `GitHub login failed: ${(tokens as OAuthAccessTokenError).error || 'Unknown error'}`,
+        data: tokens as OAuthAccessTokenError,
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const accessToken = tokens.access_token
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch('https://api.github.com/user', {
+    const accessToken = (tokens as OAuthAccessTokenSuccess).access_token
+    const user = await $fetch<GitHubUser>('https://api.github.com/user', {
       headers: {
         'User-Agent': `Github-OAuth-${config.clientId}`,
         'Authorization': `token ${accessToken}`,
@@ -137,17 +164,13 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
 
     // if no public email, check the private ones
     if (!user.email && config.emailRequired) {
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emails: any[] = await $fetch('https://api.github.com/user/emails', {
+      const emails = await $fetch<GitHubEmail[]>('https://api.github.com/user/emails', {
         headers: {
           'User-Agent': `Github-OAuth-${config.clientId}`,
           'Authorization': `token ${accessToken}`,
         },
       })
-      // TODO: improve typing
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const primaryEmail = emails.find((email: any) => email.primary)
+      const primaryEmail = emails.find(email => email.primary)
       // Still no email
       if (!primaryEmail) {
         throw new Error('GitHub login failed: no user email found')
@@ -156,8 +179,26 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
     }
 
     return onSuccess(event, {
-      user,
-      tokens,
+      user: normalizeGitHubUser(user),
+      tokens: normalizeGitHubToken(tokens as OAuthAccessTokenSuccess),
     })
   })
+}
+
+function normalizeGitHubUser(user: GitHubUser): OAuthUser<GitHubUser> {
+  return {
+    id: user.id,
+    nickname: user.login,
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar_url,
+    raw: user,
+  }
+}
+
+function normalizeGitHubToken(tokens: OAuthAccessTokenSuccess): OAuthToken {
+  return {
+    token: tokens.access_token,
+    approvedScopes: tokens.scope?.split(','),
+  }
 }

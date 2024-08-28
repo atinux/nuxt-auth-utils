@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import {
   eventHandler,
   createError,
@@ -9,7 +9,47 @@ import {
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '#auth-utils'
+import type { OAuthAccessTokenError, OAuthAccessTokenSuccess, OAuthConfig, OAuthToken, OAuthUser } from '#auth-utils'
+
+/**
+ * @see https://developers.facebook.com/docs/graph-api/reference/user
+ */
+type FacebookUser = {
+  id: string
+  name: string
+  email?: string
+  // https://developers.facebook.com/docs/graph-api/reference/user/picture/
+  picture?: {
+    data: {
+      height: number
+      is_silhouette: boolean
+      url: string
+      width: number
+    }
+  }
+
+  [key: string]: unknown
+}
+
+function normalizeFacebookUser(user: FacebookUser): OAuthUser<FacebookUser> {
+  return {
+    id: user.id,
+    nickname: user.name,
+    name: user.name,
+    email: user.email,
+    avatar: user.picture?.data.url,
+    raw: user,
+  }
+}
+
+function normalizeFacebookTokens(tokens: OAuthAccessTokenSuccess): OAuthToken {
+  return {
+    token: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresIn: tokens.expires_in,
+    approvedScopes: tokens.scope?.split(','),
+  }
+}
 
 export interface OAuthFacebookConfig {
   /**
@@ -66,7 +106,7 @@ export function oauthFacebookEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthFacebookConfig>) {
+}: OAuthConfig<OAuthFacebookConfig>): EventHandler {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.facebook, {
       authorizationURL: 'https://www.facebook.com/v19.0/dialog/oauth',
@@ -109,9 +149,7 @@ export function oauthFacebookEventHandler({
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(config.tokenURL as string, {
+    const tokens = await $fetch<unknown>(config.tokenURL as string, {
       method: 'POST',
       body: {
         client_id: config.clientId,
@@ -120,23 +158,22 @@ export function oauthFacebookEventHandler({
         code: query.code,
       },
     })
-    if (tokens.error) {
+    if ((tokens as OAuthAccessTokenError).error) {
       const error = createError({
         statusCode: 401,
-        message: `Facebook login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
+        message: `Facebook login failed: ${(tokens as OAuthAccessTokenError).error || 'Unknown error'}`,
+        data: tokens as OAuthAccessTokenError,
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const accessToken = tokens.access_token
-    // TODO: improve typing
+    const accessToken = (tokens as OAuthAccessTokenSuccess).access_token
 
     config.fields = config.fields || ['id', 'name']
     const fields = config.fields.join(',')
 
-    const user = await $fetch(
+    const user = await $fetch<FacebookUser | undefined>(
       `https://graph.facebook.com/v19.0/me?fields=${fields}&access_token=${accessToken}`,
     )
 
@@ -145,8 +182,8 @@ export function oauthFacebookEventHandler({
     }
 
     return onSuccess(event, {
-      user,
-      tokens,
+      user: normalizeFacebookUser(user),
+      tokens: normalizeFacebookTokens(tokens as OAuthAccessTokenSuccess),
     })
   })
 }

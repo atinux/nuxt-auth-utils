@@ -2,7 +2,7 @@ export default oauthSteamEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        steam: user.steamid,
+        steam: user.id as string,
       },
       loggedInAt: Date.now(),
     })

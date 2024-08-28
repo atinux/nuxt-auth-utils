@@ -1,10 +1,21 @@
 import { randomUUID } from 'node:crypto'
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
 import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '#auth-utils'
+import type { OAuthConfig, OAuthToken, OAuthUser, OAuthAccessTokenSuccess, OAuthAccessTokenError } from '#auth-utils'
+
+/**
+ * Battle.net User
+ *
+ * Unable to find documentation on the user object
+ */
+type BattledotnetUser = {
+  sub: string
+  id: number
+  battletag: string
+}
 
 export interface OAuthBattledotnetConfig {
   /**
@@ -53,7 +64,7 @@ export interface OAuthBattledotnetConfig {
   redirectURL?: string
 }
 
-export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
+export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig, BattledotnetUser>): EventHandler {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.battledotnet, {
       authorizationURL: 'https://oauth.battle.net/authorize',
@@ -114,9 +125,7 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
 
     const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
+    const tokens = await $fetch<unknown>(
       config.tokenURL as string,
       {
         method: 'POST',
@@ -135,21 +144,19 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
       return { error }
     })
 
-    if (tokens.error) {
+    if ((tokens as OAuthAccessTokenError).error) {
       const error = createError({
         statusCode: 401,
-        message: `Battle.net login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
+        message: `Battle.net login failed: ${(tokens as OAuthAccessTokenError).error || 'Unknown error'}`,
+        data: tokens as OAuthAccessTokenError,
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const accessToken = tokens.access_token
+    const accessToken = (tokens as OAuthAccessTokenSuccess).access_token
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch('https://oauth.battle.net/userinfo', {
+    const user = await $fetch<BattledotnetUser>('https://oauth.battle.net/userinfo', {
       headers: {
         'User-Agent': `Battledotnet-OAuth-${config.clientId}`,
         'Authorization': `Bearer ${accessToken}`,
@@ -167,8 +174,23 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
     }
 
     return onSuccess(event, {
-      user,
-      tokens,
+      user: normalizeBattledotnetUser(user),
+      tokens: normalizeBattledotnetToken(tokens as OAuthAccessTokenSuccess),
     })
   })
+}
+
+function normalizeBattledotnetUser(user: BattledotnetUser): OAuthUser<BattledotnetUser> {
+  return {
+    id: user.id,
+    raw: user,
+  }
+}
+
+function normalizeBattledotnetToken(tokens: OAuthAccessTokenSuccess): OAuthToken {
+  return {
+    token: tokens.access_token,
+    expiresIn: tokens.expires_in,
+    approvedScopes: tokens.scope?.split(','),
+  }
 }
