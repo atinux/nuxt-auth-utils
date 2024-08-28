@@ -41,6 +41,11 @@ export interface OAuthCognitoConfig {
    * @default process.env.NUXT_OAUTH_COGNITO_REDIRECT_URL or current URL
    */
   redirectURL?: string
+  /**
+   * AWS Cognito App Custom Domain – some pool configurations require this
+   * @default ''
+   */
+  domain?: string
 }
 
 export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
@@ -59,8 +64,10 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
       return onError(event, error)
     }
 
-    const authorizationURL = `https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/authorize`
-    const tokenURL = `https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/token`
+    const urlBase = config?.domain || `${config.userPoolId}.auth.${config.region}.amazoncognito.com`
+
+    const authorizationURL = `https://${urlBase}/oauth2/authorize`
+    const tokenURL = `https://${urlBase}/oauth2/token`
 
     const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
@@ -107,7 +114,7 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(`https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/userInfo`, {
+    const user: any = await $fetch(`https://${urlBase}/oauth2/userInfo`, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },
