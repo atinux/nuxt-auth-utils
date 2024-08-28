@@ -59,14 +59,7 @@ export interface OAuthMicrosoftConfig {
   redirectURL?: string
 }
 
-interface OAuthConfig {
-  config?: OAuthMicrosoftConfig
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthMicrosoftConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.microsoft, {
       authorizationParams: {},

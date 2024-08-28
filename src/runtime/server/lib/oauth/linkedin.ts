@@ -51,14 +51,7 @@ export interface OAuthLinkedInConfig {
   redirectURL?: string
 }
 
-interface OAuthConfig {
-  config?: OAuthLinkedInConfig
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLinkedInConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.linkedin, {
       authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
