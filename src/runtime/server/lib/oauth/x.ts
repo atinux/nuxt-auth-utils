@@ -33,12 +33,6 @@ export interface OAuthXConfig {
   scope?: string[]
 
   /**
-   * Require email from user
-   * @default false
-   */
-  emailRequired?: boolean
-
-  /**
    * X OAuth Authorization URL
    * @default 'https://twitter.com/i/oauth2/authorize'
    */
@@ -60,7 +54,7 @@ export interface OAuthXConfig {
    * Extra authorization parameters to provide to the authorization URL
    * @see https://developer.x.com/en/docs/authentication/oauth-2-0/user-access-token
    */
-  authorizationParams: Record<string, string>
+  authorizationParams?: Record<string, string>
 
   /**
    * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
@@ -76,9 +70,9 @@ export function oauthXEventHandler({
 }: OAuthConfig<OAuthXConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.x, {
-      authorizationURL: 'https://twitter.com/i/oauth2/authorize',
-      tokenURL: 'https://api.twitter.com/2/oauth2/token',
-      userURL: 'https://api.twitter.com/2/users/me',
+      authorizationURL: 'https://x.com/i/oauth2/authorize',
+      tokenURL: 'https://api.x.com/2/oauth2/token',
+      userURL: 'https://api.x.com/2/users/me',
       authorizationParams: {
         state: randomUUID(),
         code_challenge: randomUUID(),
