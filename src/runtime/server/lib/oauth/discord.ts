@@ -1,8 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
+import { eventHandler, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse } from '../utils'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -70,12 +70,7 @@ export function oauthDiscordEventHandler({ config, onSuccess, onError }: OAuthCo
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_DISCORD_CLIENT_ID or NUXT_OAUTH_DISCORD_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'discord', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getRequestURL(event).href

@@ -8,7 +8,7 @@ import {
 } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse } from '../utils'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -80,12 +80,7 @@ export function oauthGoogleEventHandler({
     const { code } = getQuery(event)
 
     if (!config.clientId) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_GOOGLE_CLIENT_ID env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'google', ['clientId'], onError)
     }
 
     const redirectURL = config.redirectURL || getRequestURL(event).href

@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
-import { upperFirst } from 'scule'
-import { createError } from '#imports'
+
+import { snakeCase, upperFirst } from 'scule'
 import type { OnError, OAuthProvider } from '#auth-utils'
+import { createError } from '#imports'
 
 /**
  * Handle OAuth access token error response
@@ -17,6 +18,18 @@ export function handleAccessTokenErrorResponse(event: H3Event, oauthProvider: OA
     statusCode: 401,
     message,
     data: oauthError,
+  })
+
+  if (!onError) throw error
+  return onError(event, error)
+}
+
+export function handleMissingConfiguration(event: H3Event, provider: OAuthProvider, missingKeys: string[], onError?: OnError) {
+  const environmentVariables = missingKeys.map(key => `NUXT_OAUTH_${provider.toUpperCase()}_${snakeCase(key).toUpperCase()}`)
+
+  const error = createError({
+    statusCode: 500,
+    message: `Missing ${environmentVariables.join(' or ')} env ${missingKeys.length > 1 ? 'variables' : 'variable'}.`,
   })
 
   if (!onError) throw error
