@@ -2,10 +2,10 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { sha256 } from 'ohash'
 import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
-import { sha256 } from 'ohash'
 
 export interface OAuthTikTokConfig {
   /**
@@ -65,7 +65,7 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
       authorizationParams: {},
     }) as OAuthTikTokConfig
-    const { code }: { code: string} = getQuery(event)
+    const { code }: { code: string } = getQuery(event)
     if (!config.clientKey || !config.clientSecret) {
       return handleMissingConfiguration(event, 'tiktok', ['clientKey', 'clientSecret'], onError)
     }
@@ -84,10 +84,12 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
           client_key: config.clientKey,
           redirect_uri: redirectURL,
           scope: config.scope.join(','),
-          ...config.sandbox ? {
-            code_verifier: codeVerifier,
-            code_challenge: sha256(codeVerifier),
-            code_challenge_method: 'S256' } : {}
+          ...config.sandbox
+            ? {
+                code_verifier: codeVerifier,
+                code_challenge: sha256(codeVerifier),
+                code_challenge_method: 'S256' }
+            : {},
         }),
       )
     }
@@ -107,7 +109,7 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
           client_key: config.clientKey,
           client_secret: config.clientSecret,
           code,
-          ...config.sandbox ? { code_verifier: codeVerifier } : {}
+          ...config.sandbox ? { code_verifier: codeVerifier } : {},
         }),
       },
     ).catch((error) => {
@@ -130,7 +132,7 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
       fields: config.scope?.map(scope => userInfoFieldsByScope[scope]).flat().join(','),
     }), {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
 
