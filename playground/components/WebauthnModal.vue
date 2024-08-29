@@ -61,12 +61,12 @@ async function authenticate() {
     color="gray"
     @click="show = true"
   >
-    Passkey
+    Webauthn
   </UButton>
   <UDashboardModal
     v-model="show"
-    title="Login with passkey"
-    description="First time? Register your passkey"
+    title="Login with credential"
+    description="First time? Register your credential"
   >
     <form
       class="space-y-4"
