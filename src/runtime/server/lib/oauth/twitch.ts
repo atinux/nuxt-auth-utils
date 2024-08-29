@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -67,12 +68,7 @@ export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthCon
     const { code } = getQuery(event)
 
     if (!config.clientId) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_TWITCH_CLIENT_ID env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'twitch', ['clientId'], onError)
     }
 
     const redirectURL = config.redirectURL || getRequestURL(event).href
@@ -115,13 +111,7 @@ export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthCon
       return { error }
     })
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Twitch login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'twitch', tokens, onError)
     }
 
     const accessToken = tokens.access_token

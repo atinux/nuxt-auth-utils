@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
+import { eventHandler, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -41,6 +42,11 @@ export interface OAuthCognitoConfig {
    * @default process.env.NUXT_OAUTH_COGNITO_REDIRECT_URL or current URL
    */
   redirectURL?: string
+  /**
+   * AWS Cognito App Custom Domain – some pool configurations require this
+   * @default ''
+   */
+  domain?: string
 }
 
 export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
@@ -51,16 +57,13 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.userPoolId || !config.region) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_COGNITO_CLIENT_ID, NUXT_OAUTH_COGNITO_CLIENT_SECRET, NUXT_OAUTH_COGNITO_USER_POOL_ID, or NUXT_OAUTH_COGNITO_REGION env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'cognito', ['clientId', 'clientSecret', 'userPoolId', 'region'], onError)
     }
 
-    const authorizationURL = `https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/authorize`
-    const tokenURL = `https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/token`
+    const urlBase = config?.domain || `${config.userPoolId}.auth.${config.region}.amazoncognito.com`
+
+    const authorizationURL = `https://${urlBase}/oauth2/authorize`
+    const tokenURL = `https://${urlBase}/oauth2/token`
 
     const redirectURL = config.redirectURL || getRequestURL(event).href
     if (!code) {
@@ -94,20 +97,14 @@ export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthCo
     })
 
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Cognito login failed: ${tokens.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'cognito', tokens, onError)
     }
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(`https://${config.userPoolId}.auth.${config.region}.amazoncognito.com/oauth2/userInfo`, {
+    const user: any = await $fetch(`https://${urlBase}/oauth2/userInfo`, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },

@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -76,12 +77,7 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
     }
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_GITHUB_CLIENT_ID or NUXT_OAUTH_GITHUB_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'github', ['clientId', 'clientSecret'], onError)
     }
 
     if (!query.code) {
@@ -115,14 +111,9 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
         },
       },
     )
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `GitHub login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'github', tokens, onError)
     }
 
     const accessToken = tokens.access_token

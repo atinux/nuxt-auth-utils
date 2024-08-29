@@ -1,6 +1,39 @@
 # Changelog
 
 
+## v0.3.5
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.4...v0.3.5)
+
+### 🚀 Enhancements
+
+- Cognito oauth support custom domain ([4ad11a4](https://github.com/Atinux/nuxt-auth-utils/commit/4ad11a4))
+
+### 🩹 Fixes
+
+- Fetch session directly when ssr disabled ([#151](https://github.com/Atinux/nuxt-auth-utils/pull/151))
+
+### 💅 Refactors
+
+- Handle missing configuration error ([5675aaf](https://github.com/Atinux/nuxt-auth-utils/commit/5675aaf))
+- Handle access token error response ([a1b3fbb](https://github.com/Atinux/nuxt-auth-utils/commit/a1b3fbb))
+
+### 🏡 Chore
+
+- Update .vscode ([6285ca2](https://github.com/Atinux/nuxt-auth-utils/commit/6285ca2))
+- Update @nuxt/module-builder ([ceaa47b](https://github.com/Atinux/nuxt-auth-utils/commit/ceaa47b))
+- Upadte X handler ([7e81c27](https://github.com/Atinux/nuxt-auth-utils/commit/7e81c27))
+- Fix X ([7269c61](https://github.com/Atinux/nuxt-auth-utils/commit/7269c61))
+- Lint fix ([cf75ab1](https://github.com/Atinux/nuxt-auth-utils/commit/cf75ab1))
+- Update deps ([35eff05](https://github.com/Atinux/nuxt-auth-utils/commit/35eff05))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Estéban <e.soubiran25@gmail.com>
+- Zack Spear ([@zackspear](http://github.com/zackspear))
+- Alexander ([@hywax](http://github.com/hywax))
+
 ## v0.3.4
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.3...v0.3.4)

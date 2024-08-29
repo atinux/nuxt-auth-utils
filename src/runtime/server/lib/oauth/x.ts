@@ -2,13 +2,13 @@ import { randomUUID } from 'node:crypto'
 import type { H3Event } from 'h3'
 import {
   eventHandler,
-  createError,
   getQuery,
   getRequestURL,
   sendRedirect,
 } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -32,12 +32,6 @@ export interface OAuthXConfig {
   scope?: string[]
 
   /**
-   * Require email from user
-   * @default false
-   */
-  emailRequired?: boolean
-
-  /**
    * X OAuth Authorization URL
    * @default 'https://twitter.com/i/oauth2/authorize'
    */
@@ -59,7 +53,7 @@ export interface OAuthXConfig {
    * Extra authorization parameters to provide to the authorization URL
    * @see https://developer.x.com/en/docs/authentication/oauth-2-0/user-access-token
    */
-  authorizationParams: Record<string, string>
+  authorizationParams?: Record<string, string>
 
   /**
    * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
@@ -75,9 +69,9 @@ export function oauthXEventHandler({
 }: OAuthConfig<OAuthXConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.x, {
-      authorizationURL: 'https://twitter.com/i/oauth2/authorize',
-      tokenURL: 'https://api.twitter.com/2/oauth2/token',
-      userURL: 'https://api.twitter.com/2/users/me',
+      authorizationURL: 'https://x.com/i/oauth2/authorize',
+      tokenURL: 'https://api.x.com/2/oauth2/token',
+      userURL: 'https://api.x.com/2/users/me',
       authorizationParams: {
         state: randomUUID(),
         code_challenge: randomUUID(),
@@ -86,12 +80,7 @@ export function oauthXEventHandler({
     const { code } = getQuery(event)
 
     if (!config.clientId) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_X_CLIENT_ID env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'x', ['clientId'], onError)
     }
 
     const redirectURL = config.redirectURL || getRequestURL(event).href
@@ -115,7 +104,7 @@ export function oauthXEventHandler({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {
       grant_type: 'authorization_code',
-      code_verifier: config.authorizationParams.code_challenge,
+      code_verifier: config.authorizationParams?.code_challenge,
       redirect_uri: parsePath(redirectURL).pathname,
       code,
     }
@@ -134,15 +123,7 @@ export function oauthXEventHandler({
       return { error }
     })
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `X login failed: ${
-          tokens.error?.data?.error_description || 'Unknown error'
-        }`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'x', tokens, onError)
     }
 
     const accessToken = tokens.access_token
@@ -161,34 +142,6 @@ export function oauthXEventHandler({
     ).catch((error) => {
       return error
     })
-
-    if (config.emailRequired) {
-      // Fetch email if required
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emailData: any = await $fetch('https://api.twitter.com/1.1/account/verify_credentials.json', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        query: {
-          include_email: 'true',
-          skip_status: 'true',
-        },
-      }).catch((error) => {
-        return error
-      })
-
-      if (emailData && emailData.email) {
-        user.email = emailData.email
-      }
-      else {
-        const error = createError({
-          statusCode: 401,
-          message: 'Twitter login failed: no user email found',
-        })
-        if (!onError) throw error
-        return onError(event, error)
-      }
-    }
 
     return onSuccess(event, {
       tokens,

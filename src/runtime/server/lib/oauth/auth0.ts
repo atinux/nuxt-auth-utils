@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
+import { eventHandler, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -72,12 +73,7 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_AUTH0_CLIENT_ID or NUXT_OAUTH_AUTH0_CLIENT_SECRET or NUXT_OAUTH_AUTH0_DOMAIN env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'auth0', ['clientId', 'clientSecret', 'domain'], onError)
     }
     const authorizationURL = `https://${config.domain}/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
@@ -124,14 +120,9 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
     ).catch((error) => {
       return { error }
     })
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Auth0 login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'auth0', tokens, onError)
     }
 
     const tokenType = tokens.token_type

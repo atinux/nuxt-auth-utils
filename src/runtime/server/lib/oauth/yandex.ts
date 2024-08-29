@@ -1,13 +1,13 @@
 import type { H3Event } from 'h3'
 import {
   eventHandler,
-  createError,
   getQuery,
   getRequestURL,
   sendRedirect,
 } from 'h3'
 import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -78,13 +78,7 @@ export function oauthYandexEventHandler({
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message:
-          'Missing NUXT_OAUTH_YANDEX_CLIENT_ID or NUXT_OAUTH_YANDEX_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'yandex', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getRequestURL(event).href
@@ -124,15 +118,7 @@ export function oauthYandexEventHandler({
       return { error }
     })
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Yandex login failed: ${
-          tokens.error?.data?.error_description || 'Unknown error'
-        }`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'yandex', tokens, onError)
     }
 
     const accessToken = tokens.access_token

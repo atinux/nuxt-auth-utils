@@ -2,6 +2,7 @@ import type { H3Event, H3Error } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery, parsePath } from 'ufo'
 import { defu } from 'defu'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
 import { useRuntimeConfig } from '#imports'
 
 export interface OAuthMicrosoftConfig {
@@ -72,12 +73,7 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
     const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.tenant) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_MICROSOFT_CLIENT_ID or NUXT_OAUTH_MICROSOFT_CLIENT_SECRET or NUXT_OAUTH_MICROSOFT_TENANT env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'microsoft', ['clientId', 'clientSecret', 'tenant'], onError)
     }
 
     const authorizationURL = config.authorizationURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/authorize`
@@ -121,13 +117,7 @@ export function oauthMicrosoftEventHandler({ config, onSuccess, onError }: OAuth
       return { error }
     })
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Microsoft login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'microsoft', tokens, onError)
     }
 
     const tokenType = tokens.token_type
