@@ -114,10 +114,8 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
       return { error }
     })
     if (tokens.error) {
-      console.log(tokens)
       return handleAccessTokenErrorResponse(event, 'tiktok', tokens, onError)
     }
-    console.log(tokens)
     const accessToken = tokens.access_token
 
     const userInfoFieldsByScope: Record<string, string[]> = {
