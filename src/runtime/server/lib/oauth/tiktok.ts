@@ -63,7 +63,6 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
       sandbox: import.meta.dev,
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
-      authorizationParams: {},
     }) as OAuthTikTokConfig
     const { code }: { code: string } = getQuery(event)
     if (!config.clientKey || !config.clientSecret) {
