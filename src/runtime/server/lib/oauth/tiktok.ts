@@ -99,15 +99,15 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
-        body: {
-          grant_type: 'authorization_code',
-          redirect_uri: redirectURL,
-          client_key: config.clientKey,
-          client_secret: config.clientSecret,
-          code: query.code,
-          ...config.sandbox ? { code_verifier: codeVerifier } : {},
-        } as TikTokRequestAccessTokenBody,
-      },
+      body: {
+        grant_type: 'authorization_code',
+        redirect_uri: redirectURL,
+        client_key: config.clientKey,
+        client_secret: config.clientSecret,
+        code: query.code,
+        ...config.sandbox ? { code_verifier: codeVerifier } : {},
+      } as TikTokRequestAccessTokenBody,
+    },
     )
 
     if (tokens.error) {
