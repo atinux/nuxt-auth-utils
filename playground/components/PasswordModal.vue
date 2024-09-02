@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user, loggedIn, fetch } = useUserSession()
+const { user, fetch } = useUserSession()
 const show = ref(false)
 const logging = ref(false)
 const password = ref('')
