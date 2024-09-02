@@ -1,10 +1,10 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { sha256 } from 'ohash'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
-import { useRuntimeConfig } from '#imports'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthTikTokConfig {
@@ -64,13 +64,13 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
     }) as OAuthTikTokConfig
-    const { code }: { code: string } = getQuery(event)
+    const query = getQuery<{ code?: string }>(event)
     if (!config.clientKey || !config.clientSecret) {
       return handleMissingConfiguration(event, 'tiktok', ['clientKey', 'clientSecret'], onError)
     }
     const codeVerifier = 'verify'
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.includes('user.info.basic')) {
         config.scope.push('user.info.basic')
@@ -93,27 +93,18 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+        body: {
           grant_type: 'authorization_code',
-          redirect_uri: encodeURIComponent(parsePath(redirectURL).pathname),
+          redirect_uri: redirectURL,
           client_key: config.clientKey,
           client_secret: config.clientSecret,
-          code,
+          code: query.code,
           ...config.sandbox ? { code_verifier: codeVerifier } : {},
-        }),
+        },
       },
-    ).catch((error) => {
-      return { error }
-    })
+    )
+
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'tiktok', tokens, onError)
     }
