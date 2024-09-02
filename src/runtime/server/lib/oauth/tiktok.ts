@@ -3,7 +3,7 @@ import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { sha256 } from 'ohash'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, type RequestAccessTokenBody } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -93,6 +93,11 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
       )
     }
 
+    interface TikTokRequestAccessTokenBody extends RequestAccessTokenBody {
+      client_key: string
+      code_verifier?: string
+    }
+
     const tokens = await requestAccessToken(config.tokenURL as string, {
         body: {
           grant_type: 'authorization_code',
@@ -101,7 +106,7 @@ export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthCon
           client_secret: config.clientSecret,
           code: query.code,
           ...config.sandbox ? { code_verifier: codeVerifier } : {},
-        },
+        } as TikTokRequestAccessTokenBody,
       },
     )
 
