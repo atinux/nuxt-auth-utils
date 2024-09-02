@@ -1,9 +1,9 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
-import { useRuntimeConfig } from '#imports'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthPaypalConfig {
@@ -72,7 +72,8 @@ export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthCon
       tokenURL: 'https://api-m.paypal.com/v1/oauth2/token',
       authorizationParams: {},
     }) as OAuthPaypalConfig
-    const { code } = getQuery(event)
+
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId) {
       return handleMissingConfiguration(event, 'paypal', ['clientId'], onError)
@@ -86,8 +87,8 @@ export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthCon
       config.tokenURL = `https://${paypalAPI}/v1/oauth2/token`
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.includes('openid')) {
         config.scope.push('openid')
@@ -110,25 +111,15 @@ export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthCon
       )
     }
 
-    const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${authCode}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        params: {
-          grant_type: 'authorization_code',
-          redirect_uri: encodeURIComponent(parsePath(redirectURL).pathname),
-          code,
-        },
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
       },
-    ).catch((error) => {
-      return { error }
+      params: {
+        grant_type: 'authorization_code',
+        redirect_uri: redirectURL,
+        code: query.code,
+      },
     })
 
     if (tokens.error) {

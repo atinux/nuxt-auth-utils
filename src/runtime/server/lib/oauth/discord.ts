@@ -1,8 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -67,14 +67,15 @@ export function oauthDiscordEventHandler({ config, onSuccess, onError }: OAuthCo
       profileRequired: true,
       authorizationParams: {},
     }) as OAuthDiscordConfig
-    const { code } = getQuery(event)
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'discord', ['clientId', 'clientSecret'], onError)
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('email')) {
         config.scope.push('email')
@@ -96,27 +97,14 @@ export function oauthDiscordEventHandler({ config, onSuccess, onError }: OAuthCo
       )
     }
 
-    const parsedRedirectUrl = parseURL(redirectURL)
-    parsedRedirectUrl.search = ''
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          grant_type: 'authorization_code',
-          redirect_uri: stringifyParsedURL(parsedRedirectUrl),
-          code: code as string,
-        }).toString(),
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectURL,
+        code: query.code,
       },
-    ).catch((error) => {
-      return { error }
     })
 
     if (tokens.error) {

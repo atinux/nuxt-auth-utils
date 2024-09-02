@@ -1,9 +1,10 @@
-import type { H3Event, H3Error } from 'h3'
-import { eventHandler, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
+import type { H3Event } from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthLinkedInConfig {
   /**
@@ -50,28 +51,22 @@ export interface OAuthLinkedInConfig {
   redirectURL?: string
 }
 
-interface OAuthConfig {
-  config?: OAuthLinkedInConfig
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLinkedInConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.linkedin, {
       authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
       tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
       authorizationParams: {},
     }) as OAuthLinkedInConfig
-    const { code } = getQuery(event)
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'linkedin', ['clientId', 'clientSecret'], onError)
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.length) {
         config.scope.push('profile', 'openid', 'email')
@@ -92,28 +87,16 @@ export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthC
       )
     }
 
-    const parsedRedirectUrl = parseURL(redirectURL)
-    parsedRedirectUrl.search = ''
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code: code as string,
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          redirect_uri: stringifyParsedURL(parsedRedirectUrl),
-        }).toString(),
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        code: query.code as string,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
       },
-    ).catch((error) => {
-      return { error }
     })
+
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'linkedin', tokens, onError)
     }

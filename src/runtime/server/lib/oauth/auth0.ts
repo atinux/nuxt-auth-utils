@@ -1,8 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -70,7 +70,6 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
     config = defu(config, useRuntimeConfig(event).oauth?.auth0, {
       authorizationParams: {},
     }) as OAuthAuth0Config
-    const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
       return handleMissingConfiguration(event, 'auth0', ['clientId', 'clientSecret', 'domain'], onError)
@@ -78,8 +77,10 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
     const authorizationURL = `https://${config.domain}/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const query = getQuery<{ code?: string }>(event)
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || ['openid', 'offline_access']
       if (config.emailRequired && !config.scope.includes('email')) {
         config.scope.push('email')
@@ -100,25 +101,17 @@ export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConf
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: {
-          grant_type: 'authorization_code',
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          redirect_uri: parsePath(redirectURL).pathname,
-          code,
-        },
+    const tokens = await requestAccessToken(tokenURL as string, {
+      headers: {
+        'Content-Type': 'application/json',
       },
-    ).catch((error) => {
-      return { error }
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
+        code: query.code,
+      },
     })
 
     if (tokens.error) {

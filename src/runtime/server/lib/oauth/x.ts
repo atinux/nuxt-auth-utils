@@ -1,14 +1,13 @@
-import { randomUUID } from 'node:crypto'
 import type { H3Event } from 'h3'
 import {
   eventHandler,
   getQuery,
-  getRequestURL,
   sendRedirect,
 } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
+import { randomUUID } from 'uncrypto'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -77,14 +76,16 @@ export function oauthXEventHandler({
         code_challenge: randomUUID(),
       },
     }) as OAuthXConfig
-    const { code } = getQuery(event)
+
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId) {
       return handleMissingConfiguration(event, 'x', ['clientId'], onError)
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || ['tweet.read', 'users.read', 'offline.access']
       // Redirect to X Oauth page
       return sendRedirect(
@@ -100,28 +101,18 @@ export function oauthXEventHandler({
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const params: any = {
-      grant_type: 'authorization_code',
-      code_verifier: config.authorizationParams?.code_challenge,
-      redirect_uri: parsePath(redirectURL).pathname,
-      code,
-    }
-
-    const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(config.tokenURL as string, {
-      method: 'POST',
+    const tokens = await requestAccessToken(config.tokenURL as string, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${authCode}`,
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
       },
-      params,
-    }).catch((error) => {
-      return { error }
+      params: {
+        grant_type: 'authorization_code',
+        code_verifier: config.authorizationParams?.code_challenge,
+        redirect_uri: redirectURL,
+        code: query.code,
+      },
     })
+
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'x', tokens, onError)
     }
