@@ -32,7 +32,7 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
     config = defu(config, useRuntimeConfig(event).oauth?.steam, {
       authorizationURL: 'https://steamcommunity.com/openid/login',
     }) as OAuthSteamConfig
-    const query: Record<string, string> = getQuery(event)
+    const query = getQuery<Record<string, string>>(event)
 
     if (!config.apiKey) {
       return handleMissingConfiguration(event, 'steam', ['apiKey'], onError)

@@ -1,13 +1,8 @@
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  getQuery,
-  getRequestURL,
-  sendRedirect,
-} from 'h3'
-import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -75,15 +70,15 @@ export function oauthYandexEventHandler({
       userURL: 'https://login.yandex.ru/info',
     }) as OAuthYandexConfig
 
-    const { code } = getQuery(event)
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'yandex', ['clientId', 'clientSecret'], onError)
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
-    if (!code) {
+    if (!query.code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('login:email')) {
         config.scope.push('login:email')
@@ -100,23 +95,16 @@ export function oauthYandexEventHandler({
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(config.tokenURL as string, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        code: query.code as string,
         client_id: config.clientId,
         client_secret: config.clientSecret,
-        grant_type: 'authorization_code',
-        redirect_uri: stringifyParsedURL(parseURL(redirectURL)),
-        code: code as string,
-      }).toString(),
-    }).catch((error) => {
-      return { error }
+        redirect_uri: redirectURL,
+      },
     })
+
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'yandex', tokens, onError)
     }

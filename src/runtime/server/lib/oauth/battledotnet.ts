@@ -1,10 +1,10 @@
-import { randomUUID } from 'node:crypto'
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
-import { useRuntimeConfig } from '#imports'
+import { randomUUID } from 'uncrypto'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthBattledotnetConfig {
@@ -62,8 +62,7 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
       authorizationParams: {},
     }) as OAuthBattledotnetConfig
 
-    const query = getQuery(event)
-    const { code } = query
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -80,8 +79,9 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
       )
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || ['openid']
       config.region = config.region || 'EU'
 
@@ -109,27 +109,16 @@ export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OA
       config.scope.push('openid')
     }
 
-    const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
-
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${authCode}`,
-        },
-        params: {
-          code,
-          grant_type: 'authorization_code',
-          scope: config.scope.join(' '),
-          redirect_uri: parsePath(redirectURL).pathname,
-        },
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
       },
-    ).catch((error) => {
-      return { error }
+      params: {
+        grant_type: 'authorization_code',
+        scope: config.scope.join(' '),
+        redirect_uri: redirectURL,
+        code: query.code,
+      },
     })
 
     if (tokens.error) {

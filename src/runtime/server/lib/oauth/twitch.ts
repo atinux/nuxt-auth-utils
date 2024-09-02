@@ -1,9 +1,9 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
-import { useRuntimeConfig } from '#imports'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthTwitchConfig {
@@ -65,14 +65,16 @@ export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthCon
       tokenURL: 'https://id.twitch.tv/oauth2/token',
       authorizationParams: {},
     }) as OAuthTwitchConfig
-    const { code } = getQuery(event)
+
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId) {
       return handleMissingConfiguration(event, 'twitch', ['clientId'], onError)
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('user:read:email')) {
         config.scope.push('user:read:email')
@@ -90,26 +92,16 @@ export function oauthTwitchEventHandler({ config, onSuccess, onError }: OAuthCon
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        params: {
-          grant_type: 'authorization_code',
-          redirect_uri: parsePath(redirectURL).pathname,
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          code,
-        },
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        redirect_uri: redirectURL,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code: query.code,
       },
-    ).catch((error) => {
-      return { error }
     })
+
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'twitch', tokens, onError)
     }

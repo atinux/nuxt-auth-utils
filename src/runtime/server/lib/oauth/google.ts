@@ -1,13 +1,8 @@
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  getQuery,
-  getRequestURL,
-  sendRedirect,
-} from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -76,14 +71,15 @@ export function oauthGoogleEventHandler({
       userURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
       authorizationParams: {},
     }) as OAuthGoogleConfig
-    const { code } = getQuery(event)
+
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId) {
       return handleMissingConfiguration(event, 'google', ['clientId'], onError)
     }
 
-    const redirectURL = config.redirectURL || getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    if (!query.code) {
       config.scope = config.scope || ['email', 'profile']
       // Redirect to Google Oauth page
       return sendRedirect(
@@ -98,23 +94,16 @@ export function oauthGoogleEventHandler({
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body: any = {
-      grant_type: 'authorization_code',
-      redirect_uri: parsePath(redirectURL).pathname,
-      client_id: config.clientId,
-      client_secret: config.clientSecret,
-      code,
-    }
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(config.tokenURL as string, {
-      method: 'POST',
-      body,
-    }).catch((error) => {
-      return { error }
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        code: query.code as string,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
+      },
     })
+
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'google', tokens, onError)
     }
