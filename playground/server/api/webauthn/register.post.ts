@@ -1,35 +1,43 @@
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
-import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
+import type { AuthenticatorDevice } from '#auth-utils'
+
+interface Credential {
+  userName: string
+  authenticator: AuthenticatorDevice
+}
+
+interface User {
+  userName: string
+  displayName?: string
+  credentials: AuthenticatorDevice[]
+}
 
 export default defineCredentialRegistrationEventHandler({
-  async storeChallenge(_, options, attemptId) {
-    await useStorage().setItem(`attempt:${attemptId}`, options)
-  },
-  async getChallenge(_, attemptId) {
-    const options = await useStorage<PublicKeyCredentialCreationOptionsJSON>().getItem(`attempt:${attemptId}`)
-    await useStorage().removeItem(`attempt:${attemptId}`)
-    if (!options)
-      throw createError({ message: 'Challenge not found', statusCode: 400 })
-
-    return options
-  },
-  async onSuccces(event, response, body) {
-    const user = {
-      id: 1,
-      displayName: body.displayName,
-      userName: body.userName,
-      publicKey: bufferToBase64URLString(response!.credentialPublicKey),
-      counter: response!.counter,
+  async onSuccces(event, { authenticator, userName, displayName }) {
+    const authenticatorJSON = {
+      credentialID: authenticator.credentialID,
+      credentialPublicKey: bufferToBase64URLString(authenticator.credentialPublicKey),
+      counter: authenticator.counter,
+      transports: authenticator.transports,
     }
-    await useStorage('db').setItem(`users:${response!.credentialID}`, user)
+    await useStorage<User>('db').setItem(`users:${userName}`, {
+      userName,
+      displayName,
+      credentials: [authenticatorJSON],
+    })
+    await useStorage<Credential>('db').setItem(`credentials:${authenticator.credentialID}`, {
+      userName,
+      authenticator: authenticatorJSON,
+    })
+
     await setUserSession(event, {
       user: {
-        webauthn: response!.credentialID,
+        webauthn: displayName,
       },
       loggedInAt: Date.now(),
     })
   },
-  async registrationOptions() {
+  registrationOptions() {
     return {
       rpName: 'My Relying Party Name',
     }

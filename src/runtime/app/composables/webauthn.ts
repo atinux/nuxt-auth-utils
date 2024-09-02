@@ -62,12 +62,13 @@ export function useWebauthn(options: {
     return verificationResponse && verificationResponse.verified
   }
 
-  async function authenticate() {
+  async function authenticate(userName?: string) {
     let assertionResponse: AuthenticationResponseJSON | null = null
     const { requestOptions, attemptId } = await $fetch<AuthenticationInitResponse>(options.authenticationEndpoint, {
       method: 'POST',
       body: {
         verify: false,
+        userName,
       },
     })
 
@@ -86,6 +87,7 @@ export function useWebauthn(options: {
       method: 'POST',
       body: {
         attemptId,
+        userName,
         response: assertionResponse,
         verify: true,
       },

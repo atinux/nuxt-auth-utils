@@ -1,51 +1,59 @@
 import { base64URLStringToBuffer } from '@simplewebauthn/browser'
-import type { AuthenticatorTransportFuture, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
+import type { AuthenticatorDevice } from '#auth-utils'
 
-interface CredentialData {
-  id: string
-  publicKey: string
-  counter: number
-  transports?: AuthenticatorTransportFuture[]
+interface Credential {
+  userName: string
+  authenticator: AuthenticatorDevice
+}
+
+interface User {
+  userName: string
+  displayName?: string
+  credentials: AuthenticatorDevice[]
 }
 
 export default defineCredentialAuthenticationEventHandler({
-  async storeChallenge(_, options, attemptId) {
-    await useStorage().setItem(`attempt:${attemptId}`, options)
-  },
-  async getChallenge(event, attemptId) {
-    const options = await useStorage<PublicKeyCredentialRequestOptionsJSON>().getItem(`attempt:${attemptId}`)
-    await useStorage().removeItem(`attempt:${attemptId}`)
-    if (!options)
-      throw createError({ message: 'Challenge not found', statusCode: 400 })
-
-    const body = await readBody(event)
-    const credential = await useStorage<CredentialData>('db').getItem(`users:${body.response.id}`)
+  async getCredential(_, credentialID) {
+    const credential = await useStorage<Credential>('db').getItem(`credentials:${credentialID}`)
     if (!credential)
-      throw createError({ message: 'Credential not found', statusCode: 400 })
+      throw createError({ statusCode: 400, message: 'Credential not found' })
 
     return {
-      options,
-      credential: {
-        id: credential.id,
-        publicKey: new Uint8Array(base64URLStringToBuffer(credential.publicKey)),
-        counter: credential.counter,
-        transports: credential.transports,
-      },
+      credentialID: credential.authenticator.credentialID,
+      credentialPublicKey: new Uint8Array(base64URLStringToBuffer(credential.authenticator.credentialPublicKey)),
+      counter: credential.authenticator.counter,
+      transports: credential.authenticator.transports,
     }
   },
-  async onSuccces(event, response) {
-    const user = await useStorage<CredentialData>('db').getItem(`users:${response!.credentialID}`)
-    if (!user)
-      throw createError({ statusCode: 400 })
+  async onSuccces(event, { authenticationInfo }) {
+    const credential = await useStorage<Credential>('db').getItem(`credentials:${authenticationInfo.credentialID}`)
+    if (!credential)
+      throw createError({ statusCode: 400, message: 'Credential not found' })
 
-    user.counter = response!.newCounter
-    await useStorage('db').setItem(`users:${response!.credentialID}`, user)
+    const user = await useStorage<User>('db').getItem(`users:${credential.userName}`)
+    if (!user)
+      throw createError({ statusCode: 400, message: 'User not found' })
 
     await setUserSession(event, {
       user: {
-        webauthn: response!.credentialID,
+        webauthn: user.displayName,
       },
       loggedInAt: Date.now(),
     })
+  },
+  async authenticationOptions(event) {
+    const body = await readBody(event)
+    // If no userName is provided, no credentials can be returned
+    if (!body.userName || body.userName === '')
+      return {}
+
+    const user = await useStorage<User>('db').getItem(`users:${body.userName}`)
+    if (!user)
+      throw createError({ statusCode: 400, message: 'User not found' })
+
+    // If user is found, only allow credentials that are registered
+    return {
+      allowCredentials: user.credentials.map(credential => ({ id: credential.credentialID, type: 'public-key' })),
+    }
   },
 })

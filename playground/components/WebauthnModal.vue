@@ -38,7 +38,7 @@ async function register() {
 async function authenticate() {
   if (logging.value) return
   logging.value = true
-  await _authenticate()
+  await _authenticate(userName.value)
     .then(() => {
       fetch()
       show.value = false
@@ -102,6 +102,14 @@ async function authenticate() {
       class="space-y-4"
       @submit.prevent="authenticate"
     >
+      <UFormGroup label="Username">
+        <UInput
+          v-model="userName"
+          name="userName"
+          type="text"
+          autocomplete="username webauthn"
+        />
+      </UFormGroup>
       <UButton
         type="submit"
         color="black"

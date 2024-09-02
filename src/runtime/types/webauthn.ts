@@ -1,4 +1,12 @@
+import type { AuthenticatorTransportFuture } from '@simplewebauthn/types'
 import type { Ref } from 'vue'
+
+export interface AuthenticatorDevice {
+  credentialID: string
+  credentialPublicKey: string
+  counter: number
+  transports?: AuthenticatorTransportFuture[]
+}
 
 export interface WebauthnComposable {
   /**
@@ -26,5 +34,5 @@ export interface WebauthnComposable {
    * Authenticate a credential
    * @returns true if the authentication was successful
    */
-  authenticate: () => Promise<boolean>
+  authenticate: (userName?: string) => Promise<boolean>
 }
