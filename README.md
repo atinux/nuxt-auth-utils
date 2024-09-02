@@ -408,7 +408,7 @@ export default defineNitroPlugin(() => {
     // throw createError({ ... }) if session is invalid for example
   })
 
-  // Called when we call useServerSession().clear() or clearUserSession(event)
+  // Called when we call useUserSession().clear() or clearUserSession(event)
   sessionHooks.hook('clear', async (session, event) => {
     // Log that user logged out
   })
