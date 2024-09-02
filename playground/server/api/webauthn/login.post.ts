@@ -38,7 +38,6 @@ export default defineCredentialAuthenticationEventHandler({
     if (!user)
       throw createError({ statusCode: 400 })
 
-    console.log('response', response)
     user.counter = response!.newCounter
     await useStorage('db').setItem(`users:${response!.credentialID}`, user)
 

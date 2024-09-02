@@ -39,7 +39,10 @@ export function defineCredentialRegistrationEventHandler({
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody>(event)
     if (body.verify === undefined || !body.userName)
-      throw createError({ statusCode: 400 })
+      throw createError({
+        message: 'Invalid request, missing userName or verify property',
+        statusCode: 400,
+      })
 
     const _config = defu(await registrationOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.registrationOptions, {
       rpID: url.hostname,
@@ -62,8 +65,12 @@ export function defineCredentialRegistrationEventHandler({
         }
       }
 
-      if (!body.attemptId)
-        throw createError({ statusCode: 400 })
+      if (!body.attemptId) {
+        throw createError({
+          message: 'Invalid request, missing attemptId',
+          statusCode: 400,
+        })
+      }
 
       const options = await getChallenge(event, body.attemptId)
       const verification = await verifyRegistrationResponse({
@@ -74,8 +81,12 @@ export function defineCredentialRegistrationEventHandler({
         requireUserVerification: false, // TODO: make this configurable
       })
 
-      if (!verification.verified)
-        throw createError({ statusCode: 400, message: 'Failed to verify registration response' })
+      if (!verification.verified) {
+        throw createError({
+          message: 'Failed to verify registration response',
+          statusCode: 400,
+        })
+      }
 
       await onSuccces(event, verification.registrationInfo, body)
       return verification
