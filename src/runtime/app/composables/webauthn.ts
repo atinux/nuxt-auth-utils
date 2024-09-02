@@ -7,6 +7,7 @@ import {
 } from '@simplewebauthn/browser'
 import type { VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import type { AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
+import { ref, onMounted } from '#imports'
 import type { WebauthnComposable } from '#auth-utils'
 
 interface RegistrationInitResponse {
@@ -92,11 +93,15 @@ export function useWebauthn(options: {
 
     return verificationResponse && verificationResponse.verified
   }
+  const isSupported = ref(false)
+  onMounted(() => {
+    isSupported.value = browserSupportsWebAuthn()
+  })
 
   return {
     register,
     authenticate,
-    isSupported: browserSupportsWebAuthn,
+    isSupported,
     isAutofillSupported: browserSupportsWebAuthnAutofill,
     isPlatformAvailable: platformAuthenticatorIsAvailable,
   }

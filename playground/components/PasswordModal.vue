@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { loggedIn, fetch } = useUserSession()
+const { user, loggedIn, fetch } = useUserSession()
 const show = ref(false)
 const logging = ref(false)
 const password = ref('')
@@ -31,12 +31,12 @@ async function login() {
 
 <template>
   <UButton
-    v-if="!loggedIn"
+    v-if="!user?.password"
     size="xs"
     color="gray"
     @click="show = true"
   >
-    Password
+    Login with password
   </UButton>
   <UDashboardModal
     v-model="show"

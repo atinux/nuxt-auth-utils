@@ -9,19 +9,19 @@ interface CredentialData {
 }
 
 export default defineCredentialAuthenticationEventHandler({
-  storeChallenge: async (_, options, attemptId) => {
+  async storeChallenge(_, options, attemptId) {
     await useStorage().setItem(`attempt:${attemptId}`, options)
   },
-  getChallenge: async (event, attemptId) => {
+  async getChallenge(event, attemptId) {
     const options = await useStorage<PublicKeyCredentialRequestOptionsJSON>().getItem(`attempt:${attemptId}`)
     await useStorage().removeItem(`attempt:${attemptId}`)
     if (!options)
-      throw createError({ statusCode: 400 })
+      throw createError({ message: 'Challenge not found', statusCode: 400 })
 
     const body = await readBody(event)
     const credential = await useStorage<CredentialData>('db').getItem(`users:${body.response.id}`)
     if (!credential)
-      throw createError({ statusCode: 400 })
+      throw createError({ message: 'Credential not found', statusCode: 400 })
 
     return {
       options,
@@ -33,17 +33,18 @@ export default defineCredentialAuthenticationEventHandler({
       },
     }
   },
-  onSuccces: async (event, response) => {
+  async onSuccces(event, response) {
     const user = await useStorage<CredentialData>('db').getItem(`users:${response!.credentialID}`)
     if (!user)
       throw createError({ statusCode: 400 })
 
+    console.log('response', response)
     user.counter = response!.newCounter
     await useStorage('db').setItem(`users:${response!.credentialID}`, user)
 
     await setUserSession(event, {
       user: {
-        credential: response!.credentialID,
+        webauthn: response!.credentialID,
       },
       loggedInAt: Date.now(),
     })

@@ -1,6 +1,6 @@
 declare module '#auth-utils' {
   interface User {
-    credential?: string
+    webauthn?: string
     password?: string
     spotify?: string
     github?: string

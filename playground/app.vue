@@ -123,8 +123,8 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
-          <WebauthnModal v-if="!loggedIn" />
-          <PasswordModal v-if="!loggedIn" />
+          <WebauthnModal />
+          <PasswordModal />
           <UDropdown :items="[providers]">
             <UButton
               icon="i-heroicons-chevron-down"

@@ -1,8 +1,10 @@
+import type { Ref } from 'vue'
+
 export interface WebauthnComposable {
   /**
-   * Helper function that checks if the webauthn API is available
+   * Vue ref (boolean) that checks if the webauthn API is available
    */
-  isSupported: () => boolean
+  isSupported: Ref<boolean>
   /**
    * Helper function that checks if the browser supports "Conditional UI" for webauthn
    * @see https://github.com/w3c/webauthn/wiki/Explainer:-WebAuthn-Conditional-UI

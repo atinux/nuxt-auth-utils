@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { loggedIn, fetch } = useUserSession()
+const { user, fetch } = useUserSession()
 const show = ref(false)
 const logging = ref(false)
 const userName = ref('')
@@ -56,12 +56,12 @@ async function authenticate() {
 
 <template>
   <UButton
-    v-if="!loggedIn && isSupported()"
+    v-if="!user?.webauthn && isSupported"
     size="xs"
     color="gray"
     @click="show = true"
   >
-    Webauthn
+    Login with Webauthn
   </UButton>
   <UDashboardModal
     v-model="show"
