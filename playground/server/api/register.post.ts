@@ -1,7 +1,7 @@
 export default defineLazyEventHandler(async () => {
   const db = useDatabase()
 
-  await db.sql`CREATE TABLE IF NOT EXISTS users ("id" PRIMARY KEY, "email" TEXT UNIQUE NOT NULL, "password" TEXT NOT NULL)`
+  await db.sql`CREATE TABLE IF NOT EXISTS users ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "email" TEXT UNIQUE NOT NULL, "password" TEXT NOT NULL)`
 
   return defineEventHandler(async (event) => {
     const runtimeConfig = useRuntimeConfig(event)

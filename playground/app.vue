@@ -1,41 +1,14 @@
 <script setup lang="ts">
 const { user, session, fetch } = useUserSession()
-const registerModal = ref(false)
 const loginModal = ref(false)
 const logging = ref(false)
 const password = ref('')
 const toast = useToast()
 
-async function register(event: SubmitEvent) {
-  const target = event.target as HTMLFormElement
-
-  await $fetch('/api/register', {
-    method: 'POST',
-    body: {
-      email: target.email.value,
-      password: target.password.value,
-    },
-  }).then(() => {
-    fetch()
-    registerModal.value = false
-    toast.add({
-      color: 'green',
-      title: 'User registered successfully',
-    })
-    registerModal.value = false
-  }).catch((err) => {
-    console.log(err)
-    toast.add({
-      color: 'red',
-      title: err.data?.message || err.message,
-    })
-  })
-}
-
 async function login() {
   if (logging.value || !password.value) return
   logging.value = true
-  await $fetch('/api/login', {
+  await $fetch('/api/built-in-password', {
     method: 'POST',
     body: {
       password: password.value,
@@ -177,20 +150,15 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
-          <UButton
-            size="xs"
-            color="gray"
-            @click="registerModal = true"
-          >
-            Register
-          </UButton>
+          <Register v-if="!loggedIn" />
+          <Login v-if="!loggedIn" />
           <UButton
             v-if="!loggedIn"
             size="xs"
             color="gray"
             @click="loginModal = true"
           >
-            Login
+            Login with built-in password
           </UButton>
           <UDropdown :items="[providers]">
             <UButton
@@ -248,34 +216,6 @@ const providers = computed(() =>
         class="mt-2"
       >
         Login
-      </UButton>
-    </form>
-  </UDashboardModal>
-
-  <UDashboardModal
-    v-model="registerModal"
-    title="Register"
-    description="Enter your email and password"
-  >
-    <form @submit.prevent="register($event)">
-      <UFormGroup label="Email">
-        <UInput
-          name="email"
-          type="email"
-        />
-      </UFormGroup>
-      <UFormGroup label="Password">
-        <UInput
-          name="password"
-          type="password"
-        />
-      </UFormGroup>
-      <UButton
-        type="submit"
-        color="black"
-        class="mt-2"
-      >
-        Register
       </UButton>
     </form>
   </UDashboardModal>
