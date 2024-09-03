@@ -1,17 +1,17 @@
 export default defineLazyEventHandler(async () => {
-  const db = useDatabase();
+  const db = useDatabase()
 
-  await db.sql`CREATE TABLE IF NOT EXISTS users ("id" PRIMARY KEY, "email" TEXT UNIQUE NOT NULL, "password" TEXT NOT NULL)`;
+  await db.sql`CREATE TABLE IF NOT EXISTS users ("id" PRIMARY KEY, "email" TEXT UNIQUE NOT NULL, "password" TEXT NOT NULL)`
 
   return defineEventHandler(async (event) => {
-    const runtimeConfig = useRuntimeConfig(event);
+    const runtimeConfig = useRuntimeConfig(event)
 
     const body = await readBody(event)
 
-    const email = body.email;
-    const password = hashPassword(body.password, { rounds: runtimeConfig.passwordHashRounds });
+    const email = body.email
+    const password = hashPassword(body.password, { rounds: runtimeConfig.passwordHashRounds })
 
-    await db.sql`INSERT INTO users(email, password) VALUES (${email}, ${password})`;
+    await db.sql`INSERT INTO users(email, password) VALUES (${email}, ${password})`
 
     // In real applications, you should send a confirmation email to the user before logging them in.
 
@@ -20,8 +20,8 @@ export default defineLazyEventHandler(async () => {
         email,
       },
       loggedInAt: Date.now(),
-    });
+    })
 
-    return setResponseStatus(event, 201);
-  });
+    return setResponseStatus(event, 201)
+  })
 })

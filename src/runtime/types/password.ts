@@ -1,1 +1,1 @@
-export type HashedPassword = (string & { __hashedPassword: true });
+export type HashedPassword = (string & { __hashedPassword: true })
