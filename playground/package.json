@@ -12,6 +12,7 @@
     "nuxt-auth-utils": "latest"
   },
   "devDependencies": {
-    "@iconify-json/gravity-ui": "^1.1.5"
+    "@iconify-json/gravity-ui": "^1.1.5",
+    "better-sqlite3": "^11.2.1"
   }
 }

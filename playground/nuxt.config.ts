@@ -14,6 +14,14 @@ export default defineNuxtConfig({
   imports: {
     autoImport: true,
   },
+  nitro: {
+    experimental: {
+      database: true
+    }
+  },
+  runtimeConfig: {
+    passwordHashRounds: 12,
+  },
   routeRules: {
     '/': {
       // prerender: true,
