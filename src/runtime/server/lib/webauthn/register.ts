@@ -3,11 +3,12 @@ import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
 import type { GenerateRegistrationOptionsOpts, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
-import type { AuthenticatorDevice, RegistrationResponseJSON } from '@simplewebauthn/types'
+import type { RegistrationResponseJSON } from '@simplewebauthn/types'
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
+import type { AuthenticatorDevice } from '#auth-utils'
 
 type RegistrationBody = {
   userName: string
@@ -118,7 +119,7 @@ export function defineCredentialRegistrationEventHandler({
         displayName: body.displayName,
         authenticator: {
           credentialID: verification.registrationInfo!.credentialID,
-          credentialPublicKey: verification.registrationInfo!.credentialPublicKey,
+          credentialPublicKey: bufferToBase64URLString(verification.registrationInfo!.credentialPublicKey),
           counter: verification.registrationInfo!.counter,
           transports: body.response.response.transports,
         },

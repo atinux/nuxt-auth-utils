@@ -1,4 +1,3 @@
-import { base64URLStringToBuffer } from '@simplewebauthn/browser'
 import type { AuthenticatorDevice } from '#auth-utils'
 
 interface Credential {
@@ -18,12 +17,7 @@ export default defineCredentialAuthenticationEventHandler({
     if (!credential)
       throw createError({ statusCode: 400, message: 'Credential not found' })
 
-    return {
-      credentialID: credential.authenticator.credentialID,
-      credentialPublicKey: new Uint8Array(base64URLStringToBuffer(credential.authenticator.credentialPublicKey)),
-      counter: credential.authenticator.counter,
-      transports: credential.authenticator.transports,
-    }
+    return credential.authenticator
   },
   async onSuccces(event, { authenticationInfo }) {
     const credential = await useStorage<Credential>('db').getItem(`credentials:${authenticationInfo.credentialID}`)

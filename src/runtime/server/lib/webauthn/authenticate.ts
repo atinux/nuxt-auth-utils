@@ -3,11 +3,12 @@ import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
 import type { GenerateAuthenticationOptionsOpts, VerifiedAuthenticationResponse } from '@simplewebauthn/server'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
-import type { AuthenticationResponseJSON, AuthenticatorDevice, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
+import type { AuthenticationResponseJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
 import { getRandomValues } from 'uncrypto'
-import { bufferToBase64URLString } from '@simplewebauthn/browser'
+import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
 import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
+import type { AuthenticatorDevice } from '#auth-utils'
 
 type AuthenticationBody = {
   verify: false
@@ -86,7 +87,12 @@ export function defineCredentialAuthenticationEventHandler({
         expectedChallenge: challenge,
         expectedOrigin: url.origin,
         expectedRPID: url.hostname,
-        authenticator,
+        authenticator: {
+          credentialID: authenticator.credentialID,
+          credentialPublicKey: new Uint8Array(base64URLStringToBuffer(authenticator.credentialPublicKey)),
+          counter: authenticator.counter,
+          transports: authenticator.transports,
+        },
       })
 
       if (!verification.verified)
