@@ -138,6 +138,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.tiktok),
       icon: 'i-simple-icons-tiktok',
     },
+    {
+      label: user.value?.vercel || 'Vercel',
+      to: '/auth/vercel',
+      disabled: Boolean(user.value?.vercel),
+      icon: 'i-simple-icons-vercel',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
