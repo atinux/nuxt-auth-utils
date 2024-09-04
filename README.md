@@ -269,7 +269,7 @@ CREATE TABLE credentials (
 The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/login.post.ts).
 ```ts
 export default defineCredentialRegistrationEventHandler({
-  async onSuccces(event, { authenticator, userName }) {
+  async onSuccess(event, { authenticator, userName }) {
     // The credential creation has been successful
     // We need to create a user if it does not exist
 
