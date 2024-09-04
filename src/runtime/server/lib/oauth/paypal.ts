@@ -117,7 +117,7 @@ export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthCon
       },
       params: {
         grant_type: 'authorization_code',
-        redirect_uri: encodeURIComponent(redirectURL),
+        redirect_uri: encodeURIComponent(redirectURL), // <- PayPal requires to be URL encoded
         code: query.code,
       },
     })
