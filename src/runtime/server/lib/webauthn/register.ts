@@ -1,6 +1,5 @@
-import type { H3Event } from 'h3'
 import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
-import type { GenerateRegistrationOptionsOpts, VerifiedRegistrationResponse } from '@simplewebauthn/server'
+import type { GenerateRegistrationOptionsOpts } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
 import type { RegistrationResponseJSON } from '@simplewebauthn/types'
@@ -8,7 +7,7 @@ import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
-import type { AuthenticatorDevice } from '#auth-utils'
+import type { CredentialRegistrationEventHandlerOptions } from '#auth-utils'
 
 type RegistrationBody = {
   userName: string
@@ -22,29 +21,10 @@ type RegistrationBody = {
   response: RegistrationResponseJSON
 }
 
-type SuccessData = {
-  userName: string
-  displayName?: string
-  authenticator: AuthenticatorDevice
-  registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
-}
-
-interface WebauthnRegistrationConfig extends Partial<GenerateRegistrationOptionsOpts> {
-  requiresUserVerification?: boolean
-}
-
-interface CredentialRegistrationEventHandlerOptions {
-  registrationOptions?: (event: H3Event) => WebauthnRegistrationConfig | Promise<WebauthnRegistrationConfig>
-  storeChallenge?: (event: H3Event, challenge: string, attemptId: string) => void | Promise<void>
-  getChallenge?: (event: H3Event, attemptId: string) => string | Promise<string>
-  onSuccces: (event: H3Event, data: SuccessData) => void | Promise<void>
-  onError?: (event: H3Event, error: H3Error) => void | Promise<void>
-}
-
 export function defineCredentialRegistrationEventHandler({
   storeChallenge,
   getChallenge,
-  onSuccces,
+  onSuccess,
   onError,
   registrationOptions,
 }: CredentialRegistrationEventHandlerOptions) {
@@ -62,11 +42,10 @@ export function defineCredentialRegistrationEventHandler({
       rpName: url.hostname,
       userName: body.userName,
       userDisplayName: body.displayName,
-      requiresUserVerification: false,
       authenticatorSelection: {
         userVerification: 'preferred',
       },
-    } satisfies WebauthnRegistrationConfig)
+    } satisfies GenerateRegistrationOptionsOpts)
 
     try {
       if (!body.verify) {
@@ -103,7 +82,7 @@ export function defineCredentialRegistrationEventHandler({
         expectedChallenge,
         expectedOrigin: url.origin,
         expectedRPID: url.hostname,
-        requireUserVerification: _config.requiresUserVerification,
+        requireUserVerification: false, // TODO: make configurable https://simplewebauthn.dev/docs/advanced/passkeys#verifyregistrationresponse
         supportedAlgorithmIDs: _config.supportedAlgorithmIDs,
       })
 
@@ -114,7 +93,7 @@ export function defineCredentialRegistrationEventHandler({
         })
       }
 
-      await onSuccces(event, {
+      await onSuccess(event, {
         userName: body.userName,
         displayName: body.displayName,
         authenticator: {

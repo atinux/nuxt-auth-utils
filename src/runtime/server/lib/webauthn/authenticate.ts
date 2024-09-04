@@ -1,14 +1,13 @@
-import type { H3Event } from 'h3'
 import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
-import type { GenerateAuthenticationOptionsOpts, VerifiedAuthenticationResponse } from '@simplewebauthn/server'
+import type { GenerateAuthenticationOptionsOpts } from '@simplewebauthn/server'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
-import type { AuthenticationResponseJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
+import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 import { getRandomValues } from 'uncrypto'
 import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
 import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
-import type { AuthenticatorDevice } from '#auth-utils'
+import type { CredentialAuthenticationEventHandlerOptions } from '#auth-utils'
 
 type AuthenticationBody = {
   verify: false
@@ -20,35 +19,14 @@ type AuthenticationBody = {
   response: AuthenticationResponseJSON
 }
 
-type SuccessData = {
-  userName?: string
-  authenticationInfo: Exclude<VerifiedAuthenticationResponse['authenticationInfo'], undefined>
-}
-
-// This way if you can only define both storeChallenge and getChallenge or neither
-interface BaseOptions {
-  authenticationOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
-  getCredential: (event: H3Event, credentialID: string) => AuthenticatorDevice | Promise<AuthenticatorDevice>
-  onSuccces: (event: H3Event, data: SuccessData) => void | Promise<void>
-  onError?: (event: H3Event, error: H3Error) => void | Promise<void>
-}
-interface StoreOptions extends BaseOptions {
-  storeChallenge: (event: H3Event, options: PublicKeyCredentialRequestOptionsJSON, attemptId: string) => void | Promise<void>
-  getChallenge: (event: H3Event, attemptId: string) => string | Promise<string>
-}
-interface NoStoreOptions extends BaseOptions {
-  storeChallenge?: undefined
-  getChallenge?: undefined
-}
-
 export function defineCredentialAuthenticationEventHandler({
   storeChallenge,
   getChallenge,
   getCredential,
-  onSuccces,
+  onSuccess,
   onError,
   authenticationOptions,
-}: StoreOptions | NoStoreOptions) {
+}: CredentialAuthenticationEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<AuthenticationBody>(event)
@@ -62,7 +40,7 @@ export function defineCredentialAuthenticationEventHandler({
         const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
 
         if (storeChallenge)
-          await storeChallenge(event, options, attemptId)
+          await storeChallenge(event, options.challenge, attemptId)
         else
           await storeChallengeAsSession(event, options.challenge, attemptId)
 
@@ -98,8 +76,8 @@ export function defineCredentialAuthenticationEventHandler({
       if (!verification.verified)
         throw createError({ statusCode: 400, message: 'Failed to verify registration response' })
 
-      await onSuccces(event, {
-        userName: body.userName,
+      await onSuccess(event, {
+        authenticator,
         authenticationInfo: verification.authenticationInfo!,
       })
       return verification

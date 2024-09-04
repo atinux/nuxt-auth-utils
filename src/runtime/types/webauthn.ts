@@ -1,11 +1,48 @@
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/types'
 import type { Ref } from 'vue'
+import type { H3Event, H3Error } from 'h3'
+import type {
+  GenerateAuthenticationOptionsOpts,
+  GenerateRegistrationOptionsOpts,
+  VerifiedAuthenticationResponse,
+  VerifiedRegistrationResponse,
+} from '@simplewebauthn/server'
 
 export interface AuthenticatorDevice {
   credentialID: string
   credentialPublicKey: string
   counter: number
   transports?: AuthenticatorTransportFuture[]
+}
+
+// Using a discriminated union makes it such that you can only define both storeChallenge and getChallenge or neither
+type CredentialEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
+  storeChallenge: (event: H3Event, challenge: string, attemptId: string) => void | Promise<void>
+  getChallenge: (event: H3Event, attemptId: string) => string | Promise<string>
+  onSuccess: (event: H3Event, data: T) => void | Promise<void>
+  onError?: (event: H3Event, error: H3Error) => void | Promise<void>
+} | {
+  storeChallenge?: undefined
+  getChallenge?: undefined
+  onSuccess: (event: H3Event, data: T) => void | Promise<void>
+  onError?: (event: H3Event, error: H3Error) => void | Promise<void>
+}
+
+export type CredentialRegistrationEventHandlerOptions = CredentialEventHandlerBase<{
+  userName: string
+  displayName?: string
+  authenticator: AuthenticatorDevice
+  registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
+}> & {
+  registrationOptions?: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
+}
+
+export type CredentialAuthenticationEventHandlerOptions = CredentialEventHandlerBase<{
+  authenticator: AuthenticatorDevice
+  authenticationInfo: Exclude<VerifiedAuthenticationResponse['authenticationInfo'], undefined>
+}> & {
+  authenticationOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
+  getCredential: (event: H3Event, credentialID: string) => AuthenticatorDevice | Promise<AuthenticatorDevice>
 }
 
 export interface WebauthnComposable {
