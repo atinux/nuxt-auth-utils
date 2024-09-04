@@ -235,14 +235,14 @@ Make sure to set the callback URL in your OAuth app settings as `<your-domain>/a
 
 If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
 
-### Webauthn (passkey) Event Handlers
+### Webauthn (passkey)
 
-Webauthn (and passkeys) requires multiple requests to register and authenticate. The webauthn event handlers handle this on a single endpoint.
+WebAuthn (Web Authentication) is a web standard that enhances security by replacing passwords with passkeys using public key cryptography. Users can authenticate with biometric data (like fingerprints or facial recognition) or physical devices (like USB keys), reducing the risk of phishing and password breaches. This approach offers a more secure and user-friendly authentication method, supported by major browsers and platforms.
 
 #### Example
 
 In this example we will implement the very basic steps to register and authenticate a credential.
-The code can be found in the [playground](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn). The example uses a SQLite database with the following minimal tables:
+The full code can be found in the [playground](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn). The example uses a SQLite database with the following minimal tables:
 
 ```sql
 CREATE TABLE users (
@@ -258,13 +258,13 @@ CREATE TABLE credentials (
 );
 ```
 
-- For the `users` table it is important to have a unique identifier like a username or email. When creating a new credential, this identifier is required and stored with the passkey on the user's device, password manager, or authenticator.
+- For the `users` table it is important to have a unique identifier such as a username or email. When creating a new credential, this identifier is required and stored with the passkey on the user's device, password manager, or authenticator.
 - The `credentials` table stores:
   - The credential `ID` (potentially as primary key)
   - The credential `public key`
-  - A `counter`. Each time a credential is used, the counter is incremeneted. We can use this value to do extra security checks. More about `counter` can be read in [this section](https://simplewebauthn.dev/docs/packages/server#3-post-registration-responsibilities). For this example, we won't be using the counter. But you should update the counter in your database with the new value.
-  - A `backed up` flag. Normally, credentials are stored on the generating device. When you use a password manager or authenticator, the credential is "backed up" because it can be used on multiple devices. See [this section](https://arc.net/l/quote/ugaemxot)
-  - The credential `transports`. It is an array of strings that indicate how the credential communicates with the client. It is used to show the correct UI for the user to use the credential. See also [this section](https://arc.net/l/quote/ycxtiorp)
+  - A `counter`. Each time a credential is used, the counter is incremented. We can use this value to perform extra security checks. More about `counter` can be read [here](https://simplewebauthn.dev/docs/packages/server#3-post-registration-responsibilities). For this example, we won't be using the counter. But you should update the counter in your database with the new value.
+  - A `backed up` flag. Normally, credentials are stored on the generating device. When you use a password manager or authenticator, the credential is "backed up" because it can be used on multiple devices. See [this section](https://arc.net/l/quote/ugaemxot) for more details.
+  - The credential `transports`. It is an array of strings that indicate how the credential communicates with the client. It is used to show the correct UI for the user to utilize the credential. Again, see [this section](https://arc.net/l/quote/ycxtiorp) for more details.
 
 The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/login.post.ts).
 ```ts
@@ -347,7 +347,7 @@ export default defineCredentialAuthenticationEventHandler({
 ```
 
 > [!IMPORTANT]
-> By default, the webauthn event handlers will store the challenge in a short lived, encrypted session cookie. This is not recommended for applications that require strong security guarantees. On a secure connection (https) it is highly unlikely for this to cause any problems. However, if the connection is not secure, there is a possibility of a man-in-the-middle attack. To prevent this, you should use a database or KV store to store the challenge instead.
+> By default, the webauthn event handlers will store the challenge in a short lived, encrypted session cookie. This is not recommended for applications that require strong security guarantees. On a secure connection (https) it is highly unlikely for this to cause problems. However, if the connection is not secure, there is a possibility of a man-in-the-middle attack. To prevent this, you should use a database or KV store to store the challenge instead. For this the `storeChallenge` and `getChallenge` functions are provided.
 > ```ts
 > export default defineCredentialAuthenticationEventHandler({
 >   async storeChallenge(event, challenge, attemptId) {
