@@ -100,6 +100,7 @@ export function defineCredentialRegistrationEventHandler({
           credentialID: verification.registrationInfo!.credentialID,
           credentialPublicKey: bufferToBase64URLString(verification.registrationInfo!.credentialPublicKey),
           counter: verification.registrationInfo!.counter,
+          backedUp: verification.registrationInfo!.credentialBackedUp,
           transports: body.response.response.transports,
         },
         registrationInfo: verification.registrationInfo!,

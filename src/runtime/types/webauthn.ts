@@ -12,6 +12,7 @@ export interface AuthenticatorDevice {
   credentialID: string
   credentialPublicKey: string
   counter: number
+  backedUp: boolean
   transports?: AuthenticatorTransportFuture[]
 }
 

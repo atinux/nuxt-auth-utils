@@ -237,63 +237,139 @@ If the redirect URL mismatch in production, this means that the module cannot gu
 
 ### Webauthn (passkey) Event Handlers
 
-Webauthn (and passkeys) require multiple requests to be completed. The webauthn event handlers handle this on a single endpoint.
-
-The (very simplified) steps are as follows:
-
-1. Generate a registration / authentication options object
-2. Store the options in a persistent storage (e.g. a database or KV store (NOT AS A COOKIE!))
-3. Retrieve the options from the persistent storage after the client has created a signature
-4. Verify the signature with the created options in the first step
-5. Create a user (store the public key) / login the user and set the session
-
-In this module you are responsible for storing and retrieving the options from a persistent storage, and storing / retrieving the user and credential.
-
-For this there are two special functions you need to define for this: `storeChallenge` and `getChallenge`.
-
-And just like with the OAuth event handlers, there is also an `onSuccess` and `onError` function.
-
-The `config` function is optional and can be used to overwrite the default credential creation options and credential request options.
+Webauthn (and passkeys) requires multiple requests to register and authenticate. The webauthn event handlers handle this on a single endpoint.
 
 #### Example
 
-Example: `~/server/routes/auth/webauthn/register.post.ts`
+In this example we will implement the very basic steps to register and authenticate a credential.
+The code can be found in the [playground](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn). The example uses a SQLite database with the following minimal tables:
 
+```sql
+CREATE TABLE users (
+  user_name TEXT UNIQUE NOT NULL
+);
+CREATE TABLE credentials (
+  user_name TEXT NOT NULL,
+  credential_id TEXT NOT NULL,
+  credential_public_key TEXT NOT NULL,
+  counter INTEGER NOT NULL,
+  backed_up INTEGER NOT NULL,
+  transports TEXT NOT NULL
+);
+```
+
+- For the `users` table it is important to have a unique identifier like a username or email. When creating a new credential, this identifier is required and stored with the passkey on the user's device, password manager, or authenticator.
+- The `credentials` table stores:
+  - The credential `ID` (potentially as primary key)
+  - The credential `public key`
+  - A `counter`. Each time a credential is used, the counter is incremeneted. We can use this value to do extra security checks. More about `counter` can be read in [this section](https://simplewebauthn.dev/docs/packages/server#3-post-registration-responsibilities). For this example, we won't be using the counter. But you should update the counter in your database with the new value.
+  - A `backed up` flag. Normally, credentials are stored on the generating device. When you use a password manager or authenticator, the credential is "backed up" because it can be used on multiple devices. See [this section](https://arc.net/l/quote/ugaemxot)
+  - The credential `transports`. It is an array of strings that indicate how the credential communicates with the client. It is used to show the correct UI for the user to use the credential. See also [this section](https://arc.net/l/quote/ycxtiorp)
+
+The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/login.post.ts).
 ```ts
 export default defineCredentialRegistrationEventHandler({
-  async storeChallenge(event, options, attemptId) {
-    // Store the options in a KV store or DB
-    await useStorage().setItem(`attempt:${attemptId}`, options)
-  },
-  async getChallenge(event, attemptId) {
-    const options = await useStorage().getItem(`attempt:${attemptId}`)
+  async onSuccces(event, { authenticator, userName }) {
+    // The credential creation has been successful
+    // We need to create a user if it does not exist
 
-    // Make sure to always remove the attempt because they are single use only!
-    await useStorage().removeItem(`attempt:${attemptId}`)
+    // Get the user from the database
+    const user = await useDatabase().sql`...`
+    if (!user) {
+      // Store new user in database
+      await useDatabase().sql`...`
+    }
 
-    if (!options)
-      throw createError({ statusCode: 400 })
+    // we now need to store the credential in our database and link it to the user
+    await useDatabase().sql`...`
 
-    return options
-  },
-  async onSuccess(event, response, body) {
+    // Set the user session
     await setUserSession(event, {
       user: {
-        credential: response.credentialID,
+        webauthn: user.userName,
       },
+      loggedInAt: Date.now(),
     })
   },
-  onError: (event, error) => {
-    console.error('Webauthn registration error:', error)
+})
+```
+
+```ts
+export default defineCredentialAuthenticationEventHandler({
+  async getCredential(event, credentialId) {
+    // Look for the credential in our database
+    const credential = await useDatabase().sql`...`
+
+    // If the credential is not found, there is no account to log in to
+    if (!credential)
+      throw createError({ statusCode: 400, message: 'Credential not found' })
+
+    return credential
   },
-  registrationOptions: async (event) => {
+  async onSuccess(event, { authenticator, authenticationInfo }) {
+    // The credential authentication has been successful
+    // We can look it up in our database and get the corresponding user
+    const user = await useDatabase().sql`...`
+
+    // Update the counter in the database (authenticationInfo.newCounter)
+    await useDatabase().sql`...`
+
+    // Set the user session
+    await setUserSession(event, {
+      user: {
+        webauthn: user.userName,
+      },
+      loggedInAt: Date.now(),
+    })
+  },
+
+  // Optionally, we can prefetch the credentials if the user gives their username during login
+  async authenticationOptions(event) {
+    const body = await readBody(event)
+    // If no userName is provided, no credentials can be returned
+    if (!body.userName || body.userName === '')
+      return {}
+
+    const credentials = await useDatabase().sql`...`
+
+    // If no credentials are found, the authentication cannot be completed
+    if (!credentials.length)
+      throw createError({ statusCode: 400, message: 'User not found' })
+
+    // If user is found, only allow credentials that are registered
+    // The browser will automatically try to use the credential that it knows about
+    // Skipping the step for the user to select a credential for a better user experience
     return {
-      rpName: 'My Custom Relying Party Name',
-      // Other webauthn options
+      allowCredentials: credentials,
     }
   },
 })
 ```
+
+> [!IMPORTANT]
+> By default, the webauthn event handlers will store the challenge in a short lived, encrypted session cookie. This is not recommended for applications that require strong security guarantees. On a secure connection (https) it is highly unlikely for this to cause any problems. However, if the connection is not secure, there is a possibility of a man-in-the-middle attack. To prevent this, you should use a database or KV store to store the challenge instead.
+> ```ts
+> export default defineCredentialAuthenticationEventHandler({
+>   async storeChallenge(event, challenge, attemptId) {
+>     // Store the challenge in a KV store or DB
+>     await useStorage().setItem(`attempt:${attemptId}`, challenge)
+>   },
+>   async getChallenge(event, attemptId) {
+>     const challenge = await useStorage().getItem(`attempt:${attemptId}`)
+>
+>     // Make sure to always remove the attempt because they are single use only!
+>     await useStorage().removeItem(`attempt:${attemptId}`)
+>
+>     if (!challenge)
+>       throw createError({ statusCode: 400, message: 'Challenge expired' })
+>
+>     return challenge
+>   },
+>   async onSuccess(event, { authenticator }) {
+>     // ...
+>   },
+> })
+> ```
 
 ### Extend Session
 

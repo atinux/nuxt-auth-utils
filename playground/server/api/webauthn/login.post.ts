@@ -1,36 +1,48 @@
-import type { AuthenticatorDevice } from '#auth-utils'
-
 interface Credential {
-  userName: string
-  authenticator: AuthenticatorDevice
-}
-
-interface User {
-  userName: string
-  displayName?: string
-  credentials: AuthenticatorDevice[]
+  user_name: string
+  credential_id: string
+  credential_public_key: string
+  counter: number
+  backed_up: boolean
+  transports: string
 }
 
 export default defineCredentialAuthenticationEventHandler({
-  async getCredential(_, credentialID) {
-    const credential = await useStorage<Credential>('db').getItem(`credentials:${credentialID}`)
-    if (!credential)
+  async getCredential(_, credentialId) {
+    const { rows } = await useDatabase()
+      .sql<{ rows: Credential[] }>`SELECT * FROM credentials WHERE credential_id = ${credentialId}`
+
+    // The credential trying to authenticate is not registered, so there is no account to log in to
+    if (!rows.length)
       throw createError({ statusCode: 400, message: 'Credential not found' })
 
-    return credential.authenticator
+    const credential = rows[0]
+    return {
+      credentialID: credential.credential_id,
+      credentialPublicKey: credential.credential_public_key,
+      counter: credential.counter,
+      backedUp: Boolean(credential.backed_up),
+      transports: JSON.parse(credential.transports),
+    }
   },
-  async onSuccces(event, { authenticationInfo }) {
-    const credential = await useStorage<Credential>('db').getItem(`credentials:${authenticationInfo.credentialID}`)
-    if (!credential)
-      throw createError({ statusCode: 400, message: 'Credential not found' })
+  async onSuccess(event, { authenticator, authenticationInfo }) {
+    const db = useDatabase()
+    const { rows } = await db.sql<{ rows: string[] }>`
+      SELECT
+        user_name
+      FROM
+        credentials
+      INNER JOIN users ON users.user_name = credentials.user_name
+      WHERE
+        credential_id = ${authenticator.credentialID}`
 
-    const user = await useStorage<User>('db').getItem(`users:${credential.userName}`)
-    if (!user)
-      throw createError({ statusCode: 400, message: 'User not found' })
+    // Update the counter
+    await db.sql`UPDATE credentials SET counter = ${authenticationInfo.newCounter} WHERE credential_id = ${authenticator.credentialID}`
 
+    const userName = rows[0]
     await setUserSession(event, {
       user: {
-        webauthn: user.displayName,
+        webauthn: userName,
       },
       loggedInAt: Date.now(),
     })
@@ -41,13 +53,25 @@ export default defineCredentialAuthenticationEventHandler({
     if (!body.userName || body.userName === '')
       return {}
 
-    const user = await useStorage<User>('db').getItem(`users:${body.userName}`)
-    if (!user)
+    const db = useDatabase()
+    const { rows } = await db.sql<{ rows: { id: string, type: string }[] }>`
+      SELECT
+        credentials.credential_id as id,
+        'public-key' as type
+      FROM
+        users
+      LEFT JOIN credentials ON credentials.user_name = users.user_name
+      WHERE
+        users.user_name = ${body.userName}`
+
+    if (!rows.length)
       throw createError({ statusCode: 400, message: 'User not found' })
 
     // If user is found, only allow credentials that are registered
+    // The browser will automatically try to use the credential that it knows about
+    // Skipping the step for the user to select a credential for a better user experience
     return {
-      allowCredentials: user.credentials.map(credential => ({ id: credential.credentialID, type: 'public-key' })),
+      allowCredentials: rows,
     }
   },
 })
