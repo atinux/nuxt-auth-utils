@@ -16,7 +16,7 @@ export function getOAuthRedirectURL(event: H3Event): string {
  *
  * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.3
  */
-interface RequestAccessTokenBody {
+export interface RequestAccessTokenBody {
   grant_type: 'authorization_code'
   code: string
   redirect_uri: string
