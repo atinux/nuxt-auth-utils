@@ -371,6 +371,28 @@ export default defineCredentialAuthenticationEventHandler({
 > })
 > ```
 
+On the frontend it is as simple as:
+```vue
+<script setup lang="ts">
+const { register, authenticate } = useWebauthn({
+  registrationEndpoint: '/api/webauthn/register',
+  authenticationEndpoint: '/api/webauthn/login',
+})
+
+const userName = ref('')
+async function submit() {
+  await register(userName.value)
+}
+</script>
+
+<template>
+  <form @submit.prevent="submit">
+    <input v-model="userName" />
+    <button type="submit">Register</button>
+  </form>
+</template>
+```
+
 ### Extend Session
 
 We leverage hooks to let you extend the session data with your own data or log when the user clears the session.
