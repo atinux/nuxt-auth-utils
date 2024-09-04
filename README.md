@@ -199,6 +199,7 @@ It can also be set using environment variables:
 - PayPal
 - Spotify
 - Steam
+- TikTok
 - Twitch
 - X (Twitter)
 - XSUAA

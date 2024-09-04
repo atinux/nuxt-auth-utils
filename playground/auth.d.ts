@@ -19,6 +19,7 @@ declare module '#auth-utils' {
     x?: string
     xsuaa?: string
     yandex?: string
+    tiktok?: string
   }
 
   interface UserSession {

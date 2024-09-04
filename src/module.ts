@@ -196,5 +196,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // TikTok OAuth
+    runtimeConfig.oauth.tiktok = defu(runtimeConfig.oauth.tiktok, {
+      clientKey: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
   },
 })

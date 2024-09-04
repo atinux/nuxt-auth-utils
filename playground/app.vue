@@ -105,6 +105,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.yandex),
       icon: 'i-gravity-ui-logo-yandex',
     },
+    {
+      label: user.value?.tiktok || 'TikTok',
+      to: '/auth/tiktok',
+      disabled: Boolean(user.value?.tiktok),
+      icon: 'i-simple-icons-tiktok',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
