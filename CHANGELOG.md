@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v0.3.6
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.5...v0.3.6)
+
+### 🚀 Enhancements
+
+- Add tiktok provider ([c1b1f44](https://github.com/Atinux/nuxt-auth-utils/commit/c1b1f44))
+
+### 💅 Refactors
+
+- Request token ([925f688](https://github.com/Atinux/nuxt-auth-utils/commit/925f688))
+
+### 📖 Documentation
+
+- Fix typo ([8d3af7e](https://github.com/Atinux/nuxt-auth-utils/commit/8d3af7e))
+
+### 🏡 Chore
+
+- Update deps ([c4189b2](https://github.com/Atinux/nuxt-auth-utils/commit/c4189b2))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Estéban <e.soubiran25@gmail.com>
+- Ivailo Panamski <ipanamski@gmail.com>
+
 ## v0.3.5
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.4...v0.3.5)
