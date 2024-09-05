@@ -10,4 +10,3 @@ export default oauthGitLabEventHandler({
     return sendRedirect(event, '/')
   },
 })
-  

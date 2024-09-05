@@ -1,28 +1,28 @@
-import type { H3Event } from "h3";
-import { eventHandler, getQuery, sendRedirect } from "h3";
-import { withQuery } from "ufo";
-import { defu } from "defu";
+import type { H3Event } from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
+import { defu } from 'defu'
 import {
   handleMissingConfiguration,
   handleAccessTokenErrorResponse,
   getOAuthRedirectURL,
   requestAccessToken,
-} from "../utils";
-import { useRuntimeConfig } from "#imports";
-import type { OAuthConfig } from "#auth-utils";
+} from '../utils'
+import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthYandexConfig {
   /**
    * Yandex OAuth Client ID
    * @default process.env.NUXT_OAUTH_YANDEX_CLIENT_ID
    */
-  clientId?: string;
+  clientId?: string
 
   /**
    * Yandex OAuth Client Secret
    * @default process.env.NUXT_OAUTH_YANDEX_CLIENT_SECRET
    */
-  clientSecret?: string;
+  clientSecret?: string
 
   /**
    * Yandex OAuth Scope
@@ -30,37 +30,37 @@ export interface OAuthYandexConfig {
    * @see https://yandex.ru/dev/id/doc/en/codes/code-url#optional
    * @example ["login:avatar", "login:birthday", "login:email", "login:info", "login:default_phone"]
    */
-  scope?: string[];
+  scope?: string[]
 
   /**
    * Require email from user, adds the ['login:email'] scope if not present
    * @default false
    */
-  emailRequired?: boolean;
+  emailRequired?: boolean
 
   /**
    * Yandex OAuth Authorization URL
    * @default 'https://oauth.yandex.ru/authorize'
    */
-  authorizationURL?: string;
+  authorizationURL?: string
 
   /**
    * Yandex OAuth Token URL
    * @default 'https://oauth.yandex.ru/token'
    */
-  tokenURL?: string;
+  tokenURL?: string
 
   /**
    * Yandex OAuth User URL
    * @default 'https://login.yandex.ru/info'
    */
-  userURL?: string;
+  userURL?: string
 
   /**
    * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_YANDEX_REDIRECT_URL or current URL
    */
-  redirectURL?: string;
+  redirectURL?: string
 }
 
 export function oauthYandexEventHandler({
@@ -70,67 +70,67 @@ export function oauthYandexEventHandler({
 }: OAuthConfig<OAuthYandexConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.yandex, {
-      authorizationURL: "https://oauth.yandex.ru/authorize",
-      tokenURL: "https://oauth.yandex.ru/token",
-      userURL: "https://login.yandex.ru/info",
-    }) as OAuthYandexConfig;
+      authorizationURL: 'https://oauth.yandex.ru/authorize',
+      tokenURL: 'https://oauth.yandex.ru/token',
+      userURL: 'https://login.yandex.ru/info',
+    }) as OAuthYandexConfig
 
-    const query = getQuery<{ code?: string }>(event);
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(
         event,
-        "yandex",
-        ["clientId", "clientSecret"],
-        onError
-      );
+        'yandex',
+        ['clientId', 'clientSecret'],
+        onError,
+      )
     }
 
-    const redirectURL = config.redirectURL || getOAuthRedirectURL(event);
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
-      config.scope = config.scope || [];
-      if (config.emailRequired && !config.scope.includes("login:email")) {
-        config.scope.push("login:email");
+      config.scope = config.scope || []
+      if (config.emailRequired && !config.scope.includes('login:email')) {
+        config.scope.push('login:email')
       }
       // Redirect to Yandex Oauth page
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
-          response_type: "code",
+          response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectURL,
-          scope: config.scope.join(" "),
-        })
-      );
+          scope: config.scope.join(' '),
+        }),
+      )
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
       body: {
-        grant_type: "authorization_code",
+        grant_type: 'authorization_code',
         code: query.code as string,
         client_id: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
       },
-    });
+    })
 
     if (tokens.error) {
-      return handleAccessTokenErrorResponse(event, "yandex", tokens, onError);
+      return handleAccessTokenErrorResponse(event, 'yandex', tokens, onError)
     }
 
-    const accessToken = tokens.access_token;
+    const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await $fetch(config.userURL as string, {
       headers: {
         Authorization: `OAuth ${accessToken}`,
       },
-    });
+    })
 
     return onSuccess(event, {
       tokens,
       user,
-    });
-  });
+    })
+  })
 }
