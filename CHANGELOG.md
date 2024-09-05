@@ -1,6 +1,177 @@
 # Changelog
 
 
+## v0.3.6
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.5...v0.3.6)
+
+### 🚀 Enhancements
+
+- Add tiktok provider ([c1b1f44](https://github.com/Atinux/nuxt-auth-utils/commit/c1b1f44))
+
+### 💅 Refactors
+
+- Request token ([925f688](https://github.com/Atinux/nuxt-auth-utils/commit/925f688))
+
+### 📖 Documentation
+
+- Fix typo ([8d3af7e](https://github.com/Atinux/nuxt-auth-utils/commit/8d3af7e))
+
+### 🏡 Chore
+
+- Update deps ([c4189b2](https://github.com/Atinux/nuxt-auth-utils/commit/c4189b2))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Estéban <e.soubiran25@gmail.com>
+- Ivailo Panamski <ipanamski@gmail.com>
+
+## v0.3.5
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.4...v0.3.5)
+
+### 🚀 Enhancements
+
+- Cognito oauth support custom domain ([4ad11a4](https://github.com/Atinux/nuxt-auth-utils/commit/4ad11a4))
+
+### 🩹 Fixes
+
+- Fetch session directly when ssr disabled ([#151](https://github.com/Atinux/nuxt-auth-utils/pull/151))
+
+### 💅 Refactors
+
+- Handle missing configuration error ([5675aaf](https://github.com/Atinux/nuxt-auth-utils/commit/5675aaf))
+- Handle access token error response ([a1b3fbb](https://github.com/Atinux/nuxt-auth-utils/commit/a1b3fbb))
+
+### 🏡 Chore
+
+- Update .vscode ([6285ca2](https://github.com/Atinux/nuxt-auth-utils/commit/6285ca2))
+- Update @nuxt/module-builder ([ceaa47b](https://github.com/Atinux/nuxt-auth-utils/commit/ceaa47b))
+- Upadte X handler ([7e81c27](https://github.com/Atinux/nuxt-auth-utils/commit/7e81c27))
+- Fix X ([7269c61](https://github.com/Atinux/nuxt-auth-utils/commit/7269c61))
+- Lint fix ([cf75ab1](https://github.com/Atinux/nuxt-auth-utils/commit/cf75ab1))
+- Update deps ([35eff05](https://github.com/Atinux/nuxt-auth-utils/commit/35eff05))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Estéban <e.soubiran25@gmail.com>
+- Zack Spear ([@zackspear](http://github.com/zackspear))
+- Alexander ([@hywax](http://github.com/hywax))
+
+## v0.3.4
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.3...v0.3.4)
+
+### 🚀 Enhancements
+
+- Support redirectURL config for all providers ([cdca787](https://github.com/Atinux/nuxt-auth-utils/commit/cdca787))
+
+### ❤️ Contributors
+
+- Kevin Olson ([@acidjazz](http://github.com/acidjazz))
+
+## v0.3.3
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.2...v0.3.3)
+
+### 🚀 Enhancements
+
+- Support `NUXT_OAUTH_MICROSOFT_REDIRECT_URL` ([9979f0d](https://github.com/Atinux/nuxt-auth-utils/commit/9979f0d))
+- Add support nitro prefix env ([58ebf85](https://github.com/Atinux/nuxt-auth-utils/commit/58ebf85))
+
+### 📖 Documentation
+
+- Update nitro version ([848cebe](https://github.com/Atinux/nuxt-auth-utils/commit/848cebe))
+
+### 🏡 Chore
+
+- Typo in comment ([b96a017](https://github.com/Atinux/nuxt-auth-utils/commit/b96a017))
+- Update deps ([d8ab3f4](https://github.com/Atinux/nuxt-auth-utils/commit/d8ab3f4))
+- Lint fix ([a8928a3](https://github.com/Atinux/nuxt-auth-utils/commit/a8928a3))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Alexander <a.hywax@gmail.com>
+- TcarterBAMF ([@tcarterBAMF](http://github.com/tcarterBAMF))
+
+## v0.3.2
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.1...v0.3.2)
+
+### 🩹 Fixes
+
+- Add missing session in AuthState ([3e39727](https://github.com/Atinux/nuxt-auth-utils/commit/3e39727))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+
+## v0.3.1
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.0...v0.3.1)
+
+### 🩹 Fixes
+
+- Always return 200 for session endpoint ([#130](https://github.com/Atinux/nuxt-auth-utils/pull/130))
+
+### 📖 Documentation
+
+- Fix event handler name in example ([a4cfa89](https://github.com/Atinux/nuxt-auth-utils/commit/a4cfa89))
+
+### 🏡 Chore
+
+- Update deps ([0132ea0](https://github.com/Atinux/nuxt-auth-utils/commit/0132ea0))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+
+## v0.3.0
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.2.1...v0.3.0)
+
+### 🔥 Performance
+
+- ⚠️  One export per provider for tree-shaking ([4f98b53](https://github.com/Atinux/nuxt-auth-utils/commit/4f98b53))
+
+### 📖 Documentation
+
+- Add TS signature ([04a5d88](https://github.com/Atinux/nuxt-auth-utils/commit/04a5d88))
+- Add note about dependencies ([67b5542](https://github.com/Atinux/nuxt-auth-utils/commit/67b5542))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  One export per provider for tree-shaking ([4f98b53](https://github.com/Atinux/nuxt-auth-utils/commit/4f98b53))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@Atinux](http://github.com/Atinux))
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+
+## v0.2.1
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.2.0...v0.2.1)
+
+### 🚀 Enhancements
+
+- X/Twitter email requirement enhancement ([65d6324](https://github.com/Atinux/nuxt-auth-utils/commit/65d6324))
+- Add yandex oauth ([22bd974](https://github.com/Atinux/nuxt-auth-utils/commit/22bd974))
+
+### 🎨 Styles
+
+- Add lint script ([af884ff](https://github.com/Atinux/nuxt-auth-utils/commit/af884ff))
+
+### ❤️ Contributors
+
+- Alex <dev.blumgart@yandex.ru>
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+- Fayaz Ahmed ([@fayazara](http://github.com/fayazara))
+
 ## v0.2.0
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.0.25...v0.2.0)

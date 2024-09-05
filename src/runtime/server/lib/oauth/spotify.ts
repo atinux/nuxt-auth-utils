@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -47,28 +48,29 @@ export interface OAuthSpotifyConfig {
    * @example { show_dialog: 'true' }
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_SPOTIFY_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
-export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
+export function oauthSpotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.spotify, {
       authorizationURL: 'https://accounts.spotify.com/authorize',
       tokenURL: 'https://accounts.spotify.com/api/token',
       authorizationParams: {},
     }) as OAuthSpotifyConfig
-    const { code } = getQuery(event)
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_SPOTIFY_CLIENT_ID or NUXT_OAUTH_SPOTIFY_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'spotify', ['clientId', 'clientSecret'], onError)
     }
 
-    const redirectUrl = getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('user-read-email')) {
         config.scope.push('user-read-email')
@@ -79,44 +81,31 @@ export function spotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
       )
     }
 
-    const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${authCode}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        params: {
-          grant_type: 'authorization_code',
-          redirect_uri: parsePath(redirectUrl).pathname,
-          code,
-        },
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
       },
-    ).catch((error) => {
-      return { error }
+      body: {
+        client_id: config.clientId,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectURL,
+        code: query.code,
+      },
     })
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Spotify login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'spotify', tokens, onError)
     }
 
     const accessToken = tokens.access_token
+
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await $fetch('https://api.spotify.com/v1/me', {

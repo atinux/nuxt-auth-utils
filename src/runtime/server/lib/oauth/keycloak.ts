@@ -1,14 +1,9 @@
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  createError,
-  getQuery,
-  getRequestURL,
-  sendRedirect,
-} from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { useRuntimeConfig } from '#imports'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthKeycloakConfig {
@@ -44,9 +39,14 @@ export interface OAuthKeycloakConfig {
    * Extra authorization parameters to provide to the authorization URL
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_KEYCLOAK_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
-export function keycloakEventHandler({
+export function oauthKeycloakEventHandler({
   config,
   onSuccess,
   onError,
@@ -56,8 +56,7 @@ export function keycloakEventHandler({
       authorizationParams: {},
     }) as OAuthKeycloakConfig
 
-    const query = getQuery(event)
-    const { code } = query
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -75,22 +74,16 @@ export function keycloakEventHandler({
       || !config.serverUrl
       || !config.realm
     ) {
-      const error = createError({
-        statusCode: 500,
-        message:
-          'Missing NUXT_OAUTH_KEYCLOAK_CLIENT_ID or NUXT_OAUTH_KEYCLOAK_CLIENT_SECRET or NUXT_OAUTH_KEYCLOAK_SERVER_URL or NUXT_OAUTH_KEYCLOAK_REALM env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'keycloak', ['clientId', 'clientSecret', 'serverUrl', 'realm'], onError)
     }
 
     const realmURL = `${config.serverUrl}/realms/${config.realm}`
 
     const authorizationURL = `${realmURL}/protocol/openid-connect/auth`
     const tokenURL = `${realmURL}/protocol/openid-connect/token`
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
-    if (!code) {
+    if (!query.code) {
       config.scope = config.scope || ['openid']
 
       // Redirect to Keycloak Oauth page
@@ -98,7 +91,7 @@ export function keycloakEventHandler({
         event,
         withQuery(authorizationURL, {
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           response_type: 'code',
           ...config.authorizationParams,
@@ -111,34 +104,17 @@ export function keycloakEventHandler({
       config.scope.push('openid')
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(tokenURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
+    const tokens = await requestAccessToken(tokenURL, {
+      body: {
+        grant_type: 'authorization_code',
         client_id: config.clientId,
         client_secret: config.clientSecret,
-        grant_type: 'authorization_code',
-        redirect_uri: parsePath(redirectUrl).pathname,
-        code: code as string,
-      }).toString(),
-    }).catch((error) => {
-      return { error }
-    })
+        redirect_uri: redirectURL,
+        code: query.code,
+      } })
 
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Keycloak login failed: ${
-          tokens.error?.data?.error_description || 'Unknown error'
-        }`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'keycloak', tokens, onError)
     }
 
     const accessToken = tokens.access_token

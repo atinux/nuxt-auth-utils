@@ -1,9 +1,10 @@
-import { randomUUID } from 'node:crypto'
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { useRuntimeConfig } from '#imports'
+import { randomUUID } from 'uncrypto'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthBattledotnetConfig {
@@ -46,9 +47,14 @@ export interface OAuthBattledotnetConfig {
    * @see https://develop.battle.net/documentation/guides/using-oauth/authorization-code-flow
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_BATTLEDOTNET_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
-export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
+export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.battledotnet, {
       authorizationURL: 'https://oauth.battle.net/authorize',
@@ -56,8 +62,7 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
       authorizationParams: {},
     }) as OAuthBattledotnetConfig
 
-    const query = getQuery(event)
-    const { code } = query
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -70,15 +75,13 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
     }
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_BATTLEDOTNET_CLIENT_ID or NUXT_OAUTH_BATTLEDOTNET_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'battledotnet', ['clientId', 'clientSecret'], onError,
+      )
     }
 
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || ['openid']
       config.region = config.region || 'EU'
 
@@ -88,12 +91,11 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
       }
 
       // Redirect to Battle.net Oauth page
-      const redirectUrl = getRequestURL(event).href
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           state: randomUUID(), // Todo: handle PKCE flow
           response_type: 'code',
@@ -102,43 +104,25 @@ export function battledotnetEventHandler({ config, onSuccess, onError }: OAuthCo
       )
     }
 
-    const redirectUrl = getRequestURL(event).href
     config.scope = config.scope || []
     if (!config.scope.includes('openid')) {
       config.scope.push('openid')
     }
 
-    const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
-
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${authCode}`,
-        },
-        params: {
-          code,
-          grant_type: 'authorization_code',
-          scope: config.scope.join(' '),
-          redirect_uri: parsePath(redirectUrl).pathname,
-        },
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
       },
-    ).catch((error) => {
-      return { error }
+      params: {
+        grant_type: 'authorization_code',
+        scope: config.scope.join(' '),
+        redirect_uri: redirectURL,
+        code: query.code,
+      },
     })
 
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Battle.net login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'battle.net', tokens, onError)
     }
 
     const accessToken = tokens.access_token

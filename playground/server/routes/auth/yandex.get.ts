@@ -1,4 +1,4 @@
-export default oauth.yandexEventHandler({
+export default oauthYandexEventHandler({
   config: {
     emailRequired: true,
   },
@@ -8,8 +8,8 @@ export default oauth.yandexEventHandler({
         yandex: user.default_email,
       },
       loggedInAt: Date.now(),
-    })
+    });
 
-    return sendRedirect(event, '/')
+    return sendRedirect(event, "/");
   },
-})
+});

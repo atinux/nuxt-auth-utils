@@ -1,8 +1,9 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { useRuntimeConfig } from '#imports'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthPaypalConfig {
@@ -56,9 +57,14 @@ export interface OAuthPaypalConfig {
    * @example { flowEntry: 'static' }
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_PAYPAL_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
-export function paypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
+export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.paypal, {
       sandbox: import.meta.dev,
@@ -66,15 +72,11 @@ export function paypalEventHandler({ config, onSuccess, onError }: OAuthConfig<O
       tokenURL: 'https://api-m.paypal.com/v1/oauth2/token',
       authorizationParams: {},
     }) as OAuthPaypalConfig
-    const { code } = getQuery(event)
+
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_PAYPAL_CLIENT_ID env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'paypal', ['clientId'], onError)
     }
 
     let paypalAPI = 'api-m.paypal.com'
@@ -85,8 +87,8 @@ export function paypalEventHandler({ config, onSuccess, onError }: OAuthConfig<O
       config.tokenURL = `https://${paypalAPI}/v1/oauth2/token`
     }
 
-    const redirectUrl = getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.includes('openid')) {
         config.scope.push('openid')
@@ -101,7 +103,7 @@ export function paypalEventHandler({ config, onSuccess, onError }: OAuthConfig<O
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           flowEntry: 'static',
           ...config.authorizationParams,
@@ -109,35 +111,19 @@ export function paypalEventHandler({ config, onSuccess, onError }: OAuthConfig<O
       )
     }
 
-    const authCode = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${authCode}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        params: {
-          grant_type: 'authorization_code',
-          redirect_uri: encodeURIComponent(parsePath(redirectUrl).pathname),
-          code,
-        },
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
       },
-    ).catch((error) => {
-      return { error }
+      params: {
+        grant_type: 'authorization_code',
+        redirect_uri: redirectURL,
+        code: query.code,
+      },
     })
 
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `PayPal login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'paypal', tokens, onError)
     }
 
     const accessToken = tokens.access_token

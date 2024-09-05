@@ -1,8 +1,10 @@
-import type { H3Event, H3Error } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parseURL, stringifyParsedURL } from 'ufo'
+import type { H3Event } from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthLinkedInConfig {
   /**
@@ -42,35 +44,29 @@ export interface OAuthLinkedInConfig {
    * @see https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?context=linkedin/context
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_LINKEDIN_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
-interface OAuthConfig {
-  config?: OAuthLinkedInConfig
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSuccess: (event: H3Event, result: { user: any, tokens: any }) => Promise<void> | void
-  onError?: (event: H3Event, error: H3Error) => Promise<void> | void
-}
-
-export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig) {
+export function oauthLinkedInEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLinkedInConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.linkedin, {
       authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
       tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
       authorizationParams: {},
     }) as OAuthLinkedInConfig
-    const { code } = getQuery(event)
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_LINKEDIN_CLIENT_ID or NUXT_OAUTH_LINKEDIN_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'linkedin', ['clientId', 'clientSecret'], onError)
     }
 
-    const redirectUrl = getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.length) {
         config.scope.push('profile', 'openid', 'email')
@@ -84,43 +80,25 @@ export function linkedinEventHandler({ config, onSuccess, onError }: OAuthConfig
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
       )
     }
 
-    const parsedRedirectUrl = parseURL(redirectUrl)
-    parsedRedirectUrl.search = ''
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code: code as string,
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          redirect_uri: stringifyParsedURL(parsedRedirectUrl),
-        }).toString(),
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        code: query.code as string,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
       },
-    ).catch((error) => {
-      return { error }
     })
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `LinkedIn login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'linkedin', tokens, onError)
     }
 
     const accessToken = tokens.access_token

@@ -1,8 +1,8 @@
-export default oauthDiscordEventHandler({
+export default oauthTikTokEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        discord: user.username,
+        tiktok: user.display_name,
       },
       loggedInAt: Date.now(),
     })

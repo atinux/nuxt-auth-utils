@@ -1,13 +1,8 @@
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  createError,
-  getQuery,
-  getRequestURL,
-  sendRedirect,
-} from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -56,9 +51,15 @@ export interface OAuthGoogleConfig {
    * @example { access_type: 'offline' }
    */
   authorizationParams?: Record<string, string>
+
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_GOOGLE_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
-export function googleEventHandler({
+export function oauthGoogleEventHandler({
   config,
   onSuccess,
   onError,
@@ -70,19 +71,15 @@ export function googleEventHandler({
       userURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
       authorizationParams: {},
     }) as OAuthGoogleConfig
-    const { code } = getQuery(event)
+
+    const query = getQuery<{ code?: string }>(event)
 
     if (!config.clientId) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_GOOGLE_CLIENT_ID env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'google', ['clientId'], onError)
     }
 
-    const redirectUrl = getRequestURL(event).href
-    if (!code) {
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    if (!query.code) {
       config.scope = config.scope || ['email', 'profile']
       // Redirect to Google Oauth page
       return sendRedirect(
@@ -90,40 +87,25 @@ export function googleEventHandler({
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body: any = {
-      grant_type: 'authorization_code',
-      redirect_uri: parsePath(redirectUrl).pathname,
-      client_id: config.clientId,
-      client_secret: config.clientSecret,
-      code,
-    }
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(config.tokenURL as string, {
-      method: 'POST',
-      body,
-    }).catch((error) => {
-      return { error }
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        code: query.code as string,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
+      },
     })
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Google login failed: ${
-          tokens.error?.data?.error_description || 'Unknown error'
-        }`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'google', tokens, onError)
     }
 
     const accessToken = tokens.access_token

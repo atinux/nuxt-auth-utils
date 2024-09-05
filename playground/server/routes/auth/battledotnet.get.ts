@@ -1,4 +1,4 @@
-export default oauth.battledotnetEventHandler({
+export default oauthBattledotnetEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

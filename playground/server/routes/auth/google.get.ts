@@ -1,4 +1,4 @@
-export default oauth.googleEventHandler({
+export default oauthGoogleEventHandler({
   config: {
     authorizationParams: {
       access_type: 'offline',

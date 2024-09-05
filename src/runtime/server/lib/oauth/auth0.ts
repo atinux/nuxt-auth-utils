@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
-import { withQuery, parsePath } from 'ufo'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -57,28 +58,29 @@ export interface OAuthAuth0Config {
    * @example { display: 'popup' }
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_AUTH0_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
-export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
+export function oauthAuth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.auth0, {
       authorizationParams: {},
     }) as OAuthAuth0Config
-    const { code } = getQuery(event)
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_AUTH0_CLIENT_ID or NUXT_OAUTH_AUTH0_CLIENT_SECRET or NUXT_OAUTH_AUTH0_DOMAIN env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'auth0', ['clientId', 'clientSecret', 'domain'], onError)
     }
     const authorizationURL = `https://${config.domain}/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
 
-    const redirectUrl = getRequestURL(event).href
-    if (!code) {
+    const query = getQuery<{ code?: string }>(event)
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (!query.code) {
       config.scope = config.scope || ['openid', 'offline_access']
       if (config.emailRequired && !config.scope.includes('email')) {
         config.scope.push('email')
@@ -89,7 +91,7 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
         withQuery(authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           audience: config.audience || '',
           max_age: config.maxAge || 0,
@@ -99,34 +101,21 @@ export function auth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OA
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      tokenURL as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: {
-          grant_type: 'authorization_code',
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          redirect_uri: parsePath(redirectUrl).pathname,
-          code,
-        },
+    const tokens = await requestAccessToken(tokenURL as string, {
+      headers: {
+        'Content-Type': 'application/json',
       },
-    ).catch((error) => {
-      return { error }
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
+        code: query.code,
+      },
     })
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Auth0 login failed: ${tokens.error?.data?.error_description || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'auth0', tokens, onError)
     }
 
     const tokenType = tokens.token_type

@@ -1,14 +1,9 @@
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  createError,
-  getQuery,
-  getRequestURL,
-  sendRedirect,
-} from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { useRuntimeConfig } from '#imports'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthFacebookConfig {
@@ -55,9 +50,14 @@ export interface OAuthFacebookConfig {
    * @see https://developers.facebook.com/docs/facebook-login/guides/advanced/manual-flow/
    */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_FACEBOOK_REDIRECT_URL or current URL
+   */
+  redirectURL?: string
 }
 
-export function facebookEventHandler({
+export function oauthFacebookEventHandler({
   config,
   onSuccess,
   onError,
@@ -68,7 +68,8 @@ export function facebookEventHandler({
       tokenURL: 'https://graph.facebook.com/v19.0/oauth/access_token',
       authorizationParams: {},
     }) as OAuthFacebookConfig
-    const query = getQuery(event)
+
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -81,16 +82,10 @@ export function facebookEventHandler({
     }
 
     if (!config.clientId) {
-      const error = createError({
-        statusCode: 500,
-        message:
-          'Missing NUXT_OAUTH_FACEBOOK_CLIENT_ID or NUXT_OAUTH_FACEBOOK_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'facebook', ['clientId'], onError)
     }
 
-    const redirectUrl = getRequestURL(event).href
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -99,31 +94,24 @@ export function facebookEventHandler({
         event,
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
         }),
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(config.tokenURL as string, {
-      method: 'POST',
+    const tokens = await requestAccessToken(config.tokenURL as string, {
       body: {
         client_id: config.clientId,
         client_secret: config.clientSecret,
-        redirect_uri: redirectUrl,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectURL,
         code: query.code,
       },
     })
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `Facebook login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'facebook', tokens, onError)
     }
 
     const accessToken = tokens.access_token

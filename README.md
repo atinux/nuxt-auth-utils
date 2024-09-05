@@ -21,6 +21,8 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 - [`<AuthState>` component](#authstate-component)
 - [Extendable with hooks](#extend-session)
 
+It has few dependencies (only from [UnJS](https://github.com/unjs)), run on multiple JS environments (Node, Deno, Workers) and is fully typed with TypeScript.
+
 ## Requirements
 
 This module only works with a Nuxt server running as it uses server API routes (`nuxt build`).
@@ -56,7 +58,7 @@ Nuxt Auth Utils automatically adds some plugins to fetch the current user sessio
 
 ```vue
 <script setup>
-const { loggedIn, user, session, clear } = useUserSession()
+const { loggedIn, user, session, fetch, clear } = useUserSession()
 </script>
 
 <template>
@@ -70,6 +72,37 @@ const { loggedIn, user, session, clear } = useUserSession()
     <a href="/auth/github">Login with GitHub</a>
   </div>
 </template>
+```
+
+**TypeScript Signature:**
+
+```ts
+interface UserSessionComposable {
+  /**
+   * Computed indicating if the auth session is ready
+   */
+  ready: ComputedRef<boolean>
+  /**
+   * Computed indicating if the user is logged in.
+   */
+  loggedIn: ComputedRef<boolean>
+  /**
+   * The user object if logged in, null otherwise.
+   */
+  user: ComputedRef<User | null>
+  /**
+   * The session object.
+   */
+  session: Ref<UserSession>
+  /**
+   * Fetch the user session from the server.
+   */
+  fetch: () => Promise<void>
+  /**
+   * Clear the user session and remove the session cookie.
+   */
+  clear: () => Promise<void>
+}
 ```
 
 ## Server Utils
@@ -122,9 +155,9 @@ export {}
 
 ### OAuth Event Handlers
 
-All helpers are exposed from the `oauth` global variable and can be used in your server routes or API routes.
+All handlers can be auto-imported and used in your server routes or API routes.
 
-The pattern is `oauth.<provider>EventHandler({ onSuccess, config?, onError? })`, example: `oauth.githubEventHandler`.
+The pattern is `oauth<Provider>EventHandler({ onSuccess, config?, onError? })`, example: `oauthGitHubEventHandler`.
 
 The helper returns an event handler that automatically redirects to the provider authorization page and then calls `onSuccess` or `onError` depending on the result.
 
@@ -134,6 +167,7 @@ The `config` can be defined directly from the `runtimeConfig` in your `nuxt.conf
 export default defineNuxtConfig({
   runtimeConfig: {
     oauth: {
+      // provider in lowercase (github, google, etc.)
       <provider>: {
         clientId: '...',
         clientSecret: '...'
@@ -147,6 +181,8 @@ It can also be set using environment variables:
 
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_ID`
 - `NUXT_OAUTH_<PROVIDER>_CLIENT_SECRET`
+
+> Provider is in uppercase (GITHUB, GOOGLE, etc.)
 
 #### Supported OAuth Providers
 
@@ -163,6 +199,7 @@ It can also be set using environment variables:
 - PayPal
 - Spotify
 - Steam
+- TikTok
 - Twitch
 - X (Twitter)
 - XSUAA
@@ -175,7 +212,7 @@ You can add your favorite provider by creating a new file in [src/runtime/server
 Example: `~/server/routes/auth/github.get.ts`
 
 ```ts
-export default oauth.githubEventHandler({
+export default oauthGitHubEventHandler({
   config: {
     emailRequired: true
   },
@@ -197,6 +234,8 @@ export default oauth.githubEventHandler({
 
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
 
+If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
+
 ### Extend Session
 
 We leverage hooks to let you extend the session data with your own data or log when the user clears the session.
@@ -212,7 +251,7 @@ export default defineNitroPlugin(() => {
     // throw createError({ ... }) if session is invalid for example
   })
 
-  // Called when we call useServerSession().clear() or clearUserSession(event)
+  // Called when we call useUserSession().clear() or clearUserSession(event)
   sessionHooks.hook('clear', async (session, event) => {
     // Log that user logged out
   })
@@ -280,7 +319,7 @@ You can use the `placeholder` slot to show a placeholder on server-side and whil
 </template>
 ```
 
-If you are caching your routes with `routeRules`, please make sure to use [`nitro-nightly`](https://nitro.unjs.io/guide/nightly) or Nitro >= `2.10.0` to support the client-side fetching of the user session.
+If you are caching your routes with `routeRules`, please make sure to use [Nitro](https://github.com/unjs/nitro) >= `2.9.7` to support the client-side fetching of the user session.
 
 ## Configuration
 

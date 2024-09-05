@@ -1,8 +1,9 @@
 import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { useRuntimeConfig } from '#imports'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthGitHubConfig {
@@ -47,16 +48,24 @@ export interface OAuthGitHubConfig {
    * @example { allow_signup: 'true' }
    */
   authorizationParams?: Record<string, string>
+
+  /**
+   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_GITHUB_REDIRECT_URL
+   * @see https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps
+   */
+  redirectURL?: string
 }
 
-export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
+export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.github, {
       authorizationURL: 'https://github.com/login/oauth/authorize',
       tokenURL: 'https://github.com/login/oauth/access_token',
       authorizationParams: {},
     }) as OAuthGitHubConfig
-    const query = getQuery(event)
+
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -69,53 +78,40 @@ export function githubEventHandler({ config, onSuccess, onError }: OAuthConfig<O
     }
 
     if (!config.clientId || !config.clientSecret) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Missing NUXT_OAUTH_GITHUB_CLIENT_ID or NUXT_OAUTH_GITHUB_CLIENT_SECRET env variables.',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleMissingConfiguration(event, 'github', ['clientId', 'clientSecret'], onError)
     }
+
+    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
       config.scope = config.scope || []
       if (config.emailRequired && !config.scope.includes('user:email')) {
         config.scope.push('user:email')
       }
-      // Redirect to GitHub Oauth page
-      const redirectUrl = getRequestURL(event).href
+
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
-          redirect_uri: redirectUrl,
+          redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
       )
     }
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokens: any = await $fetch(
-      config.tokenURL as string,
-      {
-        method: 'POST',
-        body: {
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          code: query.code,
-        },
+    const tokens = await requestAccessToken(config.tokenURL as string, {
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: redirectURL,
+        code: query.code,
       },
-    )
+    })
+
     if (tokens.error) {
-      const error = createError({
-        statusCode: 401,
-        message: `GitHub login failed: ${tokens.error || 'Unknown error'}`,
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+      return handleAccessTokenErrorResponse(event, 'github', tokens, onError)
     }
 
     const accessToken = tokens.access_token
