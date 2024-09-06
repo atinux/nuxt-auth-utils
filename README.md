@@ -193,6 +193,7 @@ It can also be set using environment variables:
 - Facebook
 - GitHub
 - Google
+- Instagram
 - Keycloak
 - LinkedIn
 - Microsoft
