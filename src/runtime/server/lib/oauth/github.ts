@@ -2,9 +2,13 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import type { Endpoints } from '@octokit/types'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
+
+type getUserResponse = Endpoints['GET /user']['response']['data']
+type listUserEmailsResponse = Endpoints['GET /user/emails']['response']['data']
 
 export interface OAuthGitHubConfig {
   /**
@@ -115,9 +119,7 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
     }
 
     const accessToken = tokens.access_token
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch('https://api.github.com/user', {
+    const user = await $fetch<getUserResponse>('https://api.github.com/user', {
       headers: {
         'User-Agent': `Github-OAuth-${config.clientId}`,
         'Authorization': `token ${accessToken}`,
@@ -126,17 +128,13 @@ export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthCon
 
     // if no public email, check the private ones
     if (!user.email && config.emailRequired) {
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emails: any[] = await $fetch('https://api.github.com/user/emails', {
+      const emails = await $fetch<listUserEmailsResponse>('https://api.github.com/user/emails', {
         headers: {
           'User-Agent': `Github-OAuth-${config.clientId}`,
           'Authorization': `token ${accessToken}`,
         },
       })
-      // TODO: improve typing
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const primaryEmail = emails.find((email: any) => email.primary)
+      const primaryEmail = emails.find(email => email.primary)
       // Still no email
       if (!primaryEmail) {
         throw new Error('GitHub login failed: no user email found')
