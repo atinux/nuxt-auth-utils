@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.3.7
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.6...v0.3.7)
+
+### 🩹 Fixes
+
+- Paypal tokens request requires encoded `redirect_uri` ([8bf3b0b](https://github.com/Atinux/nuxt-auth-utils/commit/8bf3b0b))
+
+### 🏡 Chore
+
+- Update deps ([50aba8d](https://github.com/Atinux/nuxt-auth-utils/commit/50aba8d))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Yizack Rangel ([@Yizack](http://github.com/Yizack))
+
 ## v0.3.6
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.5...v0.3.6)
