@@ -21,7 +21,7 @@ export interface OAuthInstagramConfig {
    * Instagram OAuth Scope
    * @default [ 'user_profile' ]
    * @see https://developers.facebook.com/docs/instagram-basic-display-api/overview#permissions
-   * @example [ 'user_profile', 'user_media ],
+   * @example [ 'user_profile', 'user_media' ],
    */
   scope?: string[]
 
@@ -64,7 +64,7 @@ export function oauthInstagramEventHandler({
 }: OAuthConfig<OAuthInstagramConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.instagram, {
-      scoper: ['user_profile'],
+      scope: ['user_profile'],
       authorizationURL: 'https://api.instagram.com/oauth/authorize',
       tokenURL: 'https://api.instagram.com/oauth/access_token',
       authorizationParams: {},
@@ -97,6 +97,7 @@ export function oauthInstagramEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
+          response_type: 'code',
         }),
       )
     }
