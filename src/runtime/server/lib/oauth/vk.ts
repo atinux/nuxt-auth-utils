@@ -1,18 +1,17 @@
+import crypto from 'node:crypto'
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import crypto from 'node:crypto'
 import {
   handleMissingConfiguration,
   handleAccessTokenErrorResponse,
   getOAuthRedirectURL,
   requestAccessToken,
-  type RequestAccessTokenBody
+  type RequestAccessTokenBody,
 } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
-
 
 export interface OAuthVKConfig {
   /**
@@ -125,7 +124,7 @@ export function oauthVKEventHandler({
         client_id: config.clientId,
         device_id: query.device_id,
         redirect_uri: redirectURL,
-      } as VKRequestAccessTokenBody
+      } as VKRequestAccessTokenBody,
     })
 
     if (tokens.error) {
@@ -133,7 +132,7 @@ export function oauthVKEventHandler({
     }
 
     const accessToken = tokens.access_token
-    
+
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await $fetch(config.userURL as string, {
@@ -141,7 +140,7 @@ export function oauthVKEventHandler({
       body: {
         access_token: accessToken,
         client_id: config.clientId,
-      }
+      },
     })
 
     if (!user) {

@@ -10,4 +10,3 @@ export default oauthVKEventHandler({
     return sendRedirect(event, '/')
   },
 })
-  
