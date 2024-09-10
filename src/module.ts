@@ -196,6 +196,12 @@ export default defineNuxtModule<ModuleOptions>({
       domain: '',
       redirectURL: '',
     })
+    // VK OAuth
+    runtimeConfig.oauth.vk = defu(runtimeConfig.oauth.vk, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
     // Yandex OAuth
     runtimeConfig.oauth.yandex = defu(runtimeConfig.oauth.yandex, {
       clientId: '',

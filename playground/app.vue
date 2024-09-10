@@ -133,6 +133,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-sap',
     },
     {
+      label: user.value?.vk || 'VK',
+      to: '/auth/vk',
+      disabled: Boolean(user.value?.vk),
+      icon: 'i-simple-icons-vk',
+    },
+    {
       label: user.value?.yandex || 'Yandex',
       to: '/auth/yandex',
       disabled: Boolean(user.value?.yandex),
