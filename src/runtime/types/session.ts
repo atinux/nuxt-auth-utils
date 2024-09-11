@@ -4,7 +4,18 @@ export interface User {
 }
 
 export interface UserSession {
+  /**
+   * User session data, available on client and server
+   */
   user?: User
+  /**
+   * Private session data, only available on server/ code
+   */
+  secure?: Record<string, unknown>
+  /**
+   * Extra session data, available on client and server
+   */
+  [key: string]: unknown
 }
 
 export interface UserSessionRequired extends UserSession {

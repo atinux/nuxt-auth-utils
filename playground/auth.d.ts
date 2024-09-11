@@ -28,6 +28,7 @@ declare module '#auth-utils' {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extended?: any
     loggedInAt: number
+    secure?: Record<string, unknown>
   }
 }
 

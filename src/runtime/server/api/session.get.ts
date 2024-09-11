@@ -9,5 +9,7 @@ export default eventHandler(async (event) => {
     await sessionHooks.callHookParallel('fetch', session as UserSessionRequired, event)
   }
 
-  return session
+  const { secure, ...data } = session
+
+  return data
 })

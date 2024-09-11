@@ -34,8 +34,8 @@ export async function getUserSession(event: H3Event) {
  * @param data User session data, please only store public information since it can be decoded with API calls
  * @see https://github.com/atinux/nuxt-auth-utils
  */
-export async function setUserSession(event: H3Event, data: UserSession) {
-  const session = await _useSession(event)
+export async function setUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>) {
+  const session = await _useSession(event, config)
 
   await session.update(defu(data, session.data))
 
@@ -47,8 +47,8 @@ export async function setUserSession(event: H3Event, data: UserSession) {
  * @param event The Request (h3) event
  * @param data User session data, please only store public information since it can be decoded with API calls
  */
-export async function replaceUserSession(event: H3Event, data: UserSession) {
-  const session = await _useSession(event)
+export async function replaceUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>) {
+  const session = await _useSession(event, config)
 
   await session.clear()
   await session.update(data)
@@ -93,7 +93,7 @@ export async function requireUserSession(event: H3Event, opts: { statusCode?: nu
 
 let sessionConfig: SessionConfig
 
-function _useSession(event: H3Event) {
+function _useSession(event: H3Event, config: Partial<SessionConfig> = {}) {
   if (!sessionConfig) {
     const runtimeConfig = useRuntimeConfig(event)
     const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
@@ -101,5 +101,6 @@ function _useSession(event: H3Event) {
     // @ts-expect-error hard to define with defu
     sessionConfig = defu({ password: process.env[envSessionPassword] }, runtimeConfig.session)
   }
-  return useSession<UserSession>(event, sessionConfig)
+  const finalConfig = defu(config, sessionConfig) as SessionConfig
+  return useSession<UserSession>(event, finalConfig)
 }
