@@ -16,8 +16,8 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 
 - [Hybrid Rendering](#hybrid-rendering) support (SSR / CSR / SWR / Prerendering)
 - [20+ OAuth Providers](#supported-oauth-providers)
-- [Vue composable](#vue-composable)
-- [Server utils](#server-utils)
+- [`useUserSession()` Vue composable](#vue-composable)
+- [Tree-shakable server utils](#server-utils)
 - [`<AuthState>` component](#authstate-component)
 - [Extendable with hooks](#extend-session)
 
