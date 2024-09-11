@@ -105,10 +105,8 @@ interface UserSessionComposable {
 }
 ```
 
-**API Routes:**
-
-Nuxt Auth Utils utilizes the route `/api/_auth/session` to manage sessions. Please ensure that any middleware applied to API routes does not interfere with this route.
-
+> [!IMPORTANT]
+> Nuxt Auth Utils uses the `/api/_auth/session` route for session management. Ensure your API route middleware doesn't interfere with this path.
 ## Server Utils
 
 The following helpers are auto-imported in your `server/` directory.
