@@ -16,6 +16,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-facebook',
     },
     {
+      label: session.value.user?.instagram || 'instagram',
+      to: '/auth/instagram',
+      disabled: Boolean(user.value?.instagram),
+      icon: 'i-simple-icons-instagram',
+    },
+    {
       label: session.value.user?.github || 'GitHub',
       to: '/auth/github',
       disabled: Boolean(user.value?.github),
