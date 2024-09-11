@@ -3,6 +3,7 @@ declare module '#auth-utils' {
     password?: string
     spotify?: string
     github?: string
+    gitlab?: string
     google?: string
     twitch?: string
     auth0?: string

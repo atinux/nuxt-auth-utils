@@ -105,6 +105,9 @@ interface UserSessionComposable {
 }
 ```
 
+> [!IMPORTANT]
+> Nuxt Auth Utils uses the `/api/_auth/session` route for session management. Ensure your API route middleware doesn't interfere with this path.
+
 ## Server Utils
 
 The following helpers are auto-imported in your `server/` directory.
@@ -153,6 +156,9 @@ declare module '#auth-utils' {
 export {}
 ```
 
+> [!IMPORTANT]
+> Since we encrypt and store session data in cookies, we're constrained by the 4096-byte cookie size limit. Store only essential information.
+
 ### OAuth Event Handlers
 
 All handlers can be auto-imported and used in your server routes or API routes.
@@ -192,6 +198,7 @@ It can also be set using environment variables:
 - Discord
 - Facebook
 - GitHub
+- GitLab
 - Google
 - Instagram
 - Keycloak
