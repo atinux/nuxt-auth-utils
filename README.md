@@ -153,6 +153,9 @@ declare module '#auth-utils' {
 export {}
 ```
 
+> [!IMPORTANT]
+> Since we encrypt and store session data in cookies, we're constrained by the 4096-byte cookie size limit. Store only essential information.
+
 ### OAuth Event Handlers
 
 All handlers can be auto-imported and used in your server routes or API routes.
