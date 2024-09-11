@@ -172,6 +172,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Instagram OAuth
+    runtimeConfig.oauth.instagram = defu(runtimeConfig.oauth.instagram, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
     // PayPal OAuth
     runtimeConfig.oauth.paypal = defu(runtimeConfig.oauth.paypal, {
       clientId: '',

@@ -2,8 +2,11 @@ import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
 
 export default defineNitroPlugin((nitroApp: NitroApp) => {
-  if (process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID && process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET) {
-  // In facebook login, the url is redirected to /#_=_ which is not a valid route
+  if (
+    (process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID && process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET)
+    || (process.env.NUXT_OAUTH_INSTAGRAM_CLIENT_ID && process.env.NUXT_OAUTH_INSTAGRAM_CLIENT_SECRET)
+  ) {
+  // In facebook and instagram login, the url is redirected to /#_=_ which is not a valid route
   // so we remove it from the url, we are loading this long before the app is loaded
   // by using render:html hook
   // this is a hack, but it works

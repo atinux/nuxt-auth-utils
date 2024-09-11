@@ -200,6 +200,7 @@ It can also be set using environment variables:
 - GitHub
 - GitLab
 - Google
+- Instagram
 - Keycloak
 - LinkedIn
 - Microsoft
