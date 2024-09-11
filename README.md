@@ -117,13 +117,18 @@ The following helpers are auto-imported in your `server/` directory.
 ```ts
 // Set a user session, note that this data is encrypted in the cookie but can be decrypted with an API call
 // Only store the data that allow you to recognize a user, but do not store sensitive data
-// Merges new data with existing data using defu()
+// Merges new data with existing data using unjs/defu library
 await setUserSession(event, {
+  // User data
   user: {
-    // ... user data
+    login: 'atinux'
   },
+  // Private data accessible on server/ routes
+  secure: {
+    apiToken: '1234567890'
+  },
+  // Any extra fields for the session data
   loggedInAt: new Date()
-  // Any extra fields
 })
 
 // Replace a user session. Same behaviour as setUserSession, except it does not merge data with existing data
@@ -515,6 +520,14 @@ Our defaults are:
     sameSite: 'lax'
   }
 }
+```
+
+You can also overwrite the session config by passing it as 3rd argument of the `setUserSession` and `replaceUserSession` functions:
+
+```ts
+await setUserSession(event, { ... } , {
+  maxAge: 60 * 60 * 24 * 7 // 1 week
+})
 ```
 
 Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15c1647e1369e7d7ef19f567d/src/utils/session.ts#L20) for all options.
