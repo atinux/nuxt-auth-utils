@@ -24,7 +24,7 @@ export interface OAuthGitLabConfig {
   clientSecret?: string
   /**
    * GitLab OAuth Scope
-   * @default []
+   * @default ['read_user']
    * @see https://docs.gitlab.com/ee/integration/oauth_provider.html#view-all-authorized-applications
    * @example ['read_user']
    */
@@ -99,7 +99,7 @@ export function oauthGitLabEventHandler({
     if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.length) {
-        config.scope.push('read_user', 'email')
+        config.scope.push('read_user')
       }
       if (config.emailRequired && !config.scope.includes('email')) {
         config.scope.push('email')

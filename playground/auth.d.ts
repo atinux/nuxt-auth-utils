@@ -14,6 +14,7 @@ declare module '#auth-utils' {
     linkedin?: string
     cognito?: string
     facebook?: string
+    instagram?: string
     paypal?: string
     steam?: string
     x?: string
