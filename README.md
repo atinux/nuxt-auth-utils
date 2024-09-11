@@ -15,7 +15,7 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 ## Features
 
 - [Hybrid Rendering](#hybrid-rendering) support (SSR / CSR / SWR / Prerendering)
-- [15+ OAuth Providers](#supported-oauth-providers)
+- [20+ OAuth Providers](#supported-oauth-providers)
 - [Vue composable](#vue-composable)
 - [Server utils](#server-utils)
 - [`<AuthState>` component](#authstate-component)
@@ -209,6 +209,7 @@ It can also be set using environment variables:
 - Steam
 - TikTok
 - Twitch
+- VK
 - X (Twitter)
 - XSUAA
 - Yandex

@@ -20,6 +20,7 @@ declare module '#auth-utils' {
     steam?: string
     x?: string
     xsuaa?: string
+    vk?: string
     yandex?: string
     tiktok?: string
   }
