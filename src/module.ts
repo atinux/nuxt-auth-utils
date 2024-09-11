@@ -26,7 +26,9 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
+    nuxt.options.alias['#auth-utils'] = resolver.resolve(
+      './runtime/types/index',
+    )
 
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
@@ -51,7 +53,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
-    const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
+    const envSessionPassword = `${
+      runtimeConfig.nitro?.envPrefix || 'NUXT_'
+    }SESSION_PASSWORD`
 
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
@@ -70,7 +74,9 @@ export default defineNuxtModule<ModuleOptions>({
       if (!envContent.includes(envSessionPassword)) {
         await writeFile(
           envPath,
-          `${envContent ? envContent + '\n' : envContent}${envSessionPassword}=${runtimeConfig.session.password}`,
+          `${
+            envContent ? envContent + '\n' : envContent
+          }${envSessionPassword}=${runtimeConfig.session.password}`,
           'utf-8',
         )
       }
@@ -85,6 +91,12 @@ export default defineNuxtModule<ModuleOptions>({
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // GitHub OAuth
+    runtimeConfig.oauth.gitlab = defu(runtimeConfig.oauth.gitlab, {
       clientId: '',
       clientSecret: '',
       redirectURL: '',

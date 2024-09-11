@@ -22,6 +22,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-github',
     },
     {
+      label: session.value.user?.gitlab || 'GitLab',
+      to: '/auth/gitlab',
+      disabled: Boolean(user.value?.gitlab),
+      icon: 'i-simple-icons-gitlab',
+    },
+    {
       label: user.value?.linkedin || 'LinkedIn',
       to: '/auth/linkedin',
       disabled: Boolean(user.value?.linkedin),
