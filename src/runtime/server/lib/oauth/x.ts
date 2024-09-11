@@ -1,13 +1,14 @@
 import type { H3Event } from 'h3'
-import {
-  eventHandler,
-  getQuery,
-  sendRedirect,
-} from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import {
+  handleMissingConfiguration,
+  handleAccessTokenErrorResponse,
+  getOAuthRedirectURL,
+  requestAccessToken,
+} from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -86,7 +87,11 @@ export function oauthXEventHandler({
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
-      config.scope = config.scope || ['tweet.read', 'users.read', 'offline.access']
+      config.scope = config.scope || [
+        'tweet.read',
+        'users.read',
+        'offline.access',
+      ]
       // Redirect to X Oauth page
       return sendRedirect(
         event,
@@ -103,7 +108,9 @@ export function oauthXEventHandler({
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
       headers: {
-        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(
+          `${config.clientId}:${config.clientSecret}`,
+        ).toString('base64')}`,
       },
       params: {
         grant_type: 'authorization_code',
@@ -120,17 +127,15 @@ export function oauthXEventHandler({
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(
-      config.userURL as string,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        query: {
-          'user.fields': 'description,id,name,profile_image_url,username,verified,verified_type',
-        },
+    const user: any = await $fetch(config.userURL as string, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
-    ).catch((error) => {
+      query: {
+        'user.fields':
+          'description,id,name,profile_image_url,username,verified,verified_type',
+      },
+    }).catch((error) => {
       return error
     })
 

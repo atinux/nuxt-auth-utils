@@ -195,6 +195,7 @@ It can also be set using environment variables:
 - Discord
 - Facebook
 - GitHub
+- GitLab
 - Google
 - Keycloak
 - LinkedIn
