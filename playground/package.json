@@ -8,7 +8,7 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
-    "nuxt": "^3.13.1",
+    "nuxt": "^3.13.2",
     "nuxt-auth-utils": "latest"
   },
   "devDependencies": {
