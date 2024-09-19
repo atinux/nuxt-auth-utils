@@ -22,6 +22,7 @@ declare module '#auth-utils' {
     vk?: string
     yandex?: string
     tiktok?: string
+    dropbox?: string
   }
 
   interface UserSession {
