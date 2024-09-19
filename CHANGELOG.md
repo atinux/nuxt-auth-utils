@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.3.9
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.8...v0.3.9)
+
+### 🩹 Fixes
+
+- UserSession secure type augmentation ([#181](https://github.com/Atinux/nuxt-auth-utils/pull/181))
+
+### 🏡 Chore
+
+- Update deps ([4a0e1e9](https://github.com/Atinux/nuxt-auth-utils/commit/4a0e1e9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Israel Ortuño <ai.ortuno@gmail.com>
+
 ## v0.3.8
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.7...v0.3.8)
