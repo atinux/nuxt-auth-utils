@@ -61,7 +61,6 @@ export interface OAuthDropboxConfig {
 export function oauthDropboxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDropboxConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.dropbox, {
-      sandbox: import.meta.dev,
       authorizationURL: 'https://www.dropbox.com/oauth2/authorize',
       tokenURL: 'https://api.dropboxapi.com/oauth2/token',
       authorizationParams: {},
