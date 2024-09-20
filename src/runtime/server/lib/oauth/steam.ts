@@ -58,17 +58,17 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
     }
 
     if (
-      query['openid.op_endpoint'] !== config.authorizationURL ||
-      query['openid.ns'] !== openIdCheck.ns ||
-      !query['openid.claimed_id']?.startsWith(openIdCheck.claimed_id) ||
-      !query['openid.identity']?.startsWith(openIdCheck.identity)
+      query['openid.op_endpoint'] !== config.authorizationURL
+      || query['openid.ns'] !== openIdCheck.ns
+      || !query['openid.claimed_id']?.startsWith(openIdCheck.claimed_id)
+      || !query['openid.identity']?.startsWith(openIdCheck.identity)
     ) {
       const error = createError({
         statusCode: 401,
         message: 'Claimed identity is invalid.',
-      });
-      if (!onError) throw error;
-      return onError(event, error);
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
     const steamId = query['openid.claimed_id'].split('/').pop()
