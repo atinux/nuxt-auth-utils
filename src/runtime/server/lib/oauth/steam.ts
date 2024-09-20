@@ -57,7 +57,7 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
       identity: 'https://steamcommunity.com/openid/id/',
     }
 
-    const idRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
+    const idRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/
     const steamIdCheck = idRegex.exec(query['openid.claimed_id'])
     const steamId = steamIdCheck ? steamIdCheck[1] : null
 
