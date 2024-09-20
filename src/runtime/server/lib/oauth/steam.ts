@@ -57,8 +57,13 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
       identity: 'https://steamcommunity.com/openid/id/',
     }
 
+    const idRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
+    const steamIdCheck = idRegex.exec(query['openid.claimed_id'])
+    const steamId = steamIdCheck ? steamIdCheck[1] : null
+
     if (
       query['openid.op_endpoint'] !== config.authorizationURL
+      || !steamId
       || query['openid.ns'] !== openIdCheck.ns
       || !query['openid.claimed_id']?.startsWith(openIdCheck.claimed_id)
       || !query['openid.identity']?.startsWith(openIdCheck.identity)
@@ -70,8 +75,6 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
       if (!onError) throw error
       return onError(event, error)
     }
-
-    const steamId = query['openid.claimed_id'].split('/').pop()
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
