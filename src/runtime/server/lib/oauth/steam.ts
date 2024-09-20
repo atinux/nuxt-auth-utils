@@ -51,19 +51,24 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
       return sendRedirect(event, withQuery(config.authorizationURL as string, steamOpenIdParams))
     }
 
-    // Validate OpenID Authentication
-    const validateAuth: string = await $fetch(withQuery(config.authorizationURL as string, {
-      ...query,
-      'openid.mode': 'check_authentication',
-    }))
+    const openIdCheck = {
+      ns: 'http://specs.openid.net/auth/2.0',
+      claimed_id: 'https://steamcommunity.com/openid/id/',
+      identity: 'https://steamcommunity.com/openid/id/',
+    }
 
-    if (!validateAuth.includes('is_valid:true')) {
+    if (
+      query['openid.op_endpoint'] !== config.authorizationURL ||
+      query['openid.ns'] !== openIdCheck.ns ||
+      !query['openid.claimed_id']?.startsWith(openIdCheck.claimed_id) ||
+      !query['openid.identity']?.startsWith(openIdCheck.identity)
+    ) {
       const error = createError({
         statusCode: 401,
-        message: 'Steam login failed: Unknown error',
-      })
-      if (!onError) throw error
-      return onError(event, error)
+        message: 'Claimed identity is invalid.',
+      });
+      if (!onError) throw error;
+      return onError(event, error);
     }
 
     const steamId = query['openid.claimed_id'].split('/').pop()
