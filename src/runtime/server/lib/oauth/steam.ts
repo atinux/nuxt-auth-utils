@@ -70,7 +70,7 @@ export function oauthSteamEventHandler({ config, onSuccess, onError }: OAuthConf
     ) {
       const error = createError({
         statusCode: 401,
-        message: 'Claimed identity is invalid.',
+        message: 'Steam login failed: Claimed identity is invalid.',
       })
       if (!onError) throw error
       return onError(event, error)
