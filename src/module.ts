@@ -226,5 +226,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Dropbox OAuth
+    runtimeConfig.oauth.dropbox = defu(runtimeConfig.oauth.dropbox, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
   },
 })
