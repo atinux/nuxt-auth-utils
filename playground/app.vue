@@ -156,6 +156,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.tiktok),
       icon: 'i-simple-icons-tiktok',
     },
+    {
+      label: user.value?.dropbox || 'Dropbox',
+      to: '/auth/dropbox',
+      disabled: Boolean(user.value?.dropbox),
+      icon: 'i-simple-icons-dropbox',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
