@@ -1,4 +1,4 @@
-export default oauthTikTokEventHandler({
+export default defineOAuthTikTokEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

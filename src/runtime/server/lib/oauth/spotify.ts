@@ -55,7 +55,7 @@ export interface OAuthSpotifyConfig {
   redirectURL?: string
 }
 
-export function oauthSpotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
+export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.spotify, {
       authorizationURL: 'https://accounts.spotify.com/authorize',

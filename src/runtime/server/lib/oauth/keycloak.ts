@@ -46,7 +46,7 @@ export interface OAuthKeycloakConfig {
   redirectURL?: string
 }
 
-export function oauthKeycloakEventHandler({
+export function defineOAuthKeycloakEventHandler({
   config,
   onSuccess,
   onError,
