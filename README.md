@@ -16,6 +16,8 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 
 - [Hybrid Rendering](#hybrid-rendering) support (SSR / CSR / SWR / Prerendering)
 - [20+ OAuth Providers](#supported-oauth-providers)
+- [Password hasing](#password-hashing)
+- [WebAuthn (passkey)](#webauthn-passkey)
 - [`useUserSession()` Vue composable](#vue-composable)
 - [Tree-shakable server utils](#server-utils)
 - [`<AuthState>` component](#authstate-component)
@@ -255,9 +257,9 @@ Make sure to set the callback URL in your OAuth app settings as `<your-domain>/a
 
 If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
 
-### Password Utils
+### Password Hashing
 
-Nuxt Auth Utils provides a `hashPassword` and `verifyPassword` function to hash and verify passwords by using [scrypt](https://en.wikipedia.org/wiki/Scrypt) as it is supported in many JS runtime.
+Nuxt Auth Utils provides password hashing utilities like `hashPassword` and `verifyPassword` to hash and verify passwords by using [scrypt](https://en.wikipedia.org/wiki/Scrypt) as it is supported in many JS runtime.
 
 ```ts
 const hashedPassword = await hashPassword('user_password')
