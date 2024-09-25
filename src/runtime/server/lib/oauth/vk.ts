@@ -65,7 +65,7 @@ export interface OAuthVKConfig {
   redirectURL?: string
 }
 
-export function oauthVKEventHandler({
+export function defineOAuthVKEventHandler({
   config,
   onSuccess,
   onError,

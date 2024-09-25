@@ -1,4 +1,4 @@
-export default oauthSteamEventHandler({
+export default defineOAuthSteamEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

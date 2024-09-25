@@ -57,7 +57,7 @@ export interface OAuthFacebookConfig {
   redirectURL?: string
 }
 
-export function oauthFacebookEventHandler({
+export function defineOAuthFacebookEventHandler({
   config,
   onSuccess,
   onError,

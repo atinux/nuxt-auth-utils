@@ -54,7 +54,7 @@ export interface OAuthBattledotnetConfig {
   redirectURL?: string
 }
 
-export function oauthBattledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
+export function defineOAuthBattledotnetEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBattledotnetConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.battledotnet, {
       authorizationURL: 'https://oauth.battle.net/authorize',

@@ -1,4 +1,4 @@
-export default oauthGitLabEventHandler({
+export default defineOAuthGitLabEventHandler({
   config: {
     emailRequired: true,
   },

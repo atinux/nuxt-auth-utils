@@ -1,4 +1,4 @@
-export default oauthInstagramEventHandler({
+export default defineOAuthInstagramEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

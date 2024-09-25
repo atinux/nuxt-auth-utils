@@ -1,4 +1,4 @@
-export default oauthKeycloakEventHandler({
+export default defineOAuthKeycloakEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {

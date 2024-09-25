@@ -1,4 +1,4 @@
-export default oauthDropboxEventHandler({
+export default defineOAuthDropboxEventHandler({
   config: {
     emailRequired: true,
   },
