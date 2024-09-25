@@ -62,7 +62,7 @@ export interface OAuthXConfig {
   redirectURL?: string
 }
 
-export function oauthXEventHandler({
+export function defineOAuthXEventHandler({
   config,
   onSuccess,
   onError,

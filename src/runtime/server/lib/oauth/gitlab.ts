@@ -61,7 +61,7 @@ export interface OAuthGitLabConfig {
   redirectURL?: string
 }
 
-export function oauthGitLabEventHandler({
+export function defineOAuthGitLabEventHandler({
   config,
   onSuccess,
   onError,

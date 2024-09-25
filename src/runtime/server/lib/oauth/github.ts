@@ -57,7 +57,7 @@ export interface OAuthGitHubConfig {
   redirectURL?: string
 }
 
-export function oauthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
+export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.github, {
       authorizationURL: 'https://github.com/login/oauth/authorize',

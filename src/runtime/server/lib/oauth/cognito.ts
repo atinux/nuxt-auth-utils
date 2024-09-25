@@ -49,7 +49,7 @@ export interface OAuthCognitoConfig {
   domain?: string
 }
 
-export function oauthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
+export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.cognito, {
       authorizationParams: {},

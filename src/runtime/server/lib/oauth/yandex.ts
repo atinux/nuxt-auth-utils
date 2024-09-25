@@ -63,7 +63,7 @@ export interface OAuthYandexConfig {
   redirectURL?: string
 }
 
-export function oauthYandexEventHandler({
+export function defineOAuthYandexEventHandler({
   config,
   onSuccess,
   onError,

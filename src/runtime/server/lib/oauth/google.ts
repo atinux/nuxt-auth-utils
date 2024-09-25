@@ -59,7 +59,7 @@ export interface OAuthGoogleConfig {
   redirectURL?: string
 }
 
-export function oauthGoogleEventHandler({
+export function defineOAuthGoogleEventHandler({
   config,
   onSuccess,
   onError,

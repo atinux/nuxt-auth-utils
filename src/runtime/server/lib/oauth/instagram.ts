@@ -57,7 +57,7 @@ export interface OAuthInstagramConfig {
   redirectURL?: string
 }
 
-export function oauthInstagramEventHandler({
+export function defineOAuthInstagramEventHandler({
   config,
   onSuccess,
   onError,

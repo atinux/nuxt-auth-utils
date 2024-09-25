@@ -57,7 +57,7 @@ export interface OAuthTikTokConfig {
   redirectURL?: string
 }
 
-export function oauthTikTokEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTikTokConfig>) {
+export function defineOAuthTikTokEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTikTokConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.tiktok, {
       sandbox: import.meta.dev,

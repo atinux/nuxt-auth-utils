@@ -36,7 +36,7 @@ export interface OAuthXSUAAConfig {
   redirectURL?: string
 }
 
-export function oauthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthXSUAAConfig>) {
+export function defineOAuthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthXSUAAConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.xsuaa) as OAuthXSUAAConfig
 

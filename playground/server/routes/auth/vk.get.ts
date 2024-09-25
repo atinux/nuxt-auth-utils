@@ -1,4 +1,4 @@
-export default oauthVKEventHandler({
+export default defineOAuthVKEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
