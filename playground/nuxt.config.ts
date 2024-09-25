@@ -7,12 +7,14 @@ export default defineNuxtConfig({
   extends: ['@nuxt/ui-pro'],
   modules: ['nuxt-auth-utils', '@nuxt/ui'],
   auth: {},
-  ui: {
-    icons: ['simple-icons', 'gravity-ui'],
-  },
   devtools: { enabled: true },
   imports: {
     autoImport: true,
+  },
+  nitro: {
+    experimental: {
+      database: true,
+    },
   },
   routeRules: {
     '/': {

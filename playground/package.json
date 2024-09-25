@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "nuxt": "^3.13.2",
-    "nuxt-auth-utils": "latest"
+    "nuxt-auth-utils": "latest",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@iconify-json/gravity-ui": "^1.2.1"
+    "@iconify-json/gravity-ui": "^1.2.1",
+    "better-sqlite3": "^11.2.1"
   }
 }

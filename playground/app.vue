@@ -8,7 +8,7 @@ const toast = useToast()
 async function login() {
   if (logging.value || !password.value) return
   logging.value = true
-  await $fetch('/api/login', {
+  await $fetch('/api/built-in-password', {
     method: 'POST',
     body: {
       password: password.value,
@@ -180,13 +180,15 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
+          <AuthRegister v-if="!loggedIn" />
+          <AuthLogin v-if="!loggedIn" />
           <UButton
             v-if="!loggedIn"
             size="xs"
             color="gray"
             @click="loginModal = true"
           >
-            Login
+            Login with built-in password
           </UButton>
           <UDropdown :items="[providers]">
             <UButton
