@@ -1,27 +1,25 @@
 interface Credential {
-  user_name: string
-  credential_id: string
-  credential_public_key: string
+  userId: number
+  credentialId: string
+  credentialPublicKey: string
   counter: number
-  backed_up: boolean
+  backedUp: number
   transports: string
 }
 
-export default defineCredentialAuthenticationEventHandler({
-  async getCredential(_, credentialId) {
-    const { rows } = await useDatabase()
-      .sql<{ rows: Credential[] }>`SELECT * FROM credentials WHERE credential_id = ${credentialId}`
+export default defineWebAuthnAuthenticateEventHandler({
+  async getCredential(_event, credentialID) {
+    const db = useDatabase()
+    const { rows } = await db.sql<{ rows: Credential[] }>`SELECT * FROM credentials WHERE credentialID = ${credentialID}`
 
     // The credential trying to authenticate is not registered, so there is no account to log in to
     if (!rows.length)
       throw createError({ statusCode: 400, message: 'Credential not found' })
 
-    const credential = rows[0]
+    const [credential] = rows
     return {
-      credentialID: credential.credential_id,
-      credentialPublicKey: credential.credential_public_key,
-      counter: credential.counter,
-      backedUp: Boolean(credential.backed_up),
+      ...credential,
+      backedUp: Boolean(credential.backedUp),
       transports: JSON.parse(credential.transports),
     }
   },
@@ -29,40 +27,39 @@ export default defineCredentialAuthenticationEventHandler({
     const db = useDatabase()
     const { rows } = await db.sql<{ rows: string[] }>`
       SELECT
-        user_name
+        users.email as email
       FROM
         credentials
-      INNER JOIN users ON users.user_name = credentials.user_name
+      INNER JOIN users ON users.id = credentials.userId
       WHERE
-        credential_id = ${authenticator.credentialID}`
+        credentialID = ${authenticator.credentialID}`
 
     // Update the counter
-    await db.sql`UPDATE credentials SET counter = ${authenticationInfo.newCounter} WHERE credential_id = ${authenticator.credentialID}`
+    await db.sql`UPDATE credentials SET counter = ${authenticationInfo.newCounter} WHERE credentialID = ${authenticator.credentialID}`
 
-    const userName = rows[0]
+    const [{ email }] = rows
     await setUserSession(event, {
       user: {
-        webauthn: userName,
+        webauthn: email,
       },
       loggedInAt: Date.now(),
     })
   },
-  async authenticationOptions(event) {
+  async getOptions(event) {
     const body = await readBody(event)
     // If no userName is provided, no credentials can be returned
     if (!body.userName || body.userName === '')
       return {}
 
     const db = useDatabase()
-    const { rows } = await db.sql<{ rows: { id: string, type: string }[] }>`
+    const { rows } = await db.sql<{ rows: { id: string }[] }>`
       SELECT
-        credentials.credential_id as id,
-        'public-key' as type
+        credentials.credentialID as id
       FROM
         users
-      LEFT JOIN credentials ON credentials.user_name = users.user_name
+      LEFT JOIN credentials ON credentials.userId = users.id
       WHERE
-        users.user_name = ${body.userName}`
+        users.email = ${body.userName}`
 
     if (!rows.length)
       throw createError({ statusCode: 400, message: 'User not found' })

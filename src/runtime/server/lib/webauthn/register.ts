@@ -21,12 +21,12 @@ type RegistrationBody = {
   response: RegistrationResponseJSON
 }
 
-export function defineCredentialRegistrationEventHandler({
+export function defineWebAuthnRegisterEventHandler({
   storeChallenge,
   getChallenge,
+  getOptions,
   onSuccess,
   onError,
-  registrationOptions,
 }: CredentialRegistrationEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
@@ -37,7 +37,7 @@ export function defineCredentialRegistrationEventHandler({
         statusCode: 400,
       })
 
-    const _config = defu(await registrationOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.registrationOptions, {
+    const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.register, {
       rpID: url.hostname,
       rpName: url.hostname,
       userName: body.userName,

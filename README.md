@@ -282,9 +282,27 @@ export default defineNuxtConfig({
 })
 ```
 
-### Webauthn (passkey)
+### WebAuthn (passkey)
 
 WebAuthn (Web Authentication) is a web standard that enhances security by replacing passwords with passkeys using public key cryptography. Users can authenticate with biometric data (like fingerprints or facial recognition) or physical devices (like USB keys), reducing the risk of phishing and password breaches. This approach offers a more secure and user-friendly authentication method, supported by major browsers and platforms.
+
+To enable WebAuthn you need to:
+
+1. Install the peer dependencies:
+
+```bash
+npx nypm i @simplewebauthn/server @simplewebauthn/browser
+```
+
+2. Enable it in your `nuxt.config.ts`
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    webAuthn: true
+  }
+})
+```
 
 #### Example
 
@@ -294,49 +312,54 @@ The full code can be found in the [playground](https://github.com/Atinux/nuxt-au
 
 ```sql
 CREATE TABLE users (
-  user_name TEXT UNIQUE NOT NULL
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL
 );
-CREATE TABLE credentials (
-  user_name TEXT NOT NULL,
-  credential_id TEXT NOT NULL,
-  credential_public_key TEXT NOT NULL,
+
+CREATE TABLE IF NOT EXISTS credentials (
+  userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  credentialID TEXT UNIQUE NOT NULL,
+  credentialPublicKey TEXT NOT NULL,
   counter INTEGER NOT NULL,
-  backed_up INTEGER NOT NULL,
-  transports TEXT NOT NULL
+  backedUp INTEGER NOT NULL,
+  transports TEXT NOT NULL,
+  PRIMARY KEY ("userId", "credentialID")
 );
 ```
 
-- For the `users` table it is important to have a unique identifier such as a username or email. When creating a new credential, this identifier is required and stored with the passkey on the user's device, password manager, or authenticator.
+- For the `users` table it is important to have a unique identifier such as a username or email (here we use email). When creating a new credential, this identifier is required and stored with the passkey on the user's device, password manager, or authenticator.
 - The `credentials` table stores:
-  - The credential `ID` (potentially as primary key)
+  - The `userId` from the `users` table.
+  - The credential `ID` (as unique index)
   - The credential `public key`
   - A `counter`. Each time a credential is used, the counter is incremented. We can use this value to perform extra security checks. More about `counter` can be read [here](https://simplewebauthn.dev/docs/packages/server#3-post-registration-responsibilities). For this example, we won't be using the counter. But you should update the counter in your database with the new value.
   - A `backed up` flag. Normally, credentials are stored on the generating device. When you use a password manager or authenticator, the credential is "backed up" because it can be used on multiple devices. See [this section](https://arc.net/l/quote/ugaemxot) for more details.
   - The credential `transports`. It is an array of strings that indicate how the credential communicates with the client. It is used to show the correct UI for the user to utilize the credential. Again, see [this section](https://arc.net/l/quote/ycxtiorp) for more details.
 
-The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/login.post.ts).
+The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/authenticate.post.ts) and the [database setup](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/plugins/database.ts).
 
 ```ts
 // server/api/webauthn/register.post.ts
-export default defineCredentialRegistrationEventHandler({
+export default defineWebAuthnRegisterEventHandler({
   async onSuccess(event, { authenticator, userName }) {
     // The credential creation has been successful
     // We need to create a user if it does not exist
+    const db = useDatabase()
 
     // Get the user from the database
-    const user = await useDatabase().sql`...`
+    let user = await db.sql`...`
     if (!user) {
       // Store new user in database
-      await useDatabase().sql`...`
+      user = await db.sql`...`
     }
 
     // we now need to store the credential in our database and link it to the user
-    await useDatabase().sql`...`
+    await db.sql`...`
 
     // Set the user session
     await setUserSession(event, {
       user: {
-        webauthn: user.userName,
+        id: user.ud
       },
       loggedInAt: Date.now(),
     })
@@ -345,7 +368,8 @@ export default defineCredentialRegistrationEventHandler({
 ```
 
 ```ts
-export default defineCredentialAuthenticationEventHandler({
+// server/api/webauthn/authenticate.post.ts
+export default defineWebAuthnAuthenticateEventHandler({
   async getCredential(event, credentialId) {
     // Look for the credential in our database
     const credential = await useDatabase().sql`...`
@@ -359,22 +383,23 @@ export default defineCredentialAuthenticationEventHandler({
   async onSuccess(event, { authenticator, authenticationInfo }) {
     // The credential authentication has been successful
     // We can look it up in our database and get the corresponding user
-    const user = await useDatabase().sql`...`
+    const db = useDatabase()
+    const user = await db.sql`...`
 
     // Update the counter in the database (authenticationInfo.newCounter)
-    await useDatabase().sql`...`
+    await db.sql`...`
 
     // Set the user session
     await setUserSession(event, {
       user: {
-        webauthn: user.userName,
+        id: user.id
       },
       loggedInAt: Date.now(),
     })
   },
 
-  // Optionally, we can prefetch the credentials if the user gives their username during login
-  async authenticationOptions(event) {
+  // Optionally, we can prefetch the credentials if the user gives their userName during login
+  async getOptions(event) {
     const body = await readBody(event)
     // If no userName is provided, no credentials can be returned
     if (!body.userName || body.userName === '')
@@ -392,15 +417,16 @@ export default defineCredentialAuthenticationEventHandler({
     return {
       allowCredentials: credentials,
     }
-    // example: allowCredentials: [{ id: '...', transports: ['internal', 'usb'] }]
+    // example: allowCredentials: [{ id: '...' }]
   },
 })
 ```
 
 > [!IMPORTANT]
 > By default, the webauthn event handlers will store the challenge in a short lived, encrypted session cookie. This is not recommended for applications that require strong security guarantees. On a secure connection (https) it is highly unlikely for this to cause problems. However, if the connection is not secure, there is a possibility of a man-in-the-middle attack. To prevent this, you should use a database or KV store to store the challenge instead. For this the `storeChallenge` and `getChallenge` functions are provided.
+
 > ```ts
-> export default defineCredentialAuthenticationEventHandler({
+> export default defineWebAuthnAuthenticateEventHandler({
 >   async storeChallenge(event, challenge, attemptId) {
 >     // Store the challenge in a KV store or DB
 >     await useStorage().setItem(`attempt:${attemptId}`, challenge)
@@ -426,13 +452,17 @@ On the frontend it is as simple as:
 ```vue
 <script setup lang="ts">
 const { register, authenticate } = useWebauthn({
-  registrationEndpoint: '/api/webauthn/register',
-  authenticationEndpoint: '/api/webauthn/login',
+  registerEndpoint: '/api/webauthn/register', // Default
+  authenticateEndpoint: '/api/webauthn/authenticate', // Default
 })
+// Similar to the above as we are using the default endpoints
+const { register, authenticate } = useWebauthn()
+const { fetch: fetchUserSession } = useUserSession()
 
 const userName = ref('')
 async function submit() {
   await register(userName.value)
+    .then(fetchUserSession) // refetch the user session
 }
 </script>
 

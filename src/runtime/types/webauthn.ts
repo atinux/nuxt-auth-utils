@@ -8,7 +8,7 @@ import type {
   VerifiedRegistrationResponse,
 } from '@simplewebauthn/server'
 
-export interface AuthenticatorDevice {
+export interface WebAuthnAuthenticatorDevice {
   credentialID: string
   credentialPublicKey: string
   counter: number
@@ -17,7 +17,7 @@ export interface AuthenticatorDevice {
 }
 
 // Using a discriminated union makes it such that you can only define both storeChallenge and getChallenge or neither
-type CredentialEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
+type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
   storeChallenge: (event: H3Event, challenge: string, attemptId: string) => void | Promise<void>
   getChallenge: (event: H3Event, attemptId: string) => string | Promise<string>
   onSuccess: (event: H3Event, data: T) => void | Promise<void>
@@ -29,24 +29,24 @@ type CredentialEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
 
-export type CredentialRegistrationEventHandlerOptions = CredentialEventHandlerBase<{
+export type WebAuthnRegisterEventHandlerOptions = WebAuthnEventHandlerBase<{
   userName: string
   displayName?: string
-  authenticator: AuthenticatorDevice
+  authenticator: WebAuthnAuthenticatorDevice
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
-  registrationOptions?: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
+  getOptions?: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
 }
 
-export type CredentialAuthenticationEventHandlerOptions = CredentialEventHandlerBase<{
-  authenticator: AuthenticatorDevice
+export type WebAuthnAuthenticateEventHandlerOptions = WebAuthnEventHandlerBase<{
+  authenticator: WebAuthnAuthenticatorDevice
   authenticationInfo: Exclude<VerifiedAuthenticationResponse['authenticationInfo'], undefined>
 }> & {
-  authenticationOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
-  getCredential: (event: H3Event, credentialID: string) => AuthenticatorDevice | Promise<AuthenticatorDevice>
+  getOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
+  getCredential: (event: H3Event, credentialID: string) => WebAuthnAuthenticatorDevice | Promise<WebAuthnAuthenticatorDevice>
 }
 
-export interface WebauthnComposable {
+export interface WebAuthnComposable {
   /**
    * Vue ref (boolean) that checks if the webauthn API is available
    */

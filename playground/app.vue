@@ -4,31 +4,31 @@ const { user, session } = useUserSession()
 const providers = computed(() =>
   [
     {
-      label: session.value.user?.google || 'Google',
+      label: user.value?.google || 'Google',
       to: '/auth/google',
       disabled: Boolean(user.value?.google),
       icon: 'i-simple-icons-google',
     },
     {
-      label: session.value.user?.facebook || 'Facebook',
+      label: user.value?.facebook || 'Facebook',
       to: '/auth/facebook',
       disabled: Boolean(user.value?.facebook),
       icon: 'i-simple-icons-facebook',
     },
     {
-      label: session.value.user?.instagram || 'instagram',
+      label: user.value?.instagram || 'instagram',
       to: '/auth/instagram',
       disabled: Boolean(user.value?.instagram),
       icon: 'i-simple-icons-instagram',
     },
     {
-      label: session.value.user?.github || 'GitHub',
+      label: user.value?.github || 'GitHub',
       to: '/auth/github',
       disabled: Boolean(user.value?.github),
       icon: 'i-simple-icons-github',
     },
     {
-      label: session.value.user?.gitlab || 'GitLab',
+      label: user.value?.gitlab || 'GitLab',
       to: '/auth/gitlab',
       disabled: Boolean(user.value?.gitlab),
       icon: 'i-simple-icons-gitlab',
@@ -58,13 +58,13 @@ const providers = computed(() =>
       icon: 'i-simple-icons-discord',
     },
     {
-      label: session.value.user?.spotify || 'Spotify',
+      label: user.value?.spotify || 'Spotify',
       to: '/auth/spotify',
       disabled: Boolean(user.value?.spotify),
       icon: 'i-simple-icons-spotify',
     },
     {
-      label: session.value.user?.twitch || 'Twitch',
+      label: user.value?.twitch || 'Twitch',
       to: '/auth/twitch',
       disabled: Boolean(user.value?.twitch),
       icon: 'i-simple-icons-twitch',
@@ -88,7 +88,7 @@ const providers = computed(() =>
       icon: 'i-simple-icons-redhat',
     },
     {
-      label: session.value.user?.paypal || 'PayPal',
+      label: user.value?.paypal || 'PayPal',
       to: '/auth/paypal',
       disabled: Boolean(user.value?.paypal),
       icon: 'i-simple-icons-paypal',
@@ -153,9 +153,9 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
-          <WebauthnModal />
-          <AuthRegister v-if="!loggedIn" />
-          <AuthLogin v-if="!loggedIn" />
+          <WebAuthnModal />
+          <AuthRegister />
+          <AuthLogin />
           <PasswordModal />
           <UDropdown :items="[providers]">
             <UButton

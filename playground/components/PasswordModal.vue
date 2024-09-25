@@ -8,7 +8,7 @@ const toast = useToast()
 async function login() {
   if (logging.value || !password.value) return
   logging.value = true
-  await $fetch('/api/login', {
+  await $fetch('/api/built-in-password', {
     method: 'POST',
     body: {
       password: password.value,

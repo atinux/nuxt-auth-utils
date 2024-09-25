@@ -1,19 +1,20 @@
-export default defineCredentialRegistrationEventHandler({
+export default defineWebAuthnRegisterEventHandler({
   async onSuccess(event, { authenticator, userName, displayName }) {
     const db = useDatabase()
     try {
       await db.sql`BEGIN TRANSACTION`
-      await db.sql`INSERT INTO users (user_name) VALUES (${userName})`
+      await db.sql`INSERT INTO users (email) VALUES (${userName})`
+      const { rows: [user] } = await db.sql`SELECT * FROM users WHERE email = ${userName}`
       await db.sql`
         INSERT INTO credentials (
-          user_name,
-          credential_id,
-          credential_public_key,
+          userId,
+          credentialID,
+          credentialPublicKey,
           counter,
-          backed_up,
+          backedUp,
           transports
         ) VALUES (
-          ${userName},
+          ${user.id},
           ${authenticator.credentialID},
           ${authenticator.credentialPublicKey},
           ${authenticator.counter},
@@ -21,18 +22,19 @@ export default defineCredentialRegistrationEventHandler({
           ${JSON.stringify(authenticator.transports ?? [])}
         )`
       await db.sql`COMMIT`
+      await setUserSession(event, {
+        user: {
+          webauthn: user.email,
+        },
+        loggedInAt: Date.now(),
+      })
     }
-    catch (error) {
+    catch (err) {
       await db.sql`ROLLBACK`
-      console.error('Failed to store credential', error)
-      throw createError({ statusCode: 500, message: 'Failed to store credential' })
+      throw createError({
+        statusCode: 500,
+        message: err.message.includes('UNIQUE constraint failed') ? 'User already registered' : 'Failed to store credential',
+      })
     }
-
-    await setUserSession(event, {
-      user: {
-        webauthn: displayName,
-      },
-      loggedInAt: Date.now(),
-    })
   },
 })

@@ -1,26 +1,17 @@
 <script setup lang="ts">
-const { user, fetch } = useUserSession()
 const show = ref(false)
 const logging = ref(false)
 const userName = ref('')
 const displayName = ref('')
 const toast = useToast()
 
-const { register: _register, authenticate: _authenticate, isSupported } = useWebauthn({
-  registrationEndpoint: '/api/webauthn/register',
-  authenticationEndpoint: '/api/webauthn/login',
-  onRegistrationError: (error) => {
-    console.error('Registration error:', error)
-  },
-  onAuthenticationError: (error) => {
-    console.error('Authentication error:', error)
-  },
-})
+const { user, fetch } = useUserSession()
+const { register, authenticate, isSupported } = useWebauthn()
 
-async function register() {
+async function signUp() {
   if (logging.value || !userName.value) return
   logging.value = true
-  await _register(userName.value, displayName.value)
+  await register(userName.value, displayName.value)
     .then(() => {
       fetch()
       show.value = false
@@ -35,10 +26,10 @@ async function register() {
   logging.value = false
 }
 
-async function authenticate() {
+async function signIn() {
   if (logging.value) return
   logging.value = true
-  await _authenticate(userName.value)
+  await authenticate(userName.value)
     .then(() => {
       fetch()
       show.value = false
@@ -70,19 +61,22 @@ async function authenticate() {
   >
     <form
       class="space-y-4"
-      @submit.prevent="register"
+      @submit.prevent="signUp"
     >
-      <UFormGroup label="Username">
+      <UFormGroup
+        label="Email"
+        required
+      >
         <UInput
           v-model="userName"
-          name="userName"
-          type="text"
+          name="email"
+          type="email"
         />
       </UFormGroup>
-      <UFormGroup label="Display name">
+      <UFormGroup label="Name">
         <UInput
           v-model="displayName"
-          name="displayName"
+          name="name"
           type="text"
         />
       </UFormGroup>
@@ -100,13 +94,16 @@ async function authenticate() {
 
     <form
       class="space-y-4"
-      @submit.prevent="authenticate"
+      @submit.prevent="signIn"
     >
-      <UFormGroup label="Username">
+      <UFormGroup
+        label="Email"
+        required
+      >
         <UInput
           v-model="userName"
-          name="userName"
-          type="text"
+          name="email"
+          type="email"
           autocomplete="username webauthn"
         />
       </UFormGroup>

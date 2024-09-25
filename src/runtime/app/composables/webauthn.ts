@@ -6,7 +6,7 @@ import {
   startRegistration,
 } from '@simplewebauthn/browser'
 import type { VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
-import type { AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
+import type { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
 import { ref, onMounted } from '#imports'
 import type { WebauthnComposable } from '#auth-utils'
 
@@ -21,14 +21,20 @@ interface AuthenticationInitResponse {
 }
 
 export function useWebauthn(options: {
-  registrationEndpoint: string
-  authenticationEndpoint: string
-  onRegistrationError?: (error: unknown) => void
-  onAuthenticationError?: (error: unknown) => void
-}): WebauthnComposable {
+  /**
+   * The endpoint to register a new credential.
+   * @default '/api/webauthn/register'
+   */
+  registerEndpoint?: string
+  /**
+   * The endpoint to authenticate a user.
+   * @default '/api/webauthn/authenticate'
+   */
+  authenticateEndpoint?: string
+} = {}): WebauthnComposable {
+  const { registerEndpoint = '/api/webauthn/register', authenticateEndpoint = '/api/webauthn/authenticate' } = options
   async function register(userName: string, displayName?: string) {
-    let attestationResponse: RegistrationResponseJSON | null = null
-    const { creationOptions, attemptId } = await $fetch<RegistrationInitResponse>(options.registrationEndpoint, {
+    const { creationOptions, attemptId } = await $fetch<RegistrationInitResponse>(registerEndpoint, {
       method: 'POST',
       body: {
         userName,
@@ -37,18 +43,8 @@ export function useWebauthn(options: {
       },
     })
 
-    try {
-      attestationResponse = await startRegistration(creationOptions)
-    }
-    catch (error) {
-      options.onRegistrationError?.(error)
-      return false
-    }
-
-    if (!attestationResponse)
-      return false
-
-    const verificationResponse = await $fetch<VerifiedRegistrationResponse>(options.registrationEndpoint, {
+    const attestationResponse = await startRegistration(creationOptions)
+    const verificationResponse = await $fetch<VerifiedRegistrationResponse>(registerEndpoint, {
       method: 'POST',
       body: {
         attemptId,
@@ -63,8 +59,7 @@ export function useWebauthn(options: {
   }
 
   async function authenticate(userName?: string) {
-    let assertionResponse: AuthenticationResponseJSON | null = null
-    const { requestOptions, attemptId } = await $fetch<AuthenticationInitResponse>(options.authenticationEndpoint, {
+    const { requestOptions, attemptId } = await $fetch<AuthenticationInitResponse>(authenticateEndpoint, {
       method: 'POST',
       body: {
         verify: false,
@@ -72,18 +67,8 @@ export function useWebauthn(options: {
       },
     })
 
-    try {
-      assertionResponse = await startAuthentication(requestOptions)
-    }
-    catch (error) {
-      options.onAuthenticationError?.(error)
-      return false
-    }
-
-    if (!assertionResponse)
-      return false
-
-    const verificationResponse = await $fetch<VerifiedAuthenticationResponse>(options.authenticationEndpoint, {
+    const assertionResponse = await startAuthentication(requestOptions)
+    const verificationResponse = await $fetch<VerifiedAuthenticationResponse>(authenticateEndpoint, {
       method: 'POST',
       body: {
         attemptId,

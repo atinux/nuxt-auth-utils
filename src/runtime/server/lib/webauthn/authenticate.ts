@@ -19,18 +19,18 @@ type AuthenticationBody = {
   response: AuthenticationResponseJSON
 }
 
-export function defineCredentialAuthenticationEventHandler({
+export function defineWebAuthnAuthenticateEventHandler({
   storeChallenge,
   getChallenge,
   getCredential,
+  getOptions,
   onSuccess,
   onError,
-  authenticationOptions,
 }: CredentialAuthenticationEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<AuthenticationBody>(event)
-    const _config = defu(await authenticationOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.authenticationOptions, {
+    const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.authenticate, {
       rpID: url.hostname,
     } satisfies GenerateAuthenticationOptionsOpts)
 

@@ -1,16 +1,22 @@
 export default defineNitroPlugin(async () => {
   const db = useDatabase()
+
+  // Email / Password
   await db.sql`
     CREATE TABLE IF NOT EXISTS users (
-      user_name TEXT UNIQUE NOT NULL
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT
     )`
+  // WebAuthn
   await db.sql`
     CREATE TABLE IF NOT EXISTS credentials (
-      user_name TEXT NOT NULL,
-      credential_id TEXT NOT NULL,
-      credential_public_key TEXT NOT NULL,
+      userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+      credentialID TEXT UNIQUE NOT NULL,
+      credentialPublicKey TEXT NOT NULL,
       counter INTEGER NOT NULL,
-      backed_up INTEGER NOT NULL,
-      transports TEXT NOT NULL
+      backedUp INTEGER NOT NULL,
+      transports TEXT NOT NULL,
+      PRIMARY KEY ("userId", "credentialID")
     )`
 })

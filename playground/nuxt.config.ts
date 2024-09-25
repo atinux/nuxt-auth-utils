@@ -6,7 +6,9 @@ export default defineNuxtConfig({
   },
   extends: ['@nuxt/ui-pro'],
   modules: ['nuxt-auth-utils', '@nuxt/ui'],
-  auth: {},
+  auth: {
+    webAuthn: true,
+  },
   devtools: { enabled: true },
   imports: {
     autoImport: true,
