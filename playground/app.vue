@@ -180,8 +180,8 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
-          <Register v-if="!loggedIn" />
-          <Login v-if="!loggedIn" />
+          <AuthRegister v-if="!loggedIn" />
+          <AuthLogin v-if="!loggedIn" />
           <UButton
             v-if="!loggedIn"
             size="xs"
