@@ -8,6 +8,7 @@ import {
   addServerPlugin,
   addServerImportsDir,
   addComponentsDir,
+  logger,
 } from '@nuxt/kit'
 import { join } from 'pathe'
 import { defu } from 'defu'
@@ -78,7 +79,7 @@ export default defineNuxtModule<ModuleOptions>({
         })
       }
       if (missingDeps.length > 0) {
-        console.error(`Missing dependencies for \`WebAuthn\`, please install with:\n\n\`npx nypm i ${missingDeps.join(' ')}\``)
+        logger.withTag('nuxt-auth-utils').error(`Missing dependencies for \`WebAuthn\`, please install with:\n\n\`npx nypm i ${missingDeps.join(' ')}\``)
         process.exit(1)
       }
       addServerImportsDir(resolver.resolve('./runtime/server/lib/webauthn'))
