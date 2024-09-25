@@ -1,5 +1,5 @@
 export default defineWebAuthnRegisterEventHandler({
-  async onSuccess(event, { authenticator, userName, displayName }) {
+  async onSuccess(event, { authenticator, userName }) {
     const db = useDatabase()
     try {
       await db.sql`BEGIN TRANSACTION`
