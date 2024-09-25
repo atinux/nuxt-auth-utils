@@ -20,7 +20,7 @@ interface AuthenticationInitResponse {
   attemptId: string
 }
 
-export function useWebauthn(options: {
+export function useWebAuthn(options: {
   /**
    * The endpoint to register a new credential.
    * @default '/api/webauthn/register'

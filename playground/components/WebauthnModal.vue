@@ -6,7 +6,7 @@ const displayName = ref('')
 const toast = useToast()
 
 const { user, fetch } = useUserSession()
-const { register, authenticate, isSupported } = useWebauthn()
+const { register, authenticate, isSupported } = useWebAuthn()
 
 async function signUp() {
   if (logging.value || !userName.value) return

@@ -451,12 +451,12 @@ export default defineWebAuthnAuthenticateEventHandler({
 On the frontend it is as simple as:
 ```vue
 <script setup lang="ts">
-const { register, authenticate } = useWebauthn({
+const { register, authenticate } = useWebAuthn({
   registerEndpoint: '/api/webauthn/register', // Default
   authenticateEndpoint: '/api/webauthn/authenticate', // Default
 })
 // Similar to the above as we are using the default endpoints
-const { register, authenticate } = useWebauthn()
+const { register, authenticate } = useWebAuthn()
 const { fetch: fetchUserSession } = useUserSession()
 
 const userName = ref('')
