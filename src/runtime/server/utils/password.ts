@@ -1,31 +1,44 @@
-// TODO: change once https://github.com/bruceharrison1984/bcrypt-edge/issues/28 is resolved
-import { hashSync, compareSync } from 'bcrypt-edge/dist/bcrypt-edge'
-import type { HashedPassword } from '#auth-utils'
+import { Hash } from '@adonisjs/hash'
+import { Scrypt } from '@adonisjs/hash/drivers/scrypt'
+import type { ScryptConfig } from '@adonisjs/hash/types'
+import { useRuntimeConfig } from '#imports'
+
+let _hash: Hash
+
+function getHash() {
+  if (!_hash) {
+    const options = useRuntimeConfig().hash?.scrypt as ScryptConfig
+    const scrypt = new Scrypt(options)
+    _hash = new Hash(scrypt)
+  }
+  return _hash
+}
 
 /**
- * @see https://stackoverflow.com/questions/16173328/what-unicode-normalization-and-other-processing-is-appropriate-for-passwords-w
+ * Hash a password using scrypt
+ * @param password - The plain text password to hash
+ * @returns The hashed password
+ * @example
+ * ```ts
+ * const hashedPassword = await hashPassword('user_password')
+ * ```
+ * @more you can configure the scrypt options in `auth.hash.scrypt`
  */
-function normalizePassword(password: string): string {
-  return password.normalize('NFKC')
+export async function hashPassword(password: string) {
+  return await getHash().make(password)
 }
 
-interface HashPasswordOptions {
-  /**
-   * Number of rounds to use for hashing. Should be at least 10.
-   *
-   * @see https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
-   */
-  rounds: number
-}
-
-export function hashPassword(password: string, options: HashPasswordOptions): HashedPassword {
-  const normalizedPassword = normalizePassword(password)
-
-  return hashSync(normalizedPassword, options.rounds) as HashedPassword
-}
-
-export function comparePassword(hash: HashedPassword, password: string): boolean {
-  const normalizedPassword = normalizePassword(password)
-
-  return compareSync(normalizedPassword, hash)
+/**
+ * Verify a password against a hashed password
+ * @param hashedPassword - The hashed password to verify against
+ * @param plainPassword - The plain text password to verify
+ * @returns `true` if the password is valid, `false` otherwise
+ * @example
+ * ```ts
+ * const isValid = await verifyPassword(hashedPassword, 'user_password')
+ * ```
+ * @more you can configure the scrypt options in `auth.hash.scrypt`
+ */
+export async function verifyPassword(hashedPassword: string, plainPassword: string) {
+  return await getHash().verify(hashedPassword, plainPassword)
 }

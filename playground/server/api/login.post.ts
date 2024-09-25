@@ -1,9 +1,9 @@
-import { HashedPassword } from "#auth-utils"
+import { z } from 'zod'
 
 interface DBUser {
   id: number
   email: string
-  password: HashedPassword
+  password: string
 }
 
 export default defineLazyEventHandler(async () => {
@@ -18,17 +18,18 @@ export default defineLazyEventHandler(async () => {
   })
 
   return defineEventHandler(async (event) => {
-    const body = await readBody(event)
+    const { email, password } = await readValidatedBody(event, z.object({
+      email: z.string().email(),
+      password: z.string().min(8),
+    }).parse)
 
-    const email = body.email
-
-    const user = await db.sql<{ rows: DBUser[] }>`SELECT * FROM users WHERE email = ${email}`.then((result) => result.rows[0])
+    const user = await db.sql<{ rows: DBUser[] }>`SELECT * FROM users WHERE email = ${email}`.then(result => result.rows[0])
 
     if (!user) {
       throw invalidCredentialsError
     }
 
-    if(!comparePassword(user.password, body.password)) {
+    if (!(await verifyPassword(user.password, password))) {
       throw invalidCredentialsError
     }
 

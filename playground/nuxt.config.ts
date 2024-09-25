@@ -7,9 +7,6 @@ export default defineNuxtConfig({
   extends: ['@nuxt/ui-pro'],
   modules: ['nuxt-auth-utils', '@nuxt/ui'],
   auth: {},
-  ui: {
-    icons: ['simple-icons', 'gravity-ui'],
-  },
   devtools: { enabled: true },
   imports: {
     autoImport: true,
@@ -18,9 +15,6 @@ export default defineNuxtConfig({
     experimental: {
       database: true,
     },
-  },
-  runtimeConfig: {
-    passwordHashRounds: 12,
   },
   routeRules: {
     '/': {

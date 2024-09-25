@@ -255,6 +255,34 @@ Make sure to set the callback URL in your OAuth app settings as `<your-domain>/a
 
 If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
 
+### Password Utils
+
+Nuxt Auth Utils provides a `hashPassword` and `verifyPassword` function to hash and verify passwords by using [scrypt](https://en.wikipedia.org/wiki/Scrypt) as it is supported in many JS runtime.
+
+```ts
+const hashedPassword = await hashPassword('user_password')
+
+if (await verifyPassword(hashedPassword, 'user_password')) {
+  // Password is valid
+}
+```
+
+You can configure the scrypt options in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-auth-utils'],
+  auth: {
+    hash: {
+      scrypt: {
+        // See https://github.com/adonisjs/hash/blob/94637029cd526783ac0a763ec581306d98db2036/src/types.ts#L144
+      }
+    }
+  }
+})
+```
+
+
 ### Extend Session
 
 We leverage hooks to let you extend the session data with your own data or log when the user clears the session.
