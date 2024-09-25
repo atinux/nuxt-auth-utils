@@ -1,11 +1,11 @@
-export default defineOAuthAuth0EventHandler({
+export default defineOAuthGitLabEventHandler({
   config: {
     emailRequired: true,
   },
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        auth0: user.email,
+        gitlab: user.email,
       },
       loggedInAt: Date.now(),
     })

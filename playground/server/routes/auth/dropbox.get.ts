@@ -1,11 +1,11 @@
-export default defineOAuthAuth0EventHandler({
+export default defineOAuthDropboxEventHandler({
   config: {
     emailRequired: true,
   },
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        auth0: user.email,
+        dropbox: user.email,
       },
       loggedInAt: Date.now(),
     })

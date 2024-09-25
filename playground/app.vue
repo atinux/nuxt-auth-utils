@@ -43,10 +43,22 @@ const providers = computed(() =>
       icon: 'i-simple-icons-facebook',
     },
     {
+      label: session.value.user?.instagram || 'instagram',
+      to: '/auth/instagram',
+      disabled: Boolean(user.value?.instagram),
+      icon: 'i-simple-icons-instagram',
+    },
+    {
       label: session.value.user?.github || 'GitHub',
       to: '/auth/github',
       disabled: Boolean(user.value?.github),
       icon: 'i-simple-icons-github',
+    },
+    {
+      label: session.value.user?.gitlab || 'GitLab',
+      to: '/auth/gitlab',
+      disabled: Boolean(user.value?.gitlab),
+      icon: 'i-simple-icons-gitlab',
     },
     {
       label: user.value?.linkedin || 'LinkedIn',
@@ -127,10 +139,28 @@ const providers = computed(() =>
       icon: 'i-simple-icons-sap',
     },
     {
+      label: user.value?.vk || 'VK',
+      to: '/auth/vk',
+      disabled: Boolean(user.value?.vk),
+      icon: 'i-simple-icons-vk',
+    },
+    {
       label: user.value?.yandex || 'Yandex',
       to: '/auth/yandex',
       disabled: Boolean(user.value?.yandex),
       icon: 'i-gravity-ui-logo-yandex',
+    },
+    {
+      label: user.value?.tiktok || 'TikTok',
+      to: '/auth/tiktok',
+      disabled: Boolean(user.value?.tiktok),
+      icon: 'i-simple-icons-tiktok',
+    },
+    {
+      label: user.value?.dropbox || 'Dropbox',
+      to: '/auth/dropbox',
+      disabled: Boolean(user.value?.dropbox),
+      icon: 'i-simple-icons-dropbox',
     },
   ].map(p => ({
     ...p,

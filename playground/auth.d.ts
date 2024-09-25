@@ -4,6 +4,7 @@ declare module '#auth-utils' {
     password?: string
     spotify?: string
     github?: string
+    gitlab?: string
     google?: string
     twitch?: string
     auth0?: string
@@ -14,17 +15,22 @@ declare module '#auth-utils' {
     linkedin?: string
     cognito?: string
     facebook?: string
+    instagram?: string
     paypal?: string
     steam?: string
     x?: string
     xsuaa?: string
+    vk?: string
     yandex?: string
+    tiktok?: string
+    dropbox?: string
   }
 
   interface UserSession {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extended?: any
     loggedInAt: number
+    secure?: Record<string, unknown>
   }
 }
 

@@ -1,11 +1,8 @@
-export default defineOAuthAuth0EventHandler({
-  config: {
-    emailRequired: true,
-  },
+export default defineOAuthInstagramEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        auth0: user.email,
+        instagram: user.username,
       },
       loggedInAt: Date.now(),
     })

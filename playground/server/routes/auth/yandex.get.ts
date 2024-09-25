@@ -1,4 +1,4 @@
-export default oauthYandexEventHandler({
+export default defineOAuthYandexEventHandler({
   config: {
     emailRequired: true,
   },

@@ -64,7 +64,7 @@ export interface OAuthPaypalConfig {
   redirectURL?: string
 }
 
-export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
+export function defineOAuthPaypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.paypal, {
       sandbox: import.meta.dev,
@@ -117,7 +117,7 @@ export function oauthPaypalEventHandler({ config, onSuccess, onError }: OAuthCon
       },
       params: {
         grant_type: 'authorization_code',
-        redirect_uri: redirectURL,
+        redirect_uri: encodeURIComponent(redirectURL), // <- PayPal requires to be URL encoded
         code: query.code,
       },
     })

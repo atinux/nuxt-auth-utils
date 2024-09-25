@@ -2,25 +2,31 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
+import {
+  handleMissingConfiguration,
+  handleAccessTokenErrorResponse,
+  getOAuthRedirectURL,
+  requestAccessToken,
+} from '../utils'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
-export interface OAuthLinkedInConfig {
+export interface OAuthGitLabConfig {
   /**
-   * LinkedIn OAuth Client ID
-   * @default process.env.NUXT_OAUTH_LINKEDIN_CLIENT_ID
+   * GitLab OAuth Client ID
+   * @default process.env.NUXT_OAUTH_GITLAB_CLIENT_ID
    */
   clientId?: string
   /**
-   * LinkedIn OAuth Client Secret
-   * @default process.env.NUXT_OAUTH_LINKEDIN_CLIENT_SECRET
+   * GitLab OAuth Client Secret
+   * @default process.env.NUXT_OAUTH_GITLAB_CLIENT_SECRET
    */
   clientSecret?: string
   /**
-   * LinkedIn OAuth Scope
-   * @default ['openid', 'profile', 'email']
-   * @example ['openid', 'profile']
+   * GitLab OAuth Scope
+   * @default ['read_user']
+   * @see https://docs.gitlab.com/ee/integration/oauth_provider.html#view-all-authorized-applications
+   * @example ['read_user']
    */
   scope?: string[]
   /**
@@ -30,38 +36,62 @@ export interface OAuthLinkedInConfig {
   emailRequired?: boolean
 
   /**
-   * LinkedIn OAuth Authorization URL
-   * @default 'https://www.linkedin.com/oauth/v2/authorization'
+   * GitLab OAuth Authorization URL
+   * @default 'https://gitlab.com/oauth/authorize'
    */
   authorizationURL?: string
+
   /**
-   * LinkedIn OAuth Token URL
-   * @default 'https://www.linkedin.com/oauth/v2/accessToken'
+   * GitLab OAuth Token URL
+   * @default 'https://gitlab.com/oauth/token'
    */
   tokenURL?: string
+
   /**
    * Extra authorization parameters to provide to the authorization URL
-   * @see https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?context=linkedin/context
+   * @see https://docs.gitlab.com/ee/integration/oauth_provider.html#view-all-authorized-applications
+   * @example { allow_signup: 'true' }
    */
   authorizationParams?: Record<string, string>
+
   /**
    * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
-   * @default process.env.NUXT_OAUTH_LINKEDIN_REDIRECT_URL or current URL
+   * @default process.env.NUXT_OAUTH_GITLAB_REDIRECT_URL
    */
   redirectURL?: string
 }
 
-export function defineOAuthLinkedInEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLinkedInConfig>) {
+export function defineOAuthGitLabEventHandler({
+  config,
+  onSuccess,
+  onError,
+}: OAuthConfig<OAuthGitLabConfig>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.linkedin, {
-      authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
-      tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
+    config = defu(config, useRuntimeConfig(event).oauth?.gitlab, {
+      authorizationURL: 'https://gitlab.com/oauth/authorize',
+      tokenURL: 'https://gitlab.com/oauth/token',
       authorizationParams: {},
-    }) as OAuthLinkedInConfig
-    const query = getQuery<{ code?: string }>(event)
+    }) as OAuthGitLabConfig
+
+    const query = getQuery<{ code?: string, error?: string }>(event)
+
+    if (query.error) {
+      const error = createError({
+        statusCode: 401,
+        message: `GitLab login failed: ${query.error || 'Unknown error'}`,
+        data: query,
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
 
     if (!config.clientId || !config.clientSecret) {
-      return handleMissingConfiguration(event, 'linkedin', ['clientId', 'clientSecret'], onError)
+      return handleMissingConfiguration(
+        event,
+        'gitlab',
+        ['clientId', 'clientSecret'],
+        onError,
+      )
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
@@ -69,12 +99,12 @@ export function defineOAuthLinkedInEventHandler({ config, onSuccess, onError }: 
     if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.length) {
-        config.scope.push('profile', 'openid', 'email')
+        config.scope.push('read_user')
       }
       if (config.emailRequired && !config.scope.includes('email')) {
         config.scope.push('email')
       }
-      // Redirect to LinkedIn Oauth page
+
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
@@ -90,30 +120,29 @@ export function defineOAuthLinkedInEventHandler({ config, onSuccess, onError }: 
     const tokens = await requestAccessToken(config.tokenURL as string, {
       body: {
         grant_type: 'authorization_code',
-        code: query.code as string,
         client_id: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
+        code: query.code,
       },
     })
 
     if (tokens.error) {
-      return handleAccessTokenErrorResponse(event, 'linkedin', tokens, onError)
+      return handleAccessTokenErrorResponse(event, 'gitlab', tokens, onError)
     }
 
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch('https://api.linkedin.com/v2/userinfo', {
+    const user: any = await $fetch('https://gitlab.com/api/v4/user', {
       headers: {
-        'user-agent': 'Nuxt Auth Utils',
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
 
     return onSuccess(event, {
-      tokens,
       user,
+      tokens,
     })
   })
 }

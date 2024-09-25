@@ -3,26 +3,30 @@ import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
+import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
-export interface OAuthLinkedInConfig {
+export interface OAuthDropboxConfig {
   /**
-   * LinkedIn OAuth Client ID
-   * @default process.env.NUXT_OAUTH_LINKEDIN_CLIENT_ID
+   * Dropbox Client ID
+   * @default process.env.NUXT_OAUTH_DROPBOX_CLIENT_ID
    */
   clientId?: string
+
   /**
-   * LinkedIn OAuth Client Secret
-   * @default process.env.NUXT_OAUTH_LINKEDIN_CLIENT_SECRET
+   * Dropbox OAuth Client Secret
+   * @default process.env.NUXT_OAUTH_DROPBOX_CLIENT_SECRET
    */
   clientSecret?: string
+
   /**
-   * LinkedIn OAuth Scope
-   * @default ['openid', 'profile', 'email']
-   * @example ['openid', 'profile']
+   * Dropbox OAuth Scope
+   * @default []
+   * @see https://developers.dropbox.com/oauth-guide#dropbox-api-permissions
+   * @example ['email', 'profile']
    */
   scope?: string[]
+
   /**
    * Require email from user, adds the ['email'] scope if not present
    * @default false
@@ -30,51 +34,55 @@ export interface OAuthLinkedInConfig {
   emailRequired?: boolean
 
   /**
-   * LinkedIn OAuth Authorization URL
-   * @default 'https://www.linkedin.com/oauth/v2/authorization'
+   * Dropbox OAuth Authorization URL
+   * @default 'https://www.dropbox.com/oauth2/authorize'
    */
   authorizationURL?: string
+
   /**
-   * LinkedIn OAuth Token URL
-   * @default 'https://www.linkedin.com/oauth/v2/accessToken'
+   * Dropbox OAuth Token URL
+   * @default 'https://api.dropboxapi.com/oauth2/token'
    */
   tokenURL?: string
+
   /**
    * Extra authorization parameters to provide to the authorization URL
-   * @see https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?context=linkedin/context
+   * @see https://www.dropbox.com/developers/documentation/http/documentation#authorization
+   * @example { locale: 'en-US' }
    */
   authorizationParams?: Record<string, string>
   /**
    * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
-   * @default process.env.NUXT_OAUTH_LINKEDIN_REDIRECT_URL or current URL
+   * @default process.env.NUXT_OAUTH_DROPBOX_REDIRECT_URL or current URL
    */
   redirectURL?: string
 }
 
-export function defineOAuthLinkedInEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLinkedInConfig>) {
+export function defineOAuthDropboxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDropboxConfig>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.linkedin, {
-      authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
-      tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
+    config = defu(config, useRuntimeConfig(event).oauth?.dropbox, {
+      authorizationURL: 'https://www.dropbox.com/oauth2/authorize',
+      tokenURL: 'https://api.dropboxapi.com/oauth2/token',
       authorizationParams: {},
-    }) as OAuthLinkedInConfig
+    }) as OAuthDropboxConfig
+
     const query = getQuery<{ code?: string }>(event)
 
-    if (!config.clientId || !config.clientSecret) {
-      return handleMissingConfiguration(event, 'linkedin', ['clientId', 'clientSecret'], onError)
+    if (!config.clientId) {
+      return handleMissingConfiguration(event, 'dropbox', ['clientId'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
-
     if (!query.code) {
       config.scope = config.scope || []
-      if (!config.scope.length) {
-        config.scope.push('profile', 'openid', 'email')
+      if (!config.scope.includes('openid')) {
+        config.scope.push('openid')
       }
       if (config.emailRequired && !config.scope.includes('email')) {
         config.scope.push('email')
       }
-      // Redirect to LinkedIn Oauth page
+
+      // Redirect to Dropbox Oauth page
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
@@ -88,28 +96,42 @@ export function defineOAuthLinkedInEventHandler({ config, onSuccess, onError }: 
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
-      body: {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
+      },
+      params: {
         grant_type: 'authorization_code',
-        code: query.code as string,
-        client_id: config.clientId,
-        client_secret: config.clientSecret,
         redirect_uri: redirectURL,
+        code: query.code,
       },
     })
 
     if (tokens.error) {
-      return handleAccessTokenErrorResponse(event, 'linkedin', tokens, onError)
+      return handleAccessTokenErrorResponse(event, 'dropbox', tokens, onError)
     }
 
     const accessToken = tokens.access_token
+
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch('https://api.linkedin.com/v2/userinfo', {
+    const users: any = await $fetch('https://api.dropboxapi.com/2/openid/userinfo', {
+      method: 'POST',
       headers: {
-        'user-agent': 'Nuxt Auth Utils',
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
+
+    const user = users
+
+    if (!user) {
+      const error = createError({
+        statusCode: 500,
+        message: 'Could not get Dropbox user',
+        data: tokens,
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
 
     return onSuccess(event, {
       tokens,

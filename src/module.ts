@@ -26,7 +26,9 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    nuxt.options.alias['#auth-utils'] = resolver.resolve('./runtime/types/index')
+    nuxt.options.alias['#auth-utils'] = resolver.resolve(
+      './runtime/types/index',
+    )
 
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
@@ -50,7 +52,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
-    const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
+    const envSessionPassword = `${
+      runtimeConfig.nitro?.envPrefix || 'NUXT_'
+    }SESSION_PASSWORD`
 
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
@@ -69,7 +73,9 @@ export default defineNuxtModule<ModuleOptions>({
       if (!envContent.includes(envSessionPassword)) {
         await writeFile(
           envPath,
-          `${envContent ? envContent + '\n' : envContent}${envSessionPassword}=${runtimeConfig.session.password}`,
+          `${
+            envContent ? envContent + '\n' : envContent
+          }${envSessionPassword}=${runtimeConfig.session.password}`,
           'utf-8',
         )
       }
@@ -79,6 +85,12 @@ export default defineNuxtModule<ModuleOptions>({
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // GitHub OAuth
+    runtimeConfig.oauth.gitlab = defu(runtimeConfig.oauth.gitlab, {
       clientId: '',
       clientSecret: '',
       redirectURL: '',
@@ -160,6 +172,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Instagram OAuth
+    runtimeConfig.oauth.instagram = defu(runtimeConfig.oauth.instagram, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
     // PayPal OAuth
     runtimeConfig.oauth.paypal = defu(runtimeConfig.oauth.paypal, {
       clientId: '',
@@ -184,8 +202,26 @@ export default defineNuxtModule<ModuleOptions>({
       domain: '',
       redirectURL: '',
     })
+    // VK OAuth
+    runtimeConfig.oauth.vk = defu(runtimeConfig.oauth.vk, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
     // Yandex OAuth
     runtimeConfig.oauth.yandex = defu(runtimeConfig.oauth.yandex, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // TikTok OAuth
+    runtimeConfig.oauth.tiktok = defu(runtimeConfig.oauth.tiktok, {
+      clientKey: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // Dropbox OAuth
+    runtimeConfig.oauth.dropbox = defu(runtimeConfig.oauth.dropbox, {
       clientId: '',
       clientSecret: '',
       redirectURL: '',

@@ -6,42 +6,42 @@ import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRed
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
-export interface OAuthFacebookConfig {
+export interface OAuthInstagramConfig {
   /**
-   * Facebook OAuth Client ID
-   * @default process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID
+   * Instagram OAuth Client ID
+   * @default process.env.NUXT_OAUTH_INSTAGRAM_CLIENT_ID
    */
   clientId?: string
   /**
-   * Facebook OAuth Client Secret
-   * @default process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET
+   * Instagram OAuth Client Secret
+   * @default process.env.NUXT_OAUTH_INSTAGRAM_CLIENT_SECRET
    */
   clientSecret?: string
   /**
-   * Facebook OAuth Scope
-   * @default []
-   * @see https://developers.facebook.com/docs/permissions
-   * @example [ 'email' ],
+   * Instagram OAuth Scope
+   * @default [ 'user_profile' ]
+   * @see https://developers.facebook.com/docs/instagram-basic-display-api/overview#permissions
+   * @example [ 'user_profile', 'user_media' ],
    */
   scope?: string[]
 
   /**
-   * Facebook OAuth User Fields
-   * @default [ 'id', 'name'],
-   * @see https://developers.facebook.com/docs/graph-api/guides/field-expansion
-   * @example [ 'id', 'name', 'email' ],
+   * Instagram OAuth User Fields
+   * @default [ 'id', 'username'],
+   * @see https://developers.facebook.com/docs/instagram-basic-display-api/reference/user#fields
+   * @example [ 'id', 'username', 'account_type', 'media_count' ],
    */
   fields?: string[]
 
   /**
-   * Facebook OAuth Authorization URL
-   * @default 'https://www.facebook.com/v19.0/dialog/oauth'
+   * Instagram OAuth Authorization URL
+   * @default 'https://api.instagram.com/oauth/authorize'
    */
   authorizationURL?: string
 
   /**
-   * Facebook OAuth Token URL
-   * @default 'https://graph.facebook.com/v19.0/oauth/access_token'
+   * Instagram OAuth Token URL
+   * @default 'https://api.instagram.com/oauth/access_token'
    */
   tokenURL?: string
 
@@ -52,29 +52,30 @@ export interface OAuthFacebookConfig {
   authorizationParams?: Record<string, string>
   /**
    * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
-   * @default process.env.NUXT_OAUTH_FACEBOOK_REDIRECT_URL or current URL
+   * @default process.env.NUXT_OAUTH_INSTAGRAM_REDIRECT_URL or current URL
    */
   redirectURL?: string
 }
 
-export function defineOAuthFacebookEventHandler({
+export function defineOAuthInstagramEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthFacebookConfig>) {
+}: OAuthConfig<OAuthInstagramConfig>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.facebook, {
-      authorizationURL: 'https://www.facebook.com/v19.0/dialog/oauth',
-      tokenURL: 'https://graph.facebook.com/v19.0/oauth/access_token',
+    config = defu(config, useRuntimeConfig(event).oauth?.instagram, {
+      scope: ['user_profile'],
+      authorizationURL: 'https://api.instagram.com/oauth/authorize',
+      tokenURL: 'https://api.instagram.com/oauth/access_token',
       authorizationParams: {},
-    }) as OAuthFacebookConfig
+    }) as OAuthInstagramConfig
 
     const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
         statusCode: 401,
-        message: `Facebook login failed: ${query.error || 'Unknown error'}`,
+        message: `Instagram login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
       if (!onError) throw error
@@ -82,20 +83,21 @@ export function defineOAuthFacebookEventHandler({
     }
 
     if (!config.clientId) {
-      return handleMissingConfiguration(event, 'facebook', ['clientId'], onError)
+      return handleMissingConfiguration(event, 'instagram', ['clientId'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
       config.scope = config.scope || []
-      // Redirect to Facebook Oauth page
+      // Redirect to Instagram Oauth page
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
+          response_type: 'code',
         }),
       )
     }
@@ -111,21 +113,21 @@ export function defineOAuthFacebookEventHandler({
     })
 
     if (tokens.error) {
-      return handleAccessTokenErrorResponse(event, 'facebook', tokens, onError)
+      return handleAccessTokenErrorResponse(event, 'instagram', tokens, onError)
     }
 
     const accessToken = tokens.access_token
     // TODO: improve typing
 
-    config.fields = config.fields || ['id', 'name']
+    config.fields = config.fields || ['id', 'username']
     const fields = config.fields.join(',')
 
     const user = await $fetch(
-      `https://graph.facebook.com/v19.0/me?fields=${fields}&access_token=${accessToken}`,
+      `https://graph.instagram.com/v20.0/me?fields=${fields}&access_token=${accessToken}`,
     )
 
     if (!user) {
-      throw new Error('Facebook login failed: no user found')
+      throw new Error('Instagram login failed: no user found')
     }
 
     return onSuccess(event, {

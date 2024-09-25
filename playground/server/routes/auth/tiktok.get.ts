@@ -1,11 +1,8 @@
-export default defineOAuthAuth0EventHandler({
-  config: {
-    emailRequired: true,
-  },
+export default defineOAuthTikTokEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        auth0: user.email,
+        tiktok: user.display_name,
       },
       loggedInAt: Date.now(),
     })

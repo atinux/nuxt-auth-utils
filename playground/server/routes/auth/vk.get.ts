@@ -1,11 +1,8 @@
-export default defineOAuthAuth0EventHandler({
-  config: {
-    emailRequired: true,
-  },
+export default defineOAuthVKEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        auth0: user.email,
+        vk: user.user.email,
       },
       loggedInAt: Date.now(),
     })

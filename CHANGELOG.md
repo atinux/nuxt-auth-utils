@@ -1,6 +1,100 @@
 # Changelog
 
 
+## v0.3.9
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.8...v0.3.9)
+
+### 🩹 Fixes
+
+- UserSession secure type augmentation ([#181](https://github.com/Atinux/nuxt-auth-utils/pull/181))
+
+### 🏡 Chore
+
+- Update deps ([4a0e1e9](https://github.com/Atinux/nuxt-auth-utils/commit/4a0e1e9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Israel Ortuño <ai.ortuno@gmail.com>
+
+## v0.3.8
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.7...v0.3.8)
+
+### 🚀 Enhancements
+
+- Add Gitlab provider ([fec746f](https://github.com/Atinux/nuxt-auth-utils/commit/fec746f))
+- Add instagram provider ([3bd553c](https://github.com/Atinux/nuxt-auth-utils/commit/3bd553c))
+- Add vk provider ([6581f12](https://github.com/Atinux/nuxt-auth-utils/commit/6581f12))
+- Add support for private data & config argument ([#171](https://github.com/Atinux/nuxt-auth-utils/pull/171))
+
+### 🩹 Fixes
+
+- Ensure plugin declaration files are emitted ([#170](https://github.com/Atinux/nuxt-auth-utils/pull/170))
+
+### 📖 Documentation
+
+- Add note about cookie size ([a725436](https://github.com/Atinux/nuxt-auth-utils/commit/a725436))
+- Add note to readme about session API route ([ddf38c1](https://github.com/Atinux/nuxt-auth-utils/commit/ddf38c1))
+
+### 🏡 Chore
+
+- Add emailRequired for testing Gitlab ([408b580](https://github.com/Atinux/nuxt-auth-utils/commit/408b580))
+- Up ([bd37690](https://github.com/Atinux/nuxt-auth-utils/commit/bd37690))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Alex Blumgart <dev.blumgart@yandex.ru>
+- Sandro Circi ([@sandros94](http://github.com/sandros94))
+- Rudo Kemper ([@rudokemper](http://github.com/rudokemper))
+
+## v0.3.7
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.6...v0.3.7)
+
+### 🩹 Fixes
+
+- Paypal tokens request requires encoded `redirect_uri` ([8bf3b0b](https://github.com/Atinux/nuxt-auth-utils/commit/8bf3b0b))
+
+### 🏡 Chore
+
+- Update deps ([50aba8d](https://github.com/Atinux/nuxt-auth-utils/commit/50aba8d))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Yizack Rangel ([@Yizack](http://github.com/Yizack))
+
+## v0.3.6
+
+[compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.5...v0.3.6)
+
+### 🚀 Enhancements
+
+- Add tiktok provider ([c1b1f44](https://github.com/Atinux/nuxt-auth-utils/commit/c1b1f44))
+
+### 💅 Refactors
+
+- Request token ([925f688](https://github.com/Atinux/nuxt-auth-utils/commit/925f688))
+
+### 📖 Documentation
+
+- Fix typo ([8d3af7e](https://github.com/Atinux/nuxt-auth-utils/commit/8d3af7e))
+
+### 🏡 Chore
+
+- Update deps ([c4189b2](https://github.com/Atinux/nuxt-auth-utils/commit/c4189b2))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Estéban <e.soubiran25@gmail.com>
+- Ivailo Panamski <ipanamski@gmail.com>
+
 ## v0.3.5
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.4...v0.3.5)
