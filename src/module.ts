@@ -12,9 +12,28 @@ import {
 import { join } from 'pathe'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
+import type { ScryptConfig } from '@adonisjs/hash/types'
 
 // Module options TypeScript interface definition
-export interface ModuleOptions {}
+export interface ModuleOptions {
+  /**
+   * Hash options used for password hashing
+   */
+  hash?: {
+    /**
+     * scrypt options used for password hashing
+     */
+    scrypt?: ScryptConfig
+  }
+}
+
+declare module 'nuxt/schema' {
+  interface RuntimeConfig {
+    hash: {
+      scrypt: ScryptConfig
+    }
+  }
+}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -22,7 +41,11 @@ export default defineNuxtModule<ModuleOptions>({
     configKey: 'auth',
   },
   // Default configuration options of the Nuxt module
-  defaults: {},
+  defaults: {
+    hash: {
+      scrypt: {},
+    },
+  },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
@@ -50,6 +73,13 @@ export default defineNuxtModule<ModuleOptions>({
       route: '/api/_auth/session',
       method: 'get',
     })
+    // Set node:crypto as unenv external
+    nuxt.options.nitro.unenv ||= {}
+    nuxt.options.nitro.unenv.external ||= []
+    if (!nuxt.options.nitro.unenv.external.includes('node:crypto')) {
+      nuxt.options.nitro.unenv.external.push('node:crypto')
+    }
+    console.log(nuxt.options.nitro.unenv)
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
@@ -63,6 +93,10 @@ export default defineNuxtModule<ModuleOptions>({
       cookie: {
         sameSite: 'lax',
       },
+    })
+
+    runtimeConfig.hash = defu(runtimeConfig.hash, {
+      scrypt: options.hash?.scrypt,
     })
 
     // Generate the session password

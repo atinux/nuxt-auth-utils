@@ -154,6 +154,8 @@ const providers = computed(() =>
           #default="{ loggedIn, clear }"
         >
           <WebauthnModal />
+          <AuthRegister v-if="!loggedIn" />
+          <AuthLogin v-if="!loggedIn" />
           <PasswordModal />
           <UDropdown :items="[providers]">
             <UButton

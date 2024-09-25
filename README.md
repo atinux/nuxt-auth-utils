@@ -255,6 +255,33 @@ Make sure to set the callback URL in your OAuth app settings as `<your-domain>/a
 
 If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
 
+### Password Utils
+
+Nuxt Auth Utils provides a `hashPassword` and `verifyPassword` function to hash and verify passwords by using [scrypt](https://en.wikipedia.org/wiki/Scrypt) as it is supported in many JS runtime.
+
+```ts
+const hashedPassword = await hashPassword('user_password')
+
+if (await verifyPassword(hashedPassword, 'user_password')) {
+  // Password is valid
+}
+```
+
+You can configure the scrypt options in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-auth-utils'],
+  auth: {
+    hash: {
+      scrypt: {
+        // See https://github.com/adonisjs/hash/blob/94637029cd526783ac0a763ec581306d98db2036/src/types.ts#L144
+      }
+    }
+  }
+})
+```
+
 ### Webauthn (passkey)
 
 WebAuthn (Web Authentication) is a web standard that enhances security by replacing passwords with passkeys using public key cryptography. Users can authenticate with biometric data (like fingerprints or facial recognition) or physical devices (like USB keys), reducing the risk of phishing and password breaches. This approach offers a more secure and user-friendly authentication method, supported by major browsers and platforms.
@@ -262,6 +289,7 @@ WebAuthn (Web Authentication) is a web standard that enhances security by replac
 #### Example
 
 In this example we will implement the very basic steps to register and authenticate a credential.
+
 The full code can be found in the [playground](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn). The example uses a SQLite database with the following minimal tables:
 
 ```sql
@@ -287,7 +315,9 @@ CREATE TABLE credentials (
   - The credential `transports`. It is an array of strings that indicate how the credential communicates with the client. It is used to show the correct UI for the user to utilize the credential. Again, see [this section](https://arc.net/l/quote/ycxtiorp) for more details.
 
 The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/login.post.ts).
+
 ```ts
+// server/api/webauthn/register.post.ts
 export default defineCredentialRegistrationEventHandler({
   async onSuccess(event, { authenticator, userName }) {
     // The credential creation has been successful
@@ -362,6 +392,7 @@ export default defineCredentialAuthenticationEventHandler({
     return {
       allowCredentials: credentials,
     }
+    // example: allowCredentials: [{ id: '...', transports: ['internal', 'usb'] }]
   },
 })
 ```
@@ -572,7 +603,7 @@ npm run release
 [npm-version-href]: https://npmjs.com/package/nuxt-auth-utils
 
 [npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-auth-utils.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npmjs.com/package/nuxt-auth-utils
+[npm-downloads-href]: https://npm.chart.dev/nuxt-auth-utils
 
 [license-src]: https://img.shields.io/npm/l/nuxt-auth-utils.svg?style=flat&colorA=020420&colorB=00DC82
 [license-href]: https://npmjs.com/package/nuxt-auth-utils
