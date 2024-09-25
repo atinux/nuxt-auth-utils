@@ -26,6 +26,9 @@ jobs:
       - name: Lint (code)
         run: pnpm lint:fix
 
+      - name: prepare
+        run: pnpm dev:prepare
+
       - name: Release PR version
         run: pnpm dlx pkg-pr-new publish
 
