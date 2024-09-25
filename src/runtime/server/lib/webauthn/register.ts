@@ -7,7 +7,7 @@ import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
-import type { CredentialRegistrationEventHandlerOptions } from '#auth-utils'
+import type { WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 
 type RegistrationBody = {
   userName: string
@@ -27,7 +27,7 @@ export function defineWebAuthnRegisterEventHandler({
   getOptions,
   onSuccess,
   onError,
-}: CredentialRegistrationEventHandlerOptions) {
+}: WebAuthnRegisterEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody>(event)

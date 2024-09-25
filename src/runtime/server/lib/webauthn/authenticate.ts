@@ -7,7 +7,7 @@ import { getRandomValues } from 'uncrypto'
 import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
 import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
-import type { CredentialAuthenticationEventHandlerOptions } from '#auth-utils'
+import type { WebAuthnAuthenticateEventHandlerOptions } from '#auth-utils'
 
 type AuthenticationBody = {
   verify: false
@@ -26,7 +26,7 @@ export function defineWebAuthnAuthenticateEventHandler({
   getOptions,
   onSuccess,
   onError,
-}: CredentialAuthenticationEventHandlerOptions) {
+}: WebAuthnAuthenticateEventHandlerOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<AuthenticationBody>(event)

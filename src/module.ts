@@ -137,13 +137,10 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // WebAuthn settings
-    if (options.webAuthn) {
-      // @ts-expect-error typing error
-      runtimeConfig.webauthn = defu(runtimeConfig.webauthn, {
-        register: {},
-        authenticate: {},
-      })
-    }
+    runtimeConfig.webauthn = defu(runtimeConfig.webauthn, {
+      register: {},
+      authenticate: {},
+    })
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
