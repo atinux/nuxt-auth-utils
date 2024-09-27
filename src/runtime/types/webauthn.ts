@@ -63,11 +63,11 @@ export interface WebAuthnComposable {
   isPlatformAvailable: () => Promise<boolean>
   /**
    * Register a credential
-   * @param userName The user name to register
-   * @param displayName The display name to register
+   * @param data.userName The user name to register
+   * @param data.displayName The display name to register
    * @returns true if the registration was successful
    */
-  register: (userName: string, displayName?: string) => Promise<boolean>
+  register: <T extends { userName: string, displayName?: string }>(data: T) => Promise<boolean>
   /**
    * Authenticate a credential
    * @returns true if the authentication was successful

@@ -11,7 +11,7 @@ const { register, authenticate, isSupported } = useWebAuthn()
 async function signUp() {
   if (logging.value || !userName.value) return
   logging.value = true
-  await register(userName.value, displayName.value)
+  await register({ userName: userName.value, displayName: displayName.value })
     .then(() => {
       fetch()
       show.value = false

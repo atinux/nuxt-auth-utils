@@ -33,12 +33,11 @@ export function useWebAuthn(options: {
   authenticateEndpoint?: string
 } = {}): WebAuthnComposable {
   const { registerEndpoint = '/api/webauthn/register', authenticateEndpoint = '/api/webauthn/authenticate' } = options
-  async function register(userName: string, displayName?: string) {
+  async function register(data: { userName: string, displayName?: string }) {
     const { creationOptions, attemptId } = await $fetch<RegistrationInitResponse>(registerEndpoint, {
       method: 'POST',
       body: {
-        userName,
-        displayName,
+        ...data,
         verify: false,
       },
     })
@@ -47,9 +46,8 @@ export function useWebAuthn(options: {
     const verificationResponse = await $fetch<VerifiedRegistrationResponse>(registerEndpoint, {
       method: 'POST',
       body: {
+        ...data,
         attemptId,
-        userName,
-        displayName,
         response: attestationResponse,
         verify: true,
       },
