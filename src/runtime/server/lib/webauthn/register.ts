@@ -41,7 +41,7 @@ export function defineWebAuthnRegisterEventHandler({
         throw createError({
           status: 400,
           statusMessage: 'User Validation Error',
-          message: error?.message || 'User Validation Error',
+          message: 'User Validation Error',
           data: error,
         })
       })
