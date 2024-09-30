@@ -1,6 +1,41 @@
 # Changelog
 
 
+## v0.4.0
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.3.9...v0.4.0)
+
+### 🚀 Enhancements
+
+- Add Dropbox as supported oauth provider ([#183](https://github.com/atinux/nuxt-auth-utils/pull/183))
+- ⚠️  Call `fetch` hook if session is not empty instead of user defined ([#188](https://github.com/atinux/nuxt-auth-utils/pull/188))
+- ⚠️  Rename `oauth<Provider>EventHandler` to`defineOAuth<Provider>EventHandler` ([#189](https://github.com/atinux/nuxt-auth-utils/pull/189))
+- Add `hashPassword` & `verifyPassword` server utils ([0c4d050](https://github.com/atinux/nuxt-auth-utils/commit/0c4d050))
+- Webauthn (passkey) support ([a90b173](https://github.com/atinux/nuxt-auth-utils/commit/a90b173))
+
+### 🩹 Fixes
+
+- **steam:** Improve open id validation ([#184](https://github.com/atinux/nuxt-auth-utils/pull/184))
+
+### 🏡 Chore
+
+- Add state params in Google oauth ([f75e680](https://github.com/atinux/nuxt-auth-utils/commit/f75e680))
+- Update deps ([5ae49ae](https://github.com/atinux/nuxt-auth-utils/commit/5ae49ae))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Call `fetch` hook if session is not empty instead of user defined ([#188](https://github.com/atinux/nuxt-auth-utils/pull/188))
+- ⚠️  Rename `oauth<Provider>EventHandler` to`defineOAuth<Provider>EventHandler` ([#189](https://github.com/atinux/nuxt-auth-utils/pull/189))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Gerben Mulder <github.undergo381@passmail.net>
+- Julian Renard <renard.julian@gmail.com>
+- Estéban <e.soubiran25@gmail.com>
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Yizack Rangel ([@Yizack](http://github.com/Yizack))
+
 ## v0.3.9
 
 [compare changes](https://github.com/Atinux/nuxt-auth-utils/compare/v0.3.8...v0.3.9)
