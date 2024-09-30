@@ -6,7 +6,6 @@ import defu from 'defu'
 import type { RegistrationResponseJSON } from '@simplewebauthn/types'
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
-import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 
@@ -52,16 +51,19 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
       },
     } satisfies GenerateRegistrationOptionsOpts)
 
+    if (!storeChallenge) {
+      _config.challenge = ''
+    }
+
     try {
       if (!body.verify) {
         const options = await generateRegistrationOptions(_config as GenerateRegistrationOptionsOpts)
         const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
 
         // If the developer has stricter storage requirements, they can implement their own storeChallenge function to store the options in a database or KV store
-        if (storeChallenge)
-          await storeChallenge?.(event, options.challenge, attemptId)
-        else
-          await storeChallengeAsSession(event, options.challenge, attemptId)
+        if (storeChallenge) {
+          await storeChallenge(event, options.challenge, attemptId)
+        }
 
         return {
           creationOptions: options,
@@ -76,11 +78,10 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
         })
       }
 
-      let expectedChallenge: string
-      if (getChallenge)
+      let expectedChallenge = ''
+      if (getChallenge) {
         expectedChallenge = await getChallenge(event, body.attemptId)
-      else
-        expectedChallenge = await getChallengeFromSession(event, body.attemptId)
+      }
 
       const verification = await verifyRegistrationResponse({
         response: body.response,

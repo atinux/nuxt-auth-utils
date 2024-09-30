@@ -5,7 +5,6 @@ import defu from 'defu'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 import { getRandomValues } from 'uncrypto'
 import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
-import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
 import type { WebAuthnAuthenticateEventHandlerOptions, WebAuthnCredential } from '#auth-utils'
 
@@ -39,15 +38,18 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
       _config.allowCredentials = await allowCredentials(event, body.userName)
     }
 
+    if (!storeChallenge) {
+      _config.challenge = ''
+    }
+
     try {
       if (!body.verify) {
         const options = await generateAuthenticationOptions(_config as GenerateAuthenticationOptionsOpts)
         const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
 
-        if (storeChallenge)
+        if (storeChallenge) {
           await storeChallenge(event, options.challenge, attemptId)
-        else
-          await storeChallengeAsSession(event, options.challenge, attemptId)
+        }
 
         return {
           requestOptions: options,
@@ -58,16 +60,15 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
       if (!body.attemptId)
         throw createError({ statusCode: 400 })
 
-      let challenge: string
-      if (getChallenge)
-        challenge = await getChallenge(event, body.attemptId)
-      else
-        challenge = await getChallengeFromSession(event, body.attemptId)
+      let expectedChallenge = ''
+      if (getChallenge) {
+        expectedChallenge = await getChallenge(event, body.attemptId)
+      }
 
       const credential = await getCredential(event, body.response.id)
       const verification = await verifyAuthenticationResponse({
         response: body.response,
-        expectedChallenge: challenge,
+        expectedChallenge,
         expectedOrigin: url.origin,
         expectedRPID: url.hostname,
         authenticator: {
