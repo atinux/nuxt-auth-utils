@@ -483,6 +483,12 @@ async function signIn() {
 
 Take a look at the [`WebAuthnModal.vue`](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/components/WebAuthnModal.vue) for a full example.
 
+#### Demo
+
+A full demo can be found on https://todo-passkeys.nuxt.dev using [Drizzle ORM](https://orm.drizzle.team/) and [NuxtHub](https://hub.nuxt.com).
+
+The source code of the demo is available on https://github.com/atinux/todo-passkeys.
+
 ### Extend Session
 
 We leverage hooks to let you extend the session data with your own data or log when the user clears the session.
