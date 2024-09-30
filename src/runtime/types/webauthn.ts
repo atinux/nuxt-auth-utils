@@ -47,7 +47,7 @@ export type WebAuthnAuthenticateEventHandlerOptions = WebAuthnEventHandlerBase<{
   authenticationInfo: Exclude<VerifiedAuthenticationResponse['authenticationInfo'], undefined>
 }> & {
   getOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
-  getCredential: (event: H3Event, credentialID: string) => WebAuthnAuthenticatorDevice | Promise<WebAuthnAuthenticatorDevice>
+  getCredential: (event: H3Event, credentialID: string) => WebAuthnCredential | Promise<WebAuthnCredential>
 }
 
 export interface WebAuthnComposable {
