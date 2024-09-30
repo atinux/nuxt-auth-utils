@@ -38,21 +38,21 @@ type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
 
-export type WebAuthnRegisterEventHandlerOptions = WebAuthnEventHandlerBase<{
-  user: WebAuthnUser
+export type WebAuthnRegisterEventHandlerOptions<T extends WebAuthnUser> = WebAuthnEventHandlerBase<{
+  user: T
   credential: WebAuthnCredential
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
   getOptions?: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
-  validateUser?: ValidateFunction<WebAuthnUser>
+  validateUser?: ValidateFunction<T>
 }
 
-export type WebAuthnAuthenticateEventHandlerOptions = WebAuthnEventHandlerBase<{
-  credential: WebAuthnCredential
+export type WebAuthnAuthenticateEventHandlerOptions<T extends WebAuthnCredential> = WebAuthnEventHandlerBase<{
+  credential: T
   authenticationInfo: Exclude<VerifiedAuthenticationResponse['authenticationInfo'], undefined>
 }> & {
   getOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
-  getCredential: (event: H3Event, credentialID: string) => WebAuthnCredential | Promise<WebAuthnCredential>
+  getCredential: (event: H3Event, credentialID: string) => T | Promise<T>
   allowCredentials?: (event: H3Event, userName: string) => AllowCredentials | Promise<AllowCredentials>
 }
 

@@ -10,27 +10,27 @@ import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 
-type RegistrationBody = {
-  user: WebAuthnUser
+type RegistrationBody<T extends WebAuthnUser> = {
+  user: T
   verify: false
 } | {
-  user: WebAuthnUser
+  user: T
   verify: true
   attemptId: string
   response: RegistrationResponseJSON
 }
 
-export function defineWebAuthnRegisterEventHandler({
+export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   storeChallenge,
   getChallenge,
   getOptions,
   validateUser,
   onSuccess,
   onError,
-}: WebAuthnRegisterEventHandlerOptions) {
+}: WebAuthnRegisterEventHandlerOptions<T>) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
-    const body = await readBody<RegistrationBody>(event)
+    const body = await readBody<RegistrationBody<T>>(event)
     if (body.verify === undefined || !body.user?.userName)
       throw createError({
         message: 'Invalid request, missing userName or verify property',
@@ -39,7 +39,7 @@ export function defineWebAuthnRegisterEventHandler({
 
     let user = body.user
     if (validateUser) {
-      user = await validateUserData<WebAuthnUser>(body.user, validateUser)
+      user = await validateUserData<T>(body.user, validateUser)
     }
 
     const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.register, {
