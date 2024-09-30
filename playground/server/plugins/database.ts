@@ -12,11 +12,11 @@ export default defineNitroPlugin(async () => {
   await db.sql`
     CREATE TABLE IF NOT EXISTS credentials (
       userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
-      credentialID TEXT UNIQUE NOT NULL,
-      credentialPublicKey TEXT NOT NULL,
+      id TEXT UNIQUE NOT NULL,
+      publicKey TEXT NOT NULL,
       counter INTEGER NOT NULL,
       backedUp INTEGER NOT NULL,
       transports TEXT NOT NULL,
-      PRIMARY KEY ("userId", "credentialID")
+      PRIMARY KEY ("userId", "id")
     )`
 })

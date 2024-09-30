@@ -59,17 +59,17 @@ export function defineWebAuthnAuthenticateEventHandler({
       else
         challenge = await getChallengeFromSession(event, body.attemptId)
 
-      const authenticator = await getCredential(event, body.response.id)
+      const credential = await getCredential(event, body.response.id)
       const verification = await verifyAuthenticationResponse({
         response: body.response,
         expectedChallenge: challenge,
         expectedOrigin: url.origin,
         expectedRPID: url.hostname,
         authenticator: {
-          credentialID: authenticator.credentialID,
-          credentialPublicKey: new Uint8Array(base64URLStringToBuffer(authenticator.credentialPublicKey)),
-          counter: authenticator.counter,
-          transports: authenticator.transports,
+          credentialID: credential.id,
+          credentialPublicKey: new Uint8Array(base64URLStringToBuffer(credential.publicKey)),
+          counter: credential.counter,
+          transports: credential.transports,
         },
       })
 
@@ -77,7 +77,7 @@ export function defineWebAuthnAuthenticateEventHandler({
         throw createError({ statusCode: 400, message: 'Failed to verify registration response' })
 
       await onSuccess(event, {
-        authenticator,
+        credential,
         authenticationInfo: verification.authenticationInfo!,
       })
       return verification

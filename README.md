@@ -320,22 +320,22 @@ CREATE TABLE users (
 
 CREATE TABLE IF NOT EXISTS credentials (
   userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
-  credentialID TEXT UNIQUE NOT NULL,
-  credentialPublicKey TEXT NOT NULL,
+  id TEXT UNIQUE NOT NULL,
+  publicKey TEXT NOT NULL,
   counter INTEGER NOT NULL,
   backedUp INTEGER NOT NULL,
   transports TEXT NOT NULL,
-  PRIMARY KEY ("userId", "credentialID")
+  PRIMARY KEY ("userId", "id")
 );
 ```
 
 - For the `users` table it is important to have a unique identifier such as a username or email (here we use email). When creating a new credential, this identifier is required and stored with the passkey on the user's device, password manager, or authenticator.
 - The `credentials` table stores:
   - The `userId` from the `users` table.
-  - The credential `ID` (as unique index)
-  - The credential `public key`
+  - The credential `id` (as unique index)
+  - The credential `publicKey`
   - A `counter`. Each time a credential is used, the counter is incremented. We can use this value to perform extra security checks. More about `counter` can be read [here](https://simplewebauthn.dev/docs/packages/server#3-post-registration-responsibilities). For this example, we won't be using the counter. But you should update the counter in your database with the new value.
-  - A `backed up` flag. Normally, credentials are stored on the generating device. When you use a password manager or authenticator, the credential is "backed up" because it can be used on multiple devices. See [this section](https://arc.net/l/quote/ugaemxot) for more details.
+  - A `backedUp` flag. Normally, credentials are stored on the generating device. When you use a password manager or authenticator, the credential is "backed up" because it can be used on multiple devices. See [this section](https://arc.net/l/quote/ugaemxot) for more details.
   - The credential `transports`. It is an array of strings that indicate how the credential communicates with the client. It is used to show the correct UI for the user to utilize the credential. Again, see [this section](https://arc.net/l/quote/ycxtiorp) for more details.
 
 The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/authenticate.post.ts) and the [database setup](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/server/plugins/database.ts).
@@ -343,7 +343,7 @@ The following code does not include the actual database queries, but shows the g
 ```ts
 // server/api/webauthn/register.post.ts
 export default defineWebAuthnRegisterEventHandler({
-  async onSuccess(event, { authenticator, user }) {
+  async onSuccess(event, { credential, user }) {
     // The credential creation has been successful
     // We need to create a user if it does not exist
     const db = useDatabase()
@@ -361,7 +361,7 @@ export default defineWebAuthnRegisterEventHandler({
     // Set the user session
     await setUserSession(event, {
       user: {
-        id: dbUser.ud
+        id: dbUser.id
       },
       loggedInAt: Date.now(),
     })
@@ -382,7 +382,7 @@ export default defineWebAuthnAuthenticateEventHandler({
 
     return credential
   },
-  async onSuccess(event, { authenticator, authenticationInfo }) {
+  async onSuccess(event, { credential, authenticationInfo }) {
     // The credential authentication has been successful
     // We can look it up in our database and get the corresponding user
     const db = useDatabase()
@@ -402,9 +402,9 @@ export default defineWebAuthnAuthenticateEventHandler({
 
   // Optionally, we can prefetch the credentials if the user gives their userName during login
   async getOptions(event) {
-    const body = await readBody(event)
+    const { userName } = await readBody(event)
     // If no userName is provided, no credentials can be returned
-    if (!body.userName || body.userName === '')
+    if (!userName)
       return {}
 
     const credentials = await useDatabase().sql`...`

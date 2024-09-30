@@ -1,5 +1,5 @@
 export default defineWebAuthnRegisterEventHandler({
-  async onSuccess(event, { authenticator, user }) {
+  async onSuccess(event, { credential, user }) {
     const db = useDatabase()
     try {
       await db.sql`BEGIN TRANSACTION`
@@ -8,23 +8,23 @@ export default defineWebAuthnRegisterEventHandler({
       await db.sql`
         INSERT INTO credentials (
           userId,
-          credentialID,
-          credentialPublicKey,
+          id,
+          publicKey,
           counter,
           backedUp,
           transports
         ) VALUES (
           ${dbUser.id},
-          ${authenticator.credentialID},
-          ${authenticator.credentialPublicKey},
-          ${authenticator.counter},
-          ${authenticator.backedUp ? 1 : 0},
-          ${JSON.stringify(authenticator.transports ?? [])}
+          ${credential.id},
+          ${credential.publicKey},
+          ${credential.counter},
+          ${credential.backedUp ? 1 : 0},
+          ${JSON.stringify(credential.transports ?? [])}
         )`
       await db.sql`COMMIT`
       await setUserSession(event, {
         user: {
-          webauthn: user.email,
+          webauthn: dbUser.email,
         },
         loggedInAt: Date.now(),
       })

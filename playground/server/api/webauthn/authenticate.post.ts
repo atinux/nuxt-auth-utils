@@ -1,16 +1,16 @@
 interface Credential {
   userId: number
-  credentialId: string
-  credentialPublicKey: string
+  id: string
+  publicKey: string
   counter: number
   backedUp: number
   transports: string
 }
 
 export default defineWebAuthnAuthenticateEventHandler({
-  async getCredential(_event, credentialID) {
+  async getCredential(_event, credentialId) {
     const db = useDatabase()
-    const { rows } = await db.sql<{ rows: Credential[] }>`SELECT * FROM credentials WHERE credentialID = ${credentialID}`
+    const { rows } = await db.sql<{ rows: Credential[] }>`SELECT * FROM credentials WHERE id = ${credentialId}`
 
     // The credential trying to authenticate is not registered, so there is no account to log in to
     if (!rows.length)
@@ -23,19 +23,16 @@ export default defineWebAuthnAuthenticateEventHandler({
       transports: JSON.parse(credential.transports),
     }
   },
-  async onSuccess(event, { authenticator, authenticationInfo }) {
+  async onSuccess(event, { credential, authenticationInfo }) {
     const db = useDatabase()
     const { rows } = await db.sql<{ rows: string[] }>`
-      SELECT
-        users.email as email
-      FROM
-        credentials
+      SELECT users.email
+      FROM credentials
       INNER JOIN users ON users.id = credentials.userId
-      WHERE
-        credentialID = ${authenticator.credentialID}`
+      WHERE credentials.id = ${credential.id}`
 
     // Update the counter
-    await db.sql`UPDATE credentials SET counter = ${authenticationInfo.newCounter} WHERE credentialID = ${authenticator.credentialID}`
+    await db.sql`UPDATE credentials SET counter = ${authenticationInfo.newCounter} WHERE id = ${credential.id}`
 
     const [{ email }] = rows
     await setUserSession(event, {
@@ -46,20 +43,18 @@ export default defineWebAuthnAuthenticateEventHandler({
     })
   },
   async getOptions(event) {
-    const body = await readBody(event)
+    const { userName } = await readBody(event)
+
     // If no userName is provided, no credentials can be returned
-    if (!body.userName || body.userName === '')
+    if (!userName)
       return {}
 
     const db = useDatabase()
     const { rows } = await db.sql<{ rows: { id: string }[] }>`
-      SELECT
-        credentials.credentialID as id
-      FROM
-        users
+      SELECT credentials.id
+      FROM users
       LEFT JOIN credentials ON credentials.userId = users.id
-      WHERE
-        users.email = ${body.userName}`
+      WHERE users.email = ${userName}`
 
     if (!rows.length)
       throw createError({ statusCode: 400, message: 'User not found' })

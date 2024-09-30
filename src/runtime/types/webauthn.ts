@@ -8,12 +8,13 @@ import type {
   VerifiedRegistrationResponse,
 } from '@simplewebauthn/server'
 
-export interface WebAuthnAuthenticatorDevice {
-  credentialID: string
-  credentialPublicKey: string
+export interface WebAuthnCredential {
+  id: string
+  publicKey: string
   counter: number
   backedUp: boolean
   transports?: AuthenticatorTransportFuture[]
+  [key: string]: unknown
 }
 
 // Using a discriminated union makes it such that you can only define both storeChallenge and getChallenge or neither
@@ -35,14 +36,14 @@ export type WebAuthnRegisterEventHandlerOptions = WebAuthnEventHandlerBase<{
     displayName?: string
     [key: string]: unknown
   }
-  authenticator: WebAuthnAuthenticatorDevice
+  credential: WebAuthnCredential
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
   getOptions?: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
 }
 
 export type WebAuthnAuthenticateEventHandlerOptions = WebAuthnEventHandlerBase<{
-  authenticator: WebAuthnAuthenticatorDevice
+  credential: WebAuthnCredential
   authenticationInfo: Exclude<VerifiedAuthenticationResponse['authenticationInfo'], undefined>
 }> & {
   getOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
@@ -67,14 +68,14 @@ export interface WebAuthnComposable {
   /**
    * Register a credential
    * @param user - The user data to register
-   * @param user.userName - The user name to register, can be an email address, a specific username, or any other form of unique ID chosen by the user
+   * @param user.userName - The user name to register, can be an email address, a username, or any other form of unique ID chosen by the user
    * @param user.displayName - The display name to register, used for convenience and personalization and should not be relied upon as a secure identifier for authentication processes
    * @returns true if the registration was successful
    */
   register: <T extends { userName: string, displayName?: string }>(data: T) => Promise<boolean>
   /**
    * Authenticate a credential
-   * @param userName - The user name to authenticate, can be an email address, a specific username, or any other form of unique ID chosen by the user
+   * @param userName - The user name to authenticate, can be an email address, a username, or any other form of unique ID chosen by the user
    * @returns true if the authentication was successful
    */
   authenticate: (userName?: string) => Promise<boolean>

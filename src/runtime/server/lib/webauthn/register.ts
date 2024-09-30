@@ -101,9 +101,9 @@ export function defineWebAuthnRegisterEventHandler({
 
       await onSuccess(event, {
         user: body.user,
-        authenticator: {
-          credentialID: verification.registrationInfo!.credentialID,
-          credentialPublicKey: bufferToBase64URLString(verification.registrationInfo!.credentialPublicKey),
+        credential: {
+          id: verification.registrationInfo!.credentialID,
+          publicKey: bufferToBase64URLString(verification.registrationInfo!.credentialPublicKey),
           counter: verification.registrationInfo!.counter,
           backedUp: verification.registrationInfo!.credentialBackedUp,
           transports: body.response.response.transports,
