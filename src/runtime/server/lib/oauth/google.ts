@@ -72,7 +72,7 @@ export function defineOAuthGoogleEventHandler({
       authorizationParams: {},
     }) as OAuthGoogleConfig
 
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
 
     if (!config.clientId) {
       return handleMissingConfiguration(event, 'google', ['clientId'], onError)
@@ -89,6 +89,7 @@ export function defineOAuthGoogleEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
+          state: query.state || '',
           ...config.authorizationParams,
         }),
       )
