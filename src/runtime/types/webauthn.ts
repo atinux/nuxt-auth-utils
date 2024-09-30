@@ -1,4 +1,4 @@
-import type { AuthenticatorTransportFuture, Base64URLString } from '@simplewebauthn/types'
+import type { AuthenticatorTransportFuture } from '@simplewebauthn/types'
 import type { Ref } from 'vue'
 import type { H3Event, H3Error, ValidateFunction } from 'h3'
 import type {
