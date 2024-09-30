@@ -8,7 +8,8 @@
 Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 
 - [Release Notes](/CHANGELOG.md)
-- [Demo](https://github.com/atinux/nuxt-todos-edge)
+- [Demo with OAuth](https://github.com/atinux/atidone)
+- [Demo with Passkeys](https://github.com/atinux/todo-passkeys)
 <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/nuxt-auth-utils?file=playground%2Fapp.vue) -->
 <!-- - [📖 &nbsp;Documentation](https://example.com) -->
 
