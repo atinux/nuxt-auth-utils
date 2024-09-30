@@ -23,6 +23,7 @@ export function defineWebAuthnAuthenticateEventHandler({
   storeChallenge,
   getChallenge,
   getCredential,
+  allowCredentials,
   getOptions,
   onSuccess,
   onError,
@@ -33,6 +34,10 @@ export function defineWebAuthnAuthenticateEventHandler({
     const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.authenticate, {
       rpID: url.hostname,
     } satisfies GenerateAuthenticationOptionsOpts)
+
+    if (allowCredentials && body.userName) {
+      _config.allowCredentials = await allowCredentials(event, body.userName)
+    }
 
     try {
       if (!body.verify) {

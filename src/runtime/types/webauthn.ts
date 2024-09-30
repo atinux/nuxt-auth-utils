@@ -1,6 +1,6 @@
-import type { AuthenticatorTransportFuture } from '@simplewebauthn/types'
+import type { AuthenticatorTransportFuture, Base64URLString } from '@simplewebauthn/types'
 import type { Ref } from 'vue'
-import type { H3Event, H3Error } from 'h3'
+import type { H3Event, H3Error, ValidateFunction } from 'h3'
 import type {
   GenerateAuthenticationOptionsOpts,
   GenerateRegistrationOptionsOpts,
@@ -23,6 +23,8 @@ export interface WebAuthnUser {
   [key: string]: unknown
 }
 
+type AllowCredentials = NonNullable<GenerateAuthenticationOptionsOpts['allowCredentials']>
+
 // Using a discriminated union makes it such that you can only define both storeChallenge and getChallenge or neither
 type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
   storeChallenge: (event: H3Event, challenge: string, attemptId: string) => void | Promise<void>
@@ -42,7 +44,7 @@ export type WebAuthnRegisterEventHandlerOptions = WebAuthnEventHandlerBase<{
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
   getOptions?: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
-  validateUser?: (user: WebAuthnUser) => Promise<unknown>
+  validateUser?: ValidateFunction<WebAuthnUser>
 }
 
 export type WebAuthnAuthenticateEventHandlerOptions = WebAuthnEventHandlerBase<{
@@ -51,6 +53,7 @@ export type WebAuthnAuthenticateEventHandlerOptions = WebAuthnEventHandlerBase<{
 }> & {
   getOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
   getCredential: (event: H3Event, credentialID: string) => WebAuthnCredential | Promise<WebAuthnCredential>
+  allowCredentials?: (event: H3Event, userName: string) => AllowCredentials | Promise<AllowCredentials>
 }
 
 export interface WebAuthnComposable {

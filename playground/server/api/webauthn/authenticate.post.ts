@@ -8,7 +8,19 @@ interface Credential {
 }
 
 export default defineWebAuthnAuthenticateEventHandler({
-  async getCredential(_event, credentialId) {
+  async allowCredentials(event, userName) {
+    const { rows } = await useDatabase().sql<{ rows: { id: string }[] }>`
+      SELECT credentials.id
+      FROM users
+      LEFT JOIN credentials ON credentials.userId = users.id
+      WHERE users.email = ${userName}`
+
+    if (!rows.length)
+      throw createError({ statusCode: 400, message: 'User not found' })
+
+    return rows
+  },
+  async getCredential(event, credentialId) {
     const db = useDatabase()
     const { rows } = await db.sql<{ rows: Credential[] }>`SELECT * FROM credentials WHERE id = ${credentialId}`
 
@@ -41,29 +53,5 @@ export default defineWebAuthnAuthenticateEventHandler({
       },
       loggedInAt: Date.now(),
     })
-  },
-  async getOptions(event) {
-    const { userName } = await readBody(event)
-
-    // If no userName is provided, no credentials can be returned
-    if (!userName)
-      return {}
-
-    const db = useDatabase()
-    const { rows } = await db.sql<{ rows: { id: string }[] }>`
-      SELECT credentials.id
-      FROM users
-      LEFT JOIN credentials ON credentials.userId = users.id
-      WHERE users.email = ${userName}`
-
-    if (!rows.length)
-      throw createError({ statusCode: 400, message: 'User not found' })
-
-    // If user is found, only allow credentials that are registered
-    // The browser will automatically try to use the credential that it knows about
-    // Skipping the step for the user to select a credential for a better user experience
-    return {
-      allowCredentials: rows,
-    }
   },
 })

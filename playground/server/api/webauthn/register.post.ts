@@ -1,4 +1,11 @@
+import { z } from 'zod'
+
 export default defineWebAuthnRegisterEventHandler({
+  validateUser: z.object({
+    userName: z.string().email().trim(),
+    displayName: z.string().trim().optional(),
+    company: z.string().trim().optional(),
+  }).parse,
   async onSuccess(event, { credential, user }) {
     const db = useDatabase()
     try {

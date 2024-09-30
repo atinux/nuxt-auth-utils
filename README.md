@@ -342,7 +342,13 @@ The following code does not include the actual database queries, but shows the g
 
 ```ts
 // server/api/webauthn/register.post.ts
+import { z } from 'zod'
 export default defineWebAuthnRegisterEventHandler({
+  // optional
+  validateUser: z.object({
+    // we want the userName to be a valid email
+    userName: z.string().email() 
+  }).parse,
   async onSuccess(event, { credential, user }) {
     // The credential creation has been successful
     // We need to create a user if it does not exist
@@ -372,6 +378,19 @@ export default defineWebAuthnRegisterEventHandler({
 ```ts
 // server/api/webauthn/authenticate.post.ts
 export default defineWebAuthnAuthenticateEventHandler({
+  // Optionally, we can prefetch the credentials if the user gives their userName during login
+  async allowCredentials(event, userName) {
+    const credentials = await useDatabase().sql`...`
+    // If no credentials are found, the authentication cannot be completed
+    if (!credentials.length)
+      throw createError({ statusCode: 400, message: 'User not found' })
+
+    // If user is found, only allow credentials that are registered
+    // The browser will automatically try to use the credential that it knows about
+    // Skipping the step for the user to select a credential for a better user experience
+    return credentials
+    // example: [{ id: '...' }]
+  },
   async getCredential(event, credentialId) {
     // Look for the credential in our database
     const credential = await useDatabase().sql`...`
@@ -398,28 +417,6 @@ export default defineWebAuthnAuthenticateEventHandler({
       },
       loggedInAt: Date.now(),
     })
-  },
-
-  // Optionally, we can prefetch the credentials if the user gives their userName during login
-  async getOptions(event) {
-    const { userName } = await readBody(event)
-    // If no userName is provided, no credentials can be returned
-    if (!userName)
-      return {}
-
-    const credentials = await useDatabase().sql`...`
-
-    // If no credentials are found, the authentication cannot be completed
-    if (!credentials.length)
-      throw createError({ statusCode: 400, message: 'User not found' })
-
-    // If user is found, only allow credentials that are registered
-    // The browser will automatically try to use the credential that it knows about
-    // Skipping the step for the user to select a credential for a better user experience
-    return {
-      allowCredentials: credentials,
-    }
-    // example: allowCredentials: [{ id: '...' }]
   },
 })
 ```
