@@ -126,7 +126,7 @@ await setUserSession(event, {
   user: {
     login: 'atinux'
   },
-  // Private data accessible on server/ routes
+  // Private data accessible only on server/ routes
   secure: {
     apiToken: '1234567890'
   },
