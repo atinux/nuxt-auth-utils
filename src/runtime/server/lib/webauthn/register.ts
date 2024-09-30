@@ -39,7 +39,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
 
     let user = body.user
     if (validateUser) {
-      user = await validateUserData<T>(body.user, validateUser)
+      user = await validateUserData(body.user, validateUser)
     }
 
     const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.register, {
