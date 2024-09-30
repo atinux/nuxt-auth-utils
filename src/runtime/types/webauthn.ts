@@ -17,6 +17,12 @@ export interface WebAuthnCredential {
   [key: string]: unknown
 }
 
+export interface WebAuthnUser {
+  userName: string
+  displayName?: string
+  [key: string]: unknown
+}
+
 // Using a discriminated union makes it such that you can only define both storeChallenge and getChallenge or neither
 type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
   storeChallenge: (event: H3Event, challenge: string, attemptId: string) => void | Promise<void>
@@ -31,15 +37,12 @@ type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
 }
 
 export type WebAuthnRegisterEventHandlerOptions = WebAuthnEventHandlerBase<{
-  user: {
-    userName: string
-    displayName?: string
-    [key: string]: unknown
-  }
+  user: WebAuthnUser
   credential: WebAuthnCredential
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
   getOptions?: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
+  validateUser?: (user: WebAuthnUser) => Promise<unknown>
 }
 
 export type WebAuthnAuthenticateEventHandlerOptions = WebAuthnEventHandlerBase<{
@@ -72,7 +75,7 @@ export interface WebAuthnComposable {
    * @param user.displayName - The display name to register, used for convenience and personalization and should not be relied upon as a secure identifier for authentication processes
    * @returns true if the registration was successful
    */
-  register: <T extends { userName: string, displayName?: string }>(data: T) => Promise<boolean>
+  register: <T extends WebAuthnUser>(data: T) => Promise<boolean>
   /**
    * Authenticate a credential
    * @param userName - The user name to authenticate, can be an email address, a username, or any other form of unique ID chosen by the user

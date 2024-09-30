@@ -5,4 +5,5 @@ export type {
   WebAuthnRegisterEventHandlerOptions,
   WebAuthnAuthenticateEventHandlerOptions,
   WebAuthnComposable,
+  WebAuthnUser,
 } from './webauthn'

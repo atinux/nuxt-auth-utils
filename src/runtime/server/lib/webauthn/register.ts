@@ -7,21 +7,13 @@ import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import { storeChallengeAsSession, getChallengeFromSession } from './utils'
 import { useRuntimeConfig } from '#imports'
-import type { WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
+import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 
 type RegistrationBody = {
-  user: {
-    userName: string
-    displayName?: string
-    [key: string]: unknown
-  }
+  user: WebAuthnUser
   verify: false
 } | {
-  user: {
-    userName: string
-    displayName?: string
-    [key: string]: unknown
-  }
+  user: WebAuthnUser
   verify: true
   attemptId: string
   response: RegistrationResponseJSON
@@ -31,6 +23,7 @@ export function defineWebAuthnRegisterEventHandler({
   storeChallenge,
   getChallenge,
   getOptions,
+  validateUser,
   onSuccess,
   onError,
 }: WebAuthnRegisterEventHandlerOptions) {
@@ -42,6 +35,17 @@ export function defineWebAuthnRegisterEventHandler({
         message: 'Invalid request, missing userName or verify property',
         statusCode: 400,
       })
+
+    if (validateUser) {
+      await validateUser(body.user).catch((error) => {
+        throw createError({
+          status: 400,
+          statusMessage: 'User Validation Error',
+          message: error?.message || 'User Validation Error',
+          data: error,
+        })
+      })
+    }
 
     const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.register, {
       rpID: url.hostname,
