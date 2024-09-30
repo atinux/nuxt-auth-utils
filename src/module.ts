@@ -288,5 +288,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Polar OAuth
+    runtimeConfig.oauth.polar = defu(runtimeConfig.oauth.polar, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
   },
 })

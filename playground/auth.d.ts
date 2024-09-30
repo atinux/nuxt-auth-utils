@@ -25,6 +25,7 @@ declare module '#auth-utils' {
     yandex?: string
     tiktok?: string
     dropbox?: string
+    polar?: string
   }
 
   interface UserSession {
