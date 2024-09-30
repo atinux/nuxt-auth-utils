@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.4.1
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.0...v0.4.1)
+
+### 📖 Documentation
+
+- Typo ([c16d014](https://github.com/atinux/nuxt-auth-utils/commit/c16d014))
+- Update links ([2ed5e17](https://github.com/atinux/nuxt-auth-utils/commit/2ed5e17))
+
+### 🏡 Chore
+
+- Remove unnecessary challenge cookie ([be2626b](https://github.com/atinux/nuxt-auth-utils/commit/be2626b))
+
+### ❤️ Contributors
+
+- Gerben Mulder <github.undergo381@passmail.net>
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
 ## v0.4.0
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.3.9...v0.4.0)
