@@ -30,8 +30,11 @@ type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
 }
 
 export type WebAuthnRegisterEventHandlerOptions = WebAuthnEventHandlerBase<{
-  userName: string
-  displayName?: string
+  user: {
+    userName: string
+    displayName?: string
+    [key: string]: unknown
+  }
   authenticator: WebAuthnAuthenticatorDevice
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
@@ -63,13 +66,15 @@ export interface WebAuthnComposable {
   isPlatformAvailable: () => Promise<boolean>
   /**
    * Register a credential
-   * @param data.userName The user name to register
-   * @param data.displayName The display name to register
+   * @param user - The user data to register
+   * @param user.userName - The user name to register, can be an email address, a specific username, or any other form of unique ID chosen by the user
+   * @param user.displayName - The display name to register, used for convenience and personalization and should not be relied upon as a secure identifier for authentication processes
    * @returns true if the registration was successful
    */
   register: <T extends { userName: string, displayName?: string }>(data: T) => Promise<boolean>
   /**
    * Authenticate a credential
+   * @param userName - The user name to authenticate, can be an email address, a specific username, or any other form of unique ID chosen by the user
    * @returns true if the authentication was successful
    */
   authenticate: (userName?: string) => Promise<boolean>

@@ -153,9 +153,9 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
-          <WebAuthnModal />
           <AuthRegister />
           <AuthLogin />
+          <WebAuthnModal />
           <PasswordModal />
           <UDropdown :items="[providers]">
             <UButton
@@ -164,7 +164,7 @@ const providers = computed(() =>
               color="gray"
               size="xs"
             >
-              Login with
+              Sign in with
             </UButton>
           </UDropdown>
           <UButton

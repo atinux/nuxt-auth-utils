@@ -310,7 +310,7 @@ export default defineNuxtConfig({
 
 In this example we will implement the very basic steps to register and authenticate a credential.
 
-The full code can be found in the [playground](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn). The example uses a SQLite database with the following minimal tables:
+The full code can be found in the [playground](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn). The example uses a SQLite database with the following minimal tables:
 
 ```sql
 CREATE TABLE users (
@@ -338,21 +338,21 @@ CREATE TABLE IF NOT EXISTS credentials (
   - A `backed up` flag. Normally, credentials are stored on the generating device. When you use a password manager or authenticator, the credential is "backed up" because it can be used on multiple devices. See [this section](https://arc.net/l/quote/ugaemxot) for more details.
   - The credential `transports`. It is an array of strings that indicate how the credential communicates with the client. It is used to show the correct UI for the user to utilize the credential. Again, see [this section](https://arc.net/l/quote/ycxtiorp) for more details.
 
-The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/authenticate.post.ts) and the [database setup](https://github.com/Atinux/nuxt-auth-utils/blob/main/playground/server/plugins/database.ts).
+The following code does not include the actual database queries, but shows the general steps to follow. The full example can be found in the playground: [registration](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/register.post.ts), [authentication](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/server/api/webauthn/authenticate.post.ts) and the [database setup](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/server/plugins/database.ts).
 
 ```ts
 // server/api/webauthn/register.post.ts
 export default defineWebAuthnRegisterEventHandler({
-  async onSuccess(event, { authenticator, userName }) {
+  async onSuccess(event, { authenticator, user }) {
     // The credential creation has been successful
     // We need to create a user if it does not exist
     const db = useDatabase()
 
     // Get the user from the database
-    let user = await db.sql`...`
-    if (!user) {
-      // Store new user in database
-      user = await db.sql`...`
+    let dbUser = await db.sql`...`
+    if (!dbUser) {
+      // Store new user in database & its credentials
+      dbUser = await db.sql`...`
     }
 
     // we now need to store the credential in our database and link it to the user
@@ -361,7 +361,7 @@ export default defineWebAuthnRegisterEventHandler({
     // Set the user session
     await setUserSession(event, {
       user: {
-        id: user.ud
+        id: dbUser.ud
       },
       loggedInAt: Date.now(),
     })
@@ -451,30 +451,40 @@ export default defineWebAuthnAuthenticateEventHandler({
 > ```
 
 On the frontend it is as simple as:
+
 ```vue
 <script setup lang="ts">
 const { register, authenticate } = useWebAuthn({
   registerEndpoint: '/api/webauthn/register', // Default
   authenticateEndpoint: '/api/webauthn/authenticate', // Default
 })
-// Similar to the above as we are using the default endpoints
-const { register, authenticate } = useWebAuthn()
 const { fetch: fetchUserSession } = useUserSession()
 
 const userName = ref('')
-async function submit() {
-  await register(userName.value)
+async function signUp() {
+  await register({ userName: userName.value })
+    .then(fetchUserSession) // refetch the user session
+}
+
+async function signIn() {
+  await authenticate(userName.value)
     .then(fetchUserSession) // refetch the user session
 }
 </script>
 
 <template>
-  <form @submit.prevent="submit">
-    <input v-model="userName" />
-    <button type="submit">Register</button>
+  <form @submit.prevent="signUp">
+    <input v-model="userName" placeholder="Email or username" />
+    <button type="submit">Sign up</button>
+  </form>
+  <form @submit.prevent="signIn">
+    <input v-model="userName" placeholder="Email or username" />
+    <button type="submit">Sign in</button>
   </form>
 </template>
 ```
+
+Take a look at the [`WebAuthnModal.vue`](https://github.com/atinux/nuxt-auth-utils/blob/main/playground/components/WebAuthnModal.vue) for a full example.
 
 ### Extend Session
 

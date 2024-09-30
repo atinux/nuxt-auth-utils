@@ -1,10 +1,10 @@
 export default defineWebAuthnRegisterEventHandler({
-  async onSuccess(event, { authenticator, userName }) {
+  async onSuccess(event, { authenticator, user }) {
     const db = useDatabase()
     try {
       await db.sql`BEGIN TRANSACTION`
-      await db.sql`INSERT INTO users (email) VALUES (${userName})`
-      const { rows: [user] } = await db.sql`SELECT * FROM users WHERE email = ${userName}`
+      await db.sql`INSERT INTO users (email) VALUES (${user.userName})`
+      const { rows: [dbUser] } = await db.sql`SELECT * FROM users WHERE email = ${user.userName}`
       await db.sql`
         INSERT INTO credentials (
           userId,
@@ -14,7 +14,7 @@ export default defineWebAuthnRegisterEventHandler({
           backedUp,
           transports
         ) VALUES (
-          ${user.id},
+          ${dbUser.id},
           ${authenticator.credentialID},
           ${authenticator.credentialPublicKey},
           ${authenticator.counter},

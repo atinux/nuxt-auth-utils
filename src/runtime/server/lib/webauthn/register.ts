@@ -10,12 +10,18 @@ import { useRuntimeConfig } from '#imports'
 import type { WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 
 type RegistrationBody = {
-  userName: string
-  displayName?: string
+  user: {
+    userName: string
+    displayName?: string
+    [key: string]: unknown
+  }
   verify: false
 } | {
-  userName: string
-  displayName?: string
+  user: {
+    userName: string
+    displayName?: string
+    [key: string]: unknown
+  }
   verify: true
   attemptId: string
   response: RegistrationResponseJSON
@@ -31,7 +37,7 @@ export function defineWebAuthnRegisterEventHandler({
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody>(event)
-    if (body.verify === undefined || !body.userName)
+    if (body.verify === undefined || !body.user?.userName)
       throw createError({
         message: 'Invalid request, missing userName or verify property',
         statusCode: 400,
@@ -40,8 +46,8 @@ export function defineWebAuthnRegisterEventHandler({
     const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.register, {
       rpID: url.hostname,
       rpName: url.hostname,
-      userName: body.userName,
-      userDisplayName: body.displayName,
+      userName: body.user.userName,
+      userDisplayName: body.user.displayName,
       authenticatorSelection: {
         userVerification: 'preferred',
       },
@@ -94,8 +100,7 @@ export function defineWebAuthnRegisterEventHandler({
       }
 
       await onSuccess(event, {
-        userName: body.userName,
-        displayName: body.displayName,
+        user: body.user,
         authenticator: {
           credentialID: verification.registrationInfo!.credentialID,
           credentialPublicKey: bufferToBase64URLString(verification.registrationInfo!.credentialPublicKey),

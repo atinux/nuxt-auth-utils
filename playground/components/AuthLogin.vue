@@ -39,7 +39,7 @@ async function login(event: SubmitEvent) {
     color="gray"
     @click="isOpen = true"
   >
-    Login
+    Sign in
   </UButton>
 
   <UDashboardModal

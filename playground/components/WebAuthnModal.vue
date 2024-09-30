@@ -3,6 +3,7 @@ const show = ref(false)
 const logging = ref(false)
 const userName = ref('')
 const displayName = ref('')
+const company = ref('')
 const toast = useToast()
 
 const { user, fetch } = useUserSession()
@@ -11,7 +12,11 @@ const { register, authenticate, isSupported } = useWebAuthn()
 async function signUp() {
   if (logging.value || !userName.value) return
   logging.value = true
-  await register({ userName: userName.value, displayName: displayName.value })
+  await register({
+    userName: userName.value,
+    displayName: displayName.value,
+    company: company.value,
+  })
     .then(() => {
       fetch()
       show.value = false
@@ -52,7 +57,7 @@ async function signIn() {
     color="gray"
     @click="show = true"
   >
-    Login with Webauthn
+    Passkeys
   </UButton>
   <UDashboardModal
     v-model="show"
@@ -76,6 +81,13 @@ async function signIn() {
       <UFormGroup label="Name">
         <UInput
           v-model="displayName"
+          name="name"
+          type="text"
+        />
+      </UFormGroup>
+      <UFormGroup label="Company">
+        <UInput
+          v-model="company"
           name="name"
           type="text"
         />

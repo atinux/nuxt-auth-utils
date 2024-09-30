@@ -36,7 +36,7 @@ async function login() {
     color="gray"
     @click="show = true"
   >
-    Login with password
+    Password
   </UButton>
   <UDashboardModal
     v-model="show"

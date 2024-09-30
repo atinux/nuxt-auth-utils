@@ -39,7 +39,7 @@ async function register(event: SubmitEvent) {
     color="gray"
     @click="isOpen = true"
   >
-    Register
+    Sign up
   </UButton>
 
   <UDashboardModal
