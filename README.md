@@ -422,7 +422,7 @@ export default defineWebAuthnAuthenticateEventHandler({
 ```
 
 > [!IMPORTANT]
-> By default, the webauthn event handlers will store the challenge in a short lived, encrypted session cookie. This is not recommended for applications that require strong security guarantees. On a secure connection (https) it is highly unlikely for this to cause problems. However, if the connection is not secure, there is a possibility of a man-in-the-middle attack. To prevent this, you should use a database or KV store to store the challenge instead. For this the `storeChallenge` and `getChallenge` functions are provided.
+> Webauthn uses challenges to prevent replay attacks. By default, this module does not make use if this feature. If you want to use challenges, the `storeChallenge` and `getChallenge` functions are provided. An attempt ID is created and sent with each autentication request. You can use this ID to store the challenge in a database or KV store as shown in the example below.
 
 > ```ts
 > export default defineWebAuthnAuthenticateEventHandler({
