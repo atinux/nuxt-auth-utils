@@ -422,7 +422,7 @@ export default defineWebAuthnAuthenticateEventHandler({
 ```
 
 > [!IMPORTANT]
-> Webauthn uses challenges to prevent replay attacks. By default, this module does not make use if this feature. If you want to use challenges, the `storeChallenge` and `getChallenge` functions are provided. An attempt ID is created and sent with each autentication request. You can use this ID to store the challenge in a database or KV store as shown in the example below.
+> Webauthn uses challenges to prevent replay attacks. By default, this module does not make use if this feature. If you want to use challenges (**which is highly recommended**), the `storeChallenge` and `getChallenge` functions are provided. An attempt ID is created and sent with each autentication request. You can use this ID to store the challenge in a database or KV store as shown in the example below.
 
 > ```ts
 > export default defineWebAuthnAuthenticateEventHandler({
