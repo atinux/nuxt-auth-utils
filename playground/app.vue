@@ -1,61 +1,34 @@
 <script setup lang="ts">
-const { user, session, fetch } = useUserSession()
-const loginModal = ref(false)
-const logging = ref(false)
-const password = ref('')
-const toast = useToast()
-
-async function login() {
-  if (logging.value || !password.value) return
-  logging.value = true
-  await $fetch('/api/built-in-password', {
-    method: 'POST',
-    body: {
-      password: password.value,
-    },
-  })
-    .then(() => {
-      fetch()
-      loginModal.value = false
-    })
-    .catch((err) => {
-      console.log(err)
-      toast.add({
-        color: 'red',
-        title: err.data?.message || err.message,
-      })
-    })
-  logging.value = false
-}
+const { user } = useUserSession()
 
 const providers = computed(() =>
   [
     {
-      label: session.value.user?.google || 'Google',
+      label: user.value?.google || 'Google',
       to: '/auth/google',
       disabled: Boolean(user.value?.google),
       icon: 'i-simple-icons-google',
     },
     {
-      label: session.value.user?.facebook || 'Facebook',
+      label: user.value?.facebook || 'Facebook',
       to: '/auth/facebook',
       disabled: Boolean(user.value?.facebook),
       icon: 'i-simple-icons-facebook',
     },
     {
-      label: session.value.user?.instagram || 'instagram',
+      label: user.value?.instagram || 'instagram',
       to: '/auth/instagram',
       disabled: Boolean(user.value?.instagram),
       icon: 'i-simple-icons-instagram',
     },
     {
-      label: session.value.user?.github || 'GitHub',
+      label: user.value?.github || 'GitHub',
       to: '/auth/github',
       disabled: Boolean(user.value?.github),
       icon: 'i-simple-icons-github',
     },
     {
-      label: session.value.user?.gitlab || 'GitLab',
+      label: user.value?.gitlab || 'GitLab',
       to: '/auth/gitlab',
       disabled: Boolean(user.value?.gitlab),
       icon: 'i-simple-icons-gitlab',
@@ -85,13 +58,13 @@ const providers = computed(() =>
       icon: 'i-simple-icons-discord',
     },
     {
-      label: session.value.user?.spotify || 'Spotify',
+      label: user.value?.spotify || 'Spotify',
       to: '/auth/spotify',
       disabled: Boolean(user.value?.spotify),
       icon: 'i-simple-icons-spotify',
     },
     {
-      label: session.value.user?.twitch || 'Twitch',
+      label: user.value?.twitch || 'Twitch',
       to: '/auth/twitch',
       disabled: Boolean(user.value?.twitch),
       icon: 'i-simple-icons-twitch',
@@ -115,7 +88,7 @@ const providers = computed(() =>
       icon: 'i-simple-icons-redhat',
     },
     {
-      label: session.value.user?.paypal || 'PayPal',
+      label: user.value?.paypal || 'PayPal',
       to: '/auth/paypal',
       disabled: Boolean(user.value?.paypal),
       icon: 'i-simple-icons-paypal',
@@ -180,16 +153,10 @@ const providers = computed(() =>
         <template
           #default="{ loggedIn, clear }"
         >
-          <AuthRegister v-if="!loggedIn" />
-          <AuthLogin v-if="!loggedIn" />
-          <UButton
-            v-if="!loggedIn"
-            size="xs"
-            color="gray"
-            @click="loginModal = true"
-          >
-            Login with built-in password
-          </UButton>
+          <AuthRegister />
+          <AuthLogin />
+          <WebAuthnModal />
+          <PasswordModal />
           <UDropdown :items="[providers]">
             <UButton
               icon="i-heroicons-chevron-down"
@@ -197,7 +164,7 @@ const providers = computed(() =>
               color="gray"
               size="xs"
             >
-              Login with
+              Sign in with
             </UButton>
           </UDropdown>
           <UButton
@@ -226,28 +193,5 @@ const providers = computed(() =>
       <NuxtPage />
     </UContainer>
   </UMain>
-  <UDashboardModal
-    v-model="loginModal"
-    title="Login with password"
-    description="Use the password: 123456"
-  >
-    <form @submit.prevent="login">
-      <UFormGroup label="Password">
-        <UInput
-          v-model="password"
-          name="password"
-          type="password"
-        />
-      </UFormGroup>
-      <UButton
-        type="submit"
-        :disabled="!password"
-        color="black"
-        class="mt-2"
-      >
-        Login
-      </UButton>
-    </form>
-  </UDashboardModal>
   <UNotifications />
 </template>

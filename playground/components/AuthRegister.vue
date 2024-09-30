@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const isOpen = ref(false)
 
-const { fetch } = useUserSession()
+const { fetch, user } = useUserSession()
 const toast = useToast()
 
 async function register(event: SubmitEvent) {
@@ -34,11 +34,12 @@ async function register(event: SubmitEvent) {
 
 <template>
   <UButton
+    v-if="!user?.email"
     size="xs"
     color="gray"
     @click="isOpen = true"
   >
-    Register
+    Sign up
   </UButton>
 
   <UDashboardModal

@@ -8,6 +8,7 @@ import {
   addServerPlugin,
   addServerImportsDir,
   addComponentsDir,
+  logger,
 } from '@nuxt/kit'
 import { join } from 'pathe'
 import { defu } from 'defu'
@@ -16,6 +17,11 @@ import type { ScryptConfig } from '@adonisjs/hash/types'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
+  /**
+   * Enable WebAuthn (Passkeys)
+   * @default false
+   */
+  webAuthn?: boolean
   /**
    * Hash options used for password hashing
    */
@@ -42,6 +48,7 @@ export default defineNuxtModule<ModuleOptions>({
   },
   // Default configuration options of the Nuxt module
   defaults: {
+    webAuthn: false,
     hash: {
       scrypt: {},
     },
@@ -61,6 +68,22 @@ export default defineNuxtModule<ModuleOptions>({
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
+    // WebAuthn enabled
+    if (options.webAuthn) {
+      // Check if dependencies are installed
+      const missingDeps: string[] = []
+      const peerDeps = ['@simplewebauthn/server', '@simplewebauthn/browser']
+      for (const pkg of peerDeps) {
+        await import(pkg).catch(() => {
+          missingDeps.push(pkg)
+        })
+      }
+      if (missingDeps.length > 0) {
+        logger.withTag('nuxt-auth-utils').error(`Missing dependencies for \`WebAuthn\`, please install with:\n\n\`npx nypm i ${missingDeps.join(' ')}\``)
+        process.exit(1)
+      }
+      addServerImportsDir(resolver.resolve('./runtime/server/lib/webauthn'))
+    }
     addServerImportsDir(resolver.resolve('./runtime/server/utils'))
     addServerHandler({
       handler: resolver.resolve('./runtime/server/api/session.delete'),
@@ -78,7 +101,6 @@ export default defineNuxtModule<ModuleOptions>({
     if (!nuxt.options.nitro.unenv.external.includes('node:crypto')) {
       nuxt.options.nitro.unenv.external.push('node:crypto')
     }
-    console.log(nuxt.options.nitro.unenv)
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
@@ -114,6 +136,12 @@ export default defineNuxtModule<ModuleOptions>({
         )
       }
     }
+
+    // WebAuthn settings
+    runtimeConfig.webauthn = defu(runtimeConfig.webauthn, {
+      register: {},
+      authenticate: {},
+    })
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})

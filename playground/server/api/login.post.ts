@@ -6,40 +6,36 @@ interface DBUser {
   password: string
 }
 
-export default defineLazyEventHandler(async () => {
+const invalidCredentialsError = createError({
+  statusCode: 401,
+  // This message is intentionally vague to prevent user enumeration attacks.
+  message: 'Invalid credentials',
+})
+
+export default defineEventHandler(async (event) => {
   const db = useDatabase()
 
-  await db.sql`CREATE TABLE IF NOT EXISTS users ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "email" TEXT UNIQUE NOT NULL, "password" TEXT NOT NULL)`
+  const { email, password } = await readValidatedBody(event, z.object({
+    email: z.string().email(),
+    password: z.string().min(8),
+  }).parse)
 
-  const invalidCredentialsError = createError({
-    statusCode: 401,
-    // This message is intentionally vague to prevent user enumeration attacks.
-    message: 'Invalid credentials',
+  const user = await db.sql<{ rows: DBUser[] }>`SELECT * FROM users WHERE email = ${email}`.then(result => result.rows[0])
+
+  if (!user) {
+    throw invalidCredentialsError
+  }
+
+  if (!(await verifyPassword(user.password, password))) {
+    throw invalidCredentialsError
+  }
+
+  await setUserSession(event, {
+    user: {
+      email,
+    },
+    loggedInAt: Date.now(),
   })
 
-  return defineEventHandler(async (event) => {
-    const { email, password } = await readValidatedBody(event, z.object({
-      email: z.string().email(),
-      password: z.string().min(8),
-    }).parse)
-
-    const user = await db.sql<{ rows: DBUser[] }>`SELECT * FROM users WHERE email = ${email}`.then(result => result.rows[0])
-
-    if (!user) {
-      throw invalidCredentialsError
-    }
-
-    if (!(await verifyPassword(user.password, password))) {
-      throw invalidCredentialsError
-    }
-
-    await setUserSession(event, {
-      user: {
-        email,
-      },
-      loggedInAt: Date.now(),
-    })
-
-    return setResponseStatus(event, 201)
-  })
+  return setResponseStatus(event, 201)
 })
