@@ -90,6 +90,12 @@ importers:
 
   playground:
     dependencies:
+      '@iconify-json/gravity-ui':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@iconify-json/iconoir':
+        specifier: ^1.2.1
+        version: 1.2.1
       nuxt:
         specifier: ^3.13.2
         version: 3.13.2(@parcel/watcher@2.4.1)(@types/node@22.5.5)(better-sqlite3@11.3.0)(eslint@9.11.1(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.22.0)(terser@5.33.0)(typescript@5.6.2)(vite@5.4.6(@types/node@22.5.5)(terser@5.33.0))(vue-tsc@2.1.6(typescript@5.6.2))
@@ -100,9 +106,6 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
-      '@iconify-json/gravity-ui':
-        specifier: ^1.2.1
-        version: 1.2.1
       better-sqlite3:
         specifier: ^11.2.1
         version: 11.3.0
@@ -935,6 +938,9 @@ packages:
 
   '@iconify-json/heroicons@1.2.0':
     resolution: {integrity: sha512-EmvGN0L9EUJCmQ82rkLGZ4tkz0YGQfZV7ugKT6UvHni/bxNitQrD0gLj6NJj2W9zsSoXyNHyCX236+EJmO4pmA==}
+
+  '@iconify-json/iconoir@1.2.1':
+    resolution: {integrity: sha512-x55gpORwMGkmmT9UO11rzfMOp40k0ggQnPiOoh9axbyuHrkFMN7pdoCbaXkzqAdShcoI1dLzARbdqXi2sAPJXQ==}
 
   '@iconify-json/simple-icons@1.2.4':
     resolution: {integrity: sha512-AKUGO7cX2KykFEJ+P6tY3wGhGgbrL3RMqbxNTfutGsKojaSEFosN/cmWQ9l9hmUiS2IN7fVLsPMAIvV1uJyyVw==}
@@ -5555,6 +5561,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/heroicons@1.2.0':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/iconoir@1.2.1':
     dependencies:
       '@iconify/types': 2.0.0
 
