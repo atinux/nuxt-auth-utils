@@ -218,6 +218,7 @@ It can also be set using environment variables:
 - LinkedIn
 - Microsoft
 - PayPal
+- Polar
 - Spotify
 - Steam
 - TikTok

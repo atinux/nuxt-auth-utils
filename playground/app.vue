@@ -135,6 +135,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.dropbox),
       icon: 'i-simple-icons-dropbox',
     },
+    {
+      label: user.value?.polar || 'Polar',
+      to: '/auth/polar',
+      disabled: Boolean(user.value?.polar),
+      icon: 'i-iconoir-polar-sh',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
