@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.4.2
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.1...v0.4.2)
+
+### 🚀 Enhancements
+
+- Add polar provider ([2682bcb](https://github.com/atinux/nuxt-auth-utils/commit/2682bcb))
+
+### 📖 Documentation
+
+- Improvement ([3bd76b0](https://github.com/atinux/nuxt-auth-utils/commit/3bd76b0))
+
+### ❤️ Contributors
+
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
 ## v0.4.1
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.0...v0.4.1)
