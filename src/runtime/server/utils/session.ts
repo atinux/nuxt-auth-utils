@@ -61,8 +61,8 @@ export async function replaceUserSession(event: H3Event, data: UserSession, conf
  * @param event The Request (h3) event
  * @returns true if the session was cleared
  */
-export async function clearUserSession(event: H3Event) {
-  const session = await _useSession(event)
+export async function clearUserSession(event: H3Event, config?: Partial<SessionConfig>) {
+  const session = await _useSession(event, config)
 
   await sessionHooks.callHookParallel('clear', session.data, event)
   await session.clear()
