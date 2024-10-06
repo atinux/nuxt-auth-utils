@@ -19,10 +19,9 @@ export interface OAuthLinearConfig {
   clientSecret?: string
   /**
    * Linear OAuth Scope
-   * @default []
+   * @default ['read']
    * @see https://developers.linear.app/docs/oauth/authentication#scopes
    * @example ['read', 'write', 'issues:create', 'comments:create', 'timeSchedule:write', 'admin']
-   * @default If empty, note that Linear default is 'read'
    */
   scope?: string[]
   /**
