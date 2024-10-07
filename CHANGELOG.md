@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.4.4
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.3...v0.4.4)
+
+### 🩹 Fixes
+
+- Fetch hook is called even is user is not set ([#209](https://github.com/atinux/nuxt-auth-utils/pull/209))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
 ## v0.4.3
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.2...v0.4.3)
