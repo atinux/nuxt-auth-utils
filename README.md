@@ -215,6 +215,7 @@ It can also be set using environment variables:
 - Google
 - Instagram
 - Keycloak
+- Linear
 - LinkedIn
 - Microsoft
 - PayPal

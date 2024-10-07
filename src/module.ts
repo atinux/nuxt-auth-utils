@@ -214,6 +214,12 @@ export default defineNuxtModule<ModuleOptions>({
       realm: '',
       redirectURL: '',
     })
+    // Linear OAuth
+    runtimeConfig.oauth.linear = defu(runtimeConfig.oauth.linear, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
     // LinkedIn OAuth
     runtimeConfig.oauth.linkedin = defu(runtimeConfig.oauth.linkedin, {
       clientId: '',
