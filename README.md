@@ -39,7 +39,7 @@ You can anyway use [Hybrid Rendering](#hybrid-rendering) to pre-render pages of 
 1. Add `nuxt-auth-utils` in your Nuxt project
 
 ```bash
-npx nuxi@latest module add auth-utils
+npx nuxi@latest module add nuxt-auth-utils
 ```
 
 2. Add a `NUXT_SESSION_PASSWORD` env variable with at least 32 characters in the `.env`.
