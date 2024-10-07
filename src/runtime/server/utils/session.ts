@@ -3,7 +3,7 @@ import { useSession, createError } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
 import { useRuntimeConfig } from '#imports'
-import type { UserSession } from '#auth-utils'
+import type { UserSession, UserSessionRequired } from '#auth-utils'
 
 export interface SessionHooks {
   /**
