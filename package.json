@@ -5,7 +5,7 @@
   "repository": "atinux/nuxt-auth-utils",
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@9.11.0",
+  "packageManager": "pnpm@9.12.0",
   "exports": {
     ".": {
       "types": "./dist/types.d.ts",
@@ -55,7 +55,7 @@
     }
   },
   "devDependencies": {
-    "@iconify-json/simple-icons": "^1.2.4",
+    "@iconify-json/simple-icons": "^1.2.6",
     "@nuxt/devtools": "latest",
     "@nuxt/eslint-config": "^0.5.7",
     "@nuxt/module-builder": "^0.8.4",
@@ -65,10 +65,10 @@
     "@nuxt/ui-pro": "^1.4.3",
     "@simplewebauthn/types": "^10.0.0",
     "changelogen": "^0.5.7",
-    "eslint": "^9.11.1",
+    "eslint": "^9.12.0",
     "nuxt": "^3.13.2",
     "typescript": "^5.6.2",
-    "vitest": "^2.1.1",
+    "vitest": "^2.1.2",
     "vue-tsc": "^2.1.6"
   }
 }
