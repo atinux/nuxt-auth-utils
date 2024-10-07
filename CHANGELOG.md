@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v0.4.3
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.2...v0.4.3)
+
+### 🚀 Enhancements
+
+- ClearUserSession takes config arg as well ([69eaf42](https://github.com/atinux/nuxt-auth-utils/commit/69eaf42))
+- Add linear provider ([c1291cd](https://github.com/atinux/nuxt-auth-utils/commit/c1291cd))
+
+### 🏡 Chore
+
+- Update deps ([2719753](https://github.com/atinux/nuxt-auth-utils/commit/2719753))
+
+### ❤️ Contributors
+
+- Jules Libert <jules.lib@gmail.com>
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Mathieu NICOLAS ([@mathieunicolas](http://github.com/mathieunicolas))
+
 ## v0.4.2
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.1...v0.4.2)
