@@ -11,7 +11,7 @@ export interface SessionHooks {
    * - Add extra properties to the session
    * - Throw an error if the session could not be verified (with a database for example)
    */
-  fetch: (session: UserSessionRequired, event: H3Event) => void | Promise<void>
+  fetch: (session: UserSession, event: H3Event) => void | Promise<void>
   /**
    * Called before clearing the session
    */
