@@ -2,7 +2,7 @@ export default defineOAuthLinearEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        linear: user.name,
+        linear: user.email,
       },
       loggedInAt: Date.now(),
     })
