@@ -25,9 +25,4 @@ export default defineNuxtConfig({
       // ssr: false,
     },
   },
-  nitro: {
-    experimental: {
-      database: true,
-    },
-  },
 })
