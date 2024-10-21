@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v0.5.0
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.4...v0.5.0)
+
+### 📖 Documentation
+
+- Set webauthn version to v10 ([ca151c7](https://github.com/atinux/nuxt-auth-utils/commit/ca151c7))
+- Fix typo ([#251](https://github.com/atinux/nuxt-auth-utils/pull/251))
+
+### 🏡 Chore
+
+- **playground:** Remove duplicate code ([edc14ce](https://github.com/atinux/nuxt-auth-utils/commit/edc14ce))
+- ⚠️  Update simplewebauthn to v11 ([92e3e2e](https://github.com/atinux/nuxt-auth-utils/commit/92e3e2e))
+- Update deps ([5a4ecb3](https://github.com/atinux/nuxt-auth-utils/commit/5a4ecb3))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Update simplewebauthn to v11 ([92e3e2e](https://github.com/atinux/nuxt-auth-utils/commit/92e3e2e))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Gerben Mulder <github.undergo381@passmail.net>
+- Nekohaxx ([@nekohaxx](http://github.com/nekohaxx))
+- FreeCoderX ([@yxw007](http://github.com/yxw007))
+
 ## v0.4.4
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.3...v0.4.4)
