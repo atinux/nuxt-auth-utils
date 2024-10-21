@@ -71,9 +71,9 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
         expectedChallenge,
         expectedOrigin: url.origin,
         expectedRPID: url.hostname,
-        authenticator: {
-          credentialID: credential.id,
-          credentialPublicKey: new Uint8Array(base64URLStringToBuffer(credential.publicKey)),
+        credential: {
+          id: credential.id,
+          publicKey: new Uint8Array(base64URLStringToBuffer(credential.publicKey)),
           counter: credential.counter,
           transports: credential.transports,
         },

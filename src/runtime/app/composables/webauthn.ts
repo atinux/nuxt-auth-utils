@@ -31,8 +31,18 @@ export function useWebAuthn(options: {
    * @default '/api/webauthn/authenticate'
    */
   authenticateEndpoint?: string
+  /**
+   * Enable browser autofill for authentication
+   * @default false
+   */
+  useBrowserAutofill?: boolean
 } = {}): WebAuthnComposable {
-  const { registerEndpoint = '/api/webauthn/register', authenticateEndpoint = '/api/webauthn/authenticate' } = options
+  const {
+    registerEndpoint = '/api/webauthn/register',
+    authenticateEndpoint = '/api/webauthn/authenticate',
+    useBrowserAutofill = false,
+  } = options
+
   async function register(user: { userName: string, displayName?: string }) {
     const { creationOptions, attemptId } = await $fetch<RegistrationInitResponse>(registerEndpoint, {
       method: 'POST',
@@ -42,7 +52,9 @@ export function useWebAuthn(options: {
       },
     })
 
-    const attestationResponse = await startRegistration(creationOptions)
+    const attestationResponse = await startRegistration({
+      optionsJSON: creationOptions,
+    })
     const verificationResponse = await $fetch<VerifiedRegistrationResponse>(registerEndpoint, {
       method: 'POST',
       body: {
@@ -65,7 +77,10 @@ export function useWebAuthn(options: {
       },
     })
 
-    const assertionResponse = await startAuthentication(requestOptions)
+    const assertionResponse = await startAuthentication({
+      optionsJSON: requestOptions,
+      useBrowserAutofill,
+    })
     const verificationResponse = await $fetch<VerifiedAuthenticationResponse>(authenticateEndpoint, {
       method: 'POST',
       body: {

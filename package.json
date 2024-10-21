@@ -43,8 +43,8 @@
     "uncrypto": "^0.1.3"
   },
   "peerDependencies": {
-    "@simplewebauthn/browser": "^10.0.0",
-    "@simplewebauthn/server": "^10.0.1"
+    "@simplewebauthn/browser": "^11.0.0",
+    "@simplewebauthn/server": "^11.0.0"
   },
   "peerDependenciesMeta": {
     "@simplewebauthn/browser": {
@@ -63,7 +63,7 @@
     "@nuxt/test-utils": "^3.14.2",
     "@nuxt/ui": "^2.18.6",
     "@nuxt/ui-pro": "^1.4.3",
-    "@simplewebauthn/types": "^10.0.0",
+    "@simplewebauthn/types": "^11.0.0",
     "changelogen": "^0.5.7",
     "eslint": "^9.12.0",
     "nuxt": "^3.13.2",
