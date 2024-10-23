@@ -23,6 +23,11 @@ export interface ModuleOptions {
    */
   webAuthn?: boolean
   /**
+   * Auto extend session
+   * @default true
+   */
+  autoExtendSession?: boolean
+  /**
    * Hash options used for password hashing
    */
   hash?: {
@@ -49,6 +54,7 @@ export default defineNuxtModule<ModuleOptions>({
   // Default configuration options of the Nuxt module
   defaults: {
     webAuthn: false,
+    autoExtendSession: true,
     hash: {
       scrypt: {},
     },
@@ -142,6 +148,7 @@ export default defineNuxtModule<ModuleOptions>({
       register: {},
       authenticate: {},
     })
+    runtimeConfig.autoExtendSession = options.autoExtendSession
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
