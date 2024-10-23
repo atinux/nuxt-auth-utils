@@ -589,10 +589,15 @@ export default defineNuxtConfig({
   runtimeConfig: {
     session: {
       maxAge: 60 * 60 * 24 * 7 // 1 week
+      cookie: {
+        maxAge: 60 * 5 // 5 minutes
+      }
     }
   }
 })
 ```
+
+> Please note that `session.maxAge` is the lifetime of the session itself and `session.cookie.maxAge` is the lifetime of the cookie storing the session.
 
 Our defaults are:
 
