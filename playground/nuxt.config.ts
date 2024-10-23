@@ -2,6 +2,10 @@ export default defineNuxtConfig({
   // ssr: false,
   extends: ['@nuxt/ui-pro'],
   modules: ['nuxt-auth-utils', '@nuxt/ui'],
+  auth: {
+    webAuthn: true,
+    autoExtendSession: true,
+  },
   imports: {
     autoImport: true,
   },
@@ -21,8 +25,5 @@ export default defineNuxtConfig({
     experimental: {
       database: true,
     },
-  },
-  auth: {
-    webAuthn: true,
   },
 })
