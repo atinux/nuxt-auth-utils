@@ -24,5 +24,7 @@ export default defineNuxtConfig({
   },
   auth: {
     webAuthn: true,
+    sessionRevocationStorage: 'revoked-sessions',
+  },
   },
 })
