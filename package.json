@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "prepack": "nuxt-module-build build",
-    "dev": "nuxi dev playground",
+    "dev": "nuxi dev playground --dotenv .env.example",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
@@ -36,6 +36,7 @@
     "@nuxt/kit": "^3.13.2",
     "defu": "^6.1.4",
     "hookable": "^5.5.3",
+    "jwt-decode": "^4.0.0",
     "ofetch": "^1.4.1",
     "ohash": "^1.1.4",
     "pathe": "^1.1.2",

@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { jwtDecode } from 'jwt-decode'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -51,6 +52,24 @@ export interface OAuthKeycloakConfig {
    * @default process.env.NUXT_OAUTH_KEYCLOAK_REDIRECT_URL or current URL
    */
   redirectURL?: string
+  /**
+   * Load user from Keycloak UserInfo endpoint and add it to the session. If false, only the tokens will be returned.
+   * @default process.env.NUXT_OAUTH_KEYCLOAK_LOAD_USER_FROM_USERINFOENDPOINT or current URL
+   */
+  loadUserFromUserInfoEndpoint?: boolean
+}
+
+export interface KeycloakUser {
+  name: string
+  preferred_username: string
+  given_name: string
+  family_name: string
+  email: string
+  resource_access: {
+    [key: string]: {
+      roles: string[]
+    }
+  }
 }
 
 export function defineOAuthKeycloakEventHandler({
@@ -62,6 +81,14 @@ export function defineOAuthKeycloakEventHandler({
     config = defu(config, useRuntimeConfig(event).oauth?.keycloak, {
       authorizationParams: {},
     }) as OAuthKeycloakConfig
+
+    if (process.env.NUXT_OAUTH_KEYCLOAK_AUTHORIZATION_URL) {
+      config.authorizationUrl = process.env.NUXT_OAUTH_KEYCLOAK_AUTHORIZATION_URL
+    }
+
+    if (process.env.NUXT_OAUTH_KEYCLOAK_LOAD_USER_FROM_USERINFOENDPOINT) {
+      config.loadUserFromUserInfoEndpoint = process.env.NUXT_OAUTH_KEYCLOAK_LOAD_USER_FROM_USERINFOENDPOINT === 'true'
+    }
 
     const query = getQuery<{ code?: string, error?: string }>(event)
 
@@ -86,7 +113,6 @@ export function defineOAuthKeycloakEventHandler({
 
     const realmURL = `${config.serverUrl}/realms/${config.realm}`
 
-    const test = "http://localhost:8443/auth/realms/baykom/protocol/openid-connect/auth"
     const authorizationURL = config.authorizationUrl ? config.authorizationUrl : `${realmURL}/protocol/openid-connect/auth`
     const tokenURL = `${realmURL}/protocol/openid-connect/token`
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
@@ -97,7 +123,7 @@ export function defineOAuthKeycloakEventHandler({
       // Redirect to Keycloak Oauth page
       return sendRedirect(
         event,
-        withQuery(test, {
+        withQuery(authorizationURL, {
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
@@ -127,26 +153,28 @@ export function defineOAuthKeycloakEventHandler({
 
     const accessToken = tokens.access_token
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(
-      `${realmURL}/protocol/openid-connect/userinfo`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: 'application/json',
-        },
-      },
-    )
+    let user: KeycloakUser = jwtDecode(accessToken)
 
-    if (!user) {
-      const error = createError({
-        statusCode: 500,
-        message: 'Could not get Keycloak user',
-        data: tokens,
-      })
-      if (!onError) throw error
-      return onError(event, error)
+    if (config.loadUserFromUserInfoEndpoint) {
+      user = await $fetch(
+        `${realmURL}/protocol/openid-connect/userinfo`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: 'application/json',
+          },
+        },
+      )
+
+      if (!user) {
+        const error = createError({
+          statusCode: 500,
+          message: 'Could not get Keycloak user',
+          data: tokens,
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
     }
 
     return onSuccess(event, {
