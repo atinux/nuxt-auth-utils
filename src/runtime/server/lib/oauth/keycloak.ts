@@ -24,6 +24,13 @@ export interface OAuthKeycloakConfig {
    */
   serverUrl?: string
   /**
+   * Keycloak OAuth Authorization URL in case the authorization URL is different from the server URL
+   * @example http://192.168.1.10:8080/auth/realms/your-realm/protocol/openid-connect/auth
+   * @default serverUrl + /realms/ + realm + /protocol/openid-connect/auth
+   * Configurable with process.env.NUXT_OAUTH_KEYCLOAK_AUTHORIZATION_URL
+   */
+  authorizationUrl?: string
+  /**
    * Keycloak OAuth Realm
    * @default process.env.NUXT_OAUTH_KEYCLOAK_REALM
    */
@@ -79,7 +86,8 @@ export function defineOAuthKeycloakEventHandler({
 
     const realmURL = `${config.serverUrl}/realms/${config.realm}`
 
-    const authorizationURL = `${realmURL}/protocol/openid-connect/auth`
+    const test = "http://localhost:8443/auth/realms/baykom/protocol/openid-connect/auth"
+    const authorizationURL = config.authorizationUrl ? config.authorizationUrl : `${realmURL}/protocol/openid-connect/auth`
     const tokenURL = `${realmURL}/protocol/openid-connect/token`
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
@@ -89,7 +97,7 @@ export function defineOAuthKeycloakEventHandler({
       // Redirect to Keycloak Oauth page
       return sendRedirect(
         event,
-        withQuery(authorizationURL, {
+        withQuery(test, {
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
