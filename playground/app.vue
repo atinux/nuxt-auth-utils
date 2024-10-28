@@ -147,6 +147,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.polar),
       icon: 'i-iconoir-polar-sh',
     },
+    {
+      label: user.value?.passport || 'Passport',
+      to: '/auth/passport',
+      disabled: Boolean(user.value?.passport),
+      icon: 'i-mdi-laravel',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
