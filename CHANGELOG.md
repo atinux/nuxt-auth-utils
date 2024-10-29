@@ -51,7 +51,6 @@
 - Add polar provider ([2682bcb](https://github.com/atinux/nuxt-auth-utils/commit/2682bcb))
 - ClearUserSession takes config arg as well ([69eaf42](https://github.com/atinux/nuxt-auth-utils/commit/69eaf42))
 - Add linear provider ([c1291cd](https://github.com/atinux/nuxt-auth-utils/commit/c1291cd))
-- Add laravel oauth passport provider ([e7d2f23](https://github.com/atinux/nuxt-auth-utils/commit/e7d2f23))
 - Add laravel oauth passport provider ([200899f](https://github.com/atinux/nuxt-auth-utils/commit/200899f))
 
 ### 🔥 Performance
