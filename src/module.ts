@@ -61,7 +61,7 @@ export default defineNuxtModule<ModuleOptions>({
     )
 
     const composables = [
-      { name: 'useUserSession', from: resolver.resolve('./runtime/app/composables/oauth') },
+      { name: 'useUserSession', from: resolver.resolve('./runtime/app/composables/session') },
     ]
 
     if (options.webAuthn) {
