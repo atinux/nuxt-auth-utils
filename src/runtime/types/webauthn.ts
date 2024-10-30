@@ -43,7 +43,7 @@ export type WebAuthnRegisterEventHandlerOptions<T extends WebAuthnUser> = WebAut
   credential: WebAuthnCredential
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
-  getOptions?: (event: H3Event) => GenerateRegistrationOptionsOpts | Promise<GenerateRegistrationOptionsOpts>
+  getOptions?: (event: H3Event) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
   validateUser?: ValidateFunction<T>
 }
 
