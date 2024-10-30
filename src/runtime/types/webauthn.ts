@@ -1,4 +1,4 @@
-import type { AuthenticatorTransportFuture } from '@simplewebauthn/types'
+import type { AuthenticationResponseJSON, AuthenticatorTransportFuture, RegistrationResponseJSON } from '@simplewebauthn/types'
 import type { Ref } from 'vue'
 import type { H3Event, H3Error, ValidateFunction } from 'h3'
 import type {
@@ -23,7 +23,7 @@ export interface WebAuthnUser {
   [key: string]: unknown
 }
 
-type AllowCredentials = NonNullable<GenerateAuthenticationOptionsOpts['allowCredentials']>
+type CredentialsList = NonNullable<GenerateAuthenticationOptionsOpts['allowCredentials']>
 
 // Using a discriminated union makes it such that you can only define both storeChallenge and getChallenge or neither
 type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
@@ -38,22 +38,43 @@ type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
   onError?: (event: H3Event, error: H3Error) => void | Promise<void>
 }
 
+export type RegistrationBody<T extends WebAuthnUser> = {
+  user: T
+  verify: false
+} | {
+  user: T
+  verify: true
+  attemptId: string
+  response: RegistrationResponseJSON
+}
+
 export type WebAuthnRegisterEventHandlerOptions<T extends WebAuthnUser> = WebAuthnEventHandlerBase<{
   user: T
   credential: WebAuthnCredential
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
-  getOptions?: (event: H3Event) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
+  getOptions?: (event: H3Event, body: RegistrationBody<T>) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
   validateUser?: ValidateFunction<T>
+  excludeCredentials?: (event: H3Event, userName: string) => CredentialsList | Promise<CredentialsList>
+}
+
+export type AuthenticationBody = {
+  verify: false
+  userName?: string
+} | {
+  verify: true
+  attemptId: string
+  userName?: string
+  response: AuthenticationResponseJSON
 }
 
 export type WebAuthnAuthenticateEventHandlerOptions<T extends WebAuthnCredential> = WebAuthnEventHandlerBase<{
   credential: T
   authenticationInfo: Exclude<VerifiedAuthenticationResponse['authenticationInfo'], undefined>
 }> & {
-  getOptions?: (event: H3Event) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
+  getOptions?: (event: H3Event, body: AuthenticationBody) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
   getCredential: (event: H3Event, credentialID: string) => T | Promise<T>
-  allowCredentials?: (event: H3Event, userName: string) => AllowCredentials | Promise<AllowCredentials>
+  allowCredentials?: (event: H3Event, userName: string) => CredentialsList | Promise<CredentialsList>
 }
 
 export interface WebAuthnComposable {
