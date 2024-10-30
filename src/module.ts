@@ -3,7 +3,7 @@ import {
   defineNuxtModule,
   addPlugin,
   createResolver,
-  addImportsDir,
+  addImports,
   addServerHandler,
   addServerPlugin,
   addServerImportsDir,
@@ -60,9 +60,17 @@ export default defineNuxtModule<ModuleOptions>({
       './runtime/types/index',
     )
 
+    const composables = [
+      { name: 'useUserSession', from: resolver.resolve('./runtime/app/composables/oauth') },
+    ]
+
+    if (options.webAuthn) {
+      composables.push({ name: 'useWebAuthn', from: resolver.resolve('./runtime/app/composables/webauthn') })
+    }
+
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
-    addImportsDir(resolver.resolve('./runtime/app/composables'))
+    addImports(composables)
     addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
     addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
     // Server
