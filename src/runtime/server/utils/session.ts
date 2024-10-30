@@ -2,7 +2,7 @@ import type { H3Event, SessionConfig } from 'h3'
 import { useSession, createError } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
-import { useRuntimeConfig } from '#imports'
+import { useRuntimeConfig, useStorage } from '#imports'
 import type { UserSession, UserSessionRequired } from '#auth-utils'
 
 export interface SessionHooks {
@@ -23,10 +23,28 @@ export const sessionHooks = createHooks<SessionHooks>()
 /**
  * Get the user session from the current request
  * @param event The Request (h3) event
+ * @param extendSession Optional. If true, the session will be extended by updating the last access timestamp.
+ *                      If not provided, falls back to autoExtendSession runtime config value.
  * @returns The user session
  */
-export async function getUserSession(event: H3Event) {
-  return (await _useSession(event)).data
+export async function getUserSession(event: H3Event, extendSession?: boolean) {
+  const runtimeConfig = useRuntimeConfig(event)
+  const session = await _useSession(event)
+
+  const sessionStorage = getSessionStorage()
+  if (sessionStorage) {
+    const data = await sessionStorage.getItem<UserSession>(`nuxt-session:${session.id}`)
+    if (data) {
+      if (extendSession ?? runtimeConfig.autoExtendSession) {
+        data.lastAccess = Date.now()
+        await sessionStorage.setItem(`nuxt-session:${session.id}`, data)
+      }
+      return data
+    }
+    return {} as UserSession
+  }
+
+  return session.data
 }
 /**
  * Set a user session
@@ -37,7 +55,16 @@ export async function getUserSession(event: H3Event) {
 export async function setUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>) {
   const session = await _useSession(event, config)
 
-  await session.update(defu(data, session.data))
+  const sessionStorage = getSessionStorage()
+  if (sessionStorage) {
+    await sessionStorage.setItem(`nuxt-session:${session.id}`, {
+      ...data,
+      lastAccess: Date.now(),
+    })
+  }
+  else {
+    await session.update(data)
+  }
 
   return session.data
 }
@@ -50,8 +77,17 @@ export async function setUserSession(event: H3Event, data: UserSession, config?:
 export async function replaceUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>) {
   const session = await _useSession(event, config)
 
-  await session.clear()
-  await session.update(data)
+  const sessionStorage = getSessionStorage()
+  if (sessionStorage) {
+    await sessionStorage.setItem(`nuxt-session:${session.id}`, {
+      ...data,
+      lastAccess: Date.now(),
+    })
+  }
+  else {
+    await session.clear()
+    await session.update(data)
+  }
 
   return session.data
 }
@@ -65,7 +101,14 @@ export async function clearUserSession(event: H3Event, config?: Partial<SessionC
   const session = await _useSession(event, config)
 
   await sessionHooks.callHookParallel('clear', session.data, event)
-  await session.clear()
+
+  const sessionStorage = getSessionStorage()
+  if (sessionStorage) {
+    await sessionStorage.removeItem(`nuxt-session:${session.id}`)
+  }
+  else {
+    await session.clear()
+  }
 
   return true
 }
@@ -91,6 +134,37 @@ export async function requireUserSession(event: H3Event, opts: { statusCode?: nu
   return userSession as UserSessionRequired
 }
 
+/**
+ * Cleanup orphaned sessions
+ * This should be called either
+ * on a request basis with a middleware for example
+ * or by a scheduled task
+ * @see https://github.com/atinux/nuxt-auth-utils
+ */
+export async function cleanupOrphanedUserSessions() {
+  const runtimeConfig = useRuntimeConfig()
+  const maxAge = runtimeConfig.sessionInactivityMaxAge * 1000
+  if (!maxAge) {
+    console.warn('No session inactivity max age configured, skipping cleanup')
+    return
+  }
+
+  const sessionStorage = getSessionStorage()
+  if (!sessionStorage) {
+    console.warn('No session storage configured, skipping cleanup')
+    return
+  }
+
+  const sessionKeys = await sessionStorage.getKeys('nuxt-session')
+  for (const currentSessionKey of sessionKeys) {
+    const session = await sessionStorage.getItem<UserSession>(currentSessionKey)
+    const currentSessionAge = session?.lastAccess ? Date.now() - session.lastAccess : 0
+    if (currentSessionAge > maxAge) {
+      await sessionStorage.removeItem(currentSessionKey)
+    }
+  }
+}
+
 let sessionConfig: SessionConfig
 
 function _useSession(event: H3Event, config: Partial<SessionConfig> = {}) {
@@ -103,4 +177,17 @@ function _useSession(event: H3Event, config: Partial<SessionConfig> = {}) {
   }
   const finalConfig = defu(config, sessionConfig) as SessionConfig
   return useSession<UserSession>(event, finalConfig)
+}
+
+function getSessionStorage() {
+  const runtimeConfig = useRuntimeConfig()
+  switch (runtimeConfig.useSessionStorageType) {
+    case 'memory':
+      return useStorage()
+    case 'cache':
+      return useStorage('cache')
+    case 'nuxt-session':
+      return useStorage('nuxt-session')
+  }
+  return undefined
 }

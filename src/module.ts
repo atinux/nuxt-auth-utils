@@ -23,6 +23,25 @@ export interface ModuleOptions {
    */
   webAuthn?: boolean
   /**
+   * Use session storage
+   * Use 'cache' for standard cache storage,
+   * 'cookie' for cookies,
+   * 'memory' for in-memory storage,
+   * 'nuxt-session' for a custom storage mount named 'nuxt-session'
+   * @default 'cache'
+   */
+  storageType?: 'cache' | 'cookie' | 'memory' | 'nuxt-session'
+  /**
+   * Session inactivity max age in milliseconds
+   * @default 2592000000 (30 days)
+   */
+  sessionInactivityMaxAge?: number
+  /**
+   * Auto extend session
+   * @default true
+   */
+  autoExtendSession?: boolean
+  /**
    * Hash options used for password hashing
    */
   hash?: {
@@ -49,6 +68,9 @@ export default defineNuxtModule<ModuleOptions>({
   // Default configuration options of the Nuxt module
   defaults: {
     webAuthn: false,
+    storageType: 'cookie',
+    sessionInactivityMaxAge: 2592000, // 30 days
+    autoExtendSession: true,
     hash: {
       scrypt: {},
     },
@@ -142,6 +164,17 @@ export default defineNuxtModule<ModuleOptions>({
       register: {},
       authenticate: {},
     })
+
+    runtimeConfig.useSessionStorageType = runtimeConfig.useSessionStorageType || options.storageType
+    runtimeConfig.sessionInactivityMaxAge = runtimeConfig.sessionInactivityMaxAge || options.sessionInactivityMaxAge
+    runtimeConfig.autoExtendSession = runtimeConfig.autoExtendSession || options.autoExtendSession
+    logger.withTag('nuxt-auth-utils').info(`Using session storage type: ${runtimeConfig.useSessionStorageType}`)
+    if (runtimeConfig.useSessionStorageType === 'memory') {
+      logger.warn('Using in-memory session storage, this is not recommended for production')
+      if (!nuxt.options.dev) {
+        logger.error('You are not running in dev mode, please make sure this is intentional')
+      }
+    }
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
