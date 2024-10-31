@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Add Authentication to Nuxt applications with secured & sealed cookies sessions.",
   "repository": "atinux/nuxt-auth-utils",
   "license": "MIT",

@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.5.1
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.0...v0.5.1)
+
+### 🩹 Fixes
+
+- `useWebAuthn` composable registration & fix `allowCredentials` / `excludeCredentials` option ([#266](https://github.com/atinux/nuxt-auth-utils/pull/266))
+
+### 🏡 Chore
+
+- **release:** V0.5.0 ([404acc6](https://github.com/atinux/nuxt-auth-utils/commit/404acc6))
+- Update deps ([8947e40](https://github.com/atinux/nuxt-auth-utils/commit/8947e40))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Gerben Mulder <github.undergo381@passmail.net>
+
 ## v0.5.0
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.4.4...v0.5.0)
