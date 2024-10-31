@@ -3,27 +3,18 @@ import type { ValidateFunction } from 'h3'
 import type { GenerateRegistrationOptionsOpts } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
-import type { RegistrationResponseJSON } from '@simplewebauthn/types'
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import { useRuntimeConfig } from '#imports'
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
-
-type RegistrationBody<T extends WebAuthnUser> = {
-  user: T
-  verify: false
-} | {
-  user: T
-  verify: true
-  attemptId: string
-  response: RegistrationResponseJSON
-}
+import type { RegistrationBody } from '~/src/runtime/types/webauthn'
 
 export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   storeChallenge,
   getChallenge,
   getOptions,
   validateUser,
+  excludeCredentials,
   onSuccess,
   onError,
 }: WebAuthnRegisterEventHandlerOptions<T>) {
@@ -41,7 +32,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
       user = await validateUserData(body.user, validateUser)
     }
 
-    const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.register, {
+    const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig(event).webauthn.register, {
       rpID: url.hostname,
       rpName: url.hostname,
       userName: user.userName,
@@ -57,6 +48,10 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
 
     try {
       if (!body.verify) {
+        if (excludeCredentials) {
+          _config.excludeCredentials = await excludeCredentials(event, user.userName)
+        }
+
         const options = await generateRegistrationOptions(_config as GenerateRegistrationOptionsOpts)
         const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
 
