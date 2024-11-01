@@ -308,5 +308,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    runtimeConfig.oauth.passport = defu(runtimeConfig.oauth.passport, {
+      clientId: '',
+      clientSecret: '',
+      baseURL: '',
+      userURL: '',
+    })
   },
 })
