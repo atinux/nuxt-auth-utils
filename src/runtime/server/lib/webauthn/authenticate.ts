@@ -2,21 +2,11 @@ import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
 import type { GenerateAuthenticationOptionsOpts } from '@simplewebauthn/server'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
-import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 import { getRandomValues } from 'uncrypto'
 import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
 import { useRuntimeConfig } from '#imports'
 import type { WebAuthnAuthenticateEventHandlerOptions, WebAuthnCredential } from '#auth-utils'
-
-type AuthenticationBody = {
-  verify: false
-  userName?: string
-} | {
-  verify: true
-  attemptId: string
-  userName?: string
-  response: AuthenticationResponseJSON
-}
+import type { AuthenticationBody } from '~/src/runtime/types/webauthn'
 
 export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredential>({
   storeChallenge,
@@ -30,13 +20,9 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<AuthenticationBody>(event)
-    const _config = defu(await getOptions?.(event) ?? {}, useRuntimeConfig(event).webauthn.authenticate, {
+    const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig(event).webauthn.authenticate, {
       rpID: url.hostname,
     } satisfies GenerateAuthenticationOptionsOpts)
-
-    if (allowCredentials && body.userName) {
-      _config.allowCredentials = await allowCredentials(event, body.userName)
-    }
 
     if (!storeChallenge) {
       _config.challenge = ''
@@ -44,6 +30,10 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
 
     try {
       if (!body.verify) {
+        if (allowCredentials && body.userName) {
+          _config.allowCredentials = await allowCredentials(event, body.userName)
+        }
+
         const options = await generateAuthenticationOptions(_config as GenerateAuthenticationOptionsOpts)
         const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
 
@@ -71,6 +61,7 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
         expectedChallenge,
         expectedOrigin: url.origin,
         expectedRPID: url.hostname,
+        requireUserVerification: false, // TODO: make configurable https://simplewebauthn.dev/docs/advanced/passkeys#verifyauthenticationresponse
         credential: {
           id: credential.id,
           publicKey: new Uint8Array(base64URLStringToBuffer(credential.publicKey)),
