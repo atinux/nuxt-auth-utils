@@ -147,6 +147,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.polar),
       icon: 'i-iconoir-polar-sh',
     },
+    {
+      label: user.value?.zitadel || 'Zitadel',
+      to: '/auth/zitadel',
+      disabled: Boolean(user.value?.zitadel),
+      icon: 'i-gravity-ui-lock',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
