@@ -308,5 +308,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Zitadel OAuth
+    runtimeConfig.oauth.zitadel = defu(runtimeConfig.oauth.zitadel, {
+      clientId: '',
+      clientSecret: '',
+      domain: '',
+      redirectURL: '',
+    })
   },
 })

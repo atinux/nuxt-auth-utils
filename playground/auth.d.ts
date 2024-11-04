@@ -27,6 +27,7 @@ declare module '#auth-utils' {
     tiktok?: string
     dropbox?: string
     polar?: string
+    zitadel?: string
   }
 
   interface UserSession {
