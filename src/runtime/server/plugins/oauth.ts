@@ -1,7 +1,24 @@
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
+import { getUserSession, setUserSession } from '../utils/session'
+import { useRuntimeConfig } from '#imports'
 
 export default defineNitroPlugin((nitroApp: NitroApp) => {
+  const config = useRuntimeConfig()
+  // update the session
+  if (config.autoExtendSession) {
+    nitroApp.hooks.hook('request', async (event) => {
+      if (event.path === '/api/_auth/session') {
+        return
+      }
+
+      const session = await getUserSession(event)
+      if (session && Object.keys(session).length > 0) {
+        await setUserSession(event, session)
+      }
+    })
+  }
+
   if (
     (process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID && process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET)
     || (process.env.NUXT_OAUTH_INSTAGRAM_CLIENT_ID && process.env.NUXT_OAUTH_INSTAGRAM_CLIENT_SECRET)
