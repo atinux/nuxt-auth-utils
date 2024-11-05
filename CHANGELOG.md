@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v0.5.2
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.1...v0.5.2)
+
+### 🚀 Enhancements
+
+- Zitadel provider implementation ([d4c0b5a](https://github.com/atinux/nuxt-auth-utils/commit/d4c0b5a))
+
+### 🏡 Chore
+
+- **release:** V0.5.1 ([727b5b4](https://github.com/atinux/nuxt-auth-utils/commit/727b5b4))
+- Fix package format ([247ec8f](https://github.com/atinux/nuxt-auth-utils/commit/247ec8f))
+- **playground:** Max height for dropdow ([10951b0](https://github.com/atinux/nuxt-auth-utils/commit/10951b0))
+- Update deps ([3e9422f](https://github.com/atinux/nuxt-auth-utils/commit/3e9422f))
+- **playground:** Update deps ([1d0d7f7](https://github.com/atinux/nuxt-auth-utils/commit/1d0d7f7))
+- Fix types ([a13b054](https://github.com/atinux/nuxt-auth-utils/commit/a13b054))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Velka ([@Velka-DEV](http://github.com/Velka-DEV))
+
 ## v0.5.1
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.0...v0.5.1)
