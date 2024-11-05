@@ -175,7 +175,10 @@ const providers = computed(() =>
           <AuthLogin />
           <WebAuthnModal />
           <PasswordModal />
-          <UDropdown :items="[providers]">
+          <UDropdown
+            :items="[providers]"
+            :ui="{ base: 'max-h-48' }"
+          >
             <UButton
               icon="i-heroicons-chevron-down"
               trailing
