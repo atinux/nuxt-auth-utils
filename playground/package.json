@@ -8,13 +8,13 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
-    "@iconify-json/gravity-ui": "^1.2.1",
-    "@iconify-json/iconoir": "^1.2.1",
-    "nuxt": "^3.13.2",
+    "@iconify-json/gravity-ui": "^1.2.2",
+    "@iconify-json/iconoir": "^1.2.3",
+    "nuxt": "^3.14.0",
     "nuxt-auth-utils": "latest",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "better-sqlite3": "^11.2.1"
+    "better-sqlite3": "^11.5.0"
   }
 }
