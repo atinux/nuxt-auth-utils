@@ -63,7 +63,7 @@ export async function setUserSession(event: H3Event, data: UserSession, config?:
     })
   }
   else {
-    await session.update(data)
+    await session.update(defu(data, session.data))
   }
 
   return session.data
