@@ -57,8 +57,10 @@ export async function setUserSession(event: H3Event, data: UserSession, config?:
 
   const sessionStorage = getSessionStorage()
   if (sessionStorage) {
+    const existingSessionData = await sessionStorage.getItem<UserSession>(`nuxt-session:${session.id}`)
+    const dataToApply = defu(data, existingSessionData)
     await sessionStorage.setItem(`nuxt-session:${session.id}`, {
-      ...data,
+      ...dataToApply,
       lastAccess: Date.now(),
     })
   }
