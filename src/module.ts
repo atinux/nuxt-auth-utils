@@ -315,5 +315,12 @@ export default defineNuxtModule<ModuleOptions>({
       domain: '',
       redirectURL: '',
     })
+    // Authentik OAuth
+    runtimeConfig.oauth.authentik = defu(runtimeConfig.oauth.authentik, {
+      clientId: '',
+      clientSecret: '',
+      domain: '',
+      redirectURL: '',
+    })
   },
 })

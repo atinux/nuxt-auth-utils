@@ -153,6 +153,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.zitadel),
       icon: 'i-gravity-ui-lock',
     },
+    {
+      label: user.value?.authentik || 'Authentik',
+      to: '/auth/authentik',
+      disabled: Boolean(user.value?.authentik),
+      icon: 'i-simple-icons-authentik',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,

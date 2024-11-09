@@ -28,6 +28,7 @@ declare module '#auth-utils' {
     dropbox?: string
     polar?: string
     zitadel?: string
+    authentik?: string
   }
 
   interface UserSession {

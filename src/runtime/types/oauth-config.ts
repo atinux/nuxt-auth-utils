@@ -1,6 +1,6 @@
 import type { H3Event, H3Error } from 'h3'
 
-export type OAuthProvider = 'auth0' | 'battledotnet' | 'cognito' | 'discord' | 'dropbox' | 'facebook' | 'github' | 'gitlab' | 'google' | 'instagram' | 'keycloak' | 'linear' | 'linkedin' | 'microsoft' | 'paypal' | 'polar' | 'spotify' | 'steam' | 'tiktok' | 'twitch' | 'vk' | 'x' | 'xsuaa' | 'yandex' | 'zitadel' | (string & {})
+export type OAuthProvider = 'auth0' | 'authentik' | 'battledotnet' | 'cognito' | 'discord' | 'dropbox' | 'facebook' | 'github' | 'gitlab' | 'google' | 'instagram' | 'keycloak' | 'linear' | 'linkedin' | 'microsoft' | 'paypal' | 'polar' | 'spotify' | 'steam' | 'tiktok' | 'twitch' | 'vk' | 'x' | 'xsuaa' | 'yandex' | 'zitadel' | (string & {})
 
 export type OnError = (event: H3Event, error: H3Error) => Promise<void> | void
 
