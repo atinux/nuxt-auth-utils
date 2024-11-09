@@ -10,7 +10,7 @@
   "dependencies": {
     "@iconify-json/gravity-ui": "^1.2.2",
     "@iconify-json/iconoir": "^1.2.3",
-    "nuxt": "^3.14.0",
+    "nuxt": "^3.14.159",
     "nuxt-auth-utils": "latest",
     "zod": "^3.23.8"
   },
