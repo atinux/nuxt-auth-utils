@@ -41,7 +41,8 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
     let user: T
     if (body.user && validateUser) {
       user = await validateUserData(body.user, validateUser)
-    } else {
+    }
+    else {
       user = {
         userName: finalUserName,
         displayName: displayName || finalUserName,
