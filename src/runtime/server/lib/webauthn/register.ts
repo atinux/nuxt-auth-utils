@@ -9,6 +9,11 @@ import { useRuntimeConfig } from '#imports'
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 import type { RegistrationBody } from '~/src/runtime/types/webauthn'
 
+export interface WebAuthnRegisterOptions {
+  userName?: string
+  displayName?: string
+}
+
 export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   storeChallenge,
   getChallenge,
@@ -17,19 +22,30 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   excludeCredentials,
   onSuccess,
   onError,
-}: WebAuthnRegisterEventHandlerOptions<T>) {
+  userName,
+  displayName,
+}: WebAuthnRegisterEventHandlerOptions<T> & WebAuthnRegisterOptions) {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody<T>>(event)
-    if (body.verify === undefined || !body.user?.userName)
+
+    // Check if userName is provided in options or request body
+    const finalUserName = userName || body.user?.userName
+    if (!finalUserName) {
       throw createError({
-        message: 'Invalid request, missing userName or verify property',
+        message: 'userName is required either in options or request body',
         statusCode: 400,
       })
+    }
 
-    let user = body.user
-    if (validateUser) {
+    let user: T
+    if (body.user && validateUser) {
       user = await validateUserData(body.user, validateUser)
+    } else {
+      user = {
+        userName: finalUserName,
+        displayName: displayName || finalUserName,
+      } as T
     }
 
     const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig(event).webauthn.register, {
