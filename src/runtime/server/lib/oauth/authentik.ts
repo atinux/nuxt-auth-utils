@@ -95,8 +95,6 @@ export function defineOAuthAuthentikEventHandler({ config, onSuccess, onError }:
       },
     })
 
-    console.log('Authentik user:', user)
-
     if (!user) {
       const error = createError({
         statusCode: 500,
