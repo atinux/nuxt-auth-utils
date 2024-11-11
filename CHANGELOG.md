@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v0.5.3
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.2...v0.5.3)
+
+### 🚀 Enhancements
+
+- Add authentik provider ([33686af](https://github.com/atinux/nuxt-auth-utils/commit/33686af))
+
+### 🩹 Fixes
+
+- **composable:** Use same context for `clear` and `fetch` ([#278](https://github.com/atinux/nuxt-auth-utils/pull/278))
+
+### 🏡 Chore
+
+- Update deps ([6072a74](https://github.com/atinux/nuxt-auth-utils/commit/6072a74))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Aoor9 ([@aoor9](http://github.com/aoor9))
+
 ## v0.5.2
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.1...v0.5.2)
