@@ -231,6 +231,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Bluesky OAuth
+    runtimeConfig.oauth.bluesky = defu(runtimeConfig.oauth.bluesky, {
+      publicUrl: '',
+      redirectURL: '',
+      scope: [] as string[],
+    })
     // Keycloak OAuth
     runtimeConfig.oauth.keycloak = defu(runtimeConfig.oauth.keycloak, {
       clientId: '',
