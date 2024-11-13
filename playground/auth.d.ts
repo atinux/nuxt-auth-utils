@@ -1,5 +1,6 @@
 declare module '#auth-utils' {
   interface User {
+    bluesky?: string
     webauthn?: string
     email?: string
     password?: string
