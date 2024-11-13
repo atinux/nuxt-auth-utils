@@ -14,6 +14,7 @@ import { join } from 'pathe'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
 import type { ScryptConfig } from '@adonisjs/hash/types'
+import type { SessionConfig } from 'h3'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -38,6 +39,10 @@ declare module 'nuxt/schema' {
     hash: {
       scrypt: ScryptConfig
     }
+    /**
+     * Session configuration
+     */
+    session: SessionConfig
   }
 }
 
@@ -122,7 +127,7 @@ export default defineNuxtModule<ModuleOptions>({
       cookie: {
         sameSite: 'lax',
       },
-    })
+    }) as SessionConfig
 
     runtimeConfig.hash = defu(runtimeConfig.hash, {
       scrypt: options.hash?.scrypt,
