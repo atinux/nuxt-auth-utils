@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
+import { createError, eventHandler, getQuery, getRequestURL, sendRedirect } from 'h3'
 import type { Storage, StorageValue } from 'unstorage'
 import { NodeOAuthClient, OAuthCallbackError, OAuthResolverError, OAuthResponseError } from '@atproto/oauth-client-node'
 import type {
@@ -7,26 +7,22 @@ import type {
   NodeSavedSessionStore,
   NodeSavedState,
   NodeSavedStateStore,
+  OAuthGrantType,
 } from '@atproto/oauth-client-node'
-import { defu } from 'defu'
 import { Agent } from '@atproto/api'
 import type { AppBskyActorGetProfile } from '@atproto/api'
-import { getOAuthRedirectURL, handleMissingConfiguration } from '../utils'
+import { getOAuthRedirectURL } from '../utils'
 import type { OAuthConfig } from '#auth-utils'
 import { useRuntimeConfig, useStorage } from '#imports'
+import type { AtprotoProviderClientMetadata } from '~/src/runtime/types/atproto'
 
 export interface OAuthBlueskyConfig {
   /**
-   * The URL on which your app will be deployed. This will be used to enable Bluesky to validate the client.
-   * This is only required for production environments.
-   * @default process.env.NUXT_OAUTH_BLUESKY_PUBLIC_URL
-   */
-  publicUrl?: string
-  /**
-   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * Redirect URL to use for this authorization flow. It should only consist of the path, as the hostname must always match the client id's hostname.
    * @default process.env.NUXT_OAUTH_BLUESKY_REDIRECT_URL
+   * @example '/auth/bluesky'
    */
-  redirectURL?: string
+  redirectUrl?: string
   /**
    * Bluesky OAuth Scope. The `atproto` scope is required and will be added if not present.
    * @default ['atproto']
@@ -34,14 +30,6 @@ export interface OAuthBlueskyConfig {
    * @example ['atproto', 'transition:generic']
    */
   scope?: string[]
-  /**
-   * Human-readable name of the client.
-   */
-  clientName?: string
-  /**
-   *  This is a homepage URL for the client. If provided, the client_uri must have the same hostname as client_id.
-   */
-  clientUri?: string
 }
 
 type BlueSkyUser = AppBskyActorGetProfile.Response['data'] | null
@@ -49,29 +37,40 @@ type BlueSkyTokens = NodeSavedSession['tokenSet']
 
 export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBlueskyConfig, BlueSkyUser, BlueSkyTokens>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.bluesky) as OAuthBlueskyConfig
+    const blueskyRuntimeConfig = useRuntimeConfig(event).oauth.bluesky as AtprotoProviderClientMetadata
 
-    config.scope ||= []
-    if (!config.scope.includes('atproto')) {
-      // atproto is a required scope
-      config.scope.push('atproto')
-    }
+    const scopes = [...new Set(['atproto', ...config?.scope ?? [], ...blueskyRuntimeConfig.scope ?? []])]
+    const scope = scopes.join(' ')
 
-    const scope = config.scope.join(' ')
+    const grantTypes = [...new Set(['authorization_code', ...blueskyRuntimeConfig.grantTypes ?? []])] as [OAuthGrantType, ...OAuthGrantType[]]
 
-    // For local development, Bluesky authorization servers allow "http://localhost" as a special value
+    const requestURL = getRequestURL(event)
+    const baseUrl = `${requestURL.protocol}//${requestURL.host}`
+
+    /**
+     * The redirect URL must be a valid URL, so we need to parse it to ensure it is correct. Will use the following order:
+     * 1. URL provided as part of the config of the event handler, on the condition that it was listed in the redirect URIs.
+     * 2. First URL provided in the runtime config.
+     * 3. The URL of the current request.
+     */
+    const redirectURL = new URL(
+      (config?.redirectUrl && baseUrl + config.redirectUrl)
+      || (blueskyRuntimeConfig.redirectUris[0] && baseUrl + blueskyRuntimeConfig.redirectUris[0])
+      || getOAuthRedirectURL(event),
+    )
+
     const dev = import.meta.dev
-
-    if ((!dev && !config.publicUrl)) {
-      const requiredFields = [!dev && 'publicUrl'].filter(Boolean) as string[]
-      return handleMissingConfiguration(event, 'bluesky', requiredFields, onError)
-    }
-
-    const redirectURL = new URL(config.redirectURL || getOAuthRedirectURL(event))
-    if (redirectURL.hostname === 'localhost' && dev) {
-      // For local development, Bluesky authorization servers allow "http://127.0.0.1" as a special value
+    if (dev && redirectURL.hostname === 'localhost') {
+      // For local development, Bluesky authorization servers allow "http://127.0.0.1" as a special value for redirect URIs
       redirectURL.hostname = '127.0.0.1'
     }
+    const redirectUris = (blueskyRuntimeConfig.redirectUris.length ? blueskyRuntimeConfig.redirectUris : [requestURL.pathname])
+      .map(uri => new URL(`${redirectURL.protocol}//${redirectURL.host}${uri}`).toString()) as [string, ...string[]]
+
+    const clientId = dev
+      // For local development, Bluesky authorization servers allow "http://localhost" as a special value for the client
+      ? `http://localhost?redirect_uri=${encodeURIComponent(redirectURL.toString())}&scope=${encodeURIComponent(scope)}`
+      : `${baseUrl}/${blueskyRuntimeConfig.clientMetadataFilename}`
 
     const storage = useStorage()
     const sessionStore = new SessionStore(storage)
@@ -83,16 +82,17 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
       // Todo: This needs to be exposed publicly so that the authorization server can validate the client
       // It is not verified by Bluesky yet, but it might be in the future
       clientMetadata: {
-        client_name: config?.clientName,
-        client_uri: config?.clientUri,
-        client_id: dev
-          ? `http://localhost?redirect_uri=${encodeURIComponent(redirectURL.toString())}&scope=${encodeURIComponent(scope)}`
-          : `${config.publicUrl}/client-metadata.json`,
-        redirect_uris: [redirectURL.toString()],
+        client_name: blueskyRuntimeConfig.clientName || undefined,
+        client_uri: blueskyRuntimeConfig.clientUri || undefined,
+        logo_uri: blueskyRuntimeConfig.logoUri || undefined,
+        policy_uri: blueskyRuntimeConfig.policyUri || undefined,
+        tos_uri: blueskyRuntimeConfig.tosUri || undefined,
+        client_id: clientId,
+        redirect_uris: redirectUris,
         scope,
-        grant_types: ['authorization_code', 'refresh_token'],
-        application_type: 'web',
-        token_endpoint_auth_method: 'none',
+        grant_types: grantTypes,
+        application_type: blueskyRuntimeConfig.applicationType,
+        token_endpoint_auth_method: blueskyRuntimeConfig.tokenEndpointAuthMethod,
         dpop_bound_access_tokens: true,
       },
     })
@@ -139,7 +139,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
     try {
       const { session } = await client.callback(new URLSearchParams(query as Record<string, string>))
       const sessionInfo = await sessionStore.get(session.did)
-      const profile = config.scope.includes('transition:generic')
+      const profile = scopes.includes('transition:generic')
         ? (await new Agent(session).getProfile({ actor: session.did })).data
         : null
 
