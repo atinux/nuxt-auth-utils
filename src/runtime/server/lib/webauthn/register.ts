@@ -5,7 +5,7 @@ import { generateRegistrationOptions, verifyRegistrationResponse } from '@simple
 import defu from 'defu'
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
-import { useUserSession, useRuntimeConfig } from '#imports'
+import { getUserSession, useRuntimeConfig } from '#imports'
 
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 import type { RegistrationBody } from '~/src/runtime/types/webauthn'
@@ -20,7 +20,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   onError,
 }: WebAuthnRegisterEventHandlerOptions<T>) {
   return eventHandler(async (event) => {
-    const { user: sessionUser } = useUserSession()
+    const { user: sessionUser } = await getUserSession(event)
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody<T>>(event)
 
