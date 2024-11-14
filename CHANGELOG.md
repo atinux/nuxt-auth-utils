@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v0.5.4
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.3...v0.5.4)
+
+### 🚀 Enhancements
+
+- Forward set-cookie header for `useUserSession().clear()` ([#282](https://github.com/atinux/nuxt-auth-utils/pull/282))
+
+### 🏡 Chore
+
+- Add SessionConfig type ([7633e27](https://github.com/atinux/nuxt-auth-utils/commit/7633e27))
+- Fix types ([5d58645](https://github.com/atinux/nuxt-auth-utils/commit/5d58645))
+- Update deps ([ffafb2c](https://github.com/atinux/nuxt-auth-utils/commit/ffafb2c))
+- Rename jtw to jwt ([139197b](https://github.com/atinux/nuxt-auth-utils/commit/139197b))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
 ## v0.5.3
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.2...v0.5.3)
