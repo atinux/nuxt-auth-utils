@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import jwt from '@tsndr/cloudflare-worker-jwt'
 
 export default defineEventHandler(async (event) => {

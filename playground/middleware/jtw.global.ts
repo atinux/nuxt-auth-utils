@@ -3,31 +3,31 @@ import { parse, parseSetCookie, serialize } from 'cookie-es'
 import type { JwtData } from '@tsndr/cloudflare-worker-jwt'
 import { decode } from '@tsndr/cloudflare-worker-jwt'
 
-export default defineNuxtRouteMiddleware(async (route) => {
+export default defineNuxtRouteMiddleware(async () => {
   const nuxtApp = useNuxtApp()
   // Don't run on client hydration when server rendered
   if (import.meta.client && nuxtApp.isHydrating && nuxtApp.payload.serverRendered) return
 
+  const { session, clear: clearSession, fetch: fetchSession } = useUserSession()
+  // Ignore if no tokens
+  if (!session.value?.jwt) return
+
   const serverEvent = useRequestEvent()
   const runtimeConfig = useRuntimeConfig()
-  const { session, clear, fetch } = useUserSession()
-  const { accessToken, refreshToken } = session.value?.jwt || {}
-  // Ignore if no tokens
-  if (!accessToken || !refreshToken) return
+  const { accessToken, refreshToken } = session.value.jwt
 
   const accessPayload = decode(accessToken)
   const refreshPayload = decode(refreshToken)
 
-  // console.log(accessPayload, '\n', refreshPayload)
   // Both tokens expired, clearing session
   if (isExpired(accessPayload) && isExpired(refreshPayload)) {
-    console.log('both tokens expired, clearing session')
-    await clear()
+    console.info('both tokens expired, clearing session')
+    await clearSession()
     // return navigateTo('/login')
   }
   // Access token expired, refreshing
   else if (isExpired(accessPayload)) {
-    console.log('access token expired, refreshing')
+    console.info('access token expired, refreshing')
     await useRequestFetch()('/api/jtw/refresh', {
       method: 'POST',
       onResponse({ response: { headers } }) {
@@ -53,7 +53,8 @@ export default defineNuxtRouteMiddleware(async (route) => {
         }
       },
     })
-    await fetch()
+    // refresh the session
+    await fetchSession()
   }
 })
 
