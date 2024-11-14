@@ -5,14 +5,10 @@ import { generateRegistrationOptions, verifyRegistrationResponse } from '@simple
 import defu from 'defu'
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
-import { useRuntimeConfig } from '#imports'
+import { useUserSession, useRuntimeConfig } from '#imports'
+
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 import type { RegistrationBody } from '~/src/runtime/types/webauthn'
-
-export interface WebAuthnRegisterOptions {
-  userName?: string
-  displayName?: string
-}
 
 export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   storeChallenge,
@@ -22,31 +18,27 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   excludeCredentials,
   onSuccess,
   onError,
-  userName,
-  displayName,
-}: WebAuthnRegisterEventHandlerOptions<T> & WebAuthnRegisterOptions) {
+}: WebAuthnRegisterEventHandlerOptions<T>) {
   return eventHandler(async (event) => {
+    const { user: sessionUser } = useUserSession()
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody<T>>(event)
 
-    // Check if userName is provided in options or request body
-    const finalUserName = userName || body.user?.userName
-    if (!finalUserName) {
+    // Check for existing session user's email or body user's userName
+    if (!sessionUser?.email && (body.verify === undefined || !body.user?.userName)) {
       throw createError({
-        message: 'userName is required either in options or request body',
+        message: 'No authenticated user found and missing userName in request',
         statusCode: 400,
       })
     }
 
-    let user: T
-    if (body.user && validateUser) {
-      user = await validateUserData(body.user, validateUser)
-    }
-    else {
-      user = {
-        userName: finalUserName,
-        displayName: displayName || finalUserName,
-      } as T
+    // Use session user's email as userName if available, otherwise use body user
+    let user = sessionUser?.email
+      ? { ...body.user, userName: sessionUser.email }
+      : body.user
+
+    if (validateUser) {
+      user = await validateUserData(user, validateUser)
     }
 
     const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig(event).webauthn.register, {
