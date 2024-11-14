@@ -29,6 +29,7 @@ declare module '#auth-utils' {
     polar?: string
     zitadel?: string
     authentik?: string
+    seznam?: string
   }
 
   interface UserSession {

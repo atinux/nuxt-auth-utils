@@ -327,5 +327,11 @@ export default defineNuxtModule<ModuleOptions>({
       domain: '',
       redirectURL: '',
     })
+    // Seznam OAuth
+    runtimeConfig.oauth.seznam = defu(runtimeConfig.oauth.seznam, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
   },
 })

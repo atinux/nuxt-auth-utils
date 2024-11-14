@@ -159,6 +159,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.authentik),
       icon: 'i-simple-icons-authentik',
     },
+    {
+      label: user.value?.seznam || 'Seznam',
+      to: '/auth/seznam',
+      disabled: Boolean(user.value?.seznam),
+      icon: 'i-gravity-ui-lock',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
