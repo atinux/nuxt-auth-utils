@@ -70,7 +70,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
     const clientId = dev
       // For local development, Bluesky authorization servers allow "http://localhost" as a special value for the client
       ? `http://localhost?redirect_uri=${encodeURIComponent(redirectURL.toString())}&scope=${encodeURIComponent(scope)}`
-      : `${baseUrl}/${blueskyRuntimeConfig.clientMetadataFilename}`
+      : `${baseUrl}/${blueskyRuntimeConfig.clientMetadataFilename || 'bluesky/client-metadata.json'}`
 
     const storage = useStorage()
     const sessionStore = new SessionStore(storage)

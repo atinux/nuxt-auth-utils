@@ -15,7 +15,7 @@ import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
 import type { ScryptConfig } from '@adonisjs/hash/types'
 import type { SessionConfig } from 'h3'
-import { atProtoProviderDefaultClientMetadata, atprotoProviders } from './utils/atproto'
+import { atprotoProviderDefaultClientMetadata, atprotoProviders } from './utils/atproto'
 import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
 
 // Module options TypeScript interface definition
@@ -257,7 +257,7 @@ export default defineNuxtModule<ModuleOptions>({
     // Atproto OAuth
     for (const provider of atprotoProviders) {
       // @ts-expect-error Not typesafe, but avoids repeating the same code for each provider
-      runtimeConfig.oauth[provider] = defu(runtimeConfig.oauth[provider], atProtoProviderDefaultClientMetadata) as AtprotoProviderClientMetadata
+      runtimeConfig.oauth[provider] = defu(runtimeConfig.oauth[provider], atprotoProviderDefaultClientMetadata) as AtprotoProviderClientMetadata
     }
 
     // Keycloak OAuth

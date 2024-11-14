@@ -3,7 +3,7 @@ import type { AtprotoProviderClientMetadata } from '../runtime/types/atproto'
 
 export const atprotoProviders: readonly OAuthProvider[] = ['bluesky'] as const
 
-export const atProtoProviderDefaultClientMetadata: AtprotoProviderClientMetadata = {
+export const atprotoProviderDefaultClientMetadata: AtprotoProviderClientMetadata = {
   clientMetadataFilename: '',
   clientName: '',
   clientUri: '',
