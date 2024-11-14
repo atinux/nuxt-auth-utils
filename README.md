@@ -208,6 +208,7 @@ It can also be set using environment variables:
 - Authentik
 - AWS Cognito
 - Battle.net
+- Bluesky (AT Protocol)
 - Discord
 - Dropbox
 - Facebook
