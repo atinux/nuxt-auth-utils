@@ -67,7 +67,11 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
       return handleMissingConfiguration(event, 'bluesky', requiredFields, onError)
     }
 
-    const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const redirectURL = new URL(config.redirectURL || getOAuthRedirectURL(event))
+    if (redirectURL.hostname === 'localhost' && dev) {
+      // For local development, Bluesky authorization servers allow "http://127.0.0.1" as a special value
+      redirectURL.hostname = '127.0.0.1'
+    }
 
     const storage = useStorage()
     const sessionStore = new SessionStore(storage)
@@ -82,9 +86,9 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
         client_name: config?.clientName,
         client_uri: config?.clientUri,
         client_id: dev
-          ? `http://localhost?redirect_uri=${encodeURIComponent(redirectURL)}&scope=${encodeURIComponent(scope)}`
+          ? `http://localhost?redirect_uri=${encodeURIComponent(redirectURL.toString())}&scope=${encodeURIComponent(scope)}`
           : `${config.publicUrl}/client-metadata.json`,
-        redirect_uris: [redirectURL],
+        redirect_uris: [redirectURL.toString()],
         scope,
         grant_types: ['authorization_code', 'refresh_token'],
         application_type: 'web',
@@ -135,7 +139,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
     try {
       const { session } = await client.callback(new URLSearchParams(query as Record<string, string>))
       const sessionInfo = await sessionStore.get(session.did)
-      const profile = scope.includes('transition:generic')
+      const profile = config.scope.includes('transition:generic')
         ? (await new Agent(session).getProfile({ actor: session.did })).data
         : null
 
