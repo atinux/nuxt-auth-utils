@@ -29,13 +29,19 @@ declare module '#auth-utils' {
     polar?: string
     zitadel?: string
     authentik?: string
+    jtw?: {
+      accessToken: string
+      refreshToken: string
+    }
   }
 
   interface UserSession {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extended?: any
     loggedInAt: number
-    secure?: Record<string, unknown>
+  }
+
+  interface SecureSessionData {
   }
 }
 
