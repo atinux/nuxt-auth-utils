@@ -226,6 +226,7 @@ It can also be set using environment variables:
 - TikTok
 - Twitch
 - VK
+- WorkOS
 - X (Twitter)
 - XSUAA
 - Yandex
