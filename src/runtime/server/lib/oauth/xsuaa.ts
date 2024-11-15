@@ -75,7 +75,7 @@ export function defineOAuthXSUAAEventHandler({ config, onSuccess, onError }: OAu
     })
 
     if (tokens.error) {
-      return handleAccessTokenErrorResponse(event, 'auth0', tokens, onError)
+      return handleAccessTokenErrorResponse(event, 'xsuaa', tokens, onError)
     }
 
     const tokenType = tokens.token_type

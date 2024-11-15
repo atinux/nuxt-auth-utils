@@ -26,6 +26,7 @@ declare module '#auth-utils' {
     yandex?: string
     tiktok?: string
     dropbox?: string
+    workos?: string
     polar?: string
     zitadel?: string
     authentik?: string
