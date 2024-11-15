@@ -8,7 +8,7 @@ import {
 import type { VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import type { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
 import { ref, onMounted } from '#imports'
-import type { WebAuthnComposable } from '#auth-utils'
+import type { WebAuthnComposable, WebAuthnUser } from '#auth-utils'
 
 interface RegistrationInitResponse {
   creationOptions: PublicKeyCredentialCreationOptionsJSON
@@ -43,7 +43,7 @@ export function useWebAuthn(options: {
     useBrowserAutofill = false,
   } = options
 
-  async function register(user: { userName: string, displayName?: string }) {
+  async function register(user: WebAuthnUser) {
     const { creationOptions, attemptId } = await $fetch<RegistrationInitResponse>(registerEndpoint, {
       method: 'POST',
       body: {
