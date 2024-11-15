@@ -1,5 +1,5 @@
 import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
-import type { ValidateFunction } from 'h3'
+import type { H3Event } from 'h3'
 import type { GenerateRegistrationOptionsOpts } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
@@ -7,7 +7,7 @@ import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import { useRuntimeConfig } from '#imports'
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
-import type { RegistrationBody } from '~/src/runtime/types/webauthn'
+import type { RegistrationBody, ValidateUserFunction } from '~/src/runtime/types/webauthn'
 
 export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   storeChallenge,
@@ -29,7 +29,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
 
     let user = body.user
     if (validateUser) {
-      user = await validateUserData(body.user, validateUser)
+      user = await validateUserData(body.user, event, validateUser)
     }
 
     const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig(event).webauthn.register, {
@@ -118,18 +118,19 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
 
 // Taken from h3
 export async function validateUserData<T>(
-  data: unknown,
-  fn: ValidateFunction<T>,
+  userBody: WebAuthnUser,
+  event: H3Event,
+  fn: ValidateUserFunction<T>,
 ): Promise<T> {
   try {
-    const res = await fn(data)
+    const res = await fn(userBody, event)
     if (res === false) {
       throw createUserValidationError()
     }
     if (res === true) {
-      return data as T
+      return userBody as T
     }
-    return res ?? (data as T)
+    return res ?? (userBody as T)
   }
   catch (error) {
     throw createUserValidationError(error as Error)
@@ -138,8 +139,8 @@ export async function validateUserData<T>(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createUserValidationError(validateError?: any) {
   throw createError({
-    status: 400,
-    message: 'User Validation Error',
+    status: validateError?.statusCode || 400,
+    message: validateError?.message || 'User Validation Error',
     data: validateError,
   })
 }

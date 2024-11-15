@@ -1,6 +1,6 @@
 import type { AuthenticationResponseJSON, AuthenticatorTransportFuture, RegistrationResponseJSON } from '@simplewebauthn/types'
 import type { Ref } from 'vue'
-import type { H3Event, H3Error, ValidateFunction } from 'h3'
+import type { H3Event, H3Error, ValidateResult } from 'h3'
 import type {
   GenerateAuthenticationOptionsOpts,
   GenerateRegistrationOptionsOpts,
@@ -48,13 +48,15 @@ export type RegistrationBody<T extends WebAuthnUser> = {
   response: RegistrationResponseJSON
 }
 
+export type ValidateUserFunction<T> = (userBody: WebAuthnUser, event: H3Event) => ValidateResult<T> | Promise<ValidateResult<T>>
+
 export type WebAuthnRegisterEventHandlerOptions<T extends WebAuthnUser> = WebAuthnEventHandlerBase<{
   user: T
   credential: WebAuthnCredential
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
   getOptions?: (event: H3Event, body: RegistrationBody<T>) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
-  validateUser?: ValidateFunction<T>
+  validateUser?: ValidateUserFunction<T>
   excludeCredentials?: (event: H3Event, userName: string) => CredentialsList | Promise<CredentialsList>
 }
 
