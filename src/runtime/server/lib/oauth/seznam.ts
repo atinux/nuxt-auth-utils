@@ -116,7 +116,7 @@ export interface OAuthSeznamUser {
   gender?: string | null
 }
 
-export function defineOAUthSeznamEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSeznamConfig>) {
+export function defineOAUthSeznamEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSeznamConfig, OAuthSeznamUser>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.google, {
       authorizationURL: 'https://login.szn.cz/api/v1/oauth/auth',
