@@ -148,6 +148,12 @@ const providers = computed(() =>
       icon: 'i-iconoir-polar-sh',
     },
     {
+      label: user.value?.workos || 'WorkOS',
+      to: '/auth/workos',
+      disabled: Boolean(user.value?.workos),
+      icon: 'i-logos-workos-icon',
+    },
+    {
       label: user.value?.zitadel || 'Zitadel',
       to: '/auth/zitadel',
       disabled: Boolean(user.value?.zitadel),

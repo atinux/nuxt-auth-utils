@@ -196,6 +196,14 @@ export default defineNuxtModule<ModuleOptions>({
       audience: '',
       redirectURL: '',
     })
+    // WorkOS OAuth
+    runtimeConfig.oauth.workos = defu(runtimeConfig.oauth.workos, {
+      clientId: '',
+      clientSecret: '',
+      connectionId: '',
+      screenHint: '',
+      redirectURL: '',
+    })
     // Microsoft OAuth
     runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
       clientId: '',
