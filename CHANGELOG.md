@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.5.5
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.4...v0.5.5)
+
+### 🚀 Enhancements
+
+- Add workos oauth provider ([bfa2a88](https://github.com/atinux/nuxt-auth-utils/commit/bfa2a88))
+- Add seznam oauth provider ([#285](https://github.com/atinux/nuxt-auth-utils/pull/285))
+- **webauthn:** Add event to validateUser to track authenticated users ([#287](https://github.com/atinux/nuxt-auth-utils/pull/287))
+
+### 🏡 Chore
+
+- Update packageManager to pnpm 9.13.2 ([fc0d991](https://github.com/atinux/nuxt-auth-utils/commit/fc0d991))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- David Stranava ([@stranavad](http://github.com/stranavad))
+- Brian Coleman <me@briancoleman.net>
+
 ## v0.5.4
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.3...v0.5.4)
