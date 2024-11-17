@@ -522,12 +522,12 @@ Example middleware:
 
 ```ts
 // server/middleware/cookie-lifetime-extend.ts
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
   if (session && Object.keys(session).length > 0) {
     await setUserSession(event, session)
   }
-}
+})
 ```
 
 ## Server-Side Rendering
