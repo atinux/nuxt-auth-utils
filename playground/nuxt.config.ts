@@ -6,14 +6,6 @@ export default defineNuxtConfig({
     autoImport: true,
   },
   devtools: { enabled: true },
-  runtimeConfig: {
-    oauth: {
-      bluesky: {
-        redirectURL: 'http://127.0.0.1:3000/auth/bluesky',
-        scope: ['transition:generic'],
-      },
-    },
-  },
   routeRules: {
     '/': {
       // prerender: true,
