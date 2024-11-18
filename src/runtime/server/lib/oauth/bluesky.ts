@@ -9,7 +9,7 @@ import type {
   NodeSavedStateStore,
 } from '@atproto/oauth-client-node'
 import { Agent } from '@atproto/api'
-import type { AppBskyActorGetProfile } from '@atproto/api'
+import type { AppBskyActorDefs } from '@atproto/api'
 import { getAtprotoClientMetadata } from '../../utils/atproto'
 import type { OAuthConfig } from '#auth-utils'
 import { useStorage } from '#imports'
@@ -30,7 +30,7 @@ export interface OAuthBlueskyConfig {
   scope?: string[]
 }
 
-type BlueSkyUser = AppBskyActorGetProfile.Response['data'] | null
+type BlueSkyUser = AppBskyActorDefs.ProfileViewDetailed | Pick<AppBskyActorDefs.ProfileView, 'did'>
 type BlueSkyTokens = NodeSavedSession['tokenSet']
 
 export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBlueskyConfig, BlueSkyUser, BlueSkyTokens>) {
@@ -97,7 +97,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
         : null
 
       return onSuccess(event, {
-        user: profile,
+        user: profile ?? { did: session.did },
         tokens: sessionInfo!.tokenSet,
       })
     }

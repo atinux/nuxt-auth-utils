@@ -2,7 +2,7 @@ export default defineOAuthBlueskyEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        bluesky: user?.did,
+        bluesky: user.did,
       },
       loggedInAt: Date.now(),
     })

@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
 import { getAtprotoClientMetadata } from '../../utils/atproto'
-import { atprotoProviders } from '../../../../utils/atproto'
+import { atprotoProviders, getClientMetadataFilename } from '../../../../utils/atproto'
 import type { AtprotoProviderClientMetadata } from '../../../types/atproto'
 import { useRuntimeConfig } from '#imports'
 
@@ -11,7 +11,7 @@ export default defineEventHandler((event) => {
   for (const provider of atprotoProviders) {
     const config: AtprotoProviderClientMetadata = runtimeConfig.oauth[provider]
 
-    if (config.clientMetadataFilename === path) {
+    if (getClientMetadataFilename(provider, config) === path) {
       return getAtprotoClientMetadata(event, provider)
     }
   }

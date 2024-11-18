@@ -18,3 +18,7 @@ export const atprotoProviderDefaultClientMetadata: AtprotoProviderClientMetadata
   dpopBoundAccessTokens: true as const,
   tokenEndpointAuthMethod: 'none',
 }
+
+export function getClientMetadataFilename(provider: OAuthProvider, config?: AtprotoProviderClientMetadata): string {
+  return config?.clientMetadataFilename || provider + '/client-metadata.json'
+}
