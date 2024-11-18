@@ -1,8 +1,8 @@
 import { defineEventHandler, createError } from 'h3'
 import { getAtprotoClientMetadata } from '../../utils/atproto'
+import { atprotoProviders } from '../../../../utils/atproto'
+import type { AtprotoProviderClientMetadata } from '../../../types/atproto'
 import { useRuntimeConfig } from '#imports'
-import { atprotoProviders } from '~/src/utils/atproto'
-import type { AtprotoProviderClientMetadata } from '~/src/runtime/types/atproto'
 
 export default defineEventHandler((event) => {
   const path = event.path.slice(1)
