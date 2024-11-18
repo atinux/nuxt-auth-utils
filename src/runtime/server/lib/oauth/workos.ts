@@ -12,22 +12,27 @@ import type { OAuthConfig } from '#auth-utils'
  */
 export interface OAuthWorkOSConfig {
   /**
-   * WorkOS OAuth Client ID
+   * WorkOS OAuth Client ID *required
    * @default process.env.NUXT_OAUTH_WORKOS_CLIENT_ID
    */
   clientId?: string
   /**
-   * WorkOS OAuth Client Secret (API Key)
+   * WorkOS OAuth Client Secret (API Key) *required
    * @default process.env.NUXT_OAUTH_WORKOS_CLIENT_SECRET
    */
   clientSecret?: string
   /**
-   * WorkOS OAuth Connection ID (Not required for WorkOS)
+   * WorkOS OAuth Organization ID *not required
+   * @default process.env.NUXT_OAUTH_WORKOS_ORGANIZATION_ID
+   */
+  organizationId?: string
+  /**
+   * WorkOS OAuth Connection ID *not required
    * @default process.env.NUXT_OAUTH_WORKOS_CONNECTION_ID
    */
   connectionId?: string
   /**
-   * WorkOS OAuth screen hint
+   * WorkOS OAuth screen hint *not required
    * @default 'sign-in'
    */
   screenHint?: 'sign-in' | 'sign-up'
@@ -37,6 +42,7 @@ export interface OAuthWorkOSConfig {
    */
   redirectURL?: string
 }
+
 export interface OAuthWorkOSUser {
   object: 'user'
   id: string
@@ -74,7 +80,7 @@ export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OA
       return handleMissingConfiguration(event, 'workos', ['clientId', 'clientSecret'], onError)
     }
 
-    const query = getQuery<{ code?: string, state?: string, error?: string, error_description?: string, returnURL?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string, error?: string, error_description?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (query.error) {
@@ -89,15 +95,13 @@ export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OA
           response_type: 'code',
           provider: 'authkit',
           client_id: config.clientId,
-          redirect_uri: redirectURL,
-          connection_id: config.connectionId,
-          screen_hint: config.screenHint,
+          redirect_uri: redirectURL || undefined,
+          connection_id: config.connectionId || undefined,
+          screen_hint: config.screenHint || 'sign-in',
+          organization_id: config.organizationId || undefined,
         }),
       )
     }
-
-    const ip_address = getRequestIP(event)
-    const user_agent = getRequestHeader(event, 'user-agent')
 
     const authenticateResponse: OAuthWorkOSAuthenticateResponse = await requestAccessToken('https://api.workos.com/user_management/authenticate', {
       headers: {
@@ -108,8 +112,8 @@ export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OA
         client_id: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
-        ip_address,
-        user_agent,
+        ip_address: getRequestIP(event),
+        user_agent: getRequestHeader(event, 'user-agent'),
         code: query.code,
       },
     })
