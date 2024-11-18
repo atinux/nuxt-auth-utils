@@ -1,4 +1,4 @@
-export default defineOAUthSeznamEventHandler({
+export default defineOAuthSeznamEventHandler({
   config: {
     scope: ['identity'],
   },
