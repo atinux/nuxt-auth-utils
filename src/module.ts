@@ -258,6 +258,11 @@ export default defineNuxtModule<ModuleOptions>({
     for (const provider of atprotoProviders) {
       // @ts-expect-error Not typesafe, but avoids repeating the same code for each provider
       runtimeConfig.oauth[provider] = defu(runtimeConfig.oauth[provider], atprotoProviderDefaultClientMetadata) as AtprotoProviderClientMetadata
+      addServerHandler({
+        handler: resolver.resolve('./runtime/server/routes/atproto/client-metadata.json.get.ts'),
+        route: '/' + (runtimeConfig.oauth[provider] as AtprotoProviderClientMetadata).clientMetadataFilename,
+        method: 'get',
+      })
     }
 
     // Keycloak OAuth
