@@ -3,6 +3,7 @@ import type { OAuthClientMetadataInput, OAuthGrantType } from '@atproto/oauth-cl
 import type { AtprotoProviderClientMetadata } from '../../types/atproto'
 import type { OAuthBlueskyConfig } from '../lib/oauth/bluesky'
 import { getOAuthRedirectURL } from '../lib/utils'
+import { getClientMetadataFilename } from '../../../utils/atproto'
 import type { OAuthConfig, OAuthProvider } from '#auth-utils'
 import { getRequestURL, useRuntimeConfig } from '#imports'
 
@@ -43,7 +44,7 @@ export function getAtprotoClientMetadata(
   const clientId = dev
     // For local development, Bluesky authorization servers allow "http://localhost" as a special value for the client
     ? `http://localhost?redirect_uri=${encodeURIComponent(redirectURL.toString())}&scope=${encodeURIComponent(scope)}`
-    : `${baseUrl}/${providerRuntimeConfig.clientMetadataFilename || provider + '/client-metadata.json'}`
+    : `${baseUrl}/${getClientMetadataFilename('bluesky', providerRuntimeConfig)}`
 
   const clientMetadata: OAuthClientMetadataInput = {
     client_name: providerRuntimeConfig.clientName || undefined,
