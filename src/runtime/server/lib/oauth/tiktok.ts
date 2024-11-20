@@ -10,7 +10,7 @@ import type { OAuthConfig } from '#auth-utils'
 export interface OAuthTikTokConfig {
   /**
    * TikTok Client Key
-   * @default process.env.NUXT_OAUTH_TIKTOK_CLIENT_KEY
+   * @default process.env.NUXT_OAUTH_TIKTOK_CLIENT_ID
    */
   clientKey?: string
 
