@@ -164,7 +164,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
-    // GitHub OAuth
+    // GitLab OAuth
     runtimeConfig.oauth.gitlab = defu(runtimeConfig.oauth.gitlab, {
       clientId: '',
       clientSecret: '',
@@ -337,6 +337,12 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // Seznam OAuth
     runtimeConfig.oauth.seznam = defu(runtimeConfig.oauth.seznam, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // Strava OAuth
+    runtimeConfig.oauth.strava = defu(runtimeConfig.oauth.strava, {
       clientId: '',
       clientSecret: '',
       redirectURL: '',

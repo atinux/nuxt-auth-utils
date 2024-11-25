@@ -171,6 +171,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.seznam),
       icon: 'i-gravity-ui-lock',
     },
+    {
+      label: user.value?.strava || 'Strava',
+      to: '/auth/strava',
+      disabled: Boolean(user.value?.strava),
+      icon: 'i-simple-icons-strava',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,

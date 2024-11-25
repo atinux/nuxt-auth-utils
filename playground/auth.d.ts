@@ -31,6 +31,7 @@ declare module '#auth-utils' {
     zitadel?: string
     authentik?: string
     seznam?: string
+    strava?: string
   }
 
   interface UserSession {

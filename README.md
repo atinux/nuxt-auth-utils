@@ -224,6 +224,7 @@ It can also be set using environment variables:
 - Seznam
 - Spotify
 - Steam
+- Strava
 - TikTok
 - Twitch
 - VK
