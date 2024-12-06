@@ -231,6 +231,7 @@ It can also be set using environment variables:
 - X (Twitter)
 - XSUAA
 - Yandex
+- Zitadel
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 

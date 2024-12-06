@@ -111,8 +111,6 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
       },
     })
 
-    console.log('Zitadel user:', user)
-
     if (!user) {
       const error = createError({
         statusCode: 500,
