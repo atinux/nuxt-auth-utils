@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v0.5.6
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.5...v0.5.6)
+
+### 🚀 Enhancements
+
+- Adding `organization_id` option for WorkOS provider ([677b226](https://github.com/atinux/nuxt-auth-utils/commit/677b226))
+- Add strava oauth provider ([96363b2](https://github.com/atinux/nuxt-auth-utils/commit/96363b2))
+
+### 🩹 Fixes
+
+- Seznam config ([90d0d18](https://github.com/atinux/nuxt-auth-utils/commit/90d0d18))
+- **instagram:** Oauth provider ([192e0e7](https://github.com/atinux/nuxt-auth-utils/commit/192e0e7))
+
+### 🏡 Chore
+
+- Update deps ([fb894bf](https://github.com/atinux/nuxt-auth-utils/commit/fb894bf))
+- Update deps" ([f4ef630](https://github.com/atinux/nuxt-auth-utils/commit/f4ef630))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Sandro Circi ([@sandros94](http://github.com/sandros94))
+- Justpeterpan <peter.busch@posteo.net>
+- David Stranava ([@stranavad](http://github.com/stranavad))
+- Brian Coleman ([@brianacdev](http://github.com/brianacdev))
+
 ## v0.5.5
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.4...v0.5.5)
