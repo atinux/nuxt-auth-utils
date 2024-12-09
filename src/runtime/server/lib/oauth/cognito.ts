@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { discovery } from 'openid-client'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
@@ -58,11 +59,13 @@ export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: O
     if (!config.clientId || !config.clientSecret || !config.userPoolId || !config.region) {
       return handleMissingConfiguration(event, 'cognito', ['clientId', 'clientSecret', 'userPoolId', 'region'], onError)
     }
-
-    const urlBase = config?.domain || `${config.userPoolId}.auth.${config.region}.amazoncognito.com`
-
-    const authorizationURL = `https://${urlBase}/oauth2/authorize`
-    const tokenURL = `https://${urlBase}/oauth2/token`
+    const congitoDiscoveryUrl = new URL(`https://cognito-idp.${config.region}.amazonaws.com/${config.userPoolId}/.well-known/openid-configuration`)
+    const issuer = await discovery(congitoDiscoveryUrl, config.clientId)
+    const {
+      authorization_endpoint: authorizationURL,
+      token_endpoint: tokenURL,
+      userinfo_endpoint: userinfoURL,
+    } = issuer.serverMetadata()
 
     const query = getQuery<{ code?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
@@ -101,9 +104,10 @@ export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: O
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
+    const endpointUrl = userinfoURL as string
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(`https://${urlBase}/oauth2/userInfo`, {
+    const user: any = await $fetch(endpointUrl, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },
