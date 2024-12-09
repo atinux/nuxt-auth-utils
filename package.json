@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.13.2",
   "exports": {
     ".": {
       "types": "./dist/types.d.ts",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@adonisjs/hash": "^9.0.5",
-    "@nuxt/kit": "^3.14.1592",
+    "@nuxt/kit": "^3.14.159",
     "defu": "^6.1.4",
     "h3": "^1.13.0",
     "hookable": "^5.5.3",
@@ -59,20 +59,20 @@
     }
   },
   "devDependencies": {
-    "@iconify-json/simple-icons": "^1.2.15",
+    "@iconify-json/simple-icons": "^1.2.11",
     "@nuxt/devtools": "latest",
-    "@nuxt/eslint-config": "^0.7.2",
+    "@nuxt/eslint-config": "^0.6.1",
     "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.14.1592",
-    "@nuxt/test-utils": "^3.15.1",
+    "@nuxt/schema": "^3.14.159",
+    "@nuxt/test-utils": "^3.14.4",
     "@nuxt/ui": "^2.19.2",
     "@nuxt/ui-pro": "^1.5.0",
-    "@simplewebauthn/types": "^12.0.0",
+    "@simplewebauthn/types": "^11.0.0",
     "changelogen": "^0.5.7",
-    "eslint": "^9.16.0",
-    "nuxt": "^3.14.1592",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8",
+    "eslint": "^9.14.0",
+    "nuxt": "^3.14.159",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5",
     "vue-tsc": "^2.1.10"
   }
 }
