@@ -19,23 +19,23 @@ export interface OAuthInstagramConfig {
   clientSecret?: string
   /**
    * Instagram OAuth Scope
-   * @default [ 'user_profile' ]
+   * @required [ 'business_basic' ]
    * @see https://developers.facebook.com/docs/instagram-basic-display-api/overview#permissions
-   * @example [ 'user_profile', 'user_media' ],
+   * @example [ 'business_basic', 'business_manage_messages' ],
    */
-  scope?: string[]
+  scope?: ('business_basic' | 'business_content_publish' | 'business_manage_comments' | 'business_manage_messages')[]
 
   /**
    * Instagram OAuth User Fields
    * @default [ 'id', 'username'],
    * @see https://developers.facebook.com/docs/instagram-basic-display-api/reference/user#fields
-   * @example [ 'id', 'username', 'account_type', 'media_count' ],
+   * @example [ 'id', 'username', 'user_id', 'account_type', 'profile_picture_url' ],
    */
-  fields?: string[]
+  fields?: ('id' | 'user_id' | 'username' | 'name' | 'account_type' | 'profile_picture_url' | 'followers_count' | 'follows_count' | 'media_count')[]
 
   /**
    * Instagram OAuth Authorization URL
-   * @default 'https://api.instagram.com/oauth/authorize'
+   * @default 'https://www.instagram.com/oauth/authorize'
    */
   authorizationURL?: string
 
@@ -64,19 +64,28 @@ export function defineOAuthInstagramEventHandler({
 }: OAuthConfig<OAuthInstagramConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.instagram, {
-      scope: ['user_profile'],
-      authorizationURL: 'https://api.instagram.com/oauth/authorize',
+      scope: ['business_basic'],
+      authorizationURL: 'https://www.instagram.com/oauth/authorize',
       tokenURL: 'https://api.instagram.com/oauth/access_token',
       authorizationParams: {},
     }) as OAuthInstagramConfig
 
-    const query = getQuery<{ code?: string, error?: string }>(event)
+    const query = getQuery<{
+      code?: string
+      error?: string
+      error_reason?: string
+      error_description?: string
+    }>(event)
 
     if (query.error) {
       const error = createError({
         statusCode: 401,
         message: `Instagram login failed: ${query.error || 'Unknown error'}`,
-        data: query,
+        data: {
+          error: query.error,
+          error_reason: query.error_reason,
+          error_description: query.error_description,
+        },
       })
       if (!onError) throw error
       return onError(event, error)
@@ -96,7 +105,7 @@ export function defineOAuthInstagramEventHandler({
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
           redirect_uri: redirectURL,
-          scope: config.scope.join(' '),
+          scope: config.scope.join(),
           response_type: 'code',
         }),
       )
@@ -120,10 +129,10 @@ export function defineOAuthInstagramEventHandler({
     // TODO: improve typing
 
     config.fields = config.fields || ['id', 'username']
-    const fields = config.fields.join(',')
+    const fields = config.fields.join()
 
     const user = await $fetch(
-      `https://graph.instagram.com/v20.0/me?fields=${fields}&access_token=${accessToken}`,
+      `https://graph.instagram.com/v21.0/me?fields=${fields}&access_token=${accessToken}`,
     )
 
     if (!user) {
