@@ -87,7 +87,7 @@ export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: O
         withQuery('https://app.hubspot.com/oauth/authorize', {
           client_id: config.clientId,
           redirect_uri: redirectURL,
-          scope: config.scope?.join(',') || 'oauth',
+          scope: config.scope?.join(' ') || 'oauth',
         }),
       )
     }
