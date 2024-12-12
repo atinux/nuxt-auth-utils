@@ -177,6 +177,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.strava),
       icon: 'i-simple-icons-strava',
     },
+    {
+      label: user.value?.hubspot || 'HubSpot',
+      to: '/auth/hubspot',
+      disabled: Boolean(user.value?.hubspot),
+      icon: 'i-simple-icons-hubspot',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
