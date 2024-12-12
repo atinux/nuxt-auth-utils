@@ -19,7 +19,7 @@ export interface OAuthKeycloakConfig {
   clientSecret?: string
   /**
    * Keycloak OAuth Server URL
-   * @example http://192.168.1.10:8080/auth
+   * @example http://192.168.1.10:8080
    * @default process.env.NUXT_OAUTH_KEYCLOAK_SERVER_URL
    */
   serverUrl?: string
@@ -40,7 +40,7 @@ export interface OAuthKeycloakConfig {
    */
   authorizationParams?: Record<string, string>
   /**
-   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * Redirect URL to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_KEYCLOAK_REDIRECT_URL or current URL
    */
   redirectURL?: string
