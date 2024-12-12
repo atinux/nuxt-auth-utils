@@ -11,8 +11,60 @@ import {
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
-export interface OAuthHubspotConfig {}
-export interface OAuthHubspotUser {}
+export interface OAuthHubspotConfig {
+  /**
+   * Hubspot OAuth Client ID
+   * @default process.env.NUXT_OAUTH_HUBSPOT_CLIENT_ID
+   */
+  clientId?: string
+
+  /**
+   * Hubspot OAuth Client Secret
+   * @default process.env.NUXT_OAUTH_HUBSPOT_CLIENT_SECRET
+   */
+  clientSecret?: string
+
+  /**
+   * Hubspot OAuth Redirect URL
+   * @default process.env.NUXT_OAUTH_HUBSPOT_REDIRECT_URL
+   */
+  redirectURL?: string
+
+  /**
+   * Hubspot OAuth Scope
+   * @default ['oauth']
+   * @see https://developers.hubspot.com/beta-docs/guides/apps/authentication/scopes
+   * @example ['accounting', 'automation', 'actions']
+   */
+  scope?: string[]
+}
+interface SignedAccessToken {
+  expiresAt: number
+  scopes: string
+  hubId: number
+  userId: number
+  appId: number
+  signature: string
+  scopeToScopeGroupPks?: string
+  newSignature?: string
+  hublet?: string
+  trialScopes?: string
+  trialScopeToScopeGroupPks?: string
+  isUserLevel: boolean
+}
+
+interface OAuthHubspotAccessInfo {
+  token: string
+  user: string
+  hub_domain: string
+  scopes: string[]
+  signed_access_token: SignedAccessToken
+  hub_id: number
+  app_id: number
+  expires_in: number
+  user_id: number
+  token_type: string
+}
 
 export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthHubspotConfig>) {
   return eventHandler(async (event: H3Event) => {
@@ -51,19 +103,17 @@ export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: O
         },
       })
 
-    console.log('tokens', tokens)
-
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'hubspot', tokens, onError)
     }
 
-    const profile: OAuthHubspotUser = await $fetch('https://api.hubapi.com/oauth/v1/access-tokens/' + tokens.access_token)
+    const info: OAuthHubspotAccessInfo = await $fetch('https://api.hubapi.com/oauth/v1/access-tokens/' + tokens.access_token)
 
     return onSuccess(event, {
       user: {
-        id: profile.user_id,
-        email: profile.user,
-        domain: profile.hub_domain,
+        id: info.user_id,
+        email: info.user,
+        domain: info.hub_domain,
       },
       tokens,
     })

@@ -32,6 +32,7 @@ declare module '#auth-utils' {
     authentik?: string
     seznam?: string
     strava?: string
+    hubspot?: string
   }
 
   interface UserSession {

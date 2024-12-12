@@ -5,9 +5,7 @@ export default defineOAuthHubspotEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        id: `${user.id}`,
-        email: `${user.email}`,
-        domain: `${user.domain}`,
+        hubspot: user.email,
       },
       loggedInAt: Date.now(),
     })
