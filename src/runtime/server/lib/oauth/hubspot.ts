@@ -14,7 +14,7 @@ import type { OAuthConfig } from '#auth-utils'
 export interface OAuthHubspotConfig {}
 export interface OAuthHubspotUser {}
 
-export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthHubspotConfig>) {
+export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthHubspotConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.hubspot) as OAuthHubspotConfig
 
@@ -51,6 +51,8 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
         },
       })
 
+    console.log('tokens', tokens)
+
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'hubspot', tokens, onError)
     }
@@ -61,7 +63,7 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
       user: {
         id: profile.user_id,
         email: profile.user,
-        hubDomain: profile.hub_domain,
+        domain: profile.hub_domain,
       },
       tokens,
     })
