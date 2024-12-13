@@ -81,8 +81,8 @@ export function defineOAuthFacebookEventHandler({
       return onError(event, error)
     }
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'facebook', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'facebook', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)

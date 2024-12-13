@@ -126,8 +126,8 @@ export function defineOAuthSeznamEventHandler({ config, onSuccess, onError }: OA
 
     const query = getQuery<{ code?: string, state?: string }>(event)
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'seznam', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'seznam', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)

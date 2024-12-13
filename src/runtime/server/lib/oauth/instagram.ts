@@ -91,8 +91,8 @@ export function defineOAuthInstagramEventHandler({
       return onError(event, error)
     }
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'instagram', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'instagram', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
