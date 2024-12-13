@@ -183,6 +183,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.hubspot),
       icon: 'i-simple-icons-hubspot',
     },
+    {
+      label: user.value?.atlassian || 'Atlassian',
+      to: '/auth/atlassian',
+      disabled: Boolean(user.value?.atlassian),
+      icon: 'i-simple-icons-atlassian',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,

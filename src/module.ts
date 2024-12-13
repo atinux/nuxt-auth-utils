@@ -354,5 +354,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Atlassian OAuth
+    runtimeConfig.oauth.atlassian = defu(runtimeConfig.oauth.atlassian, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
   },
 })
