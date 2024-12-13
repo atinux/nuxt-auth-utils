@@ -68,8 +68,8 @@ export function defineOAuthTwitchEventHandler({ config, onSuccess, onError }: OA
 
     const query = getQuery<{ code?: string }>(event)
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'twitch', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'twitch', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)

@@ -80,8 +80,8 @@ export function defineOAuthXEventHandler({
 
     const query = getQuery<{ code?: string }>(event)
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'x', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'x', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
