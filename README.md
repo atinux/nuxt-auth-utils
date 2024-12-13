@@ -214,6 +214,7 @@ It can also be set using environment variables:
 - GitHub
 - GitLab
 - Google
+- Hubspot
 - Instagram
 - Keycloak
 - Linear

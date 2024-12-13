@@ -348,5 +348,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Hubspot OAuth
+    runtimeConfig.oauth.hubspot = defu(runtimeConfig.oauth.hubspot, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
   },
 })
