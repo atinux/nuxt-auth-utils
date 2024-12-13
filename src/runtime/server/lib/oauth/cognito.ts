@@ -1,11 +1,11 @@
+import type { OAuthConfig } from '#auth-utils'
+import { useRuntimeConfig } from '#imports'
+import { defu } from 'defu'
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { discovery } from 'openid-client'
 import { withQuery } from 'ufo'
-import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '#auth-utils'
+import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleMissingConfiguration, requestAccessToken } from '../utils'
 
 export interface OAuthCognitoConfig {
   /**
@@ -43,11 +43,6 @@ export interface OAuthCognitoConfig {
    * @default process.env.NUXT_OAUTH_COGNITO_REDIRECT_URL or current URL
    */
   redirectURL?: string
-  /**
-   * AWS Cognito App Custom Domain – some pool configurations require this
-   * @default ''
-   */
-  domain?: string
 }
 
 export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
@@ -59,14 +54,17 @@ export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: O
     if (!config.clientId || !config.clientSecret || !config.userPoolId || !config.region) {
       return handleMissingConfiguration(event, 'cognito', ['clientId', 'clientSecret', 'userPoolId', 'region'], onError)
     }
+
     const congitoDiscoveryUrl = new URL(`https://cognito-idp.${config.region}.amazonaws.com/${config.userPoolId}/.well-known/openid-configuration`)
-    const issuer = await discovery(congitoDiscoveryUrl, config.clientId)
+    const issuer = await discovery(congitoDiscoveryUrl, config.clientId, config.clientSecret)
     const {
       authorization_endpoint: authorizationURL,
       token_endpoint: tokenURL,
       userinfo_endpoint: userinfoURL,
+      // TODO: implement logout
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      end_session_endpoint: logoutURL,
     } = issuer.serverMetadata()
-
     const query = getQuery<{ code?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
@@ -104,10 +102,8 @@ export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: O
 
     const tokenType = tokens.token_type
     const accessToken = tokens.access_token
-    const endpointUrl = userinfoURL as string
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(endpointUrl, {
+    // TODO: improve typing of user profile
+    const user: unknown = await $fetch(userinfoURL as string, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },
