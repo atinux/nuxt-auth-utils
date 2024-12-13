@@ -232,6 +232,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       serverUrl: '',
+      serverUrlInternal: '',
       realm: '',
       redirectURL: '',
     })
