@@ -1,6 +1,34 @@
 # Changelog
 
 
+## v0.5.7
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.6...v0.5.7)
+
+### 🚀 Enhancements
+
+- Keycloak internal server URL ([ac61ae5](https://github.com/atinux/nuxt-auth-utils/commit/ac61ae5))
+- **cognito:** Integrate OpenID Connect discovery for improved OAuth flow ([7a01cc3](https://github.com/atinux/nuxt-auth-utils/commit/7a01cc3))
+- Add hubspot provider ([1a79baf](https://github.com/atinux/nuxt-auth-utils/commit/1a79baf))
+
+### 🩹 Fixes
+
+- Make sure the required env is checked ([#306](https://github.com/atinux/nuxt-auth-utils/pull/306))
+
+### 🏡 Chore
+
+- Lint fix ([3532d48](https://github.com/atinux/nuxt-auth-utils/commit/3532d48))
+- Update deps ([f6f6b71](https://github.com/atinux/nuxt-auth-utils/commit/f6f6b71))
+- Update deps ([7d09be5](https://github.com/atinux/nuxt-auth-utils/commit/7d09be5))
+- Lint fix ([c9a3716](https://github.com/atinux/nuxt-auth-utils/commit/c9a3716))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Guilherme Guimarães <gui.cazaroto@gmail.com>
+- Gage Keenan ([@kilakewe](http://github.com/kilakewe))
+- Carl Gödecken ([@MasterCarl](http://github.com/MasterCarl))
+
 ## v0.5.6
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.5...v0.5.6)
