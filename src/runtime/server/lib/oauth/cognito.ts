@@ -1,11 +1,11 @@
-import type { OAuthConfig } from '#auth-utils'
-import { useRuntimeConfig } from '#imports'
 import { defu } from 'defu'
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { discovery } from 'openid-client'
 import { withQuery } from 'ufo'
 import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleMissingConfiguration, requestAccessToken } from '../utils'
+import { useRuntimeConfig } from '#imports'
+import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthCognitoConfig {
   /**
