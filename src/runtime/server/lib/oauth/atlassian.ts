@@ -2,10 +2,10 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
+import { randomUUID } from 'uncrypto'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
-import { randomUUID } from 'uncrypto'
 
 interface AtlassianUser {
   account_id?: string // 000000-X0X0X0X0-X0X0-X0X0-X0X0-X0X0X0X0X0X0
@@ -136,7 +136,7 @@ export function defineOAuthAtlassianEventHandler({
           response_type: 'code',
           prompt: 'consent',
           ...config.authorizationParams,
-        })
+        }),
       )
     }
 
@@ -152,15 +152,15 @@ export function defineOAuthAtlassianEventHandler({
 
     const tokens: AtlassianTokens = await requestAccessToken(config.tokenURL as string, {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: {
         grant_type: 'authorization_code',
         client_id: config.clientId,
         client_secret: config.clientSecret,
         code: query.code,
-        redirect_uri: redirectURL
-      }
+        redirect_uri: redirectURL,
+      },
     })
 
     if (tokens.error || !tokens.access_token) {
@@ -169,16 +169,16 @@ export function defineOAuthAtlassianEventHandler({
 
     const user = await $fetch<AtlassianUser>('https://api.atlassian.com/me', {
       headers: {
-        Authorization: `Bearer ${tokens.access_token}`,
-        'Content-Type': 'application/json'
-      }
+        'Authorization': `Bearer ${tokens.access_token}`,
+        'Content-Type': 'application/json',
+      },
     })
 
     if (user.account_status === 'inactive') {
       throw createError({
         statusCode: 403,
         statusMessage: 'Atlassian account is inactive',
-        data: { accountStatus: user.account_status }
+        data: { accountStatus: user.account_status },
       })
     }
 
@@ -186,7 +186,7 @@ export function defineOAuthAtlassianEventHandler({
       throw createError({
         statusCode: 400,
         statusMessage: 'Email address is not verified',
-        data: { email: user.email }
+        data: { email: user.email },
       })
     }
 

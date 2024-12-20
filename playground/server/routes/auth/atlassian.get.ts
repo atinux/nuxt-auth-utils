@@ -1,5 +1,5 @@
 export default defineOAuthAtlassianEventHandler({
-  async onSuccess(event, { user, tokens }) {
+  async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
         email: user.email,
@@ -8,5 +8,5 @@ export default defineOAuthAtlassianEventHandler({
     })
 
     return sendRedirect(event, '/')
-  }
+  },
 })
