@@ -354,5 +354,16 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Line OAuth
+    runtimeConfig.oauth.line = defu(runtimeConfig.oauth.line, {
+      clientId: '',
+      clientSecret: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
+      authorizationParams:{},
+      redirectURL: '',
+    })
   },
 })

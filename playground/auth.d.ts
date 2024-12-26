@@ -13,6 +13,7 @@ declare module '#auth-utils' {
     discord?: string
     battledotnet?: string
     keycloak?: string
+    line?: string
     linear?: string
     linkedin?: string
     cognito?: string
