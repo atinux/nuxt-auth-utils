@@ -148,10 +148,40 @@ const providers = computed(() =>
       icon: 'i-iconoir-polar-sh',
     },
     {
-      label: user.value?.passport || 'Passport',
-      to: '/auth/passport',
-      disabled: Boolean(user.value?.passport),
-      icon: 'i-mdi-laravel',
+      label: user.value?.workos || 'WorkOS',
+      to: '/auth/workos',
+      disabled: Boolean(user.value?.workos),
+      icon: 'i-logos-workos-icon',
+    },
+    {
+      label: user.value?.zitadel || 'Zitadel',
+      to: '/auth/zitadel',
+      disabled: Boolean(user.value?.zitadel),
+      icon: 'i-gravity-ui-lock',
+    },
+    {
+      label: user.value?.authentik || 'Authentik',
+      to: '/auth/authentik',
+      disabled: Boolean(user.value?.authentik),
+      icon: 'i-simple-icons-authentik',
+    },
+    {
+      label: user.value?.seznam || 'Seznam',
+      to: '/auth/seznam',
+      disabled: Boolean(user.value?.seznam),
+      icon: 'i-gravity-ui-lock',
+    },
+    {
+      label: user.value?.strava || 'Strava',
+      to: '/auth/strava',
+      disabled: Boolean(user.value?.strava),
+      icon: 'i-simple-icons-strava',
+    },
+    {
+      label: user.value?.hubspot || 'HubSpot',
+      to: '/auth/hubspot',
+      disabled: Boolean(user.value?.hubspot),
+      icon: 'i-simple-icons-hubspot',
     },
   ].map(p => ({
     ...p,
@@ -175,7 +205,10 @@ const providers = computed(() =>
           <AuthLogin />
           <WebAuthnModal />
           <PasswordModal />
-          <UDropdown :items="[providers]">
+          <UDropdown
+            :items="[providers]"
+            :ui="{ base: 'max-h-48' }"
+          >
             <UButton
               icon="i-heroicons-chevron-down"
               trailing

@@ -19,10 +19,17 @@ export interface OAuthKeycloakConfig {
   clientSecret?: string
   /**
    * Keycloak OAuth Server URL
-   * @example http://192.168.1.10:8080/auth
+   * @example http://192.168.1.10:8080
    * @default process.env.NUXT_OAUTH_KEYCLOAK_SERVER_URL
    */
   serverUrl?: string
+  /**
+   * Optional Keycloak OAuth Server URL to use internally, e.g. if Nuxt connects to a Docker hostname while the browser
+   * redirect goes to localhost
+   * @example http://keycloak:8080
+   * @default process.env.NUXT_OAUTH_KEYCLOAK_SERVER_URL_INTERNAL
+   */
+  serverUrlInternal?: string
   /**
    * Keycloak OAuth Realm
    * @default process.env.NUXT_OAUTH_KEYCLOAK_REALM
@@ -40,7 +47,7 @@ export interface OAuthKeycloakConfig {
    */
   authorizationParams?: Record<string, string>
   /**
-   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * Redirect URL to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_KEYCLOAK_REDIRECT_URL or current URL
    */
   redirectURL?: string
@@ -78,9 +85,10 @@ export function defineOAuthKeycloakEventHandler({
     }
 
     const realmURL = `${config.serverUrl}/realms/${config.realm}`
+    const realmURLInternal = `${config.serverUrlInternal || config.serverUrl}/realms/${config.realm}`
 
     const authorizationURL = `${realmURL}/protocol/openid-connect/auth`
-    const tokenURL = `${realmURL}/protocol/openid-connect/token`
+    const tokenURL = `${realmURLInternal}/protocol/openid-connect/token`
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {

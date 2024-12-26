@@ -1,17 +1,27 @@
 import { z } from 'zod'
 
 export default defineWebAuthnRegisterEventHandler({
-  validateUser: z.object({
-    userName: z.string().email().trim(),
-    displayName: z.string().trim().optional(),
-    company: z.string().trim().optional(),
-  }).parse,
+  async validateUser(userBody, event) {
+    const session = await getUserSession(event)
+    if (session.user?.email && session.user.email !== userBody.userName) {
+      throw createError({ statusCode: 400, message: 'Email not matching curent session' })
+    }
+
+    return z.object({
+      userName: z.string().email().trim(),
+      displayName: z.string().trim().optional(),
+      company: z.string().trim().optional(),
+    }).parse(userBody)
+  },
   async onSuccess(event, { credential, user }) {
     const db = useDatabase()
     try {
       await db.sql`BEGIN TRANSACTION`
-      await db.sql`INSERT INTO users (email) VALUES (${user.userName})`
-      const { rows: [dbUser] } = await db.sql`SELECT * FROM users WHERE email = ${user.userName}`
+      let { rows: [dbUser] } = await db.sql`SELECT * FROM users WHERE email = ${user.userName}`
+      if (!dbUser) {
+        await db.sql`INSERT INTO users (email) VALUES (${user.userName})`
+        dbUser = (await db.sql`SELECT * FROM users WHERE email = ${user.userName}`).rows?.[0]
+      }
       await db.sql`
         INSERT INTO credentials (
           userId,

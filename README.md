@@ -205,6 +205,7 @@ It can also be set using environment variables:
 #### Supported OAuth Providers
 
 - Auth0
+- Authentik
 - AWS Cognito
 - Battle.net
 - Discord
@@ -213,6 +214,7 @@ It can also be set using environment variables:
 - GitHub
 - GitLab
 - Google
+- Hubspot
 - Instagram
 - Keycloak
 - Linear
@@ -220,14 +222,18 @@ It can also be set using environment variables:
 - Microsoft
 - PayPal
 - Polar
+- Seznam
 - Spotify
 - Steam
+- Strava
 - TikTok
 - Twitch
 - VK
+- WorkOS
 - X (Twitter)
 - XSUAA
 - Yandex
+- Zitadel
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 
@@ -348,10 +354,21 @@ The following code does not include the actual database queries, but shows the g
 import { z } from 'zod'
 export default defineWebAuthnRegisterEventHandler({
   // optional
-  validateUser: z.object({
-    // we want the userName to be a valid email
-    userName: z.string().email() 
-  }).parse,
+  async validateUser(userBody, event) {
+    // bonus: check if the user is already authenticated to link a credential to his account
+    // We first check if the user is already authenticated by getting the session
+    // And verify that the email is the same as the one in session
+    const session = await getUserSession(event)
+    if (session.user?.email && session.user.email !== body.userName) {
+      throw createError({ statusCode: 400, message: 'Email not matching curent session' })
+    }
+
+    // If he registers a new account with credentials
+    return z.object({
+      // we want the userName to be a valid email
+      userName: z.string().email() 
+    }).parse(userBody)
+  },
   async onSuccess(event, { credential, user }) {
     // The credential creation has been successful
     // We need to create a user if it does not exist

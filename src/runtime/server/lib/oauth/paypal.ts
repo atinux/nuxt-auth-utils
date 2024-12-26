@@ -75,8 +75,8 @@ export function defineOAuthPaypalEventHandler({ config, onSuccess, onError }: OA
 
     const query = getQuery<{ code?: string }>(event)
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'paypal', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'paypal', ['clientId', 'clientSecret'], onError)
     }
 
     let paypalAPI = 'api-m.paypal.com'
