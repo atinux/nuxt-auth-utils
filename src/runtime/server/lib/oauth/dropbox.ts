@@ -68,8 +68,8 @@ export function defineOAuthDropboxEventHandler({ config, onSuccess, onError }: O
 
     const query = getQuery<{ code?: string }>(event)
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'dropbox', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'dropbox', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)

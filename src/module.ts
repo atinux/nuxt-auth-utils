@@ -3,7 +3,7 @@ import {
   defineNuxtModule,
   addPlugin,
   createResolver,
-  addImportsDir,
+  addImports,
   addServerHandler,
   addServerPlugin,
   addServerImportsDir,
@@ -14,6 +14,7 @@ import { join } from 'pathe'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
 import type { ScryptConfig } from '@adonisjs/hash/types'
+import type { SessionConfig } from 'h3'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -38,6 +39,10 @@ declare module 'nuxt/schema' {
     hash: {
       scrypt: ScryptConfig
     }
+    /**
+     * Session configuration
+     */
+    session: SessionConfig
   }
 }
 
@@ -60,9 +65,17 @@ export default defineNuxtModule<ModuleOptions>({
       './runtime/types/index',
     )
 
+    const composables = [
+      { name: 'useUserSession', from: resolver.resolve('./runtime/app/composables/session') },
+    ]
+
+    if (options.webAuthn) {
+      composables.push({ name: 'useWebAuthn', from: resolver.resolve('./runtime/app/composables/webauthn') })
+    }
+
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
-    addImportsDir(resolver.resolve('./runtime/app/composables'))
+    addImports(composables)
     addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
     addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
     // Server
@@ -114,7 +127,7 @@ export default defineNuxtModule<ModuleOptions>({
       cookie: {
         sameSite: 'lax',
       },
-    })
+    }) as SessionConfig
 
     runtimeConfig.hash = defu(runtimeConfig.hash, {
       scrypt: options.hash?.scrypt,
@@ -151,7 +164,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
-    // GitHub OAuth
+    // GitLab OAuth
     runtimeConfig.oauth.gitlab = defu(runtimeConfig.oauth.gitlab, {
       clientId: '',
       clientSecret: '',
@@ -183,6 +196,14 @@ export default defineNuxtModule<ModuleOptions>({
       audience: '',
       redirectURL: '',
     })
+    // WorkOS OAuth
+    runtimeConfig.oauth.workos = defu(runtimeConfig.oauth.workos, {
+      clientId: '',
+      clientSecret: '',
+      connectionId: '',
+      screenHint: '',
+      redirectURL: '',
+    })
     // Microsoft OAuth
     runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
       clientId: '',
@@ -211,6 +232,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       serverUrl: '',
+      serverUrlInternal: '',
       realm: '',
       redirectURL: '',
     })
@@ -300,11 +322,37 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
-    runtimeConfig.oauth.passport = defu(runtimeConfig.oauth.passport, {
+    // Zitadel OAuth
+    runtimeConfig.oauth.zitadel = defu(runtimeConfig.oauth.zitadel, {
       clientId: '',
       clientSecret: '',
-      baseURL: '',
-      userURL: '',
+      domain: '',
+      redirectURL: '',
+    })
+    // Authentik OAuth
+    runtimeConfig.oauth.authentik = defu(runtimeConfig.oauth.authentik, {
+      clientId: '',
+      clientSecret: '',
+      domain: '',
+      redirectURL: '',
+    })
+    // Seznam OAuth
+    runtimeConfig.oauth.seznam = defu(runtimeConfig.oauth.seznam, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // Strava OAuth
+    runtimeConfig.oauth.strava = defu(runtimeConfig.oauth.strava, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // Hubspot OAuth
+    runtimeConfig.oauth.hubspot = defu(runtimeConfig.oauth.hubspot, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
     })
   },
 })
