@@ -59,6 +59,12 @@ export interface OAuthGitLabConfig {
    * @default process.env.NUXT_OAUTH_GITLAB_REDIRECT_URL
    */
   redirectURL?: string
+
+  /**
+   * URL of your instance, if you are self-hosting
+   * @default https://gitlab.com
+   */
+  baseURL?: string
 }
 
 export function defineOAuthGitLabEventHandler({
@@ -67,9 +73,12 @@ export function defineOAuthGitLabEventHandler({
   onError,
 }: OAuthConfig<OAuthGitLabConfig>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.gitlab, {
-      authorizationURL: 'https://gitlab.com/oauth/authorize',
-      tokenURL: 'https://gitlab.com/oauth/token',
+    const runtimeConfig = useRuntimeConfig(event).oauth?.gitlab
+    const baseURL
+      = config?.baseURL ?? runtimeConfig.baseURL ?? 'https://gitlab.com'
+    config = defu(config, runtimeConfig, {
+      authorizationURL: `${baseURL}/oauth/authorize`,
+      tokenURL: `${baseURL}/oauth/token`,
       authorizationParams: {},
     }) as OAuthGitLabConfig
 
@@ -134,7 +143,7 @@ export function defineOAuthGitLabEventHandler({
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch('https://gitlab.com/api/v4/user', {
+    const user: any = await $fetch(`${baseURL}/api/v4/user`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
