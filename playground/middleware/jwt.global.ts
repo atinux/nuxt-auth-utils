@@ -28,7 +28,7 @@ export default defineNuxtRouteMiddleware(async () => {
   // Access token expired, refreshing
   else if (isExpired(accessPayload)) {
     console.info('access token expired, refreshing')
-    await useRequestFetch()('/api/jtw/refresh', {
+    await useRequestFetch()('/api/jwt/refresh', {
       method: 'POST',
       onResponse({ response: { headers } }) {
         // Forward the Set-Cookie header to the main server event
