@@ -74,8 +74,8 @@ export function defineOAuthGoogleEventHandler({
 
     const query = getQuery<{ code?: string, state?: string }>(event)
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'google', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'google', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)

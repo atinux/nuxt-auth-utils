@@ -1,9 +1,9 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
+import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthFacebookConfig {
@@ -81,8 +81,8 @@ export function defineOAuthFacebookEventHandler({
       return onError(event, error)
     }
 
-    if (!config.clientId) {
-      return handleMissingConfiguration(event, 'facebook', ['clientId'], onError)
+    if (!config.clientId || !config.clientSecret) {
+      return handleMissingConfiguration(event, 'facebook', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
@@ -125,7 +125,13 @@ export function defineOAuthFacebookEventHandler({
     )
 
     if (!user) {
-      throw new Error('Facebook login failed: no user found')
+      const error = createError({
+        statusCode: 500,
+        message: 'Could not get Facebook user',
+        data: tokens,
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
     return onSuccess(event, {

@@ -13,6 +13,7 @@ declare module '#auth-utils' {
     discord?: string
     battledotnet?: string
     keycloak?: string
+    line?: string
     linear?: string
     linkedin?: string
     cognito?: string
@@ -39,7 +40,7 @@ declare module '#auth-utils' {
   interface UserSession {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extended?: any
-    jtw?: {
+    jwt?: {
       accessToken: string
       refreshToken: string
     }
