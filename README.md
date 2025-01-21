@@ -204,6 +204,7 @@ It can also be set using environment variables:
 
 #### Supported OAuth Providers
 
+- Atlassian
 - Auth0
 - Authentik
 - AWS Cognito

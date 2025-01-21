@@ -1,8 +1,8 @@
-export default defineOAuthLineEventHandler({
+export default defineOAuthAtlassianEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        line: user.userId,
+        email: user.email,
       },
       loggedInAt: Date.now(),
     })

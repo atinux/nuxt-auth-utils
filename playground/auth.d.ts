@@ -34,6 +34,7 @@ declare module '#auth-utils' {
     seznam?: string
     strava?: string
     hubspot?: string
+    atlassian?: string
   }
 
   interface UserSession {
