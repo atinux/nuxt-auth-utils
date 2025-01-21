@@ -5,8 +5,8 @@ export default defineOAuthLineEventHandler({
         line: user.userId,
       },
       loggedInAt: Date.now(),
-    });
+    })
 
-    return sendRedirect(event, '/');
+    return sendRedirect(event, '/')
   },
-});
+})
