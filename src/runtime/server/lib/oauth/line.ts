@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
@@ -70,12 +70,12 @@ export function defineOAuthLineEventHandler({
       authorizationParams: {},
     }) as OAuthLineConfig
 
-    const query = getQuery<{ code?: string; error?: string; state?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
     if (query.error) {
       return onError(
         event,
-        new Error(`Line login failed: ${query.error || 'Unknown error'}`)
+        new Error(`Line login failed: ${query.error || 'Unknown error'}`),
       )
     }
 
@@ -96,7 +96,7 @@ export function defineOAuthLineEventHandler({
           scope: config.scope.join(' '),
           state: query.state || '',
           ...config.authorizationParams,
-        })
+        }),
       )
     }
 
@@ -122,7 +122,13 @@ export function defineOAuthLineEventHandler({
     })
 
     if (!user) {
-      throw new Error('Line login failed: no user information found')
+      const error = createError({
+        statusCode: 500,
+        message: 'Could not get Line user',
+        data: tokens,
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
     return onSuccess(event, {
