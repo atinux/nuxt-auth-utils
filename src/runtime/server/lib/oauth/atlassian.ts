@@ -175,19 +175,23 @@ export function defineOAuthAtlassianEventHandler({
     })
 
     if (user.account_status === 'inactive') {
-      throw createError({
+      const error = createError({
         statusCode: 403,
         statusMessage: 'Atlassian account is inactive',
         data: { accountStatus: user.account_status },
       })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
     if (!user.email_verified) {
-      throw createError({
+      const error = createError({
         statusCode: 400,
         statusMessage: 'Email address is not verified',
         data: { email: user.email },
       })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
     return onSuccess(event, {
