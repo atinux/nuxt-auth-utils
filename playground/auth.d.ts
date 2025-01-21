@@ -38,7 +38,7 @@ declare module '#auth-utils' {
   interface UserSession {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extended?: any
-    jtw?: {
+    jwt?: {
       accessToken: string
       refreshToken: string
     }
