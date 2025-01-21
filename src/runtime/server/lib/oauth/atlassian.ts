@@ -9,13 +9,13 @@ import type { OAuthConfig } from '#auth-utils'
 
 interface AtlassianUser {
   account_id?: string // 000000-X0X0X0X0-X0X0-X0X0-X0X0-X0X0X0X0X0X0
-  email?: string // @example max.mustermann@example.com
-  name?: string // @example Max Mustermann
+  email?: string // @example john.doe@example.com
+  name?: string // @example John Doe
   picture?: string // @example https://secure.gravatar.com/avatar/xxx
   account_status?: string // @example active | inactive
   characteristics?: { not_mentionable?: boolean }
   last_updated?: string // @example 2024-10-13T15:35:16.933Z
-  nickname?: string // @example Max Mustermann
+  nickname?: string // @example John Doe
   locale?: string // @example en-US
   extended_profile?: { phone_numbers?: string[] }
   account_type?: string // @example atlassian
