@@ -1,9 +1,9 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
+import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthGitHubConfig {
@@ -139,7 +139,13 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
       const primaryEmail = emails.find((email: any) => email.primary)
       // Still no email
       if (!primaryEmail) {
-        throw new Error('GitHub login failed: no user email found')
+        const error = createError({
+          statusCode: 500,
+          message: 'Could not get GitHub user email',
+          data: tokens,
+        })
+        if (!onError) throw error
+        return onError(event, error)
       }
       user.email = primaryEmail.email
     }
