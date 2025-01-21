@@ -1,6 +1,36 @@
 # Changelog
 
 
+## v0.5.8
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.7...v0.5.8)
+
+### 🚀 Enhancements
+
+- Self-hosted Gitlab instances ([#323](https://github.com/atinux/nuxt-auth-utils/pull/323))
+- Add Line OAuth provider ([#312](https://github.com/atinux/nuxt-auth-utils/pull/312))
+- Add atlassian oauth-provider ([#307](https://github.com/atinux/nuxt-auth-utils/pull/307), [#308](https://github.com/atinux/nuxt-auth-utils/pull/308))
+
+### 🩹 Fixes
+
+- Add discord oauth error ([#316](https://github.com/atinux/nuxt-auth-utils/pull/316))
+- Normalise errors when user not accessible ([c98ea5d](https://github.com/atinux/nuxt-auth-utils/commit/c98ea5d))
+
+### 🏡 Chore
+
+- Disable test:types ([ec9b727](https://github.com/atinux/nuxt-auth-utils/commit/ec9b727))
+- Rename jtw to jwt ([#326](https://github.com/atinux/nuxt-auth-utils/pull/326))
+- Update deps ([9cd39e8](https://github.com/atinux/nuxt-auth-utils/commit/9cd39e8))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <atinux@gmail.com>
+- Jonas ([@jonasfroeller](http://github.com/jonasfroeller))
+- Devskillpro ([@devskillpro](http://github.com/devskillpro))
+- Exit ([@exitss](http://github.com/exitss))
+- Benjamin Stauß <benni@stauss.es>
+- Thijs Wijnmaalen <thijs@wijnmaalen.name>
+
 ## v0.5.7
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.6...v0.5.7)
