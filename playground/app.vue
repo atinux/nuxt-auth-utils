@@ -34,6 +34,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-gitlab',
     },
     {
+      label: user.value?.line || 'Line',
+      to: '/auth/line',
+      disabled: Boolean(user.value?.line),
+      icon: 'i-simple-icons-line',
+    },
+    {
       label: user.value?.linear || 'Linear',
       to: '/auth/linear',
       disabled: Boolean(user.value?.linear),

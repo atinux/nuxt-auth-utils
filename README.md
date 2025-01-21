@@ -217,6 +217,7 @@ It can also be set using environment variables:
 - Hubspot
 - Instagram
 - Keycloak
+- Line
 - Linear
 - LinkedIn
 - Microsoft
