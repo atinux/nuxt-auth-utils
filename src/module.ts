@@ -169,6 +169,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+      baseURL: 'https://gitlab.com',
     })
     // Spotify OAuth
     runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {

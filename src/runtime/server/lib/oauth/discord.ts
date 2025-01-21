@@ -67,10 +67,14 @@ export function defineOAuthDiscordEventHandler({ config, onSuccess, onError }: O
       profileRequired: true,
       authorizationParams: {},
     }) as OAuthDiscordConfig
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'discord', ['clientId', 'clientSecret'], onError)
+    }
+
+    if (query.error) {
+      return handleAccessTokenErrorResponse(event, 'discord', query, onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
