@@ -20,6 +20,7 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       database: true,
+      websocket: true,
     },
   },
   auth: {

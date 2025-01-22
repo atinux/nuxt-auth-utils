@@ -1,9 +1,11 @@
 import type { H3Event, SessionConfig } from 'h3'
-import { useSession, createError } from 'h3'
+import { useSession, createError, isEvent } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
 import { useRuntimeConfig } from '#imports'
 import type { UserSession, UserSessionRequired } from '#auth-utils'
+
+type UseSessionEvent = Parameters<typeof useSession>[0]
 
 export interface SessionHooks {
   /**
@@ -25,7 +27,7 @@ export const sessionHooks = createHooks<SessionHooks>()
  * @param event The Request (h3) event
  * @returns The user session
  */
-export async function getUserSession(event: H3Event) {
+export async function getUserSession(event: UseSessionEvent) {
   return (await _useSession(event)).data
 }
 /**
@@ -78,7 +80,7 @@ export async function clearUserSession(event: H3Event, config?: Partial<SessionC
  * @param opts.message The message to use for the error (defaults to Unauthorized)
  * @see https://github.com/atinux/nuxt-auth-utils
  */
-export async function requireUserSession(event: H3Event, opts: { statusCode?: number, message?: string } = {}): Promise<UserSessionRequired> {
+export async function requireUserSession(event: UseSessionEvent, opts: { statusCode?: number, message?: string } = {}): Promise<UserSessionRequired> {
   const userSession = await getUserSession(event)
 
   if (!userSession.user) {
@@ -93,9 +95,9 @@ export async function requireUserSession(event: H3Event, opts: { statusCode?: nu
 
 let sessionConfig: SessionConfig
 
-function _useSession(event: H3Event, config: Partial<SessionConfig> = {}) {
+function _useSession(event: UseSessionEvent, config: Partial<SessionConfig> = {}) {
   if (!sessionConfig) {
-    const runtimeConfig = useRuntimeConfig(event)
+    const runtimeConfig = useRuntimeConfig(isEvent(event) ? event : undefined)
     const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
 
     sessionConfig = defu({ password: process.env[envSessionPassword] }, runtimeConfig.session)

@@ -201,6 +201,13 @@ const providers = computed(() =>
     external: true,
   })),
 )
+
+onMounted(() => {
+  const ws = new WebSocket('/ws')
+  ws.addEventListener('message', (event) => {
+    console.log('message', event.data)
+  })
+})
 </script>
 
 <template>
