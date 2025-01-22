@@ -624,8 +624,8 @@ export default defineWebSocketHandler({
   },
   async open(peer) {
     const { user } = await requireUserSession(peer)
-    const username = Object.values(user).filter(Boolean).join(' ')
-    peer.send(`Hello, ${username}!`)
+
+    peer.send(`Hello, ${user.name}!`)
   },
   message(peer, message) {
     peer.send(`Echo: ${message}`)
