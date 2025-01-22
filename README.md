@@ -23,6 +23,7 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 - [Tree-shakable server utils](#server-utils)
 - [`<AuthState>` component](#authstate-component)
 - [Extendable with hooks](#extend-session)
+- [WebSocket support](#websockets-support)
 
 It has few dependencies (only from [UnJS](https://github.com/unjs)), run on multiple JS environments (Node, Deno, Workers) and is fully typed with TypeScript.
 
@@ -596,7 +597,7 @@ You can use the `placeholder` slot to show a placeholder on server-side and whil
 
 If you are caching your routes with `routeRules`, please make sure to use [Nitro](https://github.com/unjs/nitro) >= `2.9.7` to support the client-side fetching of the user session.
 
-## WebSockets
+## WebSockets Support
 
 Nuxt Auth Utils is compatible with [Nitro WebSockets](https://nitro.build/guide/websocket).
 
