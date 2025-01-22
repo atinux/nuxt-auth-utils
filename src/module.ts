@@ -81,6 +81,9 @@ export default defineNuxtModule<ModuleOptions>({
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
+    if (nuxt.options.nitro?.experimental?.websocket) {
+      addServerPlugin(resolver.resolve('./runtime/server/plugins/ws'))
+    }
     // WebAuthn enabled
     if (options.webAuthn) {
       // Check if dependencies are installed

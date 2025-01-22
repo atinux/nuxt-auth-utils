@@ -23,6 +23,7 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 - [Tree-shakable server utils](#server-utils)
 - [`<AuthState>` component](#authstate-component)
 - [Extendable with hooks](#extend-session)
+- [WebSocket support](#websockets-support)
 
 It has few dependencies (only from [UnJS](https://github.com/unjs)), run on multiple JS environments (Node, Deno, Workers) and is fully typed with TypeScript.
 
@@ -595,6 +596,65 @@ You can use the `placeholder` slot to show a placeholder on server-side and whil
 ```
 
 If you are caching your routes with `routeRules`, please make sure to use [Nitro](https://github.com/unjs/nitro) >= `2.9.7` to support the client-side fetching of the user session.
+
+## WebSockets Support
+
+Nuxt Auth Utils is compatible with [Nitro WebSockets](https://nitro.build/guide/websocket).
+
+Make sure to enable the `experimental.websocket` option in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  nitro: {
+    experimental: {
+      websocket: true
+    }
+  }
+})
+```
+
+You can use the `requireUserSession` function in the `upgrade` function to check if the user is authenticated before upgrading the WebSocket connection.
+
+```ts
+// server/routes/ws.ts
+export default defineWebSocketHandler({
+  async upgrade(request) {
+    // Make sure the user is authenticated before upgrading the WebSocket connection
+    await requireUserSession(request)
+  },
+  async open(peer) {
+    const { user } = await requireUserSession(peer)
+    const username = Object.values(user).filter(Boolean).join(' ')
+    peer.send(`Hello, ${username}!`)
+  },
+  message(peer, message) {
+    peer.send(`Echo: ${message}`)
+  },
+})
+```
+
+Then, in your application, you can use the [useWebSocket](https://vueuse.org/core/useWebSocket/) composable to connect to the WebSocket:
+
+```vue
+<script setup>
+const { status, data, send, open, close } = useWebSocket('/ws', { immediate: false })
+
+// Only open the websocket after the page is hydrated (client-only)
+onMounted(open)
+</script>
+
+<template>
+  <div>
+    <p>Status: {{ status }}</p>
+    <p>Data: {{ data }}</p>
+    <p>
+      <button @click="open">Open</button>
+      <button @click="close(1000, 'Closing')">Close</button>
+      <button @click="send('hello')">Send hello</button>
+    </p>
+  </div>
+</template>
+```
 
 ## Configuration
 
