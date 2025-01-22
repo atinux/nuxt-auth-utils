@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.9
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.8...v0.5.9)
+
+### 🚀 Enhancements
+
+- Add support for websocket handler ([#327](https://github.com/atinux/nuxt-auth-utils/pull/327))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
 ## v0.5.8
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.7...v0.5.8)
