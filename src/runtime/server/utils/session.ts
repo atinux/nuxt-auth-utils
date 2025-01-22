@@ -84,10 +84,17 @@ export async function requireUserSession(event: UseSessionEvent, opts: { statusC
   const userSession = await getUserSession(event)
 
   if (!userSession.user) {
-    throw createError({
-      statusCode: opts.statusCode || 401,
-      message: opts.message || 'Unauthorized',
-    })
+    if (isEvent(event)) {
+      throw createError({
+        statusCode: opts.statusCode || 401,
+        message: opts.message || 'Unauthorized',
+      })
+    }
+    else {
+      throw new Response(opts.message || 'Unauthorized', {
+        status: opts.statusCode || 401,
+      })
+    }
   }
 
   return userSession as UserSessionRequired

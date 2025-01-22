@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   // ssr: false,
   extends: ['@nuxt/ui-pro'],
-  modules: ['nuxt-auth-utils', '@nuxt/ui'],
+  modules: ['nuxt-auth-utils', '@nuxt/ui', '@vueuse/nuxt'],
   imports: {
     autoImport: true,
   },
