@@ -1,6 +1,5 @@
 import type { H3Event } from 'h3'
-import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
-import type { Storage, StorageValue } from 'unstorage'
+import { createError, eventHandler, getQuery, sendRedirect, getCookie, setCookie, deleteCookie } from 'h3'
 import { NodeOAuthClient, OAuthCallbackError, OAuthResolverError, OAuthResponseError } from '@atproto/oauth-client-node'
 import type {
   NodeSavedSession,
@@ -12,7 +11,6 @@ import { Agent } from '@atproto/api'
 import type { AppBskyActorDefs } from '@atproto/api'
 import { getAtprotoClientMetadata } from '../../utils/atproto'
 import type { OAuthConfig } from '#auth-utils'
-import { useStorage } from '#imports'
 
 export interface OAuthBlueskyConfig {
   /**
@@ -38,9 +36,8 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
     const clientMetadata = getAtprotoClientMetadata(event, 'bluesky', config)
     const scopes = clientMetadata.scope?.split(' ') ?? []
 
-    const storage = useStorage()
-    const sessionStore = new SessionStore(storage)
-    const stateStore = new StateStore(storage)
+    const sessionStore = new SessionStore(event)
+    const stateStore = new StateStore(event)
 
     const client = new NodeOAuthClient({
       stateStore,
@@ -91,7 +88,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
 
     try {
       const { session } = await client.callback(new URLSearchParams(query as Record<string, string>))
-      const sessionInfo = await sessionStore.get(session.did)
+      const sessionInfo = await sessionStore.get()
       const profile = scopes.includes('transition:generic')
         ? (await new Agent(session).getProfile({ actor: session.did })).data
         : null
@@ -114,41 +111,41 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
 }
 
 export class StateStore implements NodeSavedStateStore {
-  private readonly keyPrefix = 'oauth:bluesky:state:'
+  private readonly stateKey = 'oauth:bluesky:stat'
 
-  constructor(private storage: Storage<StorageValue>) {}
+  constructor(private event: H3Event) {}
 
-  async get(key: string): Promise<NodeSavedState | undefined> {
-    const result = await this.storage.get<NodeSavedState>(this.keyPrefix + key)
+  async get(): Promise<NodeSavedState | undefined> {
+    const result = getCookie(this.event, this.stateKey)
     if (!result) return
-    return result
+    return JSON.parse(atob(result))
   }
 
   async set(key: string, val: NodeSavedState) {
-    await this.storage.set(this.keyPrefix + key, val)
+    setCookie(this.event, this.stateKey, btoa(JSON.stringify(val)))
   }
 
-  async del(key: string) {
-    await this.storage.del(this.keyPrefix + key)
+  async del() {
+    deleteCookie(this.event, this.stateKey)
   }
 }
 
 export class SessionStore implements NodeSavedSessionStore {
-  private readonly keyPrefix = 'oauth:bluesky:session:'
+  private readonly sessionKey = 'oauth:bluesky:session'
 
-  constructor(private storage: Storage<StorageValue>) {}
+  constructor(private event: H3Event) {}
 
-  async get(key: string): Promise<NodeSavedSession | undefined> {
-    const result = await this.storage.get<NodeSavedSession>(this.keyPrefix + key)
+  async get(): Promise<NodeSavedSession | undefined> {
+    const result = getCookie(this.event, this.sessionKey)
     if (!result) return
-    return result
+    return JSON.parse(atob(result))
   }
 
   async set(key: string, val: NodeSavedSession) {
-    await this.storage.set(this.keyPrefix + key, val)
+    setCookie(this.event, this.sessionKey, btoa(JSON.stringify(val)))
   }
 
-  async del(key: string) {
-    await this.storage.del(this.keyPrefix + key)
+  async del() {
+    deleteCookie(this.event, this.sessionKey)
   }
 }
