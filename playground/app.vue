@@ -195,6 +195,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.atlassian),
       icon: 'i-simple-icons-atlassian',
     },
+    {
+      label: user.value?.apple || 'Apple',
+      to: '/auth/apple',
+      disabled: Boolean(user.value?.apple),
+      icon: 'i-simple-icons-apple',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
