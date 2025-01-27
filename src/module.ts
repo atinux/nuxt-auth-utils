@@ -370,5 +370,13 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Apple OAuth
+    runtimeConfig.oauth.apple = defu(runtimeConfig.oauth.apple, {
+      teamId: '',
+      keyId: '',
+      privateKey: '',
+      redirectURL: '',
+      clientId: '',
+    })
   },
 })
