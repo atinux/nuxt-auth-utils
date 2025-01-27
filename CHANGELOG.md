@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.5.10
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.9...v0.5.10)
+
+### 🚀 Enhancements
+
+- Add apple provider ([#328](https://github.com/atinux/nuxt-auth-utils/pull/328))
+
+### 📖 Documentation
+
+- Typo ([8b132e4](https://github.com/atinux/nuxt-auth-utils/commit/8b132e4))
+- Improve example ([9d191a1](https://github.com/atinux/nuxt-auth-utils/commit/9d191a1))
+
+### ❤️ Contributors
+
+- David ([@GreenmeisterDavid](http://github.com/GreenmeisterDavid))
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
 ## v0.5.9
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.8...v0.5.9)
