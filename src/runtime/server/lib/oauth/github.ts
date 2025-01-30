@@ -148,6 +148,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
         return onError(event, error)
       }
       user.email = primaryEmail.email
+      user.email_verified = primaryEmail.verified
     }
 
     return onSuccess(event, {
