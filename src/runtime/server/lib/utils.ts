@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { getRequestURL } from 'h3'
 import { FetchError } from 'ofetch'
 import { snakeCase, upperFirst } from 'scule'
+import * as jose from 'jose'
 import type { OAuthProvider, OnError } from '#auth-utils'
 import { createError } from '#imports'
 
@@ -22,6 +23,7 @@ export interface RequestAccessTokenBody {
   redirect_uri: string
   client_id: string
   client_secret?: string
+  [key: string]: string | undefined
 }
 
 interface RequestAccessTokenOptions {
@@ -48,7 +50,7 @@ export async function requestAccessToken(url: string, options: RequestAccessToke
   // Encode the body as a URLSearchParams if the content type is 'application/x-www-form-urlencoded'.
   const body = headers['Content-Type'] === 'application/x-www-form-urlencoded'
     ? new URLSearchParams(options.body as unknown as Record<string, string> || options.params || {},
-    ).toString()
+      ).toString()
     : options.body
 
   return $fetch(url, {
@@ -96,4 +98,61 @@ export function handleMissingConfiguration(event: H3Event, provider: OAuthProvid
 
   if (!onError) throw error
   return onError(event, error)
+}
+
+/**
+ * JWT signing using jose
+ *
+ * @see https://github.com/panva/jose
+ */
+
+interface JWTSignOptions {
+  privateKey: string
+  keyId: string
+  teamId?: string
+  clientId?: string
+  algorithm?: 'ES256' | 'RS256'
+  expiresIn?: string // e.g., '5m', '1h'
+}
+
+export async function signJwt<T extends Record<string, unknown>>(
+  payload: T,
+  options: JWTSignOptions,
+): Promise<string> {
+  const now = Math.floor(Date.now() / 1000)
+  const privateKey = await jose.importPKCS8(
+    options.privateKey.replace(/\\n/g, '\n'),
+    options.algorithm || 'ES256',
+  )
+
+  return new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: options.algorithm || 'ES256', kid: options.keyId })
+    .setIssuedAt(now)
+    .setExpirationTime(options.expiresIn || '5m')
+    .sign(privateKey)
+}
+
+/**
+ * Verify a JWT token using jose - will throw error if invalid
+ *
+ * @see https://github.com/panva/jose
+ */
+interface JWTVerifyOptions {
+  publicJwkUrl: string
+  audience: string
+  issuer: string
+}
+
+export async function verifyJwt<T>(
+  token: string,
+  options: JWTVerifyOptions,
+): Promise<T> {
+  const JWKS = jose.createRemoteJWKSet(new URL(options.publicJwkUrl))
+
+  const { payload } = await jose.jwtVerify(token, JWKS, {
+    audience: options.audience,
+    issuer: options.issuer,
+  })
+
+  return payload as T
 }

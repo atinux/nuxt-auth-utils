@@ -34,6 +34,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-gitlab',
     },
     {
+      label: user.value?.line || 'Line',
+      to: '/auth/line',
+      disabled: Boolean(user.value?.line),
+      icon: 'i-simple-icons-line',
+    },
+    {
       label: user.value?.linear || 'Linear',
       to: '/auth/linear',
       disabled: Boolean(user.value?.linear),
@@ -147,6 +153,54 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.polar),
       icon: 'i-iconoir-polar-sh',
     },
+    {
+      label: user.value?.workos || 'WorkOS',
+      to: '/auth/workos',
+      disabled: Boolean(user.value?.workos),
+      icon: 'i-logos-workos-icon',
+    },
+    {
+      label: user.value?.zitadel || 'Zitadel',
+      to: '/auth/zitadel',
+      disabled: Boolean(user.value?.zitadel),
+      icon: 'i-gravity-ui-lock',
+    },
+    {
+      label: user.value?.authentik || 'Authentik',
+      to: '/auth/authentik',
+      disabled: Boolean(user.value?.authentik),
+      icon: 'i-simple-icons-authentik',
+    },
+    {
+      label: user.value?.seznam || 'Seznam',
+      to: '/auth/seznam',
+      disabled: Boolean(user.value?.seznam),
+      icon: 'i-gravity-ui-lock',
+    },
+    {
+      label: user.value?.strava || 'Strava',
+      to: '/auth/strava',
+      disabled: Boolean(user.value?.strava),
+      icon: 'i-simple-icons-strava',
+    },
+    {
+      label: user.value?.hubspot || 'HubSpot',
+      to: '/auth/hubspot',
+      disabled: Boolean(user.value?.hubspot),
+      icon: 'i-simple-icons-hubspot',
+    },
+    {
+      label: user.value?.atlassian || 'Atlassian',
+      to: '/auth/atlassian',
+      disabled: Boolean(user.value?.atlassian),
+      icon: 'i-simple-icons-atlassian',
+    },
+    {
+      label: user.value?.apple || 'Apple',
+      to: '/auth/apple',
+      disabled: Boolean(user.value?.apple),
+      icon: 'i-simple-icons-apple',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
@@ -169,7 +223,10 @@ const providers = computed(() =>
           <AuthLogin />
           <WebAuthnModal />
           <PasswordModal />
-          <UDropdown :items="[providers]">
+          <UDropdown
+            :items="[providers]"
+            :ui="{ base: 'max-h-48' }"
+          >
             <UButton
               icon="i-heroicons-chevron-down"
               trailing

@@ -1,9 +1,11 @@
 import type { H3Event, SessionConfig } from 'h3'
-import { useSession, createError } from 'h3'
+import { useSession, createError, isEvent } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
 import { useRuntimeConfig, useStorage } from '#imports'
 import type { UserSession, UserSessionRequired } from '#auth-utils'
+
+type UseSessionEvent = Parameters<typeof useSession>[0]
 
 export interface SessionHooks {
   /**
@@ -27,8 +29,8 @@ export const sessionHooks = createHooks<SessionHooks>()
  *                      If not provided, falls back to autoExtendSession runtime config value.
  * @returns The user session
  */
-export async function getUserSession(event: H3Event, extendSession?: boolean) {
-  const runtimeConfig = useRuntimeConfig(event)
+export async function getUserSession(event: UseSessionEvent, extendSession?: boolean) {
+  const runtimeConfig = useRuntimeConfig(isEvent(event) ? event : undefined)
   const session = await _useSession(event)
 
   const sessionStorage = getSessionStorage()
@@ -123,14 +125,21 @@ export async function clearUserSession(event: H3Event, config?: Partial<SessionC
  * @param opts.message The message to use for the error (defaults to Unauthorized)
  * @see https://github.com/atinux/nuxt-auth-utils
  */
-export async function requireUserSession(event: H3Event, opts: { statusCode?: number, message?: string } = {}): Promise<UserSessionRequired> {
+export async function requireUserSession(event: UseSessionEvent, opts: { statusCode?: number, message?: string } = {}): Promise<UserSessionRequired> {
   const userSession = await getUserSession(event)
 
   if (!userSession.user) {
-    throw createError({
-      statusCode: opts.statusCode || 401,
-      message: opts.message || 'Unauthorized',
-    })
+    if (isEvent(event)) {
+      throw createError({
+        statusCode: opts.statusCode || 401,
+        message: opts.message || 'Unauthorized',
+      })
+    }
+    else {
+      throw new Response(opts.message || 'Unauthorized', {
+        status: opts.statusCode || 401,
+      })
+    }
   }
 
   return userSession as UserSessionRequired
@@ -169,12 +178,11 @@ export async function cleanupOrphanedUserSessions() {
 
 let sessionConfig: SessionConfig
 
-function _useSession(event: H3Event, config: Partial<SessionConfig> = {}) {
+function _useSession(event: UseSessionEvent, config: Partial<SessionConfig> = {}) {
   if (!sessionConfig) {
-    const runtimeConfig = useRuntimeConfig(event)
+    const runtimeConfig = useRuntimeConfig(isEvent(event) ? event : undefined)
     const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
 
-    // @ts-expect-error hard to define with defu
     sessionConfig = defu({ password: process.env[envSessionPassword] }, runtimeConfig.session)
   }
   const finalConfig = defu(config, sessionConfig) as SessionConfig

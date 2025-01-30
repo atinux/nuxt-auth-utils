@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   // ssr: false,
   extends: ['@nuxt/ui-pro'],
-  modules: ['nuxt-auth-utils', '@nuxt/ui'],
+  modules: ['nuxt-auth-utils', '@nuxt/ui', '@vueuse/nuxt'],
   imports: {
     autoImport: true,
   },
@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     experimental: {
       database: true,
       // tasks: true,
+      websocket: true,
     },
     // scheduledTasks: {
     //   '*/1 * * * *': ['clear-sessions'], // every minute clear overdue sessions

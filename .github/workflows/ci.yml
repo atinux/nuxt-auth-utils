@@ -65,8 +65,8 @@ jobs:
       - name: Run test suite
         run: pnpm test
 
-      - name: Test types
-        run: pnpm test:types
+      # - name: Test types
+      #   run: pnpm test:types
 
       # - name: Test playground types
       #   run: pnpm test:types:playground

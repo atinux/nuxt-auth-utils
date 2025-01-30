@@ -16,13 +16,14 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 ## Features
 
 - [Hybrid Rendering](#hybrid-rendering) support (SSR / CSR / SWR / Prerendering)
-- [20+ OAuth Providers](#supported-oauth-providers)
+- [30+ OAuth Providers](#supported-oauth-providers)
 - [Password Hashing](#password-hashing)
 - [WebAuthn (passkey)](#webauthn-passkey)
 - [`useUserSession()` Vue composable](#vue-composable)
 - [Tree-shakable server utils](#server-utils)
 - [`<AuthState>` component](#authstate-component)
 - [Extendable with hooks](#extend-session)
+- [WebSocket support](#websocket-support)
 
 It has few dependencies (only from [UnJS](https://github.com/unjs)), run on multiple JS environments (Node, Deno, Workers) and is fully typed with TypeScript.
 
@@ -204,7 +205,10 @@ It can also be set using environment variables:
 
 #### Supported OAuth Providers
 
+- Apple
+- Atlassian
 - Auth0
+- Authentik
 - AWS Cognito
 - Battle.net
 - Discord
@@ -213,21 +217,27 @@ It can also be set using environment variables:
 - GitHub
 - GitLab
 - Google
+- Hubspot
 - Instagram
 - Keycloak
+- Line
 - Linear
 - LinkedIn
 - Microsoft
 - PayPal
 - Polar
+- Seznam
 - Spotify
 - Steam
+- Strava
 - TikTok
 - Twitch
 - VK
+- WorkOS
 - X (Twitter)
 - XSUAA
 - Yandex
+- Zitadel
 
 You can add your favorite provider by creating a new file in [src/runtime/server/lib/oauth/](./src/runtime/server/lib/oauth/).
 
@@ -348,10 +358,21 @@ The following code does not include the actual database queries, but shows the g
 import { z } from 'zod'
 export default defineWebAuthnRegisterEventHandler({
   // optional
-  validateUser: z.object({
-    // we want the userName to be a valid email
-    userName: z.string().email() 
-  }).parse,
+  async validateUser(userBody, event) {
+    // bonus: check if the user is already authenticated to link a credential to his account
+    // We first check if the user is already authenticated by getting the session
+    // And verify that the email is the same as the one in session
+    const session = await getUserSession(event)
+    if (session.user?.email && session.user.email !== body.userName) {
+      throw createError({ statusCode: 400, message: 'Email not matching curent session' })
+    }
+
+    // If he registers a new account with credentials
+    return z.object({
+      // we want the userName to be a valid email
+      userName: z.string().email() 
+    }).parse(userBody)
+  },
   async onSuccess(event, { credential, user }) {
     // The credential creation has been successful
     // We need to create a user if it does not exist
@@ -592,6 +613,65 @@ You can use the `placeholder` slot to show a placeholder on server-side and whil
 ```
 
 If you are caching your routes with `routeRules`, please make sure to use [Nitro](https://github.com/unjs/nitro) >= `2.9.7` to support the client-side fetching of the user session.
+
+## WebSocket Support
+
+Nuxt Auth Utils is compatible with [Nitro WebSockets](https://nitro.build/guide/websocket).
+
+Make sure to enable the `experimental.websocket` option in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  nitro: {
+    experimental: {
+      websocket: true
+    }
+  }
+})
+```
+
+You can use the `requireUserSession` function in the `upgrade` function to check if the user is authenticated before upgrading the WebSocket connection.
+
+```ts
+// server/routes/ws.ts
+export default defineWebSocketHandler({
+  async upgrade(request) {
+    // Make sure the user is authenticated before upgrading the WebSocket connection
+    await requireUserSession(request)
+  },
+  async open(peer) {
+    const { user } = await requireUserSession(peer)
+
+    peer.send(`Hello, ${user.name}!`)
+  },
+  message(peer, message) {
+    peer.send(`Echo: ${message}`)
+  },
+})
+```
+
+Then, in your application, you can use the [useWebSocket](https://vueuse.org/core/useWebSocket/) composable to connect to the WebSocket:
+
+```vue
+<script setup>
+const { status, data, send, open, close } = useWebSocket('/ws', { immediate: false })
+
+// Only open the websocket after the page is hydrated (client-only)
+onMounted(open)
+</script>
+
+<template>
+  <div>
+    <p>Status: {{ status }}</p>
+    <p>Data: {{ data }}</p>
+    <p>
+      <button @click="open">Open</button>
+      <button @click="close(1000, 'Closing')">Close</button>
+      <button @click="send('hello')">Send hello</button>
+    </p>
+  </div>
+</template>
+```
 
 ## Configuration
 

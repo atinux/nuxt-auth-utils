@@ -13,6 +13,7 @@ declare module '#auth-utils' {
     discord?: string
     battledotnet?: string
     keycloak?: string
+    line?: string
     linear?: string
     linkedin?: string
     cognito?: string
@@ -26,14 +27,28 @@ declare module '#auth-utils' {
     yandex?: string
     tiktok?: string
     dropbox?: string
+    workos?: string
     polar?: string
+    zitadel?: string
+    authentik?: string
+    seznam?: string
+    strava?: string
+    hubspot?: string
+    atlassian?: string
+    apple?: string
   }
 
   interface UserSession {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extended?: any
+    jwt?: {
+      accessToken: string
+      refreshToken: string
+    }
     loggedInAt: number
-    secure?: Record<string, unknown>
+  }
+
+  interface SecureSessionData {
   }
 }
 
