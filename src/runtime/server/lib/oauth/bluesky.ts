@@ -93,6 +93,8 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
         ? (await new Agent(session).getProfile({ actor: session.did })).data
         : null
 
+      sessionStore.del()
+
       return onSuccess(event, {
         user: profile ?? { did: session.did },
         tokens: sessionInfo!.tokenSet,
