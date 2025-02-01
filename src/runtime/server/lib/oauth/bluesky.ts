@@ -42,9 +42,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
     const client = new NodeOAuthClient({
       stateStore,
       sessionStore,
-      // Todo: This needs to be exposed publicly so that the authorization server can validate the client
-      // It is not verified by Bluesky yet, but it might be in the future
-      clientMetadata: clientMetadata,
+      clientMetadata,
     })
 
     const query = getQuery(event)
