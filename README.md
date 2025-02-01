@@ -298,6 +298,28 @@ export default defineNuxtConfig({
 })
 ```
 
+### AT Protocol
+
+Social networks that rely on AT Protocol (e.g., Bluesky) slightly differ from a regular OAuth flow.
+
+To enable OAuth with AT Protocol, you need to:
+
+1. Install the peer dependencies:
+
+```bash
+npx nypm i @atproto/oauth-client-node @atproto/api
+```
+
+2. Enable it in your `nuxt.config.ts`
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    atproto: true
+  }
+})
+```
+
 ### WebAuthn (passkey)
 
 WebAuthn (Web Authentication) is a web standard that enhances security by replacing passwords with passkeys using public key cryptography. Users can authenticate with biometric data (like fingerprints or facial recognition) or physical devices (like USB keys), reducing the risk of phishing and password breaches. This approach offers a more secure and user-friendly authentication method, supported by major browsers and platforms.
