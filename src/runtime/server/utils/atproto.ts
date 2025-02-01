@@ -4,12 +4,12 @@ import type { AtprotoProviderClientMetadata } from '../../types/atproto'
 import type { OAuthBlueskyConfig } from '../lib/oauth/bluesky'
 import { getOAuthRedirectURL } from '../lib/utils'
 import { getClientMetadataFilename } from '../../../utils/atproto'
-import type { OAuthConfig, OAuthProvider } from '#auth-utils'
+import type { ATProtoProvider, OAuthConfig } from '#auth-utils'
 import { getRequestURL, useRuntimeConfig } from '#imports'
 
 export function getAtprotoClientMetadata(
   event: H3Event,
-  provider: OAuthProvider,
+  provider: ATProtoProvider,
   config?: OAuthConfig<OAuthBlueskyConfig>['config'],
 ): OAuthClientMetadataInput {
   const providerRuntimeConfig: AtprotoProviderClientMetadata = useRuntimeConfig(event).oauth[provider] as AtprotoProviderClientMetadata

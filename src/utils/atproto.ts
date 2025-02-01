@@ -1,7 +1,7 @@
-import type { OAuthProvider } from '../runtime/types'
+import type { ATProtoProvider, OAuthProvider } from '../runtime/types'
 import type { AtprotoProviderClientMetadata } from '../runtime/types/atproto'
 
-export const atprotoProviders = ['bluesky'] satisfies OAuthProvider[]
+export const atprotoProviders = ['bluesky'] satisfies ATProtoProvider[]
 
 export const atprotoProviderDefaultClientMetadata: AtprotoProviderClientMetadata = {
   clientMetadataFilename: '',

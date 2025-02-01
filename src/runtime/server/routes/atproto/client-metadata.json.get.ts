@@ -9,7 +9,7 @@ export default defineEventHandler((event) => {
   const runtimeConfig = useRuntimeConfig(event)
 
   for (const provider of atprotoProviders) {
-    const config: AtprotoProviderClientMetadata = runtimeConfig.oauth[provider]
+    const config = runtimeConfig.oauth[provider] as AtprotoProviderClientMetadata
 
     if (getClientMetadataFilename(provider, config) === path) {
       return getAtprotoClientMetadata(event, provider)
