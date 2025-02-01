@@ -256,12 +256,11 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Atproto OAuth
     for (const provider of atprotoProviders) {
-      // @ts-expect-error Not typesafe, but avoids repeating the same code for each provider
-      runtimeConfig.oauth[provider] = defu(runtimeConfig.oauth[provider], atprotoProviderDefaultClientMetadata) as AtprotoProviderClientMetadata
+      runtimeConfig.oauth[provider] = defu(runtimeConfig.oauth[provider], atprotoProviderDefaultClientMetadata)
 
       addServerHandler({
         handler: resolver.resolve('./runtime/server/routes/atproto/client-metadata.json.get.ts'),
-        route: '/' + getClientMetadataFilename(provider, runtimeConfig.oauth[provider]),
+        route: '/' + getClientMetadataFilename(provider, runtimeConfig.oauth[provider] as AtprotoProviderClientMetadata),
         method: 'get',
       })
     }
