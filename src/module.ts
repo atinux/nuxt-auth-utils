@@ -26,7 +26,7 @@ export interface ModuleOptions {
    */
   webAuthn?: boolean
   /**
-   * Enable atproto OAuth
+   * Enable atproto OAuth (Bluesky, etc.)
    * @default false
    */
   atproto?: boolean
@@ -267,6 +267,7 @@ export default defineNuxtModule<ModuleOptions>({
           method: 'get',
         })
       }
+      addServerImportsDir(resolver.resolve('./runtime/server/lib/atproto'))
     }
 
     // Keycloak OAuth
