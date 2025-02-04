@@ -222,6 +222,7 @@ It can also be set using environment variables:
 - Facebook
 - GitHub
 - GitLab
+- Gitea
 - Google
 - Hubspot
 - Instagram

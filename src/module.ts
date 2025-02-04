@@ -161,6 +161,13 @@ export default defineNuxtModule<ModuleOptions>({
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
+    // Gitea OAuth
+    runtimeConfig.oauth.gitea = defu(runtimeConfig.oauth.gitea, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      baseURL: '',
+    })
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
