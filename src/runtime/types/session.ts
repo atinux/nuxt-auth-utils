@@ -50,4 +50,8 @@ export interface UserSessionComposable {
    * Clear the user session and remove the session cookie.
    */
   clear: () => Promise<void>
+  /**
+   * Open the OAuth route in a popup that auto-closes when successful.
+   */
+  openInPopup: (route: string, size?: { width?: number, height?: number }) => void
 }

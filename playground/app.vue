@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { user, openInPopup } = useUserSession()
 
+const inPopup = ref(false)
 const providers = computed(() =>
   [
     {
@@ -209,8 +210,6 @@ const providers = computed(() =>
     click: inPopup.value ? () => openInPopup(p.to) : void 0,
   })),
 )
-
-const inPopup = ref(false)
 </script>
 
 <template>
@@ -248,11 +247,6 @@ const inPopup = ref(false)
           >
             Logout
           </UButton>
-          <UCheckbox
-            v-model="inPopup"
-            name="open-in-popup"
-            label="Open in popup"
-          />
         </template>
         <template #placeholder>
           <UButton
@@ -268,6 +262,14 @@ const inPopup = ref(false)
   </UHeader>
   <UMain>
     <UContainer>
+      <div class="text-xs mt-4">
+        Popup mode <UToggle
+          v-model="inPopup"
+          size="xs"
+          name="open-in-popup"
+          label="Open in popup"
+        />
+      </div>
       <NuxtPage />
     </UContainer>
   </UMain>
