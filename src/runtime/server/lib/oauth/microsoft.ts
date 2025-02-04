@@ -77,7 +77,9 @@ export function defineOAuthMicrosoftEventHandler({ config, onSuccess, onError }:
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
-      const scope = config.scope && config.scope.length > 0 ? config.scope : ['User.Read']
+      config.scope = config.scope && config.scope.length > 0 ? config.scope : ['User.Read']
+      // guarantee uniqueness of the scope
+      config.scope = [...new Set(config.scope)]
       // Redirect to Microsoft Oauth page
       return sendRedirect(
         event,
@@ -85,7 +87,7 @@ export function defineOAuthMicrosoftEventHandler({ config, onSuccess, onError }:
           client_id: config.clientId,
           response_type: 'code',
           redirect_uri: redirectURL,
-          scope: scope.join(' '),
+          scope: config.scope.join(' '),
           ...config.authorizationParams,
         }),
       )
