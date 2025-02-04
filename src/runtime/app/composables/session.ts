@@ -39,9 +39,8 @@ export function useUserSession(): UserSessionComposable {
   }
 
   const openInPopup = (route, size = { width: 960, height: 600 }) => {
-    const isInPopup = useCookie('temp-nuxt-auth-utils-popup')
-    // Set a cookie to tell the popup that we pending auth
-    isInPopup.value = true
+    // Set a local storage item to tell the popup that we pending auth
+    localStorage.setItem('temp-nuxt-auth-utils-popup', 'true')
 
     const top
       = window.top.outerHeight / 2
@@ -58,7 +57,11 @@ export function useUserSession(): UserSessionComposable {
       `width=${size.width}, height=${size.height}, top=${top}, left=${left}, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no`,
     )
 
-    watch(isInPopup, fetch)
+    window.addEventListener('storage', (e: StorageEvent) => {
+      if (e.key === 'temp-nuxt-auth-utils-popup') {
+        fetch()
+      }
+    }, { once: true })
   }
 
   return {

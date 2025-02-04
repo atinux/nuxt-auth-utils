@@ -13,10 +13,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     })
   }
 
-  const isInPopup = useCookie('temp-nuxt-auth-utils-popup')
-  if (isInPopup.value) {
-    // There is a cookie, so we are coming back in the popup
-    isInPopup.value = null
+  if (localStorage.getItem('temp-nuxt-auth-utils-popup')) {
+    // There is a local storage item. That's mean we are coming back in the popup
+    localStorage.removeItem('temp-nuxt-auth-utils-popup')
     const error = useError()
     if (!error.value) window.close()
   }
