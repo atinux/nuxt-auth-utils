@@ -200,11 +200,11 @@ const providers = computed(() =>
     prefetch: false,
     external: true,
     to: inPopup.value ? '#' : p.to,
-    click: inPopup.value ? () => openInPopup(p.label.toLowerCase(), p.to) : void 0,
+    click: inPopup.value ? () => openInPopup(p.to) : void 0,
   })),
 )
 
-const inPopup = ref(true)
+const inPopup = ref(false)
 </script>
 
 <template>
