@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v0.5.11
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.10...v0.5.11)
+
+### 🚀 Enhancements
+
+- Set `email_verified` in `user` on GitHub provider ([#332](https://github.com/atinux/nuxt-auth-utils/pull/332))
+- **composable:** Add `openInPopup(route, { width, height })` ([#336](https://github.com/atinux/nuxt-auth-utils/pull/336))
+- Add Gitea Oauth Provider ([#335](https://github.com/atinux/nuxt-auth-utils/pull/335))
+
+### 🩹 Fixes
+
+- Dammit corepack ([239f97a](https://github.com/atinux/nuxt-auth-utils/commit/239f97a))
+- **microsoft:** Fix duplicated scopes ([#331](https://github.com/atinux/nuxt-auth-utils/pull/331))
+
+### 🏡 Chore
+
+- **release:** V0.5.10 ([42a2a7a](https://github.com/atinux/nuxt-auth-utils/commit/42a2a7a))
+- **ci:** Fix corepack ([be2ccaf](https://github.com/atinux/nuxt-auth-utils/commit/be2ccaf))
+
+### ❤️ Contributors
+
+- H+ ([@justserdar](http://github.com/justserdar))
+- Emmanuel Salomon ([@ManUtopiK](http://github.com/ManUtopiK))
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Alessandro Jean ([@alessandrojean](http://github.com/alessandrojean))
+
 ## v0.5.10
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.9...v0.5.10)
