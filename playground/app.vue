@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user } = useUserSession()
+const { user, openInPopup } = useUserSession()
 
 const providers = computed(() =>
   [
@@ -199,8 +199,12 @@ const providers = computed(() =>
     ...p,
     prefetch: false,
     external: true,
+    to: inPopup.value ? '#' : p.to,
+    click: inPopup.value ? () => openInPopup(p.label.toLowerCase(), p.to) : void 0,
   })),
 )
+
+const inPopup = ref(true)
 </script>
 
 <template>
@@ -238,6 +242,11 @@ const providers = computed(() =>
           >
             Logout
           </UButton>
+          <UCheckbox
+            v-model="inPopup"
+            name="open-in-popup"
+            label="Open in popup"
+          />
         </template>
         <template #placeholder>
           <UButton
