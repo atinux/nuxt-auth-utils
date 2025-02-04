@@ -1,6 +1,6 @@
 export default defineOAuthGiteaEventHandler({
   config: {
-    emailRequired: true
+    emailRequired: true,
   },
   async onSuccess(event, { user }) {
     await setUserSession(event, {
