@@ -49,13 +49,12 @@ export function useUserSession(): UserSessionComposable {
     }
   }
 
-  const isInPopup = useCookie('temp-nuxt-auth-utils-popup')
-
   const openInPopup = (provider, route) => {
+    const isInPopup = useCookie('temp-nuxt-auth-utils-popup')
     // Set a cookie to tell the popup that we pending auth
     isInPopup.value = true
 
-    const conf = PROVIDERS[provider]
+    const conf = PROVIDERS[provider] || PROVIDERS['github']
     const top
       = window.top.outerHeight / 2
       + window.top.screenY
@@ -71,18 +70,8 @@ export function useUserSession(): UserSessionComposable {
       `width=${conf.width}, height=${conf.height}, top=${top}, left=${left}, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no`,
     )
 
-    watch(isInPopup, () => {
-      fetch()
-    })
+    watch(isInPopup, fetch)
   }
-
-  if (isInPopup.value)
-    onMounted(() => {
-      // There is a cookie, so we are coming back in the popup
-      // Clear the cookie and close the popup
-      isInPopup.value = null
-      window.close()
-    })
 
   return {
     ready: computed(() => authReadyState.value),

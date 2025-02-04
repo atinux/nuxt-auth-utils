@@ -12,4 +12,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       await useUserSession().fetch()
     })
   }
+
+  const isInPopup = useCookie('temp-nuxt-auth-utils-popup')
+  if (isInPopup.value) {
+    // There is a cookie, so we are coming back in the popup
+    isInPopup.value = null
+    const error = useError()
+    if (!error.value) window.close()
+  }
 })
