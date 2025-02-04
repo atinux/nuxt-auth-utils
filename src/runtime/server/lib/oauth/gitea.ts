@@ -61,7 +61,7 @@ export interface OAuthGiteaConfig {
 
   /**
    * URL of your Gitea instance
-   * @default 'http://localhost:3000'
+   * @default 'https://gitea.com'
    */
   baseURL?: string
 }
@@ -69,15 +69,15 @@ export interface OAuthGiteaConfig {
 export function defineOAuthGiteaEventHandler({
   config,
   onSuccess,
-  onError
+  onError,
 }: OAuthConfig<OAuthGiteaConfig>) {
   return eventHandler(async (event: H3Event) => {
     const runtimeConfig = useRuntimeConfig(event).oauth?.gitea
-    const baseURL = config?.baseURL ?? runtimeConfig.baseURL ?? 'http://localhost:3000'
+    const baseURL = config?.baseURL ?? runtimeConfig.baseURL ?? 'https://gitea.com'
     config = defu(config, runtimeConfig, {
       authorizationURL: `${baseURL}/login/oauth/authorize`,
       tokenURL: `${baseURL}/login/oauth/access_token`,
-      authorizationParams: {}
+      authorizationParams: {},
     }) as OAuthGiteaConfig
 
     const query = getQuery<{ code?: string, error?: string }>(event)
@@ -86,7 +86,7 @@ export function defineOAuthGiteaEventHandler({
       const error = createError({
         statusCode: 401,
         message: `Gitea login failed: ${query.error || 'Unknown error'}`,
-        data: query
+        data: query,
       })
       if (!onError) throw error
       return onError(event, error)
@@ -97,7 +97,7 @@ export function defineOAuthGiteaEventHandler({
         event,
         'gitea',
         ['clientId', 'clientSecret'],
-        onError
+        onError,
       )
     }
 
@@ -119,8 +119,8 @@ export function defineOAuthGiteaEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          ...config.authorizationParams
-        })
+          ...config.authorizationParams,
+        }),
       )
     }
 
@@ -130,8 +130,8 @@ export function defineOAuthGiteaEventHandler({
         client_id: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
-        code: query.code
-      }
+        code: query.code,
+      },
     })
 
     if (tokens.error) {
@@ -140,15 +140,16 @@ export function defineOAuthGiteaEventHandler({
 
     const accessToken = tokens.access_token
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await $fetch(`${baseURL}/api/v1/user`, {
       headers: {
-        Authorization: `token ${accessToken}`
-      }
+        Authorization: `token ${accessToken}`,
+      },
     })
 
     return onSuccess(event, {
       user,
-      tokens
+      tokens,
     })
   })
 }
