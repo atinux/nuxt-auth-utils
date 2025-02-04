@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "description": "Add Authentication to Nuxt applications with secured & sealed cookies sessions.",
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "defu": "^6.1.4",
     "h3": "^1.14.0",
     "hookable": "^5.5.3",
+    "jose": "^5.9.6",
     "ofetch": "^1.4.1",
     "ohash": "^1.1.4",
     "openid-client": "^6.1.7",
