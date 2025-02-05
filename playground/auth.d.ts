@@ -1,9 +1,11 @@
 declare module '#auth-utils' {
   interface User {
+    bluesky?: string
     webauthn?: string
     email?: string
     password?: string
     spotify?: string
+    gitea?: string
     github?: string
     gitlab?: string
     google?: string

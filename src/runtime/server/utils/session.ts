@@ -41,12 +41,20 @@ export async function getUserSession(event: UseSessionEvent, extendSession?: boo
         data.lastAccess = Date.now()
         await sessionStorage.setItem(`nuxt-session:${session.id}`, data)
       }
-      return data
+      return {
+        id: session.id,
+        ...data
+      }
     }
-    return {} as UserSession
+    return {
+      id: session.id
+    } as UserSession
   }
 
-  return session.data
+  return {
+    id: session.id,
+    ...session.data
+  }
 }
 /**
  * Set a user session

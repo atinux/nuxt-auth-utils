@@ -1,6 +1,7 @@
 <script setup lang="ts">
-const { user } = useUserSession()
+const { user, openInPopup } = useUserSession()
 
+const inPopup = ref(false)
 const providers = computed(() =>
   [
     {
@@ -26,6 +27,22 @@ const providers = computed(() =>
       to: '/auth/github',
       disabled: Boolean(user.value?.github),
       icon: 'i-simple-icons-github',
+    },
+    {
+      label: user.value?.bluesky || 'Bluesky',
+      click() {
+        const handle = prompt('Enter your Bluesky handle')
+        if (handle) {
+          navigateTo({
+            path: '/auth/bluesky',
+            query: { handle },
+          }, {
+            external: true,
+          })
+        }
+      },
+      disabled: Boolean(user.value?.bluesky),
+      icon: 'i-simple-icons-bluesky',
     },
     {
       label: user.value?.gitlab || 'GitLab',
@@ -205,6 +222,8 @@ const providers = computed(() =>
     ...p,
     prefetch: false,
     external: true,
+    to: inPopup.value ? '#' : p.to,
+    click: inPopup.value ? () => openInPopup(p.to) : p.click,
   })),
 )
 </script>
@@ -259,6 +278,14 @@ const providers = computed(() =>
   </UHeader>
   <UMain>
     <UContainer>
+      <div class="text-xs mt-4">
+        Popup mode <UToggle
+          v-model="inPopup"
+          size="xs"
+          name="open-in-popup"
+          label="Open in popup"
+        />
+      </div>
       <NuxtPage />
     </UContainer>
   </UMain>

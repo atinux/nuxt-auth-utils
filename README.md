@@ -62,7 +62,7 @@ Nuxt Auth Utils automatically adds some plugins to fetch the current user sessio
 
 ```vue
 <script setup>
-const { loggedIn, user, session, fetch, clear } = useUserSession()
+const { loggedIn, user, session, fetch, clear, openInPopup } = useUserSession()
 </script>
 
 <template>
@@ -74,6 +74,8 @@ const { loggedIn, user, session, fetch, clear } = useUserSession()
   <div v-else>
     <h1>Not logged in</h1>
     <a href="/auth/github">Login with GitHub</a>
+    <!-- or open the OAuth route in a popup -->
+    <button @click="openInPopup('/auth/github')">Login with GitHub</button>
   </div>
 </template>
 ```
@@ -106,6 +108,10 @@ interface UserSessionComposable {
    * Clear the user session and remove the session cookie.
    */
   clear: () => Promise<void>
+  /**
+   * Open the OAuth route in a popup that auto-closes when successful.
+   */
+  openInPopup: (route: string, size?: { width?: number, height?: number }) => void
 }
 ```
 
@@ -211,11 +217,13 @@ It can also be set using environment variables:
 - Authentik
 - AWS Cognito
 - Battle.net
+- Bluesky (AT Protocol)
 - Discord
 - Dropbox
 - Facebook
 - GitHub
 - GitLab
+- Gitea
 - Google
 - Hubspot
 - Instagram
@@ -293,6 +301,28 @@ export default defineNuxtConfig({
         // See https://github.com/adonisjs/hash/blob/94637029cd526783ac0a763ec581306d98db2036/src/types.ts#L144
       }
     }
+  }
+})
+```
+
+### AT Protocol
+
+Social networks that rely on AT Protocol (e.g., Bluesky) slightly differ from a regular OAuth flow.
+
+To enable OAuth with AT Protocol, you need to:
+
+1. Install the peer dependencies:
+
+```bash
+npx nypm i @atproto/oauth-client-node @atproto/api
+```
+
+2. Enable it in your `nuxt.config.ts`
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    atproto: true
   }
 })
 ```
@@ -836,26 +866,26 @@ This will automatically clean up any expired sessions based on your `sessionInac
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Generate type stubs
-npm run dev:prepare
+pnpm run dev:prepare
 
 # Develop with the playground
-npm run dev
+pnpm run dev
 
 # Build the playground
-npm run dev:build
+pnpm run dev:build
 
 # Run ESLint
-npm run lint
+pnpm run lint
 
 # Run Vitest
-npm run test
-npm run test:watch
+pnpm run test
+pnpm run test:watch
 
 # Release new version
-npm run release
+pnpm run release
 ```
 
 <!-- Badges -->

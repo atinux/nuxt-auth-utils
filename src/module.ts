@@ -15,6 +15,8 @@ import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
 import type { ScryptConfig } from '@adonisjs/hash/types'
 import type { SessionConfig } from 'h3'
+import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './utils/atproto'
+import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -42,6 +44,11 @@ export interface ModuleOptions {
    * @default true
    */
   autoExtendSession?: boolean
+  /**
+   * Enable atproto OAuth (Bluesky, etc.)
+   * @default false
+   */
+  atproto?: boolean
   /**
    * Hash options used for password hashing
    */
@@ -76,6 +83,7 @@ export default defineNuxtModule<ModuleOptions>({
     storageType: 'cookie',
     sessionInactivityMaxAge: 2592000, // 30 days
     autoExtendSession: true,
+    atproto: false,
     hash: {
       scrypt: {},
     },
@@ -122,6 +130,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
       addServerImportsDir(resolver.resolve('./runtime/server/lib/webauthn'))
     }
+
     addServerImportsDir(resolver.resolve('./runtime/server/utils'))
     addServerHandler({
       handler: resolver.resolve('./runtime/server/api/session.delete'),
@@ -194,6 +203,13 @@ export default defineNuxtModule<ModuleOptions>({
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
+    // Gitea OAuth
+    runtimeConfig.oauth.gitea = defu(runtimeConfig.oauth.gitea, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      baseURL: '',
+    })
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
@@ -264,6 +280,36 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+
+    // Atproto OAuth
+    for (const provider of atprotoProviders) {
+      runtimeConfig.oauth[provider] = defu(runtimeConfig.oauth[provider], atprotoProviderDefaultClientMetadata)
+    }
+
+    if (options.atproto) {
+      const missingDeps: string[] = []
+      const peerDeps = ['@atproto/oauth-client-node', '@atproto/api']
+      for (const pkg of peerDeps) {
+        await import(pkg).catch(() => {
+          missingDeps.push(pkg)
+        })
+      }
+
+      if (missingDeps.length > 0) {
+        logger.withTag('nuxt-auth-utils').error(`Missing dependencies for \`atproto\`, please install with:\n\n\`npx nypm i ${missingDeps.join(' ')}\``)
+        process.exit(1)
+      }
+
+      for (const provider of atprotoProviders) {
+        addServerHandler({
+          handler: resolver.resolve('./runtime/server/routes/atproto/client-metadata.json.get.ts'),
+          route: '/' + getClientMetadataFilename(provider, runtimeConfig.oauth[provider] as AtprotoProviderClientMetadata),
+          method: 'get',
+        })
+      }
+      addServerImportsDir(resolver.resolve('./runtime/server/lib/atproto'))
+    }
+
     // Keycloak OAuth
     runtimeConfig.oauth.keycloak = defu(runtimeConfig.oauth.keycloak, {
       clientId: '',

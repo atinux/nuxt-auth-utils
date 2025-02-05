@@ -32,6 +32,7 @@ export default defineNuxtConfig({
     // storageType: 'cache',
     // sessionInactivityMaxAge: 60 * 2, // 2 minutes
     // autoExtendSession: true,
+    atproto: true,
   },
   // runtimeConfig: {
   //   session: {

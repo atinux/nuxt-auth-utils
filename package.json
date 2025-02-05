@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.5.10",
+  "version": "0.5.13",
   "description": "Add Authentication to Nuxt applications with secured & sealed cookies sessions.",
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@adonisjs/hash": "^9.0.5",
-    "@nuxt/kit": "^3.15.2",
+    "@nuxt/kit": "^3.15.4",
     "defu": "^6.1.4",
     "h3": "^1.14.0",
     "hookable": "^5.5.3",
@@ -49,6 +49,8 @@
     "uncrypto": "^0.1.3"
   },
   "peerDependencies": {
+    "@atproto/api": "^0.13.15",
+    "@atproto/oauth-client-node": "^0.2.0",
     "@simplewebauthn/browser": "^11.0.0",
     "@simplewebauthn/server": "^11.0.0"
   },
@@ -58,23 +60,29 @@
     },
     "@simplewebauthn/server": {
       "optional": true
+    },
+    "@atproto/oauth-client-node": {
+      "optional": true
+    },
+    "@atproto/api": {
+      "optional": true
     }
   },
   "devDependencies": {
-    "@iconify-json/simple-icons": "^1.2.21",
-    "@nuxt/devtools": "latest",
-    "@nuxt/eslint-config": "^0.7.5",
+    "@iconify-json/simple-icons": "^1.2.23",
+    "@nuxt/devtools": "2.0.0-beta.7",
+    "@nuxt/eslint-config": "^0.7.6",
     "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.15.2",
+    "@nuxt/schema": "^3.15.4",
     "@nuxt/test-utils": "^3.15.4",
     "@nuxt/ui": "^2.21.0",
     "@nuxt/ui-pro": "^1.7.0",
     "@simplewebauthn/types": "^12.0.0",
     "changelogen": "^0.5.7",
-    "eslint": "^9.18.0",
-    "nuxt": "^3.15.2",
+    "eslint": "^9.19.0",
+    "nuxt": "^3.15.4",
     "typescript": "5.6.3",
-    "vitest": "^3.0.3",
+    "vitest": "^3.0.5",
     "vue-tsc": "^2.2.0"
   }
 }
