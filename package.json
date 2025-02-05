@@ -50,13 +50,21 @@
   },
   "peerDependencies": {
     "@simplewebauthn/browser": "^11.0.0",
-    "@simplewebauthn/server": "^11.0.0"
+    "@simplewebauthn/server": "^11.0.0",
+    "@atproto/oauth-client-node": "^0.2.0",
+    "@atproto/api": "^0.13.15"
   },
   "peerDependenciesMeta": {
     "@simplewebauthn/browser": {
       "optional": true
     },
     "@simplewebauthn/server": {
+      "optional": true
+    },
+    "@atproto/oauth-client-node": {
+      "optional": true
+    },
+    "@atproto/api": {
       "optional": true
     }
   },

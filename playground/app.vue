@@ -29,6 +29,22 @@ const providers = computed(() =>
       icon: 'i-simple-icons-github',
     },
     {
+      label: user.value?.bluesky || 'Bluesky',
+      click() {
+        const handle = prompt('Enter your Bluesky handle')
+        if (handle) {
+          navigateTo({
+            path: '/auth/bluesky',
+            query: { handle },
+          }, {
+            external: true,
+          })
+        }
+      },
+      disabled: Boolean(user.value?.bluesky),
+      icon: 'i-simple-icons-bluesky',
+    },
+    {
       label: user.value?.gitlab || 'GitLab',
       to: '/auth/gitlab',
       disabled: Boolean(user.value?.gitlab),
