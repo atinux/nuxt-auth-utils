@@ -8,6 +8,10 @@ export interface SecureSessionData {
 
 export interface UserSession {
   /**
+   * Session ID
+   */
+  id: string
+  /**
    * User session data, available on client and server
    */
   user?: User
