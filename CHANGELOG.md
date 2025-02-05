@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.5.12
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.11...v0.5.12)
+
+### 🚀 Enhancements
+
+- **session:** Add generated session id ([#338](https://github.com/atinux/nuxt-auth-utils/pull/338))
+- Add bluesky as a provider ([#281](https://github.com/atinux/nuxt-auth-utils/pull/281))
+
+### 🏡 Chore
+
+- Update deps ([1d4c52c](https://github.com/atinux/nuxt-auth-utils/commit/1d4c52c))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <atinux@gmail.com>
+- Neil Richter <me@neilrichter.com>
+
 ## v0.5.11
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.10...v0.5.11)
