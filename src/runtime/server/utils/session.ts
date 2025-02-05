@@ -43,17 +43,17 @@ export async function getUserSession(event: UseSessionEvent, extendSession?: boo
       }
       return {
         id: session.id,
-        ...data
+        ...data,
       }
     }
     return {
-      id: session.id
+      id: session.id,
     } as UserSession
   }
 
   return {
     id: session.id,
-    ...session.data
+    ...session.data,
   }
 }
 /**
