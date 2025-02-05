@@ -28,7 +28,11 @@ export const sessionHooks = createHooks<SessionHooks>()
  * @returns The user session
  */
 export async function getUserSession(event: UseSessionEvent) {
-  return (await _useSession(event)).data
+  const session = await _useSession(event)
+  return {
+    id: session.id,
+    ...session.data,
+  }
 }
 /**
  * Set a user session

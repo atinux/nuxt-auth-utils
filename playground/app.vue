@@ -1,6 +1,7 @@
 <script setup lang="ts">
-const { user } = useUserSession()
+const { user, openInPopup } = useUserSession()
 
+const inPopup = ref(false)
 const providers = computed(() =>
   [
     {
@@ -221,6 +222,8 @@ const providers = computed(() =>
     ...p,
     prefetch: false,
     external: true,
+    to: inPopup.value ? '#' : p.to,
+    click: inPopup.value ? () => openInPopup(p.to) : void 0,
   })),
 )
 </script>
@@ -275,6 +278,14 @@ const providers = computed(() =>
   </UHeader>
   <UMain>
     <UContainer>
+      <div class="text-xs mt-4">
+        Popup mode <UToggle
+          v-model="inPopup"
+          size="xs"
+          name="open-in-popup"
+          label="Open in popup"
+        />
+      </div>
       <NuxtPage />
     </UContainer>
   </UMain>

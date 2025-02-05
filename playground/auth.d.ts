@@ -5,6 +5,7 @@ declare module '#auth-utils' {
     email?: string
     password?: string
     spotify?: string
+    gitea?: string
     github?: string
     gitlab?: string
     google?: string

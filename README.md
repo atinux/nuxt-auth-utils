@@ -62,7 +62,7 @@ Nuxt Auth Utils automatically adds some plugins to fetch the current user sessio
 
 ```vue
 <script setup>
-const { loggedIn, user, session, fetch, clear } = useUserSession()
+const { loggedIn, user, session, fetch, clear, openInPopup } = useUserSession()
 </script>
 
 <template>
@@ -74,6 +74,8 @@ const { loggedIn, user, session, fetch, clear } = useUserSession()
   <div v-else>
     <h1>Not logged in</h1>
     <a href="/auth/github">Login with GitHub</a>
+    <!-- or open the OAuth route in a popup -->
+    <button @click="openInPopup('/auth/github')">Login with GitHub</button>
   </div>
 </template>
 ```
@@ -106,6 +108,10 @@ interface UserSessionComposable {
    * Clear the user session and remove the session cookie.
    */
   clear: () => Promise<void>
+  /**
+   * Open the OAuth route in a popup that auto-closes when successful.
+   */
+  openInPopup: (route: string, size?: { width?: number, height?: number }) => void
 }
 ```
 
@@ -217,6 +223,7 @@ It can also be set using environment variables:
 - Facebook
 - GitHub
 - GitLab
+- Gitea
 - Google
 - Hubspot
 - Instagram
