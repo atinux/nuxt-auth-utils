@@ -122,7 +122,12 @@ export class StateStore implements NodeSavedStateStore {
   }
 
   async set(key: string, val: NodeSavedState) {
-    setCookie(this.event, this.stateKey, btoa(JSON.stringify(val)))
+    setCookie(this.event, this.stateKey, btoa(JSON.stringify(val)), {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+    })
   }
 
   async del() {
