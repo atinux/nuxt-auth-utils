@@ -31,7 +31,6 @@ const providers = computed(() =>
     {
       label: user.value?.bluesky || 'Bluesky',
       click() {
-        console.log('hello')
         const handle = prompt('Enter your Bluesky handle')
         if (handle) {
           navigateTo({

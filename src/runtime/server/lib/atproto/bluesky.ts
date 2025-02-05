@@ -36,7 +36,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
     const clientMetadata = getAtprotoClientMetadata(event, 'bluesky', config)
     const scopes = clientMetadata.scope?.split(' ') ?? []
 
-    const sessionStore = new SessionStore(event)
+    const sessionStore = new SessionStore()
     const stateStore = new StateStore(event)
 
     const client = new NodeOAuthClient({
@@ -86,12 +86,12 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
 
     try {
       const { session } = await client.callback(new URLSearchParams(query as Record<string, string>))
-      const sessionInfo = await sessionStore.get()
+      const sessionInfo = await sessionStore.get(session.did)
       const profile = scopes.includes('transition:generic')
         ? (await new Agent(session).getProfile({ actor: session.did })).data
         : null
 
-      sessionStore.del()
+      sessionStore.del(session.did)
 
       return onSuccess(event, {
         user: profile ?? { did: session.did },
@@ -111,7 +111,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
 }
 
 export class StateStore implements NodeSavedStateStore {
-  private readonly stateKey = 'oauth:bluesky:stat'
+  private readonly stateKey = 'oauth-bluesky-state'
 
   constructor(private event: H3Event) {}
 
@@ -131,21 +131,18 @@ export class StateStore implements NodeSavedStateStore {
 }
 
 export class SessionStore implements NodeSavedSessionStore {
-  private readonly sessionKey = 'oauth:bluesky:session'
+  private store: Record<string, NodeSavedSession> = {}
 
-  constructor(private event: H3Event) {}
-
-  async get(): Promise<NodeSavedSession | undefined> {
-    const result = getCookie(this.event, this.sessionKey)
-    if (!result) return
-    return JSON.parse(atob(result))
+  async get(key: string): Promise<NodeSavedSession | undefined> {
+    return this.store[key]
   }
 
   async set(key: string, val: NodeSavedSession) {
-    setCookie(this.event, this.sessionKey, btoa(JSON.stringify(val)))
+    this.store[key] = val
   }
 
-  async del() {
-    deleteCookie(this.event, this.sessionKey)
+  async del(key: string) {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete this.store[key]
   }
 }
