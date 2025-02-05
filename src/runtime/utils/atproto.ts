@@ -1,5 +1,5 @@
-import type { ATProtoProvider, OAuthProvider } from '../runtime/types'
-import type { AtprotoProviderClientMetadata } from '../runtime/types/atproto'
+import type { ATProtoProvider, OAuthProvider } from '../types'
+import type { AtprotoProviderClientMetadata } from '../types/atproto'
 
 export const atprotoProviders = ['bluesky'] satisfies ATProtoProvider[]
 

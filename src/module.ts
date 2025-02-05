@@ -15,7 +15,7 @@ import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
 import type { ScryptConfig } from '@adonisjs/hash/types'
 import type { SessionConfig } from 'h3'
-import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './utils/atproto'
+import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
 import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
 
 // Module options TypeScript interface definition
@@ -269,7 +269,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       for (const provider of atprotoProviders) {
         addServerHandler({
-          handler: resolver.resolve('./runtime/server/routes/atproto/client-metadata.json.get.ts'),
+          handler: resolver.resolve('./runtime/server/routes/atproto/client-metadata.json.get'),
           route: '/' + getClientMetadataFilename(provider, runtimeConfig.oauth[provider] as AtprotoProviderClientMetadata),
           method: 'get',
         })
