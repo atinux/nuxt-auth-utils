@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.5.13
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.12...v0.5.13)
+
+### 🩹 Fixes
+
+- **bluesky:** Use local map for session storing ([#340](https://github.com/atinux/nuxt-auth-utils/pull/340))
+
+### 🏡 Chore
+
+- **playground:** Update nuxt version ([4852cd7](https://github.com/atinux/nuxt-auth-utils/commit/4852cd7))
+- Fix types ([43d7d11](https://github.com/atinux/nuxt-auth-utils/commit/43d7d11))
+
+### ❤️ Contributors
+
+- Neil Richter ([@noook](http://github.com/noook))
+- Sébastien Chopin <atinux@gmail.com>
+
 ## v0.5.12
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.11...v0.5.12)
