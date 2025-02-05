@@ -31,6 +31,7 @@ const providers = computed(() =>
     {
       label: user.value?.bluesky || 'Bluesky',
       click() {
+        console.log('hello')
         const handle = prompt('Enter your Bluesky handle')
         if (handle) {
           navigateTo({
@@ -223,7 +224,7 @@ const providers = computed(() =>
     prefetch: false,
     external: true,
     to: inPopup.value ? '#' : p.to,
-    click: inPopup.value ? () => openInPopup(p.to) : void 0,
+    click: inPopup.value ? () => openInPopup(p.to) : p.click,
   })),
 )
 </script>
