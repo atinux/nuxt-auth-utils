@@ -24,6 +24,10 @@ export interface ModuleOptions {
    */
   webAuthn?: boolean
   /**
+   * Storage location for revocation data
+   */
+  sessionRevocationStorage?: string
+  /**
    * Hash options used for password hashing
    */
   hash?: {
@@ -54,6 +58,7 @@ export default defineNuxtModule<ModuleOptions>({
   // Default configuration options of the Nuxt module
   defaults: {
     webAuthn: false,
+    sessionRevocationStorage: 'revoked-sessions',
     hash: {
       scrypt: {},
     },
@@ -158,6 +163,9 @@ export default defineNuxtModule<ModuleOptions>({
       register: {},
       authenticate: {},
     })
+
+    // Session revocation settings
+    runtimeConfig.sessionRevocationStorage = options.sessionRevocationStorage
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})

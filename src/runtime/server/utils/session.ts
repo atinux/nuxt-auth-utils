@@ -2,7 +2,7 @@ import type { H3Event, SessionConfig } from 'h3'
 import { useSession, createError, isEvent } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
-import { useRuntimeConfig } from '#imports'
+import { useRuntimeConfig, useStorage } from '#imports'
 import type { UserSession, UserSessionRequired } from '#auth-utils'
 
 type UseSessionEvent = Parameters<typeof useSession>[0]
@@ -68,6 +68,7 @@ export async function clearUserSession(event: H3Event, config?: Partial<SessionC
 
   await sessionHooks.callHookParallel('clear', session.data, event)
   await session.clear()
+  await revokeSession(event, config)
 
   return true
 }
@@ -98,6 +99,95 @@ export async function requireUserSession(event: UseSessionEvent, opts: { statusC
   }
 
   return userSession as UserSessionRequired
+}
+
+/**
+ * Checks if a session has been revoked
+ * @param event The Request (h3) event
+ * @param config Optional partial session configuration
+ * @returns A boolean indicating whether the session is revoked
+ */
+export async function isSessionRevoked(event: H3Event, config: Partial<SessionConfig> = {}) {
+  const sessionRevocationStorage = useRuntimeConfig().sessionRevocationStorage
+  if (!sessionRevocationStorage) {
+    return false
+  }
+  const session = await _useSession(event, config)
+  if (!session || !session.id) {
+    return false
+  }
+  const store = useStorage(sessionRevocationStorage)
+  return await store.get(session.id)
+}
+
+/**
+ * Revokes a session
+ * @param event The Request (h3) event
+ * @param config Optional partial session configuration
+ * @returns A boolean indicating whether the session was successfully revoked
+ */
+export async function revokeSession(event: H3Event, config: Partial<SessionConfig> = {}) {
+  const sessionRevocationStorage = useRuntimeConfig().sessionRevocationStorage
+  if (!sessionRevocationStorage) {
+    console.log('No session revocation storage configured')
+    return false
+  }
+  const session = await _useSession(event, config)
+  if (!session || !session.id) {
+    return false
+  }
+  const store = useStorage(sessionRevocationStorage)
+  await store.set(session.id, Date.now())
+  return true
+}
+
+/**
+ * Lists all revoked sessions
+ * @returns An array of revoked session keys
+ */
+export async function listRevokedSessions() {
+  const sessionRevocationStorage = useRuntimeConfig().sessionRevocationStorage
+  if (!sessionRevocationStorage) {
+    return []
+  }
+  const store = useStorage(sessionRevocationStorage)
+  return await store.getKeys()
+}
+
+/**
+ * Clears all revoked sessions
+ */
+export async function clearRevokedSessions() {
+  const sessionRevocationStorage = useRuntimeConfig().sessionRevocationStorage
+  if (!sessionRevocationStorage) {
+    return
+  }
+  const store = useStorage(sessionRevocationStorage)
+  await store.clear()
+}
+
+/**
+ * Cleans up expired revoked sessions
+ * @param maxAge Optional maximum age for revoked sessions (in milliseconds)
+ */
+export async function cleanupRevokedSessions(maxAge?: number) {
+  const sessionRevocationStorage = useRuntimeConfig().sessionRevocationStorage
+  if (!sessionRevocationStorage) {
+    return
+  }
+  const sessionMaxAge = useRuntimeConfig().session?.maxAge
+  const revokedMaxAge = maxAge || sessionMaxAge
+  if (!revokedMaxAge) {
+    return
+  }
+  const store = useStorage(sessionRevocationStorage)
+  const keys = await store.getKeys()
+  for (const key of keys) {
+    const revokedAt = await store.get<number>(key)
+    if (revokedAt && ((Date.now() - revokedAt) > revokedMaxAge)) {
+      await store.removeItem(key)
+    }
+  }
 }
 
 let sessionConfig: SessionConfig
