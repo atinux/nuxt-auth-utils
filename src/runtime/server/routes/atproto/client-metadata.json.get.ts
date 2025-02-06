@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
 import { getAtprotoClientMetadata } from '../../utils/atproto'
-import { atprotoProviders, getClientMetadataFilename } from '../../../../utils/atproto'
+import { atprotoProviders, getClientMetadataFilename } from '../../../utils/atproto'
 import type { AtprotoProviderClientMetadata } from '../../../types/atproto'
 import { useRuntimeConfig } from '#imports'
 

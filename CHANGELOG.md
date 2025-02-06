@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.14
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.13...v0.5.14)
+
+### 🩹 Fixes
+
+- Move atproto util in runtime ([ff2ddc9](https://github.com/atinux/nuxt-auth-utils/commit/ff2ddc9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <atinux@gmail.com>
+
 ## v0.5.13
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.12...v0.5.13)
