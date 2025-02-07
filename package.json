@@ -77,7 +77,7 @@
     "@nuxt/test-utils": "^3.15.4",
     "@nuxt/ui": "^2.21.0",
     "@nuxt/ui-pro": "^1.7.0",
-    "@simplewebauthn/types": "^12.0.0",
+    "@simplewebauthn/types": "^11.0.0",
     "changelogen": "^0.5.7",
     "eslint": "^9.19.0",
     "nuxt": "^3.15.4",
