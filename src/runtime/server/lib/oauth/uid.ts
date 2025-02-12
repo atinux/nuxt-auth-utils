@@ -75,7 +75,7 @@ export function defineOAuthUidEventHandler({ config, onSuccess, onError }: OAuth
       },
       body: {
         grant_type: 'authorization_code',
-        client_id: config.clientId,
+        client_id: +config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
