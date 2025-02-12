@@ -71,12 +71,12 @@ export function defineOAuthUidEventHandler({ config, onSuccess, onError }: OAuth
 
     const tokens = await requestAccessToken(tokenURL, {
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
       body: {
         grant_type: 'authorization_code',
         client_id: config.clientId,
+        client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
       },
