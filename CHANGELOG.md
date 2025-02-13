@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v0.5.15
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.14...v0.5.15)
+
+### 🩹 Fixes
+
+- Import useError ([b7e078d](https://github.com/atinux/nuxt-auth-utils/commit/b7e078d))
+
+### 📖 Documentation
+
+- Wrong var name in README.md ([#345](https://github.com/atinux/nuxt-auth-utils/pull/345))
+
+### 🏡 Chore
+
+- Align @simplewebauthn/types version ([#344](https://github.com/atinux/nuxt-auth-utils/pull/344))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <atinux@gmail.com>
+- Alex ([@alexfriesen](http://github.com/alexfriesen))
+- Mktcode <kontakt@markus-kottlaender.de>
+
 ## v0.5.14
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.13...v0.5.14)
