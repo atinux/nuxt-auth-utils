@@ -120,8 +120,7 @@ export function defineOAuthKeycloakEventHandler({
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
-      },
-    })
+      } })
 
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'keycloak', tokens, onError)
@@ -152,9 +151,7 @@ export function defineOAuthKeycloakEventHandler({
     }
 
     return onSuccess(event, {
-      user: {
-        ...user,
-      },
+      user,
       tokens,
     })
   })

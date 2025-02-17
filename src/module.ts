@@ -129,8 +129,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
-    const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'
-      }SESSION_PASSWORD`
+    const envSessionPassword = `${
+      runtimeConfig.nitro?.envPrefix || 'NUXT_'
+    }SESSION_PASSWORD`
 
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
@@ -153,7 +154,8 @@ export default defineNuxtModule<ModuleOptions>({
       if (!envContent.includes(envSessionPassword)) {
         await writeFile(
           envPath,
-          `${envContent ? envContent + '\n' : envContent
+          `${
+            envContent ? envContent + '\n' : envContent
           }${envSessionPassword}=${runtimeConfig.session.password}`,
           'utf-8',
         )
