@@ -283,7 +283,6 @@ export default defineNuxtModule<ModuleOptions>({
       serverUrlInternal: '',
       realm: '',
       redirectURL: '',
-      customAttributes: '',
     })
     // Linear OAuth
     runtimeConfig.oauth.linear = defu(runtimeConfig.oauth.linear, {

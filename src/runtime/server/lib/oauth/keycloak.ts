@@ -51,12 +51,6 @@ export interface OAuthKeycloakConfig {
    * @default process.env.NUXT_OAUTH_KEYCLOAK_REDIRECT_URL or current URL
    */
   redirectURL?: string
-  /**
-   * Bridge communication between Keycloak and your application.
-   * @example 'ui_locales,dark,to,timezone'
-   * @default process.env.NUXT_OAUTH_KEYCLOAK_CUSTOM_ATTRIBUTES or undefined
-   */
-  customAttributes?: string
 }
 
 export function defineOAuthKeycloakEventHandler({
@@ -69,25 +63,7 @@ export function defineOAuthKeycloakEventHandler({
       authorizationParams: {},
     }) as OAuthKeycloakConfig
 
-    const query = getQuery<{ code?: string, error?: string } & Record<string, string>>(event)
-
-    const customAttributes = config.customAttributes?.split(',') || []
-    const customQueryParams: Record<string, string> = {}
-    if (customAttributes.length) {
-      for (const customAttribute of customAttributes) {
-        if (customAttribute === 'error' || customAttribute === 'code') {
-          const error = createError({
-            statusCode: 500,
-            message: `Invalid custom attribute name: ${customAttribute}`,
-          })
-          if (!onError) throw error
-          return onError(event, error)
-        }
-        if (query[customAttribute]) {
-          customQueryParams[customAttribute] = query[customAttribute]
-        }
-      }
-    }
+    const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -122,7 +98,7 @@ export function defineOAuthKeycloakEventHandler({
       return sendRedirect(
         event,
         withQuery(authorizationURL, {
-          ...customQueryParams,
+          ...query,
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
@@ -142,7 +118,7 @@ export function defineOAuthKeycloakEventHandler({
         grant_type: 'authorization_code',
         client_id: config.clientId,
         client_secret: config.clientSecret,
-        redirect_uri: withQuery(redirectURL, customQueryParams),
+        redirect_uri: redirectURL,
         code: query.code,
       },
     })
@@ -178,7 +154,6 @@ export function defineOAuthKeycloakEventHandler({
     return onSuccess(event, {
       user: {
         ...user,
-        custom: customQueryParams,
       },
       tokens,
     })

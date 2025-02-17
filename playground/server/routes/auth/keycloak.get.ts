@@ -5,7 +5,6 @@ export default defineOAuthKeycloakEventHandler({
         keycloak: user.preferred_username,
       },
       loggedInAt: Date.now(),
-      custom: user.custom,
     })
 
     return sendRedirect(event, '/')
