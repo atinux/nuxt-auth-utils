@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.16
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.15...v0.5.16)
+
+### 🚀 Enhancements
+
+- Custom params for Keycloak ([#355](https://github.com/atinux/nuxt-auth-utils/pull/355))
+
+### ❤️ Contributors
+
+- BeSaad ([@BeSaad](http://github.com/BeSaad))
+
 ## v0.5.15
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.14...v0.5.15)
