@@ -49,7 +49,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
     }) as OAuthOktaConfig
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
-      return handleMissingConfiguration(event, 'auth0', ['clientId', 'clientSecret', 'domain'], onError)
+      return handleMissingConfiguration(event, 'okta', ['clientId', 'clientSecret', 'domain'], onError)
     }
     const authorizationURL = `https://${config.domain}.okta.com/oauth2/v1/authorize`
     const tokenURL = `https://${config.domain}.okta.com/oauth2/v1/token`
@@ -90,12 +90,11 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
     }
 
     const accessToken = tokens.access_token
-    // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const emails: any[] = await $fetch(`https://${config.domain}.okta.com/idp/myaccount/emails`, {
       headers: {
-        'Accept': 'application/json; okta-version=1.0.0',
-        'Authorization': `Bearer ${accessToken}`,
+        Accept: 'application/json; okta-version=1.0.0',
+        Authorization: `Bearer ${accessToken}`,
       },
     })
 
