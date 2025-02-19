@@ -232,6 +232,7 @@ It can also be set using environment variables:
 - Linear
 - LinkedIn
 - Microsoft
+- Okta
 - PayPal
 - Polar
 - Seznam
