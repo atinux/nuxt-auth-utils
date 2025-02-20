@@ -30,6 +30,10 @@ export interface UserSessionRequired extends UserSession {
   user: User
 }
 
+export interface ClearSessionOptions {
+  redirect?: string
+}
+
 export interface UserSessionComposable {
   /**
    * Computed indicating if the auth session is ready
@@ -54,7 +58,7 @@ export interface UserSessionComposable {
   /**
    * Clear the user session and remove the session cookie.
    */
-  clear: () => Promise<void>
+  clear: (options?: ClearSessionOptions) => Promise<void>
   /**
    * Open the OAuth route in a popup that auto-closes when successful.
    */
