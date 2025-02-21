@@ -98,6 +98,7 @@ export function defineOAuthKeycloakEventHandler({
       return sendRedirect(
         event,
         withQuery(authorizationURL, {
+          ...query,
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
