@@ -20,6 +20,10 @@ export interface UserSession {
    */
   secure?: SecureSessionData
   /**
+   * Timestamp of last access
+   */
+  lastAccess?: number
+  /**
    * Extra session data, available on client and server
    */
   [key: string]: unknown
