@@ -38,6 +38,7 @@ declare module '#auth-utils' {
     hubspot?: string
     atlassian?: string
     apple?: string
+    kick?: string
   }
 
   interface UserSession {
