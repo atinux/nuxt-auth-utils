@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto'
-import type { H3Event } from 'h3'
+import { createHash, randomBytes } from 'node:crypto'
+import { type H3Event, setCookie, getCookie, deleteCookie } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
@@ -61,13 +61,23 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
       return handleMissingConfiguration(event, 'kick', ['clientId', 'clientSecret'], onError)
     }
 
-    const codeVerifier = 'verify'
+    const codeVerifier = getCookie(event, 'oauth-kick-code-verifier')
+    if (codeVerifier) deleteCookie(event, 'oauth-kick-code-verifier')
+
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.includes('user:read'))
         config.scope.push('user:read')
+
+      const generatedCodeVerifier = randomBytes(32).toString('base64url')
+      setCookie(event, 'oauth-kick-code-verifier', generatedCodeVerifier, {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+      })
 
       // Redirect to Kick Oauth page
       return sendRedirect(
@@ -78,7 +88,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           state: randomUUID(),
-          code_challenge: createHash('sha256').update(codeVerifier).digest('base64url'),
+          code_challenge: createHash('sha256').update(generatedCodeVerifier).digest('base64url'),
           code_challenge_method: 'S256',
         }),
       )
