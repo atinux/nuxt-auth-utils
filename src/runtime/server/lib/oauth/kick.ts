@@ -109,7 +109,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
       },
     })
 
-    if (!data.length) {
+    if (!data || !data.length) {
       const error = createError({
         statusCode: 500,
         message: 'Could not get Kick user',
