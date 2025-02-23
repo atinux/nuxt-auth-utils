@@ -1,4 +1,4 @@
-import crypto from 'node:crypto'
+import { createHash } from 'node:crypto'
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
@@ -78,7 +78,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           state: randomUUID(),
-          code_challenge: crypto.createHash('sha256').update(codeVerifier).digest('base64url'),
+          code_challenge: createHash('sha256').update(codeVerifier).digest('base64url'),
           code_challenge_method: 'S256',
         }),
       )
