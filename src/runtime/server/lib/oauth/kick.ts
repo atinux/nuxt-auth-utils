@@ -1,9 +1,9 @@
-import { createHash, randomBytes } from 'node:crypto'
 import { type H3Event, setCookie, getCookie, deleteCookie } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
+import { sha256base64 } from 'ohash'
 import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -71,7 +71,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
       if (!config.scope.includes('user:read'))
         config.scope.push('user:read')
 
-      const generatedCodeVerifier = randomBytes(32).toString('base64url')
+      const generatedCodeVerifier = randomUUID()
       setCookie(event, 'oauth-kick-code-verifier', generatedCodeVerifier, {
         path: '/',
         httpOnly: true,
@@ -88,7 +88,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           state: randomUUID(),
-          code_challenge: createHash('sha256').update(generatedCodeVerifier).digest('base64url'),
+          code_challenge: sha256base64(generatedCodeVerifier),
           code_challenge_method: 'S256',
         }),
       )
