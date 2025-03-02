@@ -1,10 +1,9 @@
-import { type H3Event, setCookie, getCookie, deleteCookie } from 'h3'
+import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
-import { sha256base64 } from 'ohash'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, handlePkceVerifier } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -61,8 +60,8 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
       return handleMissingConfiguration(event, 'kick', ['clientId', 'clientSecret'], onError)
     }
 
-    const codeVerifier = getCookie(event, 'oauth-kick-code-verifier')
-    if (codeVerifier) deleteCookie(event, 'oauth-kick-code-verifier')
+    // Create pkce verifier
+    const verifier = await handlePkceVerifier(event)
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
@@ -70,14 +69,6 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
       config.scope = config.scope || []
       if (!config.scope.includes('user:read'))
         config.scope.push('user:read')
-
-      const generatedCodeVerifier = randomUUID()
-      setCookie(event, 'oauth-kick-code-verifier', generatedCodeVerifier, {
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-      })
 
       // Redirect to Kick Oauth page
       return sendRedirect(
@@ -88,8 +79,8 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           state: randomUUID(),
-          code_challenge: sha256base64(generatedCodeVerifier),
-          code_challenge_method: 'S256',
+          code_challenge: verifier.code_challenge,
+          code_challenge_method: verifier.code_challenge_method,
         }),
       )
     }
@@ -101,7 +92,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
         client_id: config.clientId,
         client_secret: config.clientSecret,
         code: query.code,
-        code_verifier: codeVerifier,
+        code_verifier: verifier.code_verifier,
       },
     })
 
