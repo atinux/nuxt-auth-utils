@@ -227,6 +227,7 @@ It can also be set using environment variables:
 - Google
 - Hubspot
 - Instagram
+- Kick
 - Keycloak
 - Line
 - Linear
