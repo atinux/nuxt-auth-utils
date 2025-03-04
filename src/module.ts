@@ -235,6 +235,17 @@ export default defineNuxtModule<ModuleOptions>({
       userURL: '',
       redirectURL: '',
     })
+    // Azure OAuth
+    runtimeConfig.oauth.azureb2c = defu(runtimeConfig.oauth.azureb2c, {
+      clientId: '',
+      policy: '',
+      tenant: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
+      redirectURL: '',
+    })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
       clientId: '',
