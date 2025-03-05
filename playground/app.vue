@@ -218,6 +218,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.apple),
       icon: 'i-simple-icons-apple',
     },
+    {
+      label: user.value?.okta || 'Okta',
+      to: '/auth/okta',
+      disabled: Boolean(user.value?.okta),
+      icon: 'i-simple-icons-okta',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
