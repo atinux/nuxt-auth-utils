@@ -5,7 +5,7 @@ import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
- 
+
 export interface OAuthLogtoConfig {
   /**
    * Logto OAuth Client ID
