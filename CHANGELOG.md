@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.22
+
+[compare changes](https://github.com/loickal/nuxt-auth-utils/compare/v0.5.21...v0.5.22)
+
+### 🩹 Fixes
+
+- Linting error on line 8 ([418c45e](https://github.com/loickal/nuxt-auth-utils/commit/418c45e))
+
+### ❤️ Contributors
+
+- Loïc Kalbermatter ([@loickal](http://github.com/loickal))
+
 ## v0.5.21
 
 [compare changes](https://github.com/loickal/nuxt-auth-utils/compare/v0.5.20...v0.5.21)
