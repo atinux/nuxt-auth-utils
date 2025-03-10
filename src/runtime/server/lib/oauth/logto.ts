@@ -5,7 +5,7 @@ import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
-
+ 
 export interface OAuthLogtoConfig {
   /**
    * Logto OAuth Client ID
@@ -19,22 +19,17 @@ export interface OAuthLogtoConfig {
   clientSecret?: string
   /**
    * Logto OAuth Domain
-   * @example <your-logto-instance>.logto.app
+   * @example <your-logto-tenant>logto.app
    * @default process.env.NUXT_OAUTH_LOGTO_DOMAIN
    */
   domain?: string
   /**
    * Logto OAuth Scope
-   * @default ['openid']
+   * @default ['openid', 'profile', 'email']
    * @see https://docs.logto.io/quick-starts/passport#scopes-and-claims
    * @example ['openid', 'profile', 'email']
    */
   scope?: string[]
-  /**
-   * Extra authorization parameters to provide to the authorization URL
-   * @example { ui_locales: 'de-CH de en' }
-   */
-  authorizationParams?: Record<string, string>
   /**
    * Redirect URL to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_LOGTO_REDIRECT_URL or current URL
@@ -44,9 +39,7 @@ export interface OAuthLogtoConfig {
 
 export function defineOAuthLogtoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLogtoConfig>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.logto, {
-      authorizationParams: {},
-    }) as OAuthLogtoConfig
+    config = defu(config, useRuntimeConfig(event).oauth?.logto) as OAuthLogtoConfig
 
     const query = getQuery<{ code?: string, error?: string }>(event)
 
@@ -61,17 +54,17 @@ export function defineOAuthLogtoEventHandler({ config, onSuccess, onError }: OAu
     }
 
     if (!config.clientId || !config.clientSecret || !config.domain) {
-      return handleMissingConfiguration(event, 'logto', ['clientId', 'clientSecret', 'issuerUrl'], onError)
+      return handleMissingConfiguration(event, 'logto', ['clientId', 'clientSecret', 'domain'], onError)
     }
 
-    const authorizationURL = `https://${config.domain}/oauth/v2/authorize`
-    const tokenURL = `https://${config.domain}/oauth/v2/token`
+    const authorizationURL = `https://${config.domain}/oidc/auth`
+    const tokenURL = `https://${config.domain}/oidc/token`
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
-      config.scope = config.scope || ['openid']
-      // Redirect to Logto OAuth page
+      config.scope = config.scope || ['openid', 'profile', 'email']
 
+      // Redirect to Logto OAuth page
       return sendRedirect(
         event,
         withQuery(authorizationURL, {
@@ -79,7 +72,6 @@ export function defineOAuthLogtoEventHandler({ config, onSuccess, onError }: OAu
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          ...config.authorizationParams,
         }),
       )
     }
@@ -104,7 +96,7 @@ export function defineOAuthLogtoEventHandler({ config, onSuccess, onError }: OAu
     const accessToken = tokens.access_token
     // Fetch user info
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(`https://${config.domain}/oidc/v1/userinfo`, {
+    const user: any = await $fetch(`https://${config.domain}/oidc/me`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/json',
