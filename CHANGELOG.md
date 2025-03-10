@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v0.5.19
+
+[compare changes](https://github.com/loickal/nuxt-auth-utils/compare/v0.5.18...v0.5.19)
+
 ## v0.5.18
 
 [compare changes](https://github.com/loickal/nuxt-auth-utils/compare/v0.5.17...v0.5.18)
