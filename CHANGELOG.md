@@ -1,6 +1,29 @@
 # Changelog
 
 
+## v0.5.17
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.16...v0.5.17)
+
+### 🚀 Enhancements
+
+- Add logto connector ([3499650](https://github.com/atinux/nuxt-auth-utils/commit/3499650))
+
+### 🩹 Fixes
+
+- Verify steam credentials ([#365](https://github.com/atinux/nuxt-auth-utils/pull/365))
+- Wrong urls ([37e4547](https://github.com/atinux/nuxt-auth-utils/commit/37e4547))
+
+### 🏡 Chore
+
+- **release:** V0.5.16 ([3a50df1](https://github.com/atinux/nuxt-auth-utils/commit/3a50df1))
+
+### ❤️ Contributors
+
+- Loïc Kalbermatter ([@loickal](http://github.com/loickal))
+- NiTrO0FuN ([@NiTrO0FuN](http://github.com/NiTrO0FuN))
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
 ## v0.5.16
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.15...v0.5.16)
