@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.23
+
+[compare changes](https://github.com/loickal/nuxt-auth-utils/compare/v0.5.22...v0.5.23)
+
+### 🚀 Enhancements
+
+- Add logto oauth to module.ts ([b9a4ee8](https://github.com/loickal/nuxt-auth-utils/commit/b9a4ee8))
+
+### ❤️ Contributors
+
+- Loïc Kalbermatter ([@loickal](http://github.com/loickal))
+
 ## v0.5.22
 
 [compare changes](https://github.com/loickal/nuxt-auth-utils/compare/v0.5.21...v0.5.22)
