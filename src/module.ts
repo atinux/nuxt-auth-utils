@@ -424,5 +424,13 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       clientId: '',
     })
+    // Logto OAuth
+    runtimeConfig.oauth.logto = defu(runtimeConfig.oauth.logto, {
+      clientId: '',
+      clientSecret: '',
+      domain: '',
+      scope: [],
+      redirectURL: '',
+    })
   },
 })
