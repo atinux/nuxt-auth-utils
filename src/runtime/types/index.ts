@@ -7,3 +7,4 @@ export type {
   WebAuthnComposable,
   WebAuthnUser,
 } from './webauthn'
+export type { OAuthChecks } from './security'
