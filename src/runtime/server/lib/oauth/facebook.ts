@@ -63,7 +63,10 @@ export function defineOAuthFacebookEventHandler({
   onError,
 }: OAuthConfig<OAuthFacebookConfig>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.facebook, {
+    
+    const runtimeConfig = useRuntimeConfig(event)
+    
+    config = defu(config, runtimeConfig.oauth?.facebook, {
       authorizationURL: 'https://www.facebook.com/v19.0/dialog/oauth',
       tokenURL: 'https://graph.facebook.com/v19.0/oauth/access_token',
       authorizationParams: {},
@@ -88,7 +91,7 @@ export function defineOAuthFacebookEventHandler({
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
-      config.scope = config.scope || []
+      config.scope = runtimeConfig.oauth?.facebook?.scope || []
       // Redirect to Facebook Oauth page
       return sendRedirect(
         event,
@@ -117,7 +120,7 @@ export function defineOAuthFacebookEventHandler({
     const accessToken = tokens.access_token
     // TODO: improve typing
 
-    config.fields = config.fields || ['id', 'name']
+    config.fields = runtimeConfig.oauth?.facebook?.fields || ['id', 'name']
     const fields = config.fields.join(',')
 
     const user = await $fetch(
