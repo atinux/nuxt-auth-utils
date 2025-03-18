@@ -122,11 +122,10 @@ export function defineOAuthLiveChatEventHandler({
     const query = getQuery<{ code?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
+    // Ensure accounts--my:ro is always applied.
     const scope = [...new Set([...config.scope!, 'accounts--my:ro'])].join(' ')
 
     if (!query.code) {
-      config.scope ??= []
-
       return sendRedirect(
         event,
         withQuery(config.authorizationURL!, {
