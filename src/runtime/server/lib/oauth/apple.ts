@@ -162,17 +162,17 @@ export function defineOAuthAppleEventHandler({
         },
       })
 
-      const tokens = await verifyJwt<OAuthAppleTokens>(accessTokenResult.id_token, {
+      const payload = await verifyJwt<OAuthAppleTokens>(accessTokenResult.id_token, {
         publicJwkUrl: 'https://appleid.apple.com/auth/keys',
         audience: config.clientId,
         issuer: 'https://appleid.apple.com',
       })
 
-      if (!tokens) {
-        return handleAccessTokenErrorResponse(event, 'apple', tokens, onError)
+      if (!payload) {
+        return handleAccessTokenErrorResponse(event, 'apple', payload, onError)
       }
 
-      return onSuccess(event, { user, tokens })
+      return onSuccess(event, { user, payload, tokens: accessTokenResult })
     }
     catch (error) {
       return handleAccessTokenErrorResponse(event, 'apple', error, onError)
