@@ -435,5 +435,10 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       clientId: '',
     })
+    // LiveChat OAuth
+    runtimeConfig.oauth.livechat = defu(runtimeConfig.oauth.livechat, {
+      clientId: '',
+      clientSecret: '',
+    })
   },
 })

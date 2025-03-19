@@ -1,8 +1,8 @@
+import crypto from 'node:crypto'
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { sha256 } from 'ohash'
 import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, type RequestAccessTokenBody } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -86,7 +86,7 @@ export function defineOAuthTikTokEventHandler({ config, onSuccess, onError }: OA
           ...config.sandbox
             ? {
                 code_verifier: codeVerifier,
-                code_challenge: sha256(codeVerifier),
+                code_challenge: crypto.createHash('sha256').update(codeVerifier).digest('hex'),
                 code_challenge_method: 'S256' }
             : {},
         }),

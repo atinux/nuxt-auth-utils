@@ -88,7 +88,7 @@ export function defineOAuthFacebookEventHandler({
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
-      config.scope = config.scope || []
+      config.scope = [...new Set(config.scope)]
       // Redirect to Facebook Oauth page
       return sendRedirect(
         event,
@@ -117,7 +117,7 @@ export function defineOAuthFacebookEventHandler({
     const accessToken = tokens.access_token
     // TODO: improve typing
 
-    config.fields = config.fields || ['id', 'name']
+    config.fields = [...new Set(config.fields || ['id', 'name'])]
     const fields = config.fields.join(',')
 
     const user = await $fetch(
