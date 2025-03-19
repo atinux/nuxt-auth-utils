@@ -232,6 +232,7 @@ It can also be set using environment variables:
 - Line
 - Linear
 - LinkedIn
+- LiveChat
 - Microsoft
 - PayPal
 - Polar

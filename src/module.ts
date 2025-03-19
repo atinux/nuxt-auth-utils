@@ -235,6 +235,17 @@ export default defineNuxtModule<ModuleOptions>({
       userURL: '',
       redirectURL: '',
     })
+    // Azure OAuth
+    runtimeConfig.oauth.azureb2c = defu(runtimeConfig.oauth.azureb2c, {
+      clientId: '',
+      policy: '',
+      tenant: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
+      redirectURL: '',
+    })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
       clientId: '',
@@ -429,6 +440,11 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+    })
+    // LiveChat OAuth
+    runtimeConfig.oauth.livechat = defu(runtimeConfig.oauth.livechat, {
+      clientId: '',
+      clientSecret: '',
     })
   },
 })
