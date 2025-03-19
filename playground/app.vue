@@ -224,6 +224,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.apple),
       icon: 'i-simple-icons-apple',
     },
+    {
+      label: user.value?.kick || 'Kick',
+      to: '/auth/kick',
+      disabled: Boolean(user.value?.kick),
+      icon: 'i-simple-icons-kick',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,

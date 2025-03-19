@@ -39,6 +39,7 @@ declare module '#auth-utils' {
     atlassian?: string
     apple?: string
     azureb2c?: string
+    kick?: string
   }
 
   interface UserSession {

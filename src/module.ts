@@ -435,6 +435,12 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       clientId: '',
     })
+    // Kick OAuth
+    runtimeConfig.oauth.kick = defu(runtimeConfig.oauth.kick, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
     // LiveChat OAuth
     runtimeConfig.oauth.livechat = defu(runtimeConfig.oauth.livechat, {
       clientId: '',
