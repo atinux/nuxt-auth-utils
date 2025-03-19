@@ -9,7 +9,7 @@ export default defineOAuthAppleEventHandler({
         apple: userToSet,
       },
       secure: {
-        ...tokens
+        ...tokens,
       },
       loggedInAt: Date.now(),
     })
