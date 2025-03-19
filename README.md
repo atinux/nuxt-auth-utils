@@ -216,6 +216,7 @@ It can also be set using environment variables:
 - Auth0
 - Authentik
 - AWS Cognito
+- Azure B2C
 - Battle.net
 - Bluesky (AT Protocol)
 - Discord
