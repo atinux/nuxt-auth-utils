@@ -27,7 +27,7 @@ export const sessionHooks = createHooks<SessionHooks>()
  * @param event The Request (h3) event
  * @returns The user session
  */
-export async function getUserSession(event: UseSessionEvent) {
+export async function getUserSession(event: UseSessionEvent): Promise<UserSession> {
   const session = await _useSession(event)
   return {
     id: session.id,
