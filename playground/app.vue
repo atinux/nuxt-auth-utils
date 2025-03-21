@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const { user, openInPopup } = useUserSession()
+const { user, session, openInPopup } = useUserSession()
+console.log('user session id: ', session.value.id)
 
 const inPopup = ref(false)
 const providers = computed(() =>
@@ -229,6 +230,24 @@ const providers = computed(() =>
       to: '/auth/kick',
       disabled: Boolean(user.value?.kick),
       icon: 'i-simple-icons-kick',
+    },
+    {
+      label: user.value?.salesforce || 'Salesforce',
+      to: `/auth/salesforce`,
+      disabled: Boolean(user.value?.salesforce),
+      icon: 'i-simple-icons-salesforce',
+    },
+    {
+      label: user.value?.slack || 'Slack',
+      to: '/auth/slack',
+      disabled: Boolean(user.value?.slack),
+      icon: 'i-simple-icons-slack',
+    },
+    {
+      label: user.value?.heroku || 'Heroku',
+      to: '/auth/heroku',
+      disabled: Boolean(user.value?.heroku),
+      icon: 'i-simple-icons-heroku',
     },
   ].map(p => ({
     ...p,
