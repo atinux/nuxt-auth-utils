@@ -113,8 +113,9 @@ export function defineOAuthHerokuEventHandler({
     }
 
     const accessToken = tokens.access_token
-    const user = await fetch(`${baseURL}/oauth/account`, {
+    const user = await $fetch(`https://api.heroku.com/account`, {
       headers: {
+        Accept: 'application/vnd.heroku+json; version=3',
         Authorization: `Bearer ${accessToken}`,
       },
     })
