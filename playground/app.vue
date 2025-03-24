@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const { user, session, openInPopup } = useUserSession()
-console.log('user session id: ', session.value.id)
+const { user, openInPopup } = useUserSession()
 
 const inPopup = ref(false)
 const providers = computed(() =>
