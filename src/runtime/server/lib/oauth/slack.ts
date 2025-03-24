@@ -113,7 +113,7 @@ export function defineOAuthSlackEventHandler({
     }
 
     const accessToken = tokens.access_token
-    const user = await fetch(`${baseURL}/api/users.identity`, {
+    const user = await $fetch(`${baseURL}/api/openid.connect.userInfo`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
