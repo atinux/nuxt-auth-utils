@@ -58,7 +58,7 @@ export function defineOAuthSalesforceEventHandler({
 }: OAuthConfig<OAuthSalesforceConfig>) {
   return eventHandler(async (event: H3Event) => {
     const runtimeConfig = useRuntimeConfig(event).oauth?.salesforce
-    const baseURL = config?.baseURL ?? 'https://login.salesforce.com'
+    const baseURL = config?.baseURL || 'https://login.salesforce.com'
     config = defu(config, runtimeConfig, {
       authorizationURL: `${baseURL}/services/oauth2/authorize`,
       tokenURL: `${baseURL}/services/oauth2/token`,
