@@ -1,13 +1,9 @@
 export default defineOAuthHerokuEventHandler({
-  config: {
-    redirectURL: 'http://localhost:3000/auth/heroku',
-  },
+  config: {},
   async onSuccess(event, { user }) {
-    const userToSet = user?.name
-
     await setUserSession(event, {
       user: {
-        heroku: userToSet,
+        heroku: user?.name,
       },
       loggedInAt: Date.now(),
     })

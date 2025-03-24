@@ -1,13 +1,9 @@
 export default defineOAuthSlackEventHandler({
-  config: {
-    redirectURL: 'http://localhost:3000/auth/slack',
-  },
+  config: {},
   async onSuccess(event, { user }) {
-    const userToSet = user?.name
-
     await setUserSession(event, {
       user: {
-        slack: userToSet,
+        slack: user?.name,
       },
       loggedInAt: Date.now(),
     })
