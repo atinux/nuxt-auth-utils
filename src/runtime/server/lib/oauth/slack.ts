@@ -2,24 +2,48 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import {
-  handleMissingConfiguration,
-  handleAccessTokenErrorResponse,
-  getOAuthRedirectURL,
-  requestAccessToken,
-} from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, handleState, handleInvalidState } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthSlackConfig {
+  /**
+   * Slack OAuth Client ID
+   * @default process.env.NUXT_OAUTH_SLACK_CLIENT_ID
+   */
   clientId?: string
+  /**
+   * Slack OAuth Client Secret
+   * @default process.env.NUXT_OAUTH_SLACK_CLIENT_SECRET
+   */
   clientSecret?: string
+  /**
+   * Slack OAuth Scope
+   * @default ['openid', 'email', 'profile']
+   * @see https://api.slack.com/scopes?filter=user
+   * @example ['openid']
+   */
   scope?: string[]
+  /**
+   * Slack OAuth Authorization URL
+   * @default 'https://slack.com/openid/connect/authorize'
+   */
   authorizationURL?: string
+  /**
+   * Slack OAuth Authorization URL
+   * @default 'https://slack.com/api/openid.connect.token'
+   */
   tokenURL?: string
+  /**
+   * Extra authorization parameters to provide to the authorization URL
+   * @default {}
+   */
   authorizationParams?: Record<string, string>
+  /**
+   * Redirect URL to allow overriding for situations like prod failing to determine public hostname
+   * @default process.env.NUXT_OAUTH_SLACK_REDIRECT_URL or current URL
+   */
   redirectURL?: string
-  baseURL?: string
 }
 
 export function defineOAuthSlackEventHandler({
@@ -53,6 +77,7 @@ export function defineOAuthSlackEventHandler({
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || ['openid', 'email', 'profile']
@@ -63,10 +88,14 @@ export function defineOAuthSlackEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state: query.state || '',
+          state,
           ...config.authorizationParams,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      handleInvalidState(event, 'slack', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
