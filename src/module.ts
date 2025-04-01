@@ -446,5 +446,27 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
     })
+    // Salesforce OAuth
+    runtimeConfig.oauth.salesforce = defu(runtimeConfig.oauth.salesforce, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      baseURL: '',
+      scope: '',
+    })
+    // Slack OAuth
+    runtimeConfig.oauth.slack = defu(runtimeConfig.oauth.slack, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
+    })
+    // Heroku OAuth
+    runtimeConfig.oauth.heroku = defu(runtimeConfig.oauth.heroku, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
+    })
   },
 })
