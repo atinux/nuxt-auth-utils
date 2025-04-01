@@ -40,6 +40,9 @@ declare module '#auth-utils' {
     apple?: string
     azureb2c?: string
     kick?: string
+    salesforce?: string
+    slack?: string
+    heroku?: string
   }
 
   interface UserSession {

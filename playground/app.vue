@@ -230,6 +230,24 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.kick),
       icon: 'i-simple-icons-kick',
     },
+    {
+      label: user.value?.salesforce || 'Salesforce',
+      to: `/auth/salesforce`,
+      disabled: Boolean(user.value?.salesforce),
+      icon: 'i-simple-icons-salesforce',
+    },
+    {
+      label: user.value?.slack || 'Slack',
+      to: '/auth/slack',
+      disabled: Boolean(user.value?.slack),
+      icon: 'i-simple-icons-slack',
+    },
+    {
+      label: user.value?.heroku || 'Heroku',
+      to: '/auth/heroku',
+      disabled: Boolean(user.value?.heroku),
+      icon: 'i-simple-icons-heroku',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
