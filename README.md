@@ -571,6 +571,22 @@ export default defineNitroPlugin(() => {
 })
 ```
 
+### Extending Cookie Lifetime
+
+When using cookie mode, only the session data itself can be enriched through the session hooks. If you want to extend the lifetime of the cookie itself, you could use a middleware that refreshes the cookie by re-setting the session data. (At this point you can also add any other custom data to your cookies)
+
+Example middleware:
+
+```ts
+// server/middleware/cookie-lifetime-extend.ts
+export default defineEventHandler(async (event) => {
+  const session = await getUserSession(event)
+  if (session && Object.keys(session).length > 0) {
+    await setUserSession(event, session)
+  }
+})
+```
+
 ## Server-Side Rendering
 
 You can make authenticated requests both from the client and the server. However, you must use `useRequestFetch()` to make authenticated requests during SSR if you are not using `useFetch()`
@@ -695,42 +711,158 @@ onMounted(open)
 
 ## Configuration
 
-We leverage `runtimeConfig.session` to give the defaults option to [h3 `useSession`](https://h3.unjs.io/examples/handle-session).
+### Session Storage
 
-You can overwrite the options in your `nuxt.config.ts`:
+Nuxt Auth Utils supports different session storage modes that can be configured in your `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
   modules: ['nuxt-auth-utils'],
+  auth: {
+    storageType: 'cookie', // 'memory', 'cache', 'nuxt-session'
+  }
+})
+```
+
+#### Storage Types
+
+- **`cookie`** (default): Stores session data in encrypted cookies. This is the most secure option and works well for most use cases.
+
+  ```ts
+  auth: {
+    storageType: 'cookie'
+  }
+  ```
+
+- **`cache`**: Uses Nitro's cache storage. Useful when you need to store larger session data that might exceed cookie size limits.
+
+  ```ts
+  auth: {
+    storageType: 'cache'
+  }
+  ```
+
+- **`memory`**: Stores sessions in memory. Only suitable for development or testing.
+
+  ```ts
+  auth: {
+    storageType: 'memory'
+  }
+  ```
+  
+> [!WARNING]
+> Memory storage is cleared when the server restarts and doesn't work with multiple server instances. Not recommended for production use.
+
+- **`nuxt-session`**: Uses a custom storage mount named 'nuxt-session'. Useful when you want to use a different storage driver.
+
+  ```ts
+  // nuxt.config.ts
+  export default defineNuxtConfig({
+    auth: {
+      storageType: 'nuxt-session'
+    },
+    nitro: {
+      storage: {
+        'nuxt-session': {
+          driver: 'fsLite',
+          base: './.data/sessions'
+        }
+      }
+    }
+  })
+  ```
+
+> [!NOTE]
+> This will store sessions in the `.data/sessions` directory. Make sure to add `.data` to your `.gitignore`.
+
+#### Session Configuration
+
+You can configure session behavior through the `auth` or `runtimeConfig` options:
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    storageType: 'cookie'
+  },
   runtimeConfig: {
     session: {
-      maxAge: 60 * 60 * 24 * 7 // 1 week
+      name: 'nuxt-session', // Cookie name
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      password: process.env.NUXT_SESSION_PASSWORD,
+      cookie: {
+        sameSite: 'lax',
+        // Additional cookie options
+        // secure: true,
+        // domain: 'example.com',
+        // path: '/'
+      }
     }
   }
 })
 ```
 
-Our defaults are:
+We leverage `runtimeConfig.session` to give the defaults option to [h3 `useSession`](https://h3.unjs.io/examples/handle-session).
+Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15c1647e1369e7d7ef19f567d/src/utils/session.ts#L20) for all options.
+
+> [!NOTE]
+> When using non-cookie storage types, the cookie only contains a session ID while the actual session data is stored in the selected storage.
+
+When using a non-cookie mode
 
 ```ts
-{
-  name: 'nuxt-session',
-  password: process.env.NUXT_SESSION_PASSWORD || '',
-  cookie: {
-    sameSite: 'lax'
+export default defineNuxtConfig({
+  auth: {
+    storageType: 'cache',
+    sessionInactivityMaxAge: 60 * 60 * 24 * 30, // Session timeout after inactivity (30 days)
+    autoExtendSession: true // Extend session on each request
+  },
+  runtimeConfig: {
+    session: {
+      password: process.env.NUXT_SESSION_PASSWORD,
+    }
   }
-}
-```
-
-You can also overwrite the session config by passing it as 3rd argument of the `setUserSession` and `replaceUserSession` functions:
-
-```ts
-await setUserSession(event, { ... } , {
-  maxAge: 60 * 60 * 24 * 7 // 1 week
 })
 ```
 
-Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15c1647e1369e7d7ef19f567d/src/utils/session.ts#L20) for all options.
+> [!IMPORTANT]
+> The `sessionInactivityMaxAge` option is specifically designed for non-cookie storage types to manage and cleanup inactive sessions. When using this configuration, cookies still respect the `maxAge` setting from the session configuration, if one is specified. Whether you need both `maxAge` and `sessionInactivityMaxAge` will depend on your specific application requirements and session management strategy.
+
+## Session Cleanup
+
+When using non-cookie storage types, you may want to clean up expired sessions periodically. This can be done using Nitro's scheduled tasks feature.
+
+1. Create a task file:
+
+```ts:server/tasks/clear-sessions.ts
+export default defineTask({
+  meta: {
+    name: 'clear-sessions',
+    description: 'Clear expired sessions',
+  },
+  run({ payload, context }) {
+    console.log('Running clear-sessions task...')
+    cleanupOrphanedUserSessions()
+    return { result: 'Success' }
+  },
+})
+```
+
+2. Configure the task schedule in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  nitro: {
+    experimental: {
+      tasks: true
+    },
+    scheduledTasks: {
+      '*/5 * * * *': ['clear-sessions'] // Run every 5 minutes
+    }
+  }
+})
+```
+
+This will automatically clean up any expired sessions based on your `sessionInactivityMaxAge` configuration.
 
 ## More
 

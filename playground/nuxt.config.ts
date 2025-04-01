@@ -20,11 +20,23 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       database: true,
+      // tasks: true,
       websocket: true,
     },
+    // scheduledTasks: {
+    //   '*/1 * * * *': ['clear-sessions'], // every minute clear overdue sessions
+    // },
   },
   auth: {
     webAuthn: true,
+    // storageType: 'cache',
+    // sessionInactivityMaxAge: 60 * 2, // 2 minutes
+    // autoExtendSession: true,
     atproto: true,
   },
+  // runtimeConfig: {
+  //   session: {
+  //     maxAge: 60 * 60 * 24 * 7, // 7 days
+  //   },
+  // },
 })
