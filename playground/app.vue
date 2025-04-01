@@ -75,6 +75,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-microsoft',
     },
     {
+      label: user.value?.azureb2c || 'Azure B2C',
+      to: '/auth/azureb2c',
+      disabled: Boolean(user.value?.azureb2c),
+      icon: 'i-simple-icons-microsoftazure',
+    },
+    {
       label: user.value?.cognito || 'Cognito',
       to: '/auth/cognito',
       disabled: Boolean(user.value?.cognito),
@@ -218,12 +224,36 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.apple),
       icon: 'i-simple-icons-apple',
     },
+    {
+      label: user.value?.kick || 'Kick',
+      to: '/auth/kick',
+      disabled: Boolean(user.value?.kick),
+      icon: 'i-simple-icons-kick',
+    },
+    {
+      label: user.value?.salesforce || 'Salesforce',
+      to: `/auth/salesforce`,
+      disabled: Boolean(user.value?.salesforce),
+      icon: 'i-simple-icons-salesforce',
+    },
+    {
+      label: user.value?.slack || 'Slack',
+      to: '/auth/slack',
+      disabled: Boolean(user.value?.slack),
+      icon: 'i-simple-icons-slack',
+    },
+    {
+      label: user.value?.heroku || 'Heroku',
+      to: '/auth/heroku',
+      disabled: Boolean(user.value?.heroku),
+      icon: 'i-simple-icons-heroku',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
     external: true,
     to: inPopup.value ? '#' : p.to,
-    click: inPopup.value ? () => openInPopup(p.to) : p.click,
+    click: inPopup.value && p.to ? () => openInPopup(p.to) : p.click,
   })),
 )
 </script>
@@ -235,9 +265,7 @@ const providers = computed(() =>
     </template>
     <template #right>
       <AuthState>
-        <template
-          #default="{ loggedIn, clear }"
-        >
+        <template #default="{ loggedIn, clear }">
           <AuthRegister />
           <AuthLogin />
           <WebAuthnModal />
@@ -279,7 +307,8 @@ const providers = computed(() =>
   <UMain>
     <UContainer>
       <div class="text-xs mt-4">
-        Popup mode <UToggle
+        Popup mode
+        <UToggle
           v-model="inPopup"
           size="xs"
           name="open-in-popup"

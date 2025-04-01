@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v0.5.17
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.16...v0.5.17)
+
+### 🚀 Enhancements
+
+- Add LiveChat OAuth ([#376](https://github.com/atinux/nuxt-auth-utils/pull/376))
+- Add azure b2c oauth provider ([#362](https://github.com/atinux/nuxt-auth-utils/pull/362))
+- Add kick provider ([#360](https://github.com/atinux/nuxt-auth-utils/pull/360))
+
+### 🩹 Fixes
+
+- Verify steam credentials ([#365](https://github.com/atinux/nuxt-auth-utils/pull/365))
+- Remove `ohash` dependency ([#377](https://github.com/atinux/nuxt-auth-utils/pull/377))
+- **oauth, apple:** Return tokens in response ([#373](https://github.com/atinux/nuxt-auth-utils/pull/373))
+- **oauth, facebook:** Prevent duplication of config.fields and config.scope in defu merge ([#375](https://github.com/atinux/nuxt-auth-utils/pull/375))
+
+### ❤️ Contributors
+
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Nathan Rowe ([@n-rowe](http://github.com/n-rowe))
+- Artemis Mendrinos ([@mendrinos](http://github.com/mendrinos))
+- Dominik Opyd <dominik.opyd@gmail.com>
+- Indrek Ardel <indrek@ardel.eu>
+- Marios Antonoudiou ([@mariosant](http://github.com/mariosant))
+- NiTrO0FuN ([@NiTrO0FuN](http://github.com/NiTrO0FuN))
+
 ## v0.5.16
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.15...v0.5.16)

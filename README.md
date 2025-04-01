@@ -16,7 +16,7 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 ## Features
 
 - [Hybrid Rendering](#hybrid-rendering) support (SSR / CSR / SWR / Prerendering)
-- [30+ OAuth Providers](#supported-oauth-providers)
+- [40+ OAuth Providers](#supported-oauth-providers)
 - [Password Hashing](#password-hashing)
 - [WebAuthn (passkey)](#webauthn-passkey)
 - [`useUserSession()` Vue composable](#vue-composable)
@@ -216,6 +216,7 @@ It can also be set using environment variables:
 - Auth0
 - Authentik
 - AWS Cognito
+- Azure B2C
 - Battle.net
 - Bluesky (AT Protocol)
 - Discord
@@ -225,16 +226,21 @@ It can also be set using environment variables:
 - GitLab
 - Gitea
 - Google
+- Heroku
 - Hubspot
 - Instagram
+- Kick
 - Keycloak
 - Line
 - Linear
 - LinkedIn
+- LiveChat
 - Microsoft
 - PayPal
 - Polar
+- Salesforce
 - Seznam
+- Slack
 - Spotify
 - Steam
 - Strava

@@ -268,6 +268,17 @@ export default defineNuxtModule<ModuleOptions>({
       userURL: '',
       redirectURL: '',
     })
+    // Azure OAuth
+    runtimeConfig.oauth.azureb2c = defu(runtimeConfig.oauth.azureb2c, {
+      clientId: '',
+      policy: '',
+      tenant: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
+      redirectURL: '',
+    })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
       clientId: '',
@@ -456,6 +467,39 @@ export default defineNuxtModule<ModuleOptions>({
       privateKey: '',
       redirectURL: '',
       clientId: '',
+    })
+    // Kick OAuth
+    runtimeConfig.oauth.kick = defu(runtimeConfig.oauth.kick, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // LiveChat OAuth
+    runtimeConfig.oauth.livechat = defu(runtimeConfig.oauth.livechat, {
+      clientId: '',
+      clientSecret: '',
+    })
+    // Salesforce OAuth
+    runtimeConfig.oauth.salesforce = defu(runtimeConfig.oauth.salesforce, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      baseURL: '',
+      scope: '',
+    })
+    // Slack OAuth
+    runtimeConfig.oauth.slack = defu(runtimeConfig.oauth.slack, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
+    })
+    // Heroku OAuth
+    runtimeConfig.oauth.heroku = defu(runtimeConfig.oauth.heroku, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
     })
   },
 })

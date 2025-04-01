@@ -38,6 +38,11 @@ declare module '#auth-utils' {
     hubspot?: string
     atlassian?: string
     apple?: string
+    azureb2c?: string
+    kick?: string
+    salesforce?: string
+    slack?: string
+    heroku?: string
   }
 
   interface UserSession {
