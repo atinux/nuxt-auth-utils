@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v0.5.18
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.17...v0.5.18)
+
+### 🚀 Enhancements
+
+- Support GitHub Enterprise Server and GHE.com ([#383](https://github.com/atinux/nuxt-auth-utils/pull/383))
+- Add Salesforce, Slack and Heroku OAuth providers ([#382](https://github.com/atinux/nuxt-auth-utils/pull/382))
+
+### ❤️ Contributors
+
+- Phof ([@phof](http://github.com/phof))
+- Alain Hélaïli ([@helaili](http://github.com/helaili))
+
 ## v0.5.17
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.16...v0.5.17)
