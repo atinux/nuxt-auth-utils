@@ -56,10 +56,10 @@ export interface OAuthFacebookConfig {
    */
   redirectURL?: string
   /**
-     * State parameter to pass custom data through the OAuth flow
-     * @default undefined
-     * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1
-     */
+   * State parameter to pass custom data through the OAuth flow
+   * @default undefined
+   * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1
+   */
   state?: string
 }
 
