@@ -55,6 +55,12 @@ export interface OAuthFacebookConfig {
    * @default process.env.NUXT_OAUTH_FACEBOOK_REDIRECT_URL or current URL
    */
   redirectURL?: string
+  /**
+     * State parameter to pass custom data through the OAuth flow
+     * @default undefined
+     * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1
+     */
+  state?: string
 }
 
 export function defineOAuthFacebookEventHandler({
@@ -95,6 +101,7 @@ export function defineOAuthFacebookEventHandler({
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
           redirect_uri: redirectURL,
+          state: encodeURIComponent(JSON.stringify(config.state)),
           scope: config.scope.join(' '),
         }),
       )
