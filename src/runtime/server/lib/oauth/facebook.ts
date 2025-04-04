@@ -101,7 +101,7 @@ export function defineOAuthFacebookEventHandler({
         withQuery(config.authorizationURL as string, {
           client_id: config.clientId,
           redirect_uri: redirectURL,
-          state: encodeURIComponent(JSON.stringify(config.state)),
+          ...(config.state !== undefined && { state: encodeURIComponent(JSON.stringify(config.state)) }),
           scope: config.scope.join(' '),
         }),
       )
