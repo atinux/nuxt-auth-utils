@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.5.19
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.18...v0.5.19)
+
+### 🚀 Enhancements
+
+- Add support for authorization parameters and ensure state param is included from query when present in Facebook & Microsoft OAuth ([#386](https://github.com/atinux/nuxt-auth-utils/pull/386))
+
+### 🩹 Fixes
+
+- Explicit Return Type on getUserSession ([#379](https://github.com/atinux/nuxt-auth-utils/pull/379))
+
+### ❤️ Contributors
+
+- Artemis Mendrinos ([@mendrinos](http://github.com/mendrinos))
+- Timothy Michael McMasters ([@Tmmcmasters](http://github.com/Tmmcmasters))
+
 ## v0.5.18
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.17...v0.5.18)
