@@ -51,7 +51,7 @@ export interface OAuthFacebookConfig {
    */
   authorizationParams?: Record<string, string>
   /**
-   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * Redirect URL to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_FACEBOOK_REDIRECT_URL or current URL
    */
   redirectURL?: string
@@ -96,6 +96,8 @@ export function defineOAuthFacebookEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
+          state: query.state || '',
+          ...config.authorizationParams,
         }),
       )
     }
