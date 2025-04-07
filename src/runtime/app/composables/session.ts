@@ -1,6 +1,6 @@
 import { appendResponseHeader } from 'h3'
-import { useState, computed, useRequestFetch, useRequestEvent } from '#imports'
-import type { UserSession, UserSessionComposable } from '#auth-utils'
+import { useState, computed, useRequestFetch, useRequestEvent, useRouter } from '#imports'
+import type { UserSession, UserSessionComposable, ClearSessionOptions } from '#auth-utils'
 
 /**
  * Composable to get back the user session and utils around it.
@@ -10,8 +10,9 @@ export function useUserSession(): UserSessionComposable {
   const serverEvent = import.meta.server ? useRequestEvent() : null
   const sessionState = useState<UserSession>('nuxt-session', () => ({}))
   const authReadyState = useState('nuxt-auth-ready', () => false)
+  const router = useRouter()
 
-  const clear = async () => {
+  const clear = async (options?: ClearSessionOptions) => {
     await useRequestFetch()('/api/_auth/session', {
       method: 'DELETE',
       onResponse({ response: { headers } }) {
@@ -24,6 +25,9 @@ export function useUserSession(): UserSessionComposable {
       },
     })
     sessionState.value = {}
+    if (options?.redirect) {
+      router.push(options.redirect)
+    }
   }
 
   const fetch = async () => {
