@@ -27,7 +27,7 @@ export const sessionHooks = createHooks<SessionHooks>()
  * @param event The Request (h3) event
  * @returns The user session
  */
-export async function getUserSession(event: UseSessionEvent) {
+export async function getUserSession(event: UseSessionEvent): Promise<UserSession> {
   const session = await _useSession(event)
   return {
     id: session.id,
@@ -40,7 +40,7 @@ export async function getUserSession(event: UseSessionEvent) {
  * @param data User session data, please only store public information since it can be decoded with API calls
  * @see https://github.com/atinux/nuxt-auth-utils
  */
-export async function setUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>) {
+export async function setUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>): Promise<UserSession> {
   const session = await _useSession(event, config)
 
   await session.update(defu(data, session.data))
@@ -53,7 +53,7 @@ export async function setUserSession(event: H3Event, data: UserSession, config?:
  * @param event The Request (h3) event
  * @param data User session data, please only store public information since it can be decoded with API calls
  */
-export async function replaceUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>) {
+export async function replaceUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>): Promise<UserSession> {
   const session = await _useSession(event, config)
 
   await session.clear()
@@ -67,7 +67,7 @@ export async function replaceUserSession(event: H3Event, data: UserSession, conf
  * @param event The Request (h3) event
  * @returns true if the session was cleared
  */
-export async function clearUserSession(event: H3Event, config?: Partial<SessionConfig>) {
+export async function clearUserSession(event: H3Event, config?: Partial<SessionConfig>): Promise<boolean> {
   const session = await _useSession(event, config)
 
   await sessionHooks.callHookParallel('clear', session.data, event)
