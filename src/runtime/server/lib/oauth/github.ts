@@ -1,9 +1,9 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
+import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthGitHubConfig {
@@ -43,6 +43,12 @@ export interface OAuthGitHubConfig {
   tokenURL?: string
 
   /**
+   * GitHub API URL
+   * @default 'https://api.github.com'
+   */
+  apiURL?: string
+
+  /**
    * Extra authorization parameters to provide to the authorization URL
    * @see https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#1-request-a-users-github-identity
    * @example { allow_signup: 'true' }
@@ -62,6 +68,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
     config = defu(config, useRuntimeConfig(event).oauth?.github, {
       authorizationURL: 'https://github.com/login/oauth/authorize',
       tokenURL: 'https://github.com/login/oauth/access_token',
+      apiURL: 'https://api.github.com',
       authorizationParams: {},
     }) as OAuthGitHubConfig
 
@@ -117,7 +124,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
     const accessToken = tokens.access_token
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch('https://api.github.com/user', {
+    const user: any = await $fetch(`${config.apiURL}/user`, {
       headers: {
         'User-Agent': `Github-OAuth-${config.clientId}`,
         'Authorization': `token ${accessToken}`,
@@ -128,7 +135,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
     if (!user.email && config.emailRequired) {
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emails: any[] = await $fetch('https://api.github.com/user/emails', {
+      const emails: any[] = await $fetch(`${config.apiURL}/user/emails`, {
         headers: {
           'User-Agent': `Github-OAuth-${config.clientId}`,
           'Authorization': `token ${accessToken}`,
@@ -139,9 +146,16 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
       const primaryEmail = emails.find((email: any) => email.primary)
       // Still no email
       if (!primaryEmail) {
-        throw new Error('GitHub login failed: no user email found')
+        const error = createError({
+          statusCode: 500,
+          message: 'Could not get GitHub user email',
+          data: tokens,
+        })
+        if (!onError) throw error
+        return onError(event, error)
       }
       user.email = primaryEmail.email
+      user.email_verified = primaryEmail.verified
     }
 
     return onSuccess(event, {

@@ -1,9 +1,11 @@
 declare module '#auth-utils' {
   interface User {
+    bluesky?: string
     webauthn?: string
     email?: string
     password?: string
     spotify?: string
+    gitea?: string
     github?: string
     gitlab?: string
     google?: string
@@ -13,6 +15,7 @@ declare module '#auth-utils' {
     discord?: string
     battledotnet?: string
     keycloak?: string
+    line?: string
     linear?: string
     linkedin?: string
     cognito?: string
@@ -33,12 +36,19 @@ declare module '#auth-utils' {
     seznam?: string
     strava?: string
     hubspot?: string
+    atlassian?: string
+    apple?: string
+    azureb2c?: string
+    kick?: string
+    salesforce?: string
+    slack?: string
+    heroku?: string
   }
 
   interface UserSession {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extended?: any
-    jtw?: {
+    jwt?: {
       accessToken: string
       refreshToken: string
     }

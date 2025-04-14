@@ -1,6 +1,7 @@
 <script setup lang="ts">
-const { user } = useUserSession()
+const { user, openInPopup } = useUserSession()
 
+const inPopup = ref(false)
 const providers = computed(() =>
   [
     {
@@ -28,10 +29,32 @@ const providers = computed(() =>
       icon: 'i-simple-icons-github',
     },
     {
+      label: user.value?.bluesky || 'Bluesky',
+      click() {
+        const handle = prompt('Enter your Bluesky handle')
+        if (handle) {
+          navigateTo({
+            path: '/auth/bluesky',
+            query: { handle },
+          }, {
+            external: true,
+          })
+        }
+      },
+      disabled: Boolean(user.value?.bluesky),
+      icon: 'i-simple-icons-bluesky',
+    },
+    {
       label: user.value?.gitlab || 'GitLab',
       to: '/auth/gitlab',
       disabled: Boolean(user.value?.gitlab),
       icon: 'i-simple-icons-gitlab',
+    },
+    {
+      label: user.value?.line || 'Line',
+      to: '/auth/line',
+      disabled: Boolean(user.value?.line),
+      icon: 'i-simple-icons-line',
     },
     {
       label: user.value?.linear || 'Linear',
@@ -50,6 +73,12 @@ const providers = computed(() =>
       to: '/auth/microsoft',
       disabled: Boolean(user.value?.microsoft),
       icon: 'i-simple-icons-microsoft',
+    },
+    {
+      label: user.value?.azureb2c || 'Azure B2C',
+      to: '/auth/azureb2c',
+      disabled: Boolean(user.value?.azureb2c),
+      icon: 'i-simple-icons-microsoftazure',
     },
     {
       label: user.value?.cognito || 'Cognito',
@@ -183,10 +212,48 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.hubspot),
       icon: 'i-simple-icons-hubspot',
     },
+    {
+      label: user.value?.atlassian || 'Atlassian',
+      to: '/auth/atlassian',
+      disabled: Boolean(user.value?.atlassian),
+      icon: 'i-simple-icons-atlassian',
+    },
+    {
+      label: user.value?.apple || 'Apple',
+      to: '/auth/apple',
+      disabled: Boolean(user.value?.apple),
+      icon: 'i-simple-icons-apple',
+    },
+    {
+      label: user.value?.kick || 'Kick',
+      to: '/auth/kick',
+      disabled: Boolean(user.value?.kick),
+      icon: 'i-simple-icons-kick',
+    },
+    {
+      label: user.value?.salesforce || 'Salesforce',
+      to: `/auth/salesforce`,
+      disabled: Boolean(user.value?.salesforce),
+      icon: 'i-simple-icons-salesforce',
+    },
+    {
+      label: user.value?.slack || 'Slack',
+      to: '/auth/slack',
+      disabled: Boolean(user.value?.slack),
+      icon: 'i-simple-icons-slack',
+    },
+    {
+      label: user.value?.heroku || 'Heroku',
+      to: '/auth/heroku',
+      disabled: Boolean(user.value?.heroku),
+      icon: 'i-simple-icons-heroku',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
     external: true,
+    to: inPopup.value ? '#' : p.to,
+    click: inPopup.value && p.to ? () => openInPopup(p.to) : p.click,
   })),
 )
 </script>
@@ -198,9 +265,7 @@ const providers = computed(() =>
     </template>
     <template #right>
       <AuthState>
-        <template
-          #default="{ loggedIn, clear }"
-        >
+        <template #default="{ loggedIn, clear }">
           <AuthRegister />
           <AuthLogin />
           <WebAuthnModal />
@@ -241,6 +306,15 @@ const providers = computed(() =>
   </UHeader>
   <UMain>
     <UContainer>
+      <div class="text-xs mt-4">
+        Popup mode
+        <UToggle
+          v-model="inPopup"
+          size="xs"
+          name="open-in-popup"
+          label="Open in popup"
+        />
+      </div>
       <NuxtPage />
     </UContainer>
   </UMain>

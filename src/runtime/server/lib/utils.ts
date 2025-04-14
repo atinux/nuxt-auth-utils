@@ -1,7 +1,9 @@
-import type { H3Event } from 'h3'
+import { type H3Event, deleteCookie, getCookie, setCookie } from 'h3'
 import { getRequestURL } from 'h3'
 import { FetchError } from 'ofetch'
 import { snakeCase, upperFirst } from 'scule'
+import * as jose from 'jose'
+import { subtle, getRandomValues } from 'uncrypto'
 import type { OAuthProvider, OnError } from '#auth-utils'
 import { createError } from '#imports'
 
@@ -97,4 +99,119 @@ export function handleMissingConfiguration(event: H3Event, provider: OAuthProvid
 
   if (!onError) throw error
   return onError(event, error)
+}
+
+export function handleInvalidState(event: H3Event, provider: OAuthProvider, onError?: OnError) {
+  const message = `${upperFirst(provider)} login failed: state mismatch`
+
+  const error = createError({
+    statusCode: 500,
+    message,
+  })
+
+  if (!onError) throw error
+  return onError(event, error)
+}
+
+/**
+ * JWT signing using jose
+ *
+ * @see https://github.com/panva/jose
+ */
+
+interface JWTSignOptions {
+  privateKey: string
+  keyId: string
+  teamId?: string
+  clientId?: string
+  algorithm?: 'ES256' | 'RS256'
+  expiresIn?: string // e.g., '5m', '1h'
+}
+
+export async function signJwt<T extends Record<string, unknown>>(
+  payload: T,
+  options: JWTSignOptions,
+): Promise<string> {
+  const now = Math.floor(Date.now() / 1000)
+  const privateKey = await jose.importPKCS8(
+    options.privateKey.replace(/\\n/g, '\n'),
+    options.algorithm || 'ES256',
+  )
+
+  return new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: options.algorithm || 'ES256', kid: options.keyId })
+    .setIssuedAt(now)
+    .setExpirationTime(options.expiresIn || '5m')
+    .sign(privateKey)
+}
+
+/**
+ * Verify a JWT token using jose - will throw error if invalid
+ *
+ * @see https://github.com/panva/jose
+ */
+interface JWTVerifyOptions {
+  publicJwkUrl: string
+  audience: string
+  issuer: string
+}
+
+export async function verifyJwt<T>(
+  token: string,
+  options: JWTVerifyOptions,
+): Promise<T> {
+  const JWKS = jose.createRemoteJWKSet(new URL(options.publicJwkUrl))
+
+  const { payload } = await jose.jwtVerify(token, JWKS, {
+    audience: options.audience,
+    issuer: options.issuer,
+  })
+
+  return payload as T
+}
+
+function encodeBase64Url(input: Uint8Array): string {
+  return btoa(String.fromCharCode.apply(null, input as unknown as number[]))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '')
+}
+
+function getRandomBytes(size: number = 32) {
+  return getRandomValues(new Uint8Array(size))
+}
+
+export async function handlePkceVerifier(event: H3Event) {
+  let verifier = getCookie(event, 'nuxt-auth-pkce')
+  if (verifier) {
+    deleteCookie(event, 'nuxt-auth-pkce')
+    return { code_verifier: verifier }
+  }
+
+  // Create new verifier
+  verifier = encodeBase64Url(getRandomBytes())
+  setCookie(event, 'nuxt-auth-pkce', verifier)
+
+  // Get pkce
+  const encodedPkce = new TextEncoder().encode(verifier)
+  const pkceHash = await subtle.digest('SHA-256', encodedPkce)
+  const pkce = encodeBase64Url(new Uint8Array(pkceHash))
+
+  return {
+    code_verifier: verifier,
+    code_challenge: pkce,
+    code_challenge_method: 'S256',
+  }
+}
+
+export async function handleState(event: H3Event) {
+  let state = getCookie(event, 'nuxt-auth-state')
+  if (state) {
+    deleteCookie(event, 'nuxt-auth-state')
+    return state
+  }
+
+  state = encodeBase64Url(getRandomBytes(8))
+  setCookie(event, 'nuxt-auth-state', state)
+  return state
 }

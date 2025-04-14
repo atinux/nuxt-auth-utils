@@ -38,12 +38,15 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
       return handleMissingConfiguration(event, 'steam', ['apiKey'], onError)
     }
 
+    const url = getRequestURL(event)
+
     if (!query['openid.claimed_id']) {
       const redirectURL = config.redirectURL || getRequestURL(event).href
       const steamOpenIdParams = {
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',
         'openid.return_to': redirectURL,
+        'openid.realm': `${url.protocol}//${url.hostname}`,
         'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
         'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
       }
@@ -51,22 +54,42 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
       return sendRedirect(event, withQuery(config.authorizationURL as string, steamOpenIdParams))
     }
 
-    const openIdCheck = {
-      ns: 'http://specs.openid.net/auth/2.0',
-      claimed_id: 'https://steamcommunity.com/openid/id/',
-      identity: 'https://steamcommunity.com/openid/id/',
+    if (!query['openid.signed']
+      || !query['openid.sig']
+    ) {
+      const error = createError({
+        statusCode: 400,
+        message: 'Steam login failed: Incomplete query.',
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
-    const idRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/
-    const steamIdCheck = idRegex.exec(query['openid.claimed_id'])
+    const openIdCheck: Record<string, string> = {
+      'openid.ns': 'http://specs.openid.net/auth/2.0',
+      'openid.mode': 'check_authentication',
+      'openid.signed': query['openid.signed'],
+      'openid.sig': query['openid.sig'],
+    }
 
-    if (
-      query['openid.op_endpoint'] !== config.authorizationURL
-      || !steamIdCheck
-      || query['openid.ns'] !== openIdCheck.ns
-      || !query['openid.claimed_id']?.startsWith(openIdCheck.claimed_id)
-      || !query['openid.identity']?.startsWith(openIdCheck.identity)
-    ) {
+    for (const signed of query['openid.signed'].split(',')) {
+      if (!query[`openid.${signed}`]) {
+        const error = createError({
+          statusCode: 400,
+          message: 'Steam login failed: Incomplete query.',
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
+      openIdCheck[`openid.${signed}`] = query[`openid.${signed}`]
+    }
+
+    const auth_validation: string = await $fetch(withQuery(config?.authorizationURL as string, openIdCheck))
+
+    const validRegex = /is_valid:true/
+    const valid = validRegex.test(auth_validation)
+
+    if (!valid) {
       const error = createError({
         statusCode: 401,
         message: 'Steam login failed: Claimed identity is invalid.',
@@ -74,6 +97,9 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
       if (!onError) throw error
       return onError(event, error)
     }
+
+    const idRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/
+    const steamIdCheck = idRegex.exec(query['openid.claimed_id'])
 
     const steamId = steamIdCheck[1]
 

@@ -15,6 +15,8 @@ import { defu } from 'defu'
 import { randomUUID } from 'uncrypto'
 import type { ScryptConfig } from '@adonisjs/hash/types'
 import type { SessionConfig } from 'h3'
+import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
+import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -23,6 +25,11 @@ export interface ModuleOptions {
    * @default false
    */
   webAuthn?: boolean
+  /**
+   * Enable atproto OAuth (Bluesky, etc.)
+   * @default false
+   */
+  atproto?: boolean
   /**
    * Hash options used for password hashing
    */
@@ -54,6 +61,7 @@ export default defineNuxtModule<ModuleOptions>({
   // Default configuration options of the Nuxt module
   defaults: {
     webAuthn: false,
+    atproto: false,
     hash: {
       scrypt: {},
     },
@@ -81,6 +89,9 @@ export default defineNuxtModule<ModuleOptions>({
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
+    if (nuxt.options.nitro?.experimental?.websocket) {
+      addServerPlugin(resolver.resolve('./runtime/server/plugins/ws'))
+    }
     // WebAuthn enabled
     if (options.webAuthn) {
       // Check if dependencies are installed
@@ -97,6 +108,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
       addServerImportsDir(resolver.resolve('./runtime/server/lib/webauthn'))
     }
+
     addServerImportsDir(resolver.resolve('./runtime/server/utils'))
     addServerHandler({
       handler: resolver.resolve('./runtime/server/api/session.delete'),
@@ -158,6 +170,13 @@ export default defineNuxtModule<ModuleOptions>({
 
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
+    // Gitea OAuth
+    runtimeConfig.oauth.gitea = defu(runtimeConfig.oauth.gitea, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      baseURL: '',
+    })
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
@@ -169,6 +188,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+      baseURL: 'https://gitlab.com',
     })
     // Spotify OAuth
     runtimeConfig.oauth.spotify = defu(runtimeConfig.oauth.spotify, {
@@ -215,6 +235,17 @@ export default defineNuxtModule<ModuleOptions>({
       userURL: '',
       redirectURL: '',
     })
+    // Azure OAuth
+    runtimeConfig.oauth.azureb2c = defu(runtimeConfig.oauth.azureb2c, {
+      clientId: '',
+      policy: '',
+      tenant: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
+      redirectURL: '',
+    })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
       clientId: '',
@@ -227,6 +258,36 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+
+    // Atproto OAuth
+    for (const provider of atprotoProviders) {
+      runtimeConfig.oauth[provider] = defu(runtimeConfig.oauth[provider], atprotoProviderDefaultClientMetadata)
+    }
+
+    if (options.atproto) {
+      const missingDeps: string[] = []
+      const peerDeps = ['@atproto/oauth-client-node', '@atproto/api']
+      for (const pkg of peerDeps) {
+        await import(pkg).catch(() => {
+          missingDeps.push(pkg)
+        })
+      }
+
+      if (missingDeps.length > 0) {
+        logger.withTag('nuxt-auth-utils').error(`Missing dependencies for \`atproto\`, please install with:\n\n\`npx nypm i ${missingDeps.join(' ')}\``)
+        process.exit(1)
+      }
+
+      for (const provider of atprotoProviders) {
+        addServerHandler({
+          handler: resolver.resolve('./runtime/server/routes/atproto/client-metadata.json.get'),
+          route: '/' + getClientMetadataFilename(provider, runtimeConfig.oauth[provider] as AtprotoProviderClientMetadata),
+          method: 'get',
+        })
+      }
+      addServerImportsDir(resolver.resolve('./runtime/server/lib/atproto'))
+    }
+
     // Keycloak OAuth
     runtimeConfig.oauth.keycloak = defu(runtimeConfig.oauth.keycloak, {
       clientId: '',
@@ -353,6 +414,59 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+    })
+    // Line OAuth
+    runtimeConfig.oauth.line = defu(runtimeConfig.oauth.line, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // Atlassian OAuth
+    runtimeConfig.oauth.atlassian = defu(runtimeConfig.oauth.atlassian, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // Apple OAuth
+    runtimeConfig.oauth.apple = defu(runtimeConfig.oauth.apple, {
+      teamId: '',
+      keyId: '',
+      privateKey: '',
+      redirectURL: '',
+      clientId: '',
+    })
+    // Kick OAuth
+    runtimeConfig.oauth.kick = defu(runtimeConfig.oauth.kick, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
+    // LiveChat OAuth
+    runtimeConfig.oauth.livechat = defu(runtimeConfig.oauth.livechat, {
+      clientId: '',
+      clientSecret: '',
+    })
+    // Salesforce OAuth
+    runtimeConfig.oauth.salesforce = defu(runtimeConfig.oauth.salesforce, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      baseURL: '',
+      scope: '',
+    })
+    // Slack OAuth
+    runtimeConfig.oauth.slack = defu(runtimeConfig.oauth.slack, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
+    })
+    // Heroku OAuth
+    runtimeConfig.oauth.heroku = defu(runtimeConfig.oauth.heroku, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
     })
   },
 })

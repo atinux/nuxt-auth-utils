@@ -1,9 +1,9 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
+import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthFacebookConfig {
@@ -51,7 +51,7 @@ export interface OAuthFacebookConfig {
    */
   authorizationParams?: Record<string, string>
   /**
-   * Redirect URL to to allow overriding for situations like prod failing to determine public hostname
+   * Redirect URL to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_FACEBOOK_REDIRECT_URL or current URL
    */
   redirectURL?: string
@@ -88,7 +88,7 @@ export function defineOAuthFacebookEventHandler({
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     if (!query.code) {
-      config.scope = config.scope || []
+      config.scope = [...new Set(config.scope)]
       // Redirect to Facebook Oauth page
       return sendRedirect(
         event,
@@ -96,6 +96,8 @@ export function defineOAuthFacebookEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
+          state: query.state || '',
+          ...config.authorizationParams,
         }),
       )
     }
@@ -117,7 +119,7 @@ export function defineOAuthFacebookEventHandler({
     const accessToken = tokens.access_token
     // TODO: improve typing
 
-    config.fields = config.fields || ['id', 'name']
+    config.fields = [...new Set(config.fields || ['id', 'name'])]
     const fields = config.fields.join(',')
 
     const user = await $fetch(
@@ -125,7 +127,13 @@ export function defineOAuthFacebookEventHandler({
     )
 
     if (!user) {
-      throw new Error('Facebook login failed: no user found')
+      const error = createError({
+        statusCode: 500,
+        message: 'Could not get Facebook user',
+        data: tokens,
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
     return onSuccess(event, {

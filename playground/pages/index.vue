@@ -26,6 +26,14 @@
         >
           About page
         </UButton>
+        <UButton
+          to="/sockets"
+          class="mt-2"
+          variant="link"
+          :padded="false"
+        >
+          Sockets
+        </UButton>
       </div>
     </UPageBody>
   </UPage>

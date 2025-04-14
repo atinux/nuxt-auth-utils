@@ -16,13 +16,14 @@ Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 ## Features
 
 - [Hybrid Rendering](#hybrid-rendering) support (SSR / CSR / SWR / Prerendering)
-- [20+ OAuth Providers](#supported-oauth-providers)
+- [40+ OAuth Providers](#supported-oauth-providers)
 - [Password Hashing](#password-hashing)
 - [WebAuthn (passkey)](#webauthn-passkey)
 - [`useUserSession()` Vue composable](#vue-composable)
 - [Tree-shakable server utils](#server-utils)
 - [`<AuthState>` component](#authstate-component)
 - [Extendable with hooks](#extend-session)
+- [WebSocket support](#websocket-support)
 
 It has few dependencies (only from [UnJS](https://github.com/unjs)), run on multiple JS environments (Node, Deno, Workers) and is fully typed with TypeScript.
 
@@ -61,7 +62,7 @@ Nuxt Auth Utils automatically adds some plugins to fetch the current user sessio
 
 ```vue
 <script setup>
-const { loggedIn, user, session, fetch, clear } = useUserSession()
+const { loggedIn, user, session, fetch, clear, openInPopup } = useUserSession()
 </script>
 
 <template>
@@ -73,6 +74,8 @@ const { loggedIn, user, session, fetch, clear } = useUserSession()
   <div v-else>
     <h1>Not logged in</h1>
     <a href="/auth/github">Login with GitHub</a>
+    <!-- or open the OAuth route in a popup -->
+    <button @click="openInPopup('/auth/github')">Login with GitHub</button>
   </div>
 </template>
 ```
@@ -105,6 +108,10 @@ interface UserSessionComposable {
    * Clear the user session and remove the session cookie.
    */
   clear: () => Promise<void>
+  /**
+   * Open the OAuth route in a popup that auto-closes when successful.
+   */
+  openInPopup: (route: string, size?: { width?: number, height?: number }) => void
 }
 ```
 
@@ -204,25 +211,36 @@ It can also be set using environment variables:
 
 #### Supported OAuth Providers
 
+- Apple
+- Atlassian
 - Auth0
 - Authentik
 - AWS Cognito
+- Azure B2C
 - Battle.net
+- Bluesky (AT Protocol)
 - Discord
 - Dropbox
 - Facebook
 - GitHub
 - GitLab
+- Gitea
 - Google
+- Heroku
 - Hubspot
 - Instagram
+- Kick
 - Keycloak
+- Line
 - Linear
 - LinkedIn
+- LiveChat
 - Microsoft
 - PayPal
 - Polar
+- Salesforce
 - Seznam
+- Slack
 - Spotify
 - Steam
 - Strava
@@ -293,6 +311,28 @@ export default defineNuxtConfig({
 })
 ```
 
+### AT Protocol
+
+Social networks that rely on AT Protocol (e.g., Bluesky) slightly differ from a regular OAuth flow.
+
+To enable OAuth with AT Protocol, you need to:
+
+1. Install the peer dependencies:
+
+```bash
+npx nypm i @atproto/oauth-client-node @atproto/api
+```
+
+2. Enable it in your `nuxt.config.ts`
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    atproto: true
+  }
+})
+```
+
 ### WebAuthn (passkey)
 
 WebAuthn (Web Authentication) is a web standard that enhances security by replacing passwords with passkeys using public key cryptography. Users can authenticate with biometric data (like fingerprints or facial recognition) or physical devices (like USB keys), reducing the risk of phishing and password breaches. This approach offers a more secure and user-friendly authentication method, supported by major browsers and platforms.
@@ -359,7 +399,7 @@ export default defineWebAuthnRegisterEventHandler({
     // We first check if the user is already authenticated by getting the session
     // And verify that the email is the same as the one in session
     const session = await getUserSession(event)
-    if (session.user?.email && session.user.email !== body.userName) {
+    if (session.user?.email && session.user.email !== userBody.userName) {
       throw createError({ statusCode: 400, message: 'Email not matching curent session' })
     }
 
@@ -594,6 +634,65 @@ You can use the `placeholder` slot to show a placeholder on server-side and whil
 
 If you are caching your routes with `routeRules`, please make sure to use [Nitro](https://github.com/unjs/nitro) >= `2.9.7` to support the client-side fetching of the user session.
 
+## WebSocket Support
+
+Nuxt Auth Utils is compatible with [Nitro WebSockets](https://nitro.build/guide/websocket).
+
+Make sure to enable the `experimental.websocket` option in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  nitro: {
+    experimental: {
+      websocket: true
+    }
+  }
+})
+```
+
+You can use the `requireUserSession` function in the `upgrade` function to check if the user is authenticated before upgrading the WebSocket connection.
+
+```ts
+// server/routes/ws.ts
+export default defineWebSocketHandler({
+  async upgrade(request) {
+    // Make sure the user is authenticated before upgrading the WebSocket connection
+    await requireUserSession(request)
+  },
+  async open(peer) {
+    const { user } = await requireUserSession(peer)
+
+    peer.send(`Hello, ${user.name}!`)
+  },
+  message(peer, message) {
+    peer.send(`Echo: ${message}`)
+  },
+})
+```
+
+Then, in your application, you can use the [useWebSocket](https://vueuse.org/core/useWebSocket/) composable to connect to the WebSocket:
+
+```vue
+<script setup>
+const { status, data, send, open, close } = useWebSocket('/ws', { immediate: false })
+
+// Only open the websocket after the page is hydrated (client-only)
+onMounted(open)
+</script>
+
+<template>
+  <div>
+    <p>Status: {{ status }}</p>
+    <p>Data: {{ data }}</p>
+    <p>
+      <button @click="open">Open</button>
+      <button @click="close(1000, 'Closing')">Close</button>
+      <button @click="send('hello')">Send hello</button>
+    </p>
+  </div>
+</template>
+```
+
 ## Configuration
 
 We leverage `runtimeConfig.session` to give the defaults option to [h3 `useSession`](https://h3.unjs.io/examples/handle-session).
@@ -641,26 +740,26 @@ Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Generate type stubs
-npm run dev:prepare
+pnpm run dev:prepare
 
 # Develop with the playground
-npm run dev
+pnpm run dev
 
 # Build the playground
-npm run dev:build
+pnpm run dev:build
 
 # Run ESLint
-npm run lint
+pnpm run lint
 
 # Run Vitest
-npm run test
-npm run test:watch
+pnpm run test
+pnpm run test:watch
 
 # Release new version
-npm run release
+pnpm run release
 ```
 
 <!-- Badges -->

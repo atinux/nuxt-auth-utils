@@ -8,6 +8,10 @@ export interface SecureSessionData {
 
 export interface UserSession {
   /**
+   * Session ID
+   */
+  id?: string
+  /**
    * User session data, available on client and server
    */
   user?: User
@@ -22,6 +26,7 @@ export interface UserSession {
 }
 
 export interface UserSessionRequired extends UserSession {
+  id: string
   user: User
 }
 
@@ -50,4 +55,8 @@ export interface UserSessionComposable {
    * Clear the user session and remove the session cookie.
    */
   clear: () => Promise<void>
+  /**
+   * Open the OAuth route in a popup that auto-closes when successful.
+   */
+  openInPopup: (route: string, size?: { width?: number, height?: number }) => void
 }

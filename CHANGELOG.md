@@ -1,6 +1,233 @@
 # Changelog
 
 
+## v0.5.19
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.18...v0.5.19)
+
+### 🚀 Enhancements
+
+- Add support for authorization parameters and ensure state param is included from query when present in Facebook & Microsoft OAuth ([#386](https://github.com/atinux/nuxt-auth-utils/pull/386))
+
+### 🩹 Fixes
+
+- Explicit Return Type on getUserSession ([#379](https://github.com/atinux/nuxt-auth-utils/pull/379))
+
+### ❤️ Contributors
+
+- Artemis Mendrinos ([@mendrinos](http://github.com/mendrinos))
+- Timothy Michael McMasters ([@Tmmcmasters](http://github.com/Tmmcmasters))
+
+## v0.5.18
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.17...v0.5.18)
+
+### 🚀 Enhancements
+
+- Support GitHub Enterprise Server and GHE.com ([#383](https://github.com/atinux/nuxt-auth-utils/pull/383))
+- Add Salesforce, Slack and Heroku OAuth providers ([#382](https://github.com/atinux/nuxt-auth-utils/pull/382))
+
+### ❤️ Contributors
+
+- Phof ([@phof](http://github.com/phof))
+- Alain Hélaïli ([@helaili](http://github.com/helaili))
+
+## v0.5.17
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.16...v0.5.17)
+
+### 🚀 Enhancements
+
+- Add LiveChat OAuth ([#376](https://github.com/atinux/nuxt-auth-utils/pull/376))
+- Add azure b2c oauth provider ([#362](https://github.com/atinux/nuxt-auth-utils/pull/362))
+- Add kick provider ([#360](https://github.com/atinux/nuxt-auth-utils/pull/360))
+
+### 🩹 Fixes
+
+- Verify steam credentials ([#365](https://github.com/atinux/nuxt-auth-utils/pull/365))
+- Remove `ohash` dependency ([#377](https://github.com/atinux/nuxt-auth-utils/pull/377))
+- **oauth, apple:** Return tokens in response ([#373](https://github.com/atinux/nuxt-auth-utils/pull/373))
+- **oauth, facebook:** Prevent duplication of config.fields and config.scope in defu merge ([#375](https://github.com/atinux/nuxt-auth-utils/pull/375))
+
+### ❤️ Contributors
+
+- Ahmed Rangel ([@ahmedrangel](http://github.com/ahmedrangel))
+- Nathan Rowe ([@n-rowe](http://github.com/n-rowe))
+- Artemis Mendrinos ([@mendrinos](http://github.com/mendrinos))
+- Dominik Opyd <dominik.opyd@gmail.com>
+- Indrek Ardel <indrek@ardel.eu>
+- Marios Antonoudiou ([@mariosant](http://github.com/mariosant))
+- NiTrO0FuN ([@NiTrO0FuN](http://github.com/NiTrO0FuN))
+
+## v0.5.16
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.15...v0.5.16)
+
+### 🚀 Enhancements
+
+- Custom params for Keycloak ([#355](https://github.com/atinux/nuxt-auth-utils/pull/355))
+
+### ❤️ Contributors
+
+- BeSaad ([@BeSaad](http://github.com/BeSaad))
+
+## v0.5.15
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.14...v0.5.15)
+
+### 🩹 Fixes
+
+- Import useError ([b7e078d](https://github.com/atinux/nuxt-auth-utils/commit/b7e078d))
+
+### 📖 Documentation
+
+- Wrong var name in README.md ([#345](https://github.com/atinux/nuxt-auth-utils/pull/345))
+
+### 🏡 Chore
+
+- Align @simplewebauthn/types version ([#344](https://github.com/atinux/nuxt-auth-utils/pull/344))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <atinux@gmail.com>
+- Alex ([@alexfriesen](http://github.com/alexfriesen))
+- Mktcode <kontakt@markus-kottlaender.de>
+
+## v0.5.14
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.13...v0.5.14)
+
+### 🩹 Fixes
+
+- Move atproto util in runtime ([ff2ddc9](https://github.com/atinux/nuxt-auth-utils/commit/ff2ddc9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <atinux@gmail.com>
+
+## v0.5.13
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.12...v0.5.13)
+
+### 🩹 Fixes
+
+- **bluesky:** Use local map for session storing ([#340](https://github.com/atinux/nuxt-auth-utils/pull/340))
+
+### 🏡 Chore
+
+- **playground:** Update nuxt version ([4852cd7](https://github.com/atinux/nuxt-auth-utils/commit/4852cd7))
+- Fix types ([43d7d11](https://github.com/atinux/nuxt-auth-utils/commit/43d7d11))
+
+### ❤️ Contributors
+
+- Neil Richter ([@noook](http://github.com/noook))
+- Sébastien Chopin <atinux@gmail.com>
+
+## v0.5.12
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.11...v0.5.12)
+
+### 🚀 Enhancements
+
+- **session:** Add generated session id ([#338](https://github.com/atinux/nuxt-auth-utils/pull/338))
+- Add bluesky as a provider ([#281](https://github.com/atinux/nuxt-auth-utils/pull/281))
+
+### 🏡 Chore
+
+- Update deps ([1d4c52c](https://github.com/atinux/nuxt-auth-utils/commit/1d4c52c))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <atinux@gmail.com>
+- Neil Richter <me@neilrichter.com>
+
+## v0.5.11
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.10...v0.5.11)
+
+### 🚀 Enhancements
+
+- Set `email_verified` in `user` on GitHub provider ([#332](https://github.com/atinux/nuxt-auth-utils/pull/332))
+- **composable:** Add `openInPopup(route, { width, height })` ([#336](https://github.com/atinux/nuxt-auth-utils/pull/336))
+- Add Gitea Oauth Provider ([#335](https://github.com/atinux/nuxt-auth-utils/pull/335))
+
+### 🩹 Fixes
+
+- Dammit corepack ([239f97a](https://github.com/atinux/nuxt-auth-utils/commit/239f97a))
+- **microsoft:** Fix duplicated scopes ([#331](https://github.com/atinux/nuxt-auth-utils/pull/331))
+
+### 🏡 Chore
+
+- **release:** V0.5.10 ([42a2a7a](https://github.com/atinux/nuxt-auth-utils/commit/42a2a7a))
+- **ci:** Fix corepack ([be2ccaf](https://github.com/atinux/nuxt-auth-utils/commit/be2ccaf))
+
+### ❤️ Contributors
+
+- H+ ([@justserdar](http://github.com/justserdar))
+- Emmanuel Salomon ([@ManUtopiK](http://github.com/ManUtopiK))
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Alessandro Jean ([@alessandrojean](http://github.com/alessandrojean))
+
+## v0.5.10
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.9...v0.5.10)
+
+### 🚀 Enhancements
+
+- Add apple provider ([#328](https://github.com/atinux/nuxt-auth-utils/pull/328))
+
+### 📖 Documentation
+
+- Typo ([8b132e4](https://github.com/atinux/nuxt-auth-utils/commit/8b132e4))
+- Improve example ([9d191a1](https://github.com/atinux/nuxt-auth-utils/commit/9d191a1))
+
+### ❤️ Contributors
+
+- David ([@GreenmeisterDavid](http://github.com/GreenmeisterDavid))
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
+## v0.5.9
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.8...v0.5.9)
+
+### 🚀 Enhancements
+
+- Add support for websocket handler ([#327](https://github.com/atinux/nuxt-auth-utils/pull/327))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+
+## v0.5.8
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.7...v0.5.8)
+
+### 🚀 Enhancements
+
+- Self-hosted Gitlab instances ([#323](https://github.com/atinux/nuxt-auth-utils/pull/323))
+- Add Line OAuth provider ([#312](https://github.com/atinux/nuxt-auth-utils/pull/312))
+- Add atlassian oauth-provider ([#307](https://github.com/atinux/nuxt-auth-utils/pull/307), [#308](https://github.com/atinux/nuxt-auth-utils/pull/308))
+
+### 🩹 Fixes
+
+- Add discord oauth error ([#316](https://github.com/atinux/nuxt-auth-utils/pull/316))
+- Normalise errors when user not accessible ([c98ea5d](https://github.com/atinux/nuxt-auth-utils/commit/c98ea5d))
+
+### 🏡 Chore
+
+- Disable test:types ([ec9b727](https://github.com/atinux/nuxt-auth-utils/commit/ec9b727))
+- Rename jtw to jwt ([#326](https://github.com/atinux/nuxt-auth-utils/pull/326))
+- Update deps ([9cd39e8](https://github.com/atinux/nuxt-auth-utils/commit/9cd39e8))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <atinux@gmail.com>
+- Jonas ([@jonasfroeller](http://github.com/jonasfroeller))
+- Devskillpro ([@devskillpro](http://github.com/devskillpro))
+- Exit ([@exitss](http://github.com/exitss))
+- Benjamin Stauß <benni@stauss.es>
+- Thijs Wijnmaalen <thijs@wijnmaalen.name>
+
 ## v0.5.7
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.6...v0.5.7)
