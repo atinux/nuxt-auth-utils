@@ -99,7 +99,7 @@ export function defineOAuthAtlassianEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthAtlassianConfig>) {
+}: OAuthConfig<OAuthAtlassianConfig, { user: AtlassianUser, tokens: AtlassianTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig().oauth?.atlassian, {
       authorizationURL: 'https://auth.atlassian.com/authorize',

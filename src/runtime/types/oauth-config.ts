@@ -6,7 +6,8 @@ export type OAuthProvider = ATProtoProvider | 'atlassian' | 'auth0' | 'authentik
 
 export type OnError = (event: H3Event, error: H3Error) => Promise<void> | void
 
-export interface OAuthConfig<TConfig, TResult = { user: unknown, tokens: unknown }> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface OAuthConfig<TConfig, TResult = { user: any, tokens: any }> {
   config?: TConfig
   onSuccess: (
     event: H3Event,

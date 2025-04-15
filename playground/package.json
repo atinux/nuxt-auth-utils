@@ -20,8 +20,5 @@
   },
   "devDependencies": {
     "better-sqlite3": "^11.8.1"
-  },
-  "resolutions": {
-    "h3": "^1.14.0"
   }
 }
