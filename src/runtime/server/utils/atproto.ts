@@ -1,11 +1,12 @@
 import type { H3Event } from 'h3'
 import type { OAuthClientMetadataInput, OAuthGrantType } from '@atproto/oauth-client-node'
+import { getRequestURL } from 'h3'
 import type { AtprotoProviderClientMetadata } from '../../types/atproto'
 import type { OAuthBlueskyConfig } from '../lib/atproto/bluesky'
 import { getOAuthRedirectURL } from '../lib/utils'
 import { getClientMetadataFilename } from '../../utils/atproto'
 import type { ATProtoProvider, OAuthConfig } from '#auth-utils'
-import { getRequestURL, useRuntimeConfig } from '#imports'
+import { useRuntimeConfig } from '#imports'
 
 export function getAtprotoClientMetadata(
   event: H3Event,

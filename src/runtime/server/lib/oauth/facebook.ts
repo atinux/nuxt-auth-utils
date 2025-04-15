@@ -69,7 +69,7 @@ export function defineOAuthFacebookEventHandler({
       authorizationParams: {},
     }) as OAuthFacebookConfig
 
-    const query = getQuery<{ code?: string, error?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
     if (query.error) {
       const error = createError({

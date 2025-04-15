@@ -4,9 +4,9 @@ import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@si
 import defu from 'defu'
 import { getRandomValues } from 'uncrypto'
 import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
+import type { AuthenticationBody } from '../../../types/webauthn'
 import { useRuntimeConfig } from '#imports'
 import type { WebAuthnAuthenticateEventHandlerOptions, WebAuthnCredential } from '#auth-utils'
-import type { AuthenticationBody } from '~/src/runtime/types/webauthn'
 
 export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredential>({
   storeChallenge,
