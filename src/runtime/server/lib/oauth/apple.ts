@@ -172,6 +172,7 @@ export function defineOAuthAppleEventHandler({
         return handleAccessTokenErrorResponse(event, 'apple', payload, onError)
       }
 
+      // @ts-expect-error We need to add a way to overwrite onSuccess data
       return onSuccess(event, { user, payload, tokens: accessTokenResult })
     }
     catch (error) {

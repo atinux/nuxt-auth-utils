@@ -65,7 +65,7 @@ export function defineOAuthMicrosoftEventHandler({ config, onSuccess, onError }:
       authorizationParams: {},
     }) as OAuthMicrosoftConfig
 
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
 
     if (!config.clientId || !config.clientSecret || !config.tenant) {
       return handleMissingConfiguration(event, 'microsoft', ['clientId', 'clientSecret', 'tenant'], onError)

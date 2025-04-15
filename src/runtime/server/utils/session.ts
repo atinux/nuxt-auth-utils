@@ -30,8 +30,8 @@ export const sessionHooks = createHooks<SessionHooks>()
 export async function getUserSession(event: UseSessionEvent): Promise<UserSession> {
   const session = await _useSession(event)
   return {
-    id: session.id,
     ...session.data,
+    id: session.id,
   }
 }
 /**

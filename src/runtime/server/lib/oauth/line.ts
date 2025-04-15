@@ -73,10 +73,13 @@ export function defineOAuthLineEventHandler({
     const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
     if (query.error) {
-      return onError(
-        event,
-        new Error(`Line login failed: ${query.error || 'Unknown error'}`),
-      )
+      const error = createError({
+        statusCode: 401,
+        message: `Line login failed: ${query.error || 'Unknown error'}`,
+        data: query,
+      })
+      if (!onError) throw error
+      return onError(event, error)
     }
 
     if (!config.clientId || !config.clientSecret) {

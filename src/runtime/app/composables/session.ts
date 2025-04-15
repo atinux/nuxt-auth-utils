@@ -8,7 +8,7 @@ import type { UserSession, UserSessionComposable } from '#auth-utils'
  */
 export function useUserSession(): UserSessionComposable {
   const serverEvent = import.meta.server ? useRequestEvent() : null
-  const sessionState = useState<UserSession>('nuxt-session', () => ({}))
+  const sessionState = useState<UserSession | null>('nuxt-session', () => null)
   const authReadyState = useState('nuxt-auth-ready', () => false)
 
   const clear = async () => {
@@ -23,16 +23,16 @@ export function useUserSession(): UserSessionComposable {
         }
       },
     })
-    sessionState.value = {}
+    sessionState.value = null
   }
 
   const fetch = async () => {
-    sessionState.value = await useRequestFetch()('/api/_auth/session', {
+    sessionState.value = await useRequestFetch()<UserSession>('/api/_auth/session', {
       headers: {
         accept: 'application/json',
       },
       retry: false,
-    }).catch(() => ({}))
+    }).catch(() => null)
     if (!authReadyState.value) {
       authReadyState.value = true
     }
@@ -68,8 +68,8 @@ export function useUserSession(): UserSessionComposable {
 
   return {
     ready: computed(() => authReadyState.value),
-    loggedIn: computed(() => Boolean(sessionState.value.user)),
-    user: computed(() => sessionState.value.user || null),
+    loggedIn: computed(() => Boolean(sessionState.value?.user)),
+    user: computed(() => sessionState.value?.user || null),
     session: sessionState,
     fetch,
     openInPopup,
