@@ -72,7 +72,7 @@ export interface OAuthWorkOSTokens {
   refresh_token: string
 }
 
-export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthWorkOSConfig, OAuthWorkOSUser, OAuthWorkOSTokens>) {
+export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthWorkOSConfig, { user: OAuthWorkOSUser, tokens: OAuthWorkOSTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.workos, { screen_hint: 'sign-in' }) as OAuthWorkOSConfig
 

@@ -92,7 +92,7 @@ export function defineOAuthAppleEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthAppleConfig>) {
+}: OAuthConfig<OAuthAppleConfig, { user: OAuthAppleUser, payload: OAuthAppleTokens, tokens: unknown }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.apple, {
       authorizationURL: config?.authorizationURL || 'https://appleid.apple.com/auth/authorize',
@@ -172,8 +172,7 @@ export function defineOAuthAppleEventHandler({
         return handleAccessTokenErrorResponse(event, 'apple', payload, onError)
       }
 
-      // @ts-expect-error We need to add a way to overwrite onSuccess data
-      return onSuccess(event, { user, payload, tokens: accessTokenResult })
+      return onSuccess(event, { user: user!, payload, tokens: accessTokenResult })
     }
     catch (error) {
       return handleAccessTokenErrorResponse(event, 'apple', error, onError)
