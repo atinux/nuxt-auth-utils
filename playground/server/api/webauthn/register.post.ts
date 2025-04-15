@@ -17,6 +17,7 @@ export default defineWebAuthnRegisterEventHandler({
     const db = useDatabase()
     try {
       await db.sql`BEGIN TRANSACTION`
+      // @ts-expect-error - dbUser is not defined in the type
       let { rows: [dbUser] } = await db.sql`SELECT * FROM users WHERE email = ${user.userName}`
       if (!dbUser) {
         await db.sql`INSERT INTO users (email) VALUES (${user.userName})`
@@ -50,7 +51,7 @@ export default defineWebAuthnRegisterEventHandler({
       await db.sql`ROLLBACK`
       throw createError({
         statusCode: 500,
-        message: err.message.includes('UNIQUE constraint failed') ? 'User already registered' : 'Failed to store credential',
+        message: err instanceof Error && err.message.includes('UNIQUE constraint failed') ? 'User already registered' : 'Failed to store credential',
       })
     }
   },

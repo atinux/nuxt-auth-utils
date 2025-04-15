@@ -92,7 +92,8 @@ export function defineOAuthAppleEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthAppleConfig, { user: OAuthAppleUser, payload: OAuthAppleTokens, tokens: unknown }>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}: OAuthConfig<OAuthAppleConfig, { user: OAuthAppleUser, payload: OAuthAppleTokens, tokens: any }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.apple, {
       authorizationURL: config?.authorizationURL || 'https://appleid.apple.com/auth/authorize',

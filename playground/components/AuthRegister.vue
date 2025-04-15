@@ -4,7 +4,7 @@ const isOpen = ref(false)
 const { fetch, user } = useUserSession()
 const toast = useToast()
 
-async function register(event: SubmitEvent) {
+async function register(event: Event) {
   const target = event.target as HTMLFormElement
 
   await $fetch('/api/register', {
