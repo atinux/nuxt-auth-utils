@@ -101,7 +101,7 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
     const idRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/
     const steamIdCheck = idRegex.exec(query['openid.claimed_id'])
 
-    const steamId = steamIdCheck[1]
+    const steamId = steamIdCheck?.[1]
 
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

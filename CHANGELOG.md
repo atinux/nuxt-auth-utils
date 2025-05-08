@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.5.20
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.19...v0.5.20)
+
+### 📖 Documentation
+
+- Update readme file to fix path to OAuth provider ([9d816a8](https://github.com/atinux/nuxt-auth-utils/commit/9d816a8))
+
+### 🏡 Chore
+
+- Fix types ([#393](https://github.com/atinux/nuxt-auth-utils/pull/393))
+
+### ❤️ Contributors
+
+- Tejas  Gavankar ([@tejas161](http://github.com/tejas161))
+- Sébastien Chopin <seb@nuxt.com>
+
 ## v0.5.19
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.18...v0.5.19)

@@ -5,9 +5,9 @@ import { generateRegistrationOptions, verifyRegistrationResponse } from '@simple
 import defu from 'defu'
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
+import type { RegistrationBody, ValidateUserFunction } from '../../../types/webauthn'
 import { useRuntimeConfig } from '#imports'
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
-import type { RegistrationBody, ValidateUserFunction } from '~/src/runtime/types/webauthn'
 
 export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   storeChallenge,

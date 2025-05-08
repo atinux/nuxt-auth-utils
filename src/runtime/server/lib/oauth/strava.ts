@@ -152,7 +152,7 @@ export function defineOAuthStravaEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthStravaConfig, OAuthStravaUser>) {
+}: OAuthConfig<OAuthStravaConfig, { user: OAuthStravaUser, tokens: OAuthStravaTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.strava) as OAuthStravaConfig
 

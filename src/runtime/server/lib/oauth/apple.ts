@@ -92,7 +92,8 @@ export function defineOAuthAppleEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthAppleConfig>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}: OAuthConfig<OAuthAppleConfig, { user: OAuthAppleUser, payload: OAuthAppleTokens, tokens: any }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.apple, {
       authorizationURL: config?.authorizationURL || 'https://appleid.apple.com/auth/authorize',
@@ -172,7 +173,7 @@ export function defineOAuthAppleEventHandler({
         return handleAccessTokenErrorResponse(event, 'apple', payload, onError)
       }
 
-      return onSuccess(event, { user, payload, tokens: accessTokenResult })
+      return onSuccess(event, { user: user!, payload, tokens: accessTokenResult })
     }
     catch (error) {
       return handleAccessTokenErrorResponse(event, 'apple', error, onError)

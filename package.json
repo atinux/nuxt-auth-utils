@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.5.19",
+  "version": "0.5.20",
   "description": "Add Authentication to Nuxt applications with secured & sealed cookies sessions.",
   "repository": {
     "type": "git",
@@ -31,7 +31,7 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:types": "vue-tsc --noEmit",
-    "test:types:playground": "cd playground && vue-tsc --noEmit",
+    "test:types:playground": "nuxt typecheck playground",
     "test:watch": "vitest watch"
   },
   "dependencies": {

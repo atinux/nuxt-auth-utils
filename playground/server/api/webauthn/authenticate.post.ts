@@ -37,7 +37,7 @@ export default defineWebAuthnAuthenticateEventHandler({
   },
   async onSuccess(event, { credential, authenticationInfo }) {
     const db = useDatabase()
-    const { rows } = await db.sql<{ rows: string[] }>`
+    const { rows } = await db.sql<{ rows: { email: string }[] }>`
       SELECT users.email
       FROM credentials
       INNER JOIN users ON users.id = credentials.userId
