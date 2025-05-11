@@ -51,8 +51,8 @@ importers:
         specifier: ^0.1.3
         version: 0.1.3
       unjwt:
-        specifier: ^0.5.4
-        version: 0.5.4
+        specifier: ^0.5.5
+        version: 0.5.5
     devDependencies:
       '@iconify-json/simple-icons':
         specifier: ^1.2.23
@@ -5188,8 +5188,8 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
-  unjwt@0.5.4:
-    resolution: {integrity: sha512-KXn2nEUvP7x8E8IuyAcmk3nAH4VsnYsZVqqQ06Zordyhglj8q655o/Dcgqp43MaBWx+gyNn5JkRcWTf3rtHLxw==}
+  unjwt@0.5.5:
+    resolution: {integrity: sha512-YMo7f4K77EsyVKSgDuE9APx3o6kWqu6rW9RIKNUwfTc6aBayeoD094S8uMKhXGXoo3vDeRXvTPaXgNuSUUvQxA==}
 
   unplugin-vue-router@0.11.2:
     resolution: {integrity: sha512-X8BbQ3BNnMqaCYeMj80jtz5jC4AB0jcpdmECIYey9qKm6jy/upaPZ/WzfuT+iTGRiQAY4WemHueXxuzH127oOg==}
@@ -11834,7 +11834,7 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unjwt@0.5.4: {}
+  unjwt@0.5.5: {}
 
   unplugin-vue-router@0.11.2(rollup@4.24.4)(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3)):
     dependencies:
