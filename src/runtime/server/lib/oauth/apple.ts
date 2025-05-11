@@ -2,7 +2,10 @@ import type { H3Event } from 'h3'
 import { eventHandler, getRequestHeader, readBody, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, signJwt, verifyJwt } from '../utils'
+import { importJWKFromPEM } from 'unjwt/jwk'
+import type { JWKSet, JWTClaims } from 'unjwt'
+import { sign, verify } from 'unjwt/jws'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -64,9 +67,21 @@ export interface OAuthAppleConfig {
    * @default process.env.NUXT_OAUTH_APPLE_REDIRECT_URL or current URL
    */
   redirectURL?: string
+
+  /**
+   * Algorithm to use for signing the JWT. Default is ES256
+   * @default 'ES256'
+   */
+  algorithm?: 'RS256' | 'ES256'
+
+  /**
+   * Expires in seconds
+   * @default 300 // 5 minutes
+   */
+  expiresIn?: number
 }
 
-export interface OAuthAppleTokens {
+export interface OAuthAppleTokens extends JWTClaims {
   iss: string
   aud: string
   exp: number
@@ -138,42 +153,54 @@ export function defineOAuthAppleEventHandler({
 
     // Verify the form post data we got back from apple
     try {
-      const secret = await signJwt(
-        {
-          iss: config.teamId,
-          aud: 'https://appleid.apple.com',
-          sub: config.clientId,
-        },
-        {
-          privateKey: config.privateKey,
-          keyId: config.keyId,
-          teamId: config.teamId,
-          clientId: config.clientId,
-          expiresIn: '5m',
-        },
+      const key = await importJWKFromPEM(
+        config.privateKey.replace(/\\n/g, '\n'),
+        'pkcs8',
+        config?.algorithm || 'ES256',
       )
 
-      const accessTokenResult = await requestAccessToken(config.tokenURL || 'https://appleid.apple.com/auth/token', {
-        params: {
-          client_id: config.clientId,
-          client_secret: secret,
-          code,
-          grant_type: 'authorization_code',
-          redirect_uri: config.redirectURL,
-        },
-      })
+      const iat = Math.floor(Date.now() / 1000)
+      const exp = iat + (config?.expiresIn || 300) // 5 minutes
 
-      const payload = await verifyJwt<OAuthAppleTokens>(accessTokenResult.id_token, {
-        publicJwkUrl: 'https://appleid.apple.com/auth/keys',
-        audience: config.clientId,
-        issuer: 'https://appleid.apple.com',
-      })
+      const secret = await sign(
+        {
+          kid: config.keyId,
+          iss: config.teamId,
+          sub: config.clientId,
+          aud: 'https://appleid.apple.com',
+          iat,
+          exp,
+        },
+        key,
+      )
+
+      const [authroizationGrant, appleKeySet] = await Promise.all([
+        requestAccessToken(config.tokenURL || 'https://appleid.apple.com/auth/token', {
+          params: {
+            client_id: config.clientId,
+            client_secret: secret,
+            code,
+            grant_type: 'authorization_code',
+            redirect_uri: config.redirectURL,
+          },
+        }),
+        $fetch<JWKSet>('https://appleid.apple.com/auth/keys'),
+      ])
+
+      const { payload } = await verify<OAuthAppleTokens>(
+        authroizationGrant.id_token,
+        appleKeySet,
+        {
+          audience: config.clientId,
+          issuer: 'https://appleid.apple.com',
+        },
+      )
 
       if (!payload) {
         return handleAccessTokenErrorResponse(event, 'apple', payload, onError)
       }
 
-      return onSuccess(event, { user: user!, payload, tokens: accessTokenResult })
+      return onSuccess(event, { user: user!, payload, tokens: authroizationGrant })
     }
     catch (error) {
       return handleAccessTokenErrorResponse(event, 'apple', error, onError)
