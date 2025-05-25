@@ -1,8 +1,7 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, setCookie, getCookie } from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { randomUUID } from 'uncrypto'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -46,6 +45,10 @@ export interface OAuthFortyTwoConfig {
    * Defaults to `process.env.NUXT_OAUTH_FORTY_TWO_REDIRECT_URL` or derived from the request.
    */
   redirectURL?: string
+  /**
+   * Optional static `state` value to include in the OAuth flow for CSRF protection.
+   */
+  state?: string
 }
 
 // ULTRA-generic user interface.
@@ -65,11 +68,11 @@ interface FortyTwoTokens {
   access_token: string
   token_type: string
   expires_in: number
+  refresh_token: string
   scope: string // Space-separated string of granted scopes
   created_at: number
+  secret_valid_until: number
 }
-
-const COOKIE_NAME = 'nuxt_oauth_fortytwo_state'
 
 export function defineOAuthFortyTwoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthFortyTwoConfig, { user: FortyTwoUser, tokens: FortyTwoTokens }>) {
   return eventHandler(async (event: H3Event) => {
@@ -92,72 +95,53 @@ export function defineOAuthFortyTwoEventHandler({ config, onSuccess, onError }: 
       return onError(event, error)
     }
 
-    if (!config.clientId || !config.clientSecret) {
+    if (!config.clientId || !config.clientSecret)
       return handleMissingConfiguration(event, 'fortytwo', ['clientId', 'clientSecret'], onError)
-    }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
-    if (!query.code) {
-      const state = randomUUID()
-      setCookie(event, COOKIE_NAME, state, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 60 * 5, // Cookie expires in 5 minutes (for state validation)
-        sameSite: 'lax',
-      })
-
+    if (!query.code)
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
+          response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectURL,
-          scope: config.scope.join(' '),
-          response_type: 'code',
-          state, // Include the generated state
+          scope: config.scope?.join(' '),
+          state: query.state || '',
         }),
       )
-    }
 
-    const storedState = getCookie(event, COOKIE_NAME)
-    if (!query.state || query.state !== storedState) {
+    if (query.state !== config.state) {
       const error = createError({
         statusCode: 403,
-        message: 'Invalid state parameter for FortyTwo OAuth. Possible CSRF attack or expired session.',
+        message: 'Invalid state parameter for FortyTwo OAuth. Possible CSRF attack.',
         data: query,
       })
       if (!onError) throw error
       return onError(event, error)
     }
 
-    const tokens = await requestAccessToken<FortyTwoTokens>(config.tokenURL as string, {
-      method: 'POST',
+    const tokens = await requestAccessToken(config.tokenURL as string, {
       body: {
         grant_type: 'authorization_code',
         client_id: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
-        state: query.state, // Send state back for validation by some providers, though 42 might not strictly require it in the token request
+        state: query.state,
       },
     })
 
-    if (tokens.error) {
+    if (tokens.error)
       return handleAccessTokenErrorResponse(event, 'fortytwo', tokens, onError)
-    }
-
-    const accessToken = tokens.access_token
 
     const user: FortyTwoUser = await $fetch<FortyTwoUser>(`${config.apiURL}/me`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${tokens.access_token}`,
       },
     })
 
-    return onSuccess(event, {
-      user,
-      tokens,
-    })
+    return onSuccess(event, { user, tokens })
   })
 }
