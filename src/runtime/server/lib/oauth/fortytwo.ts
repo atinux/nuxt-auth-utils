@@ -48,157 +48,17 @@ export interface OAuthFortyTwoConfig {
   redirectURL?: string
 }
 
-interface FortyTwoImage {
-  link: string
-  versions: {
-    large: string
-    medium: string
-    small: string
-    micro: string
-  }
-}
-
-interface FortyTwoGroup {
-  id: number
-  name: string
-}
-
-interface FortyTwoCursusUser {
-  id: number
-  begin_at: string
-  end_at: string | null
-  cursus_id: number
-  user: {
-    id: number
-    login: string
-  }
-  level: number
-  skills: Array<{
-    id: number
-    name: string
-    level: number
-  }>
-}
-
-interface FortyTwoProjectUser {
-  id: number
-  status: string
-  final_mark: number | null
-  project: {
-    id: number
-    name: string
-    slug: string
-  }
-  cursus_ids: number[]
-}
-
-interface FortyTwoLanguageUser {
-  id: number
-  language_id: number
-  user_id: number
-  position: number
-}
-
-interface FortyTwoAchievement {
-  id: number
-  name: string
-  description: string
-  kind: string
-  visible: boolean
-  image: string
-}
-
-interface FortyTwoTitle {
-  id: number
-  name: string
-}
-
-interface FortyTwoTitleUser {
-  id: number
-  user_id: number
-  title_id: number
-  selected: boolean
-}
-
-interface FortyTwoPartnership {
-  id: number
-  created_at: string
-  updated_at: string
-  user_id: number
-  partner_id: number
-}
-
-interface FortyTwoExpertiseUser {
-  id: number
-  expertise_id: number
-  interested: boolean
-  value: number
-  contact_me: boolean
-}
-
-interface FortyTwoRole {
-  id: number
-  name: string
-  slug: string
-  description: string
-}
-
-interface FortyTwoCampus {
-  id: number
-  name: string
-  time_zone: string
-  language: {
-    id: number
-    name: string
-    identifier: string
-  }
-  users_count: number
-}
-
-interface FortyTwoCampusUser {
-  id: number
-  campus_id: number
-  user_id: number
-  is_primary: boolean
-}
-
+// ULTRA-generic user interface.
+// This is the minimum to avoid type errors on, for example, `user.id`.
 interface FortyTwoUser {
   id: number
-  email: string
   login: string
-  first_name: string
-  last_name: string
-  usual_full_name: string
-  usual_first_name: string
-  url: string
-  phone: string | null
-  displayname: string
-  kind: string
-  image: FortyTwoImage
-  staff?: boolean
-  correction_point: number
-  pool_month: string | null
-  pool_year: string | null
-  location: string | null
-  wallet: number
-  anonymize_date: string | null
-  data_erasure_date: string | null
-  alumni?: boolean
-  active?: boolean
-  groups: FortyTwoGroup[]
-  cursus_users: FortyTwoCursusUser[]
-  projects_users: FortyTwoProjectUser[]
-  languages_users: FortyTwoLanguageUser[]
-  achievements: FortyTwoAchievement[]
-  titles: FortyTwoTitle[]
-  titles_users: FortyTwoTitleUser[]
-  partnerships: FortyTwoPartnership[]
-  patroned: FortyTwoUser[]
-  patroning: FortyTwoUser[]
-  expertises_users: FortyTwoExpertiseUser[]
-  roles: FortyTwoRole[]
-  campus: FortyTwoCampus[]
-  campus_users: FortyTwoCampusUser[]
+  email: string
+
+  // To prevent TypeScript from complaining if you access other fields
+  // that the 42 API returns, but which you don't want to type here:
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any
 }
 
 interface FortyTwoTokens {
@@ -279,7 +139,7 @@ export function defineOAuthFortyTwoEventHandler({ config, onSuccess, onError }: 
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
-        state: query.state,
+        state: query.state, // Send state back for validation by some providers, though 42 might not strictly require it in the token request
       },
     })
 
