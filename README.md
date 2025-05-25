@@ -222,6 +222,7 @@ It can also be set using environment variables:
 - Discord
 - Dropbox
 - Facebook
+- FortyTwo (42)
 - GitHub
 - GitLab
 - Gitea
