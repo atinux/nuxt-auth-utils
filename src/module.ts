@@ -468,5 +468,11 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       scope: '',
     })
+    // FortyTwo OAuth
+    runtimeConfig.oauth.fortytwo = defu(runtimeConfig.oauth.fortytwo, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
   },
 })

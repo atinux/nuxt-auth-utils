@@ -248,6 +248,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.heroku),
       icon: 'i-simple-icons-heroku',
     },
+    {
+      label: user.value?.fortytwo || 'FortyTwo',
+      to: '/auth/fortytwo',
+      disabled: Boolean(user.value?.fortytwo),
+      icon: 'i-simple-icons-42',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
