@@ -43,6 +43,12 @@ declare module '#auth-utils' {
     salesforce?: string
     slack?: string
     heroku?: string
+    bitrix24?: {
+      id: number
+      name: string
+      photo: string
+      targetOrigin: string
+    }
   }
 
   interface UserSession {

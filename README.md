@@ -218,6 +218,7 @@ It can also be set using environment variables:
 - AWS Cognito
 - Azure B2C
 - Battle.net
+- Bitrix24
 - Bluesky (AT Protocol)
 - Discord
 - Dropbox
