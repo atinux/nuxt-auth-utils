@@ -236,6 +236,7 @@ It can also be set using environment variables:
 - LinkedIn
 - LiveChat
 - Microsoft
+- Ory
 - PayPal
 - Polar
 - Salesforce

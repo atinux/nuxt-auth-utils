@@ -468,5 +468,16 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       scope: '',
     })
+    // Ory OAuth
+    runtimeConfig.oauth.ory = defu(runtimeConfig.oauth.ory, {
+      clientId: '',
+      clientSecret: '',
+      sdkURL: '',
+      redirectURL: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
+    })
   },
 })
