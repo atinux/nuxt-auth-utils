@@ -135,7 +135,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
-      password: process.env[envSessionPassword] || '',
+      password: '',
       cookie: {
         sameSite: 'lax',
       },
@@ -146,7 +146,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // Generate the session password
-    if (nuxt.options.dev && !runtimeConfig.session.password) {
+    if (nuxt.options.dev && !process.env[envSessionPassword]) {
       runtimeConfig.session.password = randomUUID().replace(/-/g, '')
       // Add it to .env
       const envPath = join(nuxt.options.rootDir, '.env')
