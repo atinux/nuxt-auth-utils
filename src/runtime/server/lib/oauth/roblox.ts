@@ -20,7 +20,7 @@ export interface OAuthRobloxConfig {
   /**
    * Roblox OAuth Scope
    * Some scopes and claims listed are only available to official Roblox apps, e.g. email
-   * @default ['openid']
+   * @default ['openid', 'profile']
    * @see https://apis.roblox.com/oauth/.well-known/openid-configuration
    * @example ['openid', 'profile', 'asset:read', 'universe-messaging-service:publish']
    */
@@ -49,7 +49,7 @@ export interface OAuthRobloxConfig {
 
 export interface OAuthRobloxUser {
   /**
-   * Roblox unique user ID 
+   * Roblox unique user ID
    */
   sub: string
 
