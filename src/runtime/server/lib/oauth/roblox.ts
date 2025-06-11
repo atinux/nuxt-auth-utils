@@ -47,7 +47,7 @@ export interface OAuthRobloxConfig {
   redirectURL?: string
 }
 
-export interface OAuthRobloxUser {
+interface OAuthRobloxUserInfo {
   /**
    * Roblox unique user ID
    */
@@ -85,9 +85,114 @@ export interface OAuthRobloxUser {
   picture?: string | null
 }
 
+export interface OAuthRobloxUser {
+  /**
+   * The resource path of the user
+   * @example "users/123"
+   */
+  path: string;
+
+  /**
+   * The timestamp at which the user was created
+   * @readonly
+   * @example "2023-07-05T12:34:56Z"
+   */
+  createTime: string;
+
+  /**
+   * Unique ID that identifies a user in Roblox
+   * @readonly
+   * @example "123456"
+   */
+  id: string;
+
+  /**
+   * Unique username for a user in Roblox
+   * @example "exampleUser"
+   */
+  name: string;
+
+  /**
+   * Display name for the user
+   * @example "userDefinedName"
+   */
+  displayName: string;
+
+  /**
+   * User-defined information about themselves
+   * @example "Example User's bio"
+   */
+  about: string;
+
+  /**
+   * Current locale selected by the user as an IETF language code
+   * @example "en-US"
+   */
+  locale: string;
+
+  /**
+   * Whether the user is a premium user
+   * @readonly
+   * @example true
+   */
+  premium: boolean;
+
+  /**
+   * Specifies if the user is identity-verified
+   * Verification includes, but isn't limited to, non-VoIP phone numbers or government IDs
+   * Available only with the user.advanced:read scope
+   * @readonly
+   * @example true
+   */
+  idVerified: boolean;
+
+  /**
+   * User's social network profiles and visibility.
+   */
+  socialNetworkProfiles: {
+    /**
+     * Facebook profile URI.
+     */
+    facebook?: string;
+
+    /**
+     * Twitter profile URI.
+     */
+    twitter?: string;
+
+    /**
+     * YouTube profile URI.
+     */
+    youtube?: string;
+
+    /**
+     * Twitch profile URI.
+     */
+    twitch?: string;
+
+    /**
+     * Guilded profile URI.
+     */
+    guilded?: string;
+
+    /**
+     * Visibility of the social network profiles.
+     * Available only with the user.social:read scope
+     * @example "SOCIAL_NETWORK_VISIBILITY_UNSPECIFIED"
+     */
+    visibility: 
+      | "SOCIAL_NETWORK_VISIBILITY_UNSPECIFIED"
+      | "NO_ONE"
+      | "FRIENDS"
+      | "FRIENDS_AND_FOLLOWING"
+      | "FRIENDS_FOLLOWING_AND_FOLLOWERS"
+      | "EVERYONE";
+  };
+}
+
 export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthRobloxConfig>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.linear, {
+    config = defu(config, useRuntimeConfig(event).oauth?.roblox, {
       authorizationURL: 'https://apis.roblox.com/oauth/v1/authorize',
       tokenURL: 'https://apis.roblox.com/oauth/v1/token',
       authorizationParams: {},
@@ -96,11 +201,11 @@ export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OA
     const query = getQuery<{ code?: string, error?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
-      return handleMissingConfiguration(event, 'discord', ['clientId', 'clientSecret'], onError)
+      return handleMissingConfiguration(event, 'roblox', ['clientId', 'clientSecret'], onError)
     }
 
     if (query.error) {
-      return handleAccessTokenErrorResponse(event, 'discord', query, onError)
+      return handleAccessTokenErrorResponse(event, 'roblox', query, onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
@@ -108,7 +213,7 @@ export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OA
     if (!query.code) {
       config.scope = config.scope || []
 
-      // Redirect to Discord Oauth page
+      // Redirect to Roblox Oauth page
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
@@ -132,11 +237,18 @@ export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OA
     })
 
     if (tokens.error) {
-      return handleAccessTokenErrorResponse(event, 'discord', tokens, onError)
+      return handleAccessTokenErrorResponse(event, 'roblox', tokens, onError)
     }
 
     const accessToken = tokens.access_token
-    const user: OAuthRobloxUser = await $fetch('https://apis.roblox.com/oauth/userinfo', {
+    const userInfo: OAuthRobloxUserInfo = await $fetch('https://apis.roblox.com/oauth/userinfo', {
+      headers: {
+        'user-agent': 'Nuxt Auth Utils',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    })
+    
+    const user: OAuthRobloxUser = await $fetch(`https://apis.roblox.com/cloud/v2/users/${userInfo.sub}`, {
       headers: {
         'user-agent': 'Nuxt Auth Utils',
         'Authorization': `Bearer ${accessToken}`,
