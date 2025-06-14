@@ -114,7 +114,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
       authorizationParams: {},
     }) as OAuthGitHubConfig
 
-    const query = getQuery<{ code?: string, error?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -144,6 +144,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
+          state: query.state || '',
           ...config.authorizationParams,
         }),
       )
