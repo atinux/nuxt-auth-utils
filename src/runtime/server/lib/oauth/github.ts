@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -131,6 +131,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -144,10 +145,14 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state: query.state || '',
+          state,
           ...config.authorizationParams,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      handleInvalidState(event, 'github', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
