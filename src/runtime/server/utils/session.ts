@@ -112,6 +112,9 @@ function _useSession(event: UseSessionEvent, config: Partial<SessionConfig> = {}
     const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
 
     sessionConfig = defu({ password: process.env[envSessionPassword] }, runtimeConfig.session)
+    if (!sessionConfig.password) {
+      console.error(`[nuxt-auth-utils] ${envSessionPassword} environment variable or runtimeConfig.session.password was not set.`)
+    }
   }
   const finalConfig = defu(config, sessionConfig) as SessionConfig
   return useSession<UserSession>(event, finalConfig)
