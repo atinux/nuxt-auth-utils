@@ -258,6 +258,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Planning Center OAuth
+    runtimeConfig.oauth.planningcenter = defu(runtimeConfig.oauth.planningcenter, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
 
     // Atproto OAuth
     for (const provider of atprotoProviders) {

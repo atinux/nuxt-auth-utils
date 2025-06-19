@@ -248,6 +248,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.heroku),
       icon: 'i-simple-icons-heroku',
     },
+    {
+      label: user.value?.planningcenter || 'Planning Center',
+      to: '/auth/planningcenter',
+      disabled: Boolean(user.value?.planningcenter),
+      icon: 'i-gravity-ui-lock',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
