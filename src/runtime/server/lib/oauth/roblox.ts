@@ -3,7 +3,7 @@ import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
+import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthRobloxConfig {
@@ -90,52 +90,52 @@ export interface OAuthRobloxUser {
    * The resource path of the user
    * @example "users/123"
    */
-  path: string;
+  path: string
 
   /**
    * The timestamp at which the user was created
    * @readonly
    * @example "2023-07-05T12:34:56Z"
    */
-  createTime: string;
+  createTime: string
 
   /**
    * Unique ID that identifies a user in Roblox
    * @readonly
    * @example "123456"
    */
-  id: string;
+  id: string
 
   /**
    * Unique username for a user in Roblox
    * @example "exampleUser"
    */
-  name: string;
+  name: string
 
   /**
    * Display name for the user
    * @example "userDefinedName"
    */
-  displayName: string;
+  displayName: string
 
   /**
    * User-defined information about themselves
    * @example "Example User's bio"
    */
-  about: string;
+  about: string
 
   /**
    * Current locale selected by the user as an IETF language code
    * @example "en-US"
    */
-  locale: string;
+  locale: string
 
   /**
    * Whether the user is a premium user
    * @readonly
    * @example true
    */
-  premium: boolean;
+  premium: boolean
 
   /**
    * Specifies if the user is identity-verified
@@ -144,7 +144,7 @@ export interface OAuthRobloxUser {
    * @readonly
    * @example true
    */
-  idVerified: boolean;
+  idVerified: boolean
 
   /**
    * User's social network profiles and visibility.
@@ -153,41 +153,41 @@ export interface OAuthRobloxUser {
     /**
      * Facebook profile URI.
      */
-    facebook?: string;
+    facebook?: string
 
     /**
      * Twitter profile URI.
      */
-    twitter?: string;
+    twitter?: string
 
     /**
      * YouTube profile URI.
      */
-    youtube?: string;
+    youtube?: string
 
     /**
      * Twitch profile URI.
      */
-    twitch?: string;
+    twitch?: string
 
     /**
      * Guilded profile URI.
      */
-    guilded?: string;
+    guilded?: string
 
     /**
      * Visibility of the social network profiles.
      * Available only with the user.social:read scope
      * @example "SOCIAL_NETWORK_VISIBILITY_UNSPECIFIED"
      */
-    visibility: 
-      | "SOCIAL_NETWORK_VISIBILITY_UNSPECIFIED"
-      | "NO_ONE"
-      | "FRIENDS"
-      | "FRIENDS_AND_FOLLOWING"
-      | "FRIENDS_FOLLOWING_AND_FOLLOWERS"
-      | "EVERYONE";
-  };
+    visibility:
+      | 'SOCIAL_NETWORK_VISIBILITY_UNSPECIFIED'
+      | 'NO_ONE'
+      | 'FRIENDS'
+      | 'FRIENDS_AND_FOLLOWING'
+      | 'FRIENDS_FOLLOWING_AND_FOLLOWERS'
+      | 'EVERYONE'
+  }
 }
 
 export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthRobloxConfig>) {
@@ -247,7 +247,7 @@ export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OA
         'Authorization': `Bearer ${accessToken}`,
       },
     })
-    
+
     const user: OAuthRobloxUser = await $fetch(`https://apis.roblox.com/cloud/v2/users/${userInfo.sub}`, {
       headers: {
         'user-agent': 'Nuxt Auth Utils',
