@@ -259,4 +259,5 @@ export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OA
       tokens,
       user,
     })
+  })
 }
