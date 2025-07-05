@@ -104,7 +104,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
     else if (typeof scope === 'string') {
       result = scope.split(/[,| ]+/).filter(Boolean)
     }
-    else if (Array.isArray(scope)) {
+    else if (Array.isArray(scope) && scope.length > 0) {
       result = scope
     }
     else {
@@ -174,13 +174,17 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
     const tokenURL = openIdConfig.token_endpoint
     const userInfoUrl = openIdConfig.userinfo_endpoint
 
-    const query = getQuery<{ code?: string, state?: string, return_to?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string, return_to?: string, error?: string, error_description?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     const state = await handleState(event)
 
     if (query.return_to) {
       return_to = query.return_to
+    }
+
+    if (query.state === state && query.error) {
+      handleAccessTokenErrorResponse(event, 'okta', query, onError)
     }
 
     // Step 1: Authorization Request
