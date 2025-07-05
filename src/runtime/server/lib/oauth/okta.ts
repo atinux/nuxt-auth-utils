@@ -184,7 +184,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
     }
 
     if (query.state === state && query.error) {
-      handleAccessTokenErrorResponse(event, 'okta', query, onError)
+      return handleAccessTokenErrorResponse(event, 'okta', query, onError)
     }
 
     // Step 1: Authorization Request
@@ -207,7 +207,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
 
     // Step 2: Validate callback state
     if (query.state !== state) {
-      handleInvalidState(event, 'okta', onError)
+      return handleInvalidState(event, 'okta', onError)
     }
 
     // Step 3: Request Access Token
