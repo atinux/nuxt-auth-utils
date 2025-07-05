@@ -67,7 +67,7 @@ export interface OAuthOryConfig {
   userURL?: string
 }
 
-export function oryHydraEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthOryConfig>) {
+export function defineOAuthOryEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthOryConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.ory, {
       scope: ['openid', 'offline'],
@@ -85,7 +85,7 @@ export function oryHydraEventHandler({ config, onSuccess, onError }: OAuthConfig
     if (query.error) {
       const error = createError({
         statusCode: 401,
-        message: `ory login failed: ${query.error || 'Unknown error'}`,
+        message: `Ory login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
       if (!onError) throw error
@@ -161,7 +161,7 @@ export function oryHydraEventHandler({ config, onSuccess, onError }: OAuthConfig
     if (user.error) {
       const error = createError({
         statusCode: 401,
-        message: `ory login failed: ${user.error || 'Unknown error'}`,
+        message: `Ory userinfo failed: ${user.error || 'Unknown error'}`,
         data: user,
       })
       if (!onError) throw error
