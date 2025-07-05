@@ -3,6 +3,7 @@ export default defineOAuthOryEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
+        id: user?.sub,
         email: user?.email,
         ory: user?.email,
       },
