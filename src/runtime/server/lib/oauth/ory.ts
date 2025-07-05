@@ -38,7 +38,7 @@ export interface OAuthOryConfig {
   /**
    * Ory OAuth Scope
    * @default ['openid', 'offline']
-   * @see https://docs.oryhydra.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps
+   * @see https://www.ory.sh/docs/oauth2-oidc/openid-connect-claims-scope-custom
    * @example ['openid', 'offline', 'email']
    */
   scope?: string[] | string
@@ -62,6 +62,7 @@ export interface OAuthOryConfig {
 
   /**
    * Ory OAuth Userinfo URL
+   * @see https://www.ory.sh/docs/oauth2-oidc/userinfo-oidc
    * @default '/userinfo'
    */
   userURL?: string
