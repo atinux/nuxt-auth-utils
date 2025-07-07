@@ -6,7 +6,7 @@ import { handleMissingConfiguration, handleState, handleInvalidState, handleAcce
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
-interface OpenIdConfig {
+export interface OpenIdConfig {
   authorization_endpoint: string
   token_endpoint: string
   userinfo_endpoint: string
@@ -23,15 +23,9 @@ const openIdConfigCache = new Map<string, CachedOpenIdConfig>()
 const DEFAULT_CACHE_TTL = 1000 * 60 * 60 * 24 // 24 hours in milliseconds
 
 export interface OAuthConfigExt<TConfig, TResult = {
-  user: {
-    user_profile?: { [key: string]: unknown }
-    [key: string]: unknown
-  }
-  tokens: { [key: string]: unknown }
-  openIdConfig: {
-    end_session_endpoint?: string
-    [key: string]: unknown
-  }
+  user: Record<string, unknown>
+  tokens: Record<string, unknown>
+  openIdConfig: OpenIdConfig
 }> extends OAuthConfig<TConfig, TResult> {
   config?: TConfig
   onSuccess: (event: H3Event, result: TResult) => Promise<void> | void
@@ -249,6 +243,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
 
     // Step 2: Validate callback state
     if (query.state !== state) {
+      deleteCookie(event, 'nuxt-auth-state')
       return handleInvalidState(event, 'okta', onError)
     }
 
