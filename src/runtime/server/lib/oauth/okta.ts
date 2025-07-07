@@ -153,16 +153,14 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
       const now = Date.now()
       const cacheTTL = config?.openIdConfigCacheTTL || DEFAULT_CACHE_TTL
 
-      // Clean up expired entries on each run to keep memory usage optimal
-      for (const [key, cached] of openIdConfigCache.entries()) {
-        if (cached.expiresAt <= now) {
-          openIdConfigCache.delete(key)
-        }
-      }
-
       const cached = openIdConfigCache.get(openIdConfigurationUrl)
-      if (cached && cached.expiresAt > now) {
-        return cached.data
+      if (cached) {
+        if (cached.expiresAt > now) {
+          return cached.data
+        }
+        else {
+          openIdConfigCache.delete(openIdConfigurationUrl) // Lazy eviction of expired entry
+        }
       }
 
       let openIdConfig: OpenIdConfig | null = null
