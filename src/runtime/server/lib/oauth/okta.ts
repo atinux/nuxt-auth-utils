@@ -6,6 +6,22 @@ import { handleMissingConfiguration, handleState, handleInvalidState, handleAcce
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
+interface OpenIdConfig {
+  authorization_endpoint: string
+  token_endpoint: string
+  userinfo_endpoint: string
+  end_session_endpoint?: string
+  [key: string]: unknown
+}
+
+interface CachedOpenIdConfig {
+  data: OpenIdConfig
+  expiresAt: number
+}
+
+const openIdConfigCache = new Map<string, CachedOpenIdConfig>()
+const DEFAULT_CACHE_TTL = 1000 * 60 * 60 * 24 // 24 hours in milliseconds
+
 export interface OAuthConfigExt<TConfig, TResult = {
   user: {
     user_profile?: { [key: string]: unknown }
@@ -85,17 +101,14 @@ export interface OAuthOktaConfig {
    * @default process.env.NUXT_OAUTH_OKTA_REDIRECT_URL or current URL
    */
   redirectURL?: string
+  /**
+   * OpenID Configuration cache TTL in milliseconds
+   * @default 86400000 (24 hours)
+   */
+  openIdConfigCacheTTL?: number
 }
 
 export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAuthConfigExt<OAuthOktaConfig>) {
-  let return_to: string = ''
-  interface OpenIdConfig {
-    authorization_endpoint: string
-    token_endpoint: string
-    userinfo_endpoint: string
-    [key: string]: unknown
-  }
-
   function normalizeScope(scope: unknown, emailRequired?: boolean): string[] {
     let result: string[]
     if (!scope || (typeof scope === 'string' && scope.trim() === '')) {
@@ -128,12 +141,45 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
       return handleMissingConfiguration(event, 'okta', ['clientId', 'clientSecret', 'domain'], onError)
     }
 
+    const query = getQuery<{ code?: string, state?: string, error?: string, error_description?: string }>(event)
+
+    if (query.error) {
+      const error = createError({
+        statusCode: 401,
+        message: `Okta login failed: ${query.error || 'Unknown error'} - ${query.error_description || ''}`,
+        data: query,
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
+
     config.scope = normalizeScope(config.scope, config.emailRequired)
 
     const getOpenIdConfig = async (openIdConfigurationUrl: string, event?: H3Event): Promise<OpenIdConfig> => {
+      const now = Date.now()
+      const cacheTTL = config?.openIdConfigCacheTTL || DEFAULT_CACHE_TTL
+
+      // Clean up expired entries on each run to keep memory usage optimal
+      for (const [key, cached] of openIdConfigCache.entries()) {
+        if (cached.expiresAt <= now) {
+          openIdConfigCache.delete(key)
+        }
+      }
+
+      const cached = openIdConfigCache.get(openIdConfigurationUrl)
+      if (cached && cached.expiresAt > now) {
+        return cached.data
+      }
+
       let openIdConfig: OpenIdConfig | null = null
       try {
         openIdConfig = await $fetch<OpenIdConfig>(openIdConfigurationUrl)
+        if (openIdConfig) {
+          openIdConfigCache.set(openIdConfigurationUrl, {
+            data: openIdConfig,
+            expiresAt: now + cacheTTL,
+          })
+        }
       }
       catch (error) {
         if (config && config.domain) {
@@ -150,6 +196,11 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
               : `https://${config.domain}/oauth2/v1/userinfo`,
             end_session_endpoint: undefined,
           }
+
+          openIdConfigCache.set(openIdConfigurationUrl, {
+            data: openIdConfig,
+            expiresAt: now + Math.min(cacheTTL / 24, 1000 * 60 * 60), // 1 hour or 1/24th of configured TTL, whichever is smaller
+          })
         }
         else {
           // Log and throw a more actionable error if OpenID config fetch fails and no fallback is possible
@@ -174,18 +225,9 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
     const tokenURL = openIdConfig.token_endpoint
     const userInfoUrl = openIdConfig.userinfo_endpoint
 
-    const query = getQuery<{ code?: string, state?: string, return_to?: string, error?: string, error_description?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     const state = await handleState(event)
-
-    if (query.return_to) {
-      return_to = query.return_to
-    }
-
-    if (query.state === state && query.error) {
-      return handleAccessTokenErrorResponse(event, 'okta', query, onError)
-    }
 
     // Step 1: Authorization Request
     if (!query.code) {
@@ -265,8 +307,6 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
       if (onError) return onError(event, err)
       throw err
     }
-
-    user.return_to = return_to
 
     // Step 5: Call onSuccess handler with tokens, user, and OpenID config
     return onSuccess(event, {
