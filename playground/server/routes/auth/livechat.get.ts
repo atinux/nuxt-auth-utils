@@ -1,9 +1,8 @@
 export default defineOAuthLiveChatEventHandler({
-  config: {},
   async onSuccess(event, { user }) {
     await setUserSession(event, {
       user: {
-        livechat: user,
+        livechat: user.name
       },
       loggedInAt: Date.now(),
     })
