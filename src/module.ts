@@ -147,7 +147,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Generate the session password
     if (nuxt.options.dev && !process.env[envSessionPassword]) {
-      runtimeConfig.session.password = randomUUID().replace(/-/g, '')
+      const password = process.env[envSessionPassword] = randomUUID().replace(/-/g, '')
       // Add it to .env
       const envPath = join(nuxt.options.rootDir, '.env')
       const envContent = await readFile(envPath, 'utf-8').catch(() => '')
@@ -156,7 +156,7 @@ export default defineNuxtModule<ModuleOptions>({
           envPath,
           `${
             envContent ? envContent + '\n' : envContent
-          }${envSessionPassword}=${runtimeConfig.session.password}`,
+          }${envSessionPassword}=${password}`,
           'utf-8',
         )
       }
