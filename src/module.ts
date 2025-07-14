@@ -50,6 +50,7 @@ declare module 'nuxt/schema' {
      * Session configuration
      */
     session: SessionConfig
+    disableAuthAutoLoad?: boolean
   }
 }
 
@@ -495,5 +496,10 @@ export default defineNuxtModule<ModuleOptions>({
       tokenURL: '',
       userURL: '',
     })
+
+    // Publicly expose disableAuthAutoLoad if needed
+    if (runtimeConfig.disableAuthAutoLoad && runtimeConfig.public.disableAuthAutoLoad === undefined) {
+      runtimeConfig.public.disableAuthAutoLoad = runtimeConfig.disableAuthAutoLoad
+    }
   },
 })
