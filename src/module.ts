@@ -9,6 +9,7 @@ import {
   addServerImportsDir,
   addComponentsDir,
   logger,
+  addTypeTemplate,
 } from '@nuxt/kit'
 import { join } from 'pathe'
 import { defu } from 'defu'
@@ -39,6 +40,10 @@ export interface ModuleOptions {
      */
     scrypt?: ScryptConfig
   }
+  /**
+   * Whether to include an "[x: string]: unknown" signature in UserSession
+   */
+  extraSessionData?: boolean
 }
 
 declare module 'nuxt/schema' {
@@ -65,6 +70,7 @@ export default defineNuxtModule<ModuleOptions>({
     hash: {
       scrypt: {},
     },
+    extraSessionData: true,
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -72,6 +78,12 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.alias['#auth-utils'] = resolver.resolve(
       './runtime/types/index',
     )
+    if (options.extraSessionData) {
+      addTypeTemplate({
+        filename: 'extra-session-data.d.ts',
+        src: resolver.resolve('./runtime/types/extra-session-data.d.ts'),
+      }, { nuxt: true, nitro: true })
+    }
 
     const composables = [
       { name: 'useUserSession', from: resolver.resolve('./runtime/app/composables/session') },
