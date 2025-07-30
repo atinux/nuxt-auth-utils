@@ -100,7 +100,7 @@ export function defineOAuthSalesforceEventHandler({
     }
 
     if (query.state !== state) {
-      handleInvalidState(event, 'salesforce', onError)
+      return handleInvalidState(event, 'salesforce', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

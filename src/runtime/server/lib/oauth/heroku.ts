@@ -95,7 +95,7 @@ export function defineOAuthHerokuEventHandler({
     }
 
     if (query.state !== state) {
-      handleInvalidState(event, 'heroku', onError)
+      return handleInvalidState(event, 'heroku', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
