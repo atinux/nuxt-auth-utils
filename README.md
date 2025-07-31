@@ -240,6 +240,7 @@ It can also be set using environment variables:
 - LiveChat
 - Microsoft
 - PayPal
+- Planning Center
 - Polar
 - Salesforce
 - Seznam
