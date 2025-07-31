@@ -468,5 +468,10 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       scope: '',
     })
+    // Bitrix24 OAuth
+    runtimeConfig.oauth.bitrix24 = defu(runtimeConfig.oauth.bitrix24, {
+      clientId: '',
+      clientSecret: '',
+    })
   },
 })

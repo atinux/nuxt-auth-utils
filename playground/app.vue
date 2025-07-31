@@ -248,6 +248,34 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.heroku),
       icon: 'i-simple-icons-heroku',
     },
+    {
+      label: user.value?.bitrix24?.name || 'Bitrix24',
+      avatar: {
+        size: user.value?.bitrix24?.photo ? '2xs' : 'xs',
+        ui: {
+
+        },
+        src: user.value?.bitrix24?.photo || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MiA0MiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0ic2l6ZS0yNCB0ZXh0LWJhc2UtbWFzdGVyIGRhcms6dGV4dC1iYXNlLTIwMCI+PHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMjIuMDkgMTcuOTI2aC0xLjM4NnYzLjcxNmgzLjU1MXYtMS4zODZIMjIuMDl6bS0uNjE2IDcuMzU2YTQuNzE4IDQuNzE4IDAgMSAxIDAtOS40MzYgNC43MTggNC43MTggMCAwIDEgMCA5LjQzNm05LjE5NS02QTUuMTkgNS4xOSAwIDAgMCAyMy43MjEgMTRhNS4xOSA1LjE5IDAgMCAwLTkuODcyIDEuNjlBNi4yMzQgNi4yMzQgMCAwIDAgMTUuMjMzIDI4aDE0Ljc2MWMyLjQ0NCAwIDQuNDI1LTEuNzI0IDQuNDI1LTQuNDI1IDAtMy40OTctMy40MDYtNC4zNzktMy43NS00LjI5MyIvPjwvc3ZnPg==',
+      },
+      click() {
+        // open user profile ////
+        if (user.value?.bitrix24) {
+          window.open(`${user.value?.bitrix24?.targetOrigin}/company/personal/user/${user.value?.bitrix24?.id}/`)
+          return
+        }
+
+        // make auth ////
+        const authorizationServer = prompt('Enter your Bitrix24 URL', '')
+        if (authorizationServer) {
+          navigateTo({
+            path: '/auth/bitrix24',
+            query: { authorizationServer },
+          }, {
+            external: true,
+          })
+        }
+      },
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
