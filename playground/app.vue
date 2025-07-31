@@ -248,6 +248,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.heroku),
       icon: 'i-simple-icons-heroku',
     },
+    {
+      label: user.value?.roblox || 'Roblox',
+      to: '/auth/roblox',
+      disabled: Boolean(user.value?.roblox),
+      icon: 'i-simple-icons-roblox',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,

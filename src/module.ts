@@ -468,5 +468,12 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       scope: '',
     })
+    // Roblox OAuth
+    runtimeConfig.oauth.roblox = defu(runtimeConfig.oauth.roblox, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
+    })
   },
 })
