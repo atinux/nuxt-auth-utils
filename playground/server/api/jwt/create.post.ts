@@ -1,4 +1,4 @@
-import jwt from '@tsndr/cloudflare-worker-jwt'
+import { jws } from 'unjwt'
 
 export default defineEventHandler(async (event) => {
   // Get user from session
@@ -17,20 +17,26 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // For demo purposes only, use high entropy secrets or keys in production
+  const accessTokenKey = new TextEncoder().encode(process.env.NUXT_SESSION_PASSWORD)
+  const refreshTokenKey = new TextEncoder().encode(`${process.env.NUXT_SESSION_PASSWORD}-secret`)
+
   // Generate tokens
-  const accessToken = await jwt.sign(
+  const accessToken = await jws.sign(
     {
       hello: 'world',
       exp: Math.floor(Date.now() / 1000) + 5, // 30 seconds
     },
-    process.env.NUXT_SESSION_PASSWORD,
+    accessTokenKey,
+    { alg: 'HS256' },
   )
 
-  const refreshToken = await jwt.sign(
+  const refreshToken = await jws.sign(
     {
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days
     },
-    `${process.env.NUXT_SESSION_PASSWORD}-secret`,
+    refreshTokenKey,
+    { alg: 'HS256' },
   )
 
   await setUserSession(event, {

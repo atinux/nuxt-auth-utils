@@ -1,4 +1,4 @@
-import jwt from '@tsndr/cloudflare-worker-jwt'
+import { verify } from 'unjwt/jws'
 
 export default eventHandler(async (event) => {
   const session = await getUserSession(event)
@@ -9,10 +9,11 @@ export default eventHandler(async (event) => {
     })
   }
 
+  // For demo purposes only, use a high entropy secret or key in production
+  const accessTokenKey = new TextEncoder().encode(process.env.NUXT_SESSION_PASSWORD)
+
   try {
-    return await jwt.verify(session.jwt.accessToken, process.env.NUXT_SESSION_PASSWORD!, {
-      throwError: true,
-    })
+    return await verify(session.jwt.accessToken, accessTokenKey)
   }
   catch (err) {
     throw createError({

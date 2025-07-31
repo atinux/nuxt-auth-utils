@@ -1,7 +1,7 @@
 import { appendResponseHeader } from 'h3'
 import { parse, parseSetCookie, serialize } from 'cookie-es'
-import type { JwtData } from '@tsndr/cloudflare-worker-jwt'
-import { decode } from '@tsndr/cloudflare-worker-jwt'
+import type { JWSVerifyResult, JWTClaims } from 'unjwt'
+import { jws } from 'unjwt'
 
 export default defineNuxtRouteMiddleware(async () => {
   const nuxtApp = useNuxtApp()
@@ -16,17 +16,26 @@ export default defineNuxtRouteMiddleware(async () => {
   const runtimeConfig = useRuntimeConfig()
   const { accessToken, refreshToken } = session.value.jwt
 
-  const accessPayload = decode(accessToken)
-  const refreshPayload = decode(refreshToken)
+  // For demo purposes only, use high entropy secrets or keys in production
+  const accessTokenKey = new TextEncoder().encode(process.env.NUXT_SESSION_PASSWORD)
+  const refreshTokenKey = new TextEncoder().encode(`${process.env.NUXT_SESSION_PASSWORD}-secret`)
+
+  const [
+    verifiedAccessToken,
+    verifiedRefreshToken,
+  ] = await Promise.all([
+    jws.verify<JWTClaims>(accessToken, accessTokenKey),
+    jws.verify<JWTClaims>(refreshToken, refreshTokenKey),
+  ])
 
   // Both tokens expired, clearing session
-  if (isExpired(accessPayload) && isExpired(refreshPayload)) {
+  if (isExpired(verifiedAccessToken) && isExpired(verifiedRefreshToken)) {
     console.info('both tokens expired, clearing session')
     await clearSession()
     // return navigateTo('/login')
   }
   // Access token expired, refreshing
-  else if (isExpired(accessPayload)) {
+  else if (isExpired(verifiedAccessToken)) {
     console.info('access token expired, refreshing')
     await useRequestFetch()('/api/jwt/refresh', {
       method: 'POST',
@@ -58,6 +67,6 @@ export default defineNuxtRouteMiddleware(async () => {
   }
 })
 
-function isExpired(payload: JwtData) {
+function isExpired(payload: JWSVerifyResult<JWTClaims>) {
   return payload.payload?.exp && payload.payload.exp < (Date.now() / 1000)
 }
