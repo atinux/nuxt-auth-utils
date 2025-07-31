@@ -248,6 +248,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.heroku),
       icon: 'i-simple-icons-heroku',
     },
+    {
+      label: user.value?.livechat || 'Livechat',
+      to: '/auth/livechat',
+      disabled: Boolean(user.value?.livechat),
+      icon: 'i-simple-icons-livechat',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
