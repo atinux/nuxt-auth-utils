@@ -131,7 +131,7 @@ export function defineOAuthKeycloakEventHandler({
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await $fetch(
-      `${realmURL}/protocol/openid-connect/userinfo`,
+      `${realmURLInternal}/protocol/openid-connect/userinfo`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
