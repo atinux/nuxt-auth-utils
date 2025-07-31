@@ -468,5 +468,14 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       scope: '',
     })
+    // Okta OAuth
+    runtimeConfig.oauth.okta = defu(runtimeConfig.oauth.okta, {
+      clientId: '',
+      clientSecret: '',
+      domain: '',
+      audience: '',
+      scope: [],
+      redirectURL: '',
+    })
   },
 })
