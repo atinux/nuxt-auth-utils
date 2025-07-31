@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
+import { eventHandler, getQuery, sendRedirect, createError, deleteCookie } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleState, handleInvalidState, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
