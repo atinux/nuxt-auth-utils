@@ -248,6 +248,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.heroku),
       icon: 'i-simple-icons-heroku',
     },
+    {
+      label: user.value?.ory || 'Ory',
+      to: '/auth/ory',
+      disabled: Boolean(user.value?.ory),
+      icon: 'i-custom-ory',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
