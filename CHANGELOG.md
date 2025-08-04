@@ -1,6 +1,58 @@
 # Changelog
 
 
+## v0.5.22
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.20...v0.5.22)
+
+### 🚀 Enhancements
+
+- Add Okta OAuth provider ([#429](https://github.com/atinux/nuxt-auth-utils/pull/429))
+
+### 🩹 Fixes
+
+- **keycloak:** Allow fetch userinfo using internal url ([#430](https://github.com/atinux/nuxt-auth-utils/pull/430))
+
+### 📖 Documentation
+
+- Fix missing auth.d.ts session types in server dir Nuxt 4 ([#437](https://github.com/atinux/nuxt-auth-utils/pull/437))
+
+### 🏡 Chore
+
+- **release:** V0.5.20 ([f7127f5](https://github.com/atinux/nuxt-auth-utils/commit/f7127f5))
+- Update to return when using invalidState ([60f32d8](https://github.com/atinux/nuxt-auth-utils/commit/60f32d8))
+- **release:** V0.5.21 ([c645d59](https://github.com/atinux/nuxt-auth-utils/commit/c645d59))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- André Biseth <andre@biseth.net>
+- Han <han.lee@linkx.dev>
+- Eckhardt (Kaizen) Dreyer <eckhardt.dreyer@gmail.com>
+
+## v0.5.21
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.20...v0.5.21)
+
+### 🩹 Fixes
+
+- **keycloak:** Allow fetch userinfo using internal url ([#430](https://github.com/atinux/nuxt-auth-utils/pull/430))
+
+### 📖 Documentation
+
+- Fix missing auth.d.ts session types in server dir Nuxt 4 ([#437](https://github.com/atinux/nuxt-auth-utils/pull/437))
+
+### 🏡 Chore
+
+- **release:** V0.5.20 ([f7127f5](https://github.com/atinux/nuxt-auth-utils/commit/f7127f5))
+- Update to return when using invalidState ([60f32d8](https://github.com/atinux/nuxt-auth-utils/commit/60f32d8))
+
+### ❤️ Contributors
+
+- Han <han.lee@linkx.dev>
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Eckhardt (Kaizen) Dreyer <eckhardt.dreyer@gmail.com>
+
 ## v0.5.20
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.19...v0.5.20)

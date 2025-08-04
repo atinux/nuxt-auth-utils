@@ -27,4 +27,10 @@ export default defineNuxtConfig({
     webAuthn: true,
     atproto: true,
   },
+  icon: {
+    customCollections: [{
+      prefix: 'custom',
+      dir: './assets/icons',
+    }],
+  },
 })
