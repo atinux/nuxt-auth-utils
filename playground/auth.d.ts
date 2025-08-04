@@ -44,6 +44,7 @@ declare module '#auth-utils' {
     slack?: string
     heroku?: string
     okta?: string
+    ory?: string
   }
 
   interface UserSession {
