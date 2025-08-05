@@ -95,7 +95,7 @@ export function defineOAuthSlackEventHandler({
     }
 
     if (query.state !== state) {
-      handleInvalidState(event, 'slack', onError)
+      return handleInvalidState(event, 'slack', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

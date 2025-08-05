@@ -254,6 +254,18 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.roblox),
       icon: 'i-simple-icons-roblox',
     },
+    {
+      label: user.value?.okta || 'Okta',
+      to: '/auth/okta',
+      disabled: Boolean(user.value?.okta),
+      icon: 'i-simple-icons-okta',
+    },
+    {
+      label: user.value?.ory || 'Ory',
+      to: '/auth/ory',
+      disabled: Boolean(user.value?.ory),
+      icon: 'i-custom-ory',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
