@@ -249,6 +249,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-heroku',
     },
     {
+      label: user.value?.roblox || 'Roblox',
+      to: '/auth/roblox',
+      disabled: Boolean(user.value?.roblox),
+      icon: 'i-simple-icons-roblox',
+    },
+    {
       label: user.value?.okta || 'Okta',
       to: '/auth/okta',
       disabled: Boolean(user.value?.okta),
