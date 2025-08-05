@@ -35,15 +35,15 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
-    "@adonisjs/hash": "^9.0.5",
-    "@nuxt/kit": "^3.15.4",
+    "@adonisjs/hash": "^9.1.1",
+    "@nuxt/kit": "^3.18.1",
     "defu": "^6.1.4",
-    "h3": "^1.14.0",
+    "h3": "^1.15.4",
     "hookable": "^5.5.3",
-    "jose": "^5.9.6",
+    "jose": "^5.10.0",
     "ofetch": "^1.4.1",
-    "openid-client": "^6.1.7",
-    "pathe": "^2.0.2",
+    "openid-client": "^6.6.2",
+    "pathe": "^2.0.3",
     "scule": "^1.3.0",
     "uncrypto": "^0.1.3"
   },
@@ -68,7 +68,7 @@
     }
   },
   "devDependencies": {
-    "@iconify-json/simple-icons": "^1.2.23",
+    "@iconify-json/simple-icons": "^1.2.46",
     "@nuxt/devtools": "2.0.0-beta.7",
     "@nuxt/eslint-config": "^0.7.6",
     "@nuxt/module-builder": "^0.8.4",
@@ -78,10 +78,10 @@
     "@nuxt/ui-pro": "^1.7.0",
     "@simplewebauthn/types": "^11.0.0",
     "changelogen": "^0.5.7",
-    "eslint": "^9.19.0",
-    "nuxt": "^3.15.4",
+    "eslint": "^9.32.0",
+    "nuxt": "^3.18.1",
     "typescript": "5.6.3",
     "vitest": "^3.0.5",
-    "vue-tsc": "^2.2.0"
+    "vue-tsc": "^2.2.12"
   }
 }
