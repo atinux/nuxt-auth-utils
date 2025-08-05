@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v0.5.23
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.22...v0.5.23)
+
+### 🚀 Enhancements
+
+- Add Ory provider ([#417](https://github.com/atinux/nuxt-auth-utils/pull/417))
+- Add Roblox OAuth provider ([#420](https://github.com/atinux/nuxt-auth-utils/pull/420))
+- Add GitHub `state` param ([#423](https://github.com/atinux/nuxt-auth-utils/pull/423))
+
+### 🩹 Fixes
+
+- Prevent session password in .env from being included in production builds ([#419](https://github.com/atinux/nuxt-auth-utils/pull/419))
+
+### 🏡 Chore
+
+- Update deps ([7e86ab9](https://github.com/atinux/nuxt-auth-utils/commit/7e86ab9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Tom Lewis ([@tomlewis0](http://github.com/tomlewis0))
+- Dog ([@dgxo](http://github.com/dgxo))
+- Matthew Messinger ([@mattmess1221](http://github.com/mattmess1221))
+- Jordan Labrosse <jordan.labrosse@gameverse.app>
+
 ## v0.5.22
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.20...v0.5.22)
