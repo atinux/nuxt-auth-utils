@@ -152,7 +152,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
     }
 
     if (query.state !== state) {
-      handleInvalidState(event, 'github', onError)
+      return handleInvalidState(event, 'github', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
