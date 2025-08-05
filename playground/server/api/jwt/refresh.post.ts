@@ -1,4 +1,5 @@
-import jwt from '@tsndr/cloudflare-worker-jwt'
+import type { JWSVerifyResult, JWTClaims } from 'unjwt'
+import { sign, verify } from 'unjwt/jws'
 
 export default eventHandler(async (event) => {
   const session = await getUserSession(event)
@@ -9,19 +10,28 @@ export default eventHandler(async (event) => {
     })
   }
 
-  if (!await jwt.verify(session.jwt.refreshToken, `${process.env.NUXT_SESSION_PASSWORD!}-secret`)) {
+  // For demo purposes only, use high entropy secrets or keys in production
+  const accessTokenKey = new TextEncoder().encode(process.env.NUXT_SESSION_PASSWORD)
+  const refreshTokenKey = new TextEncoder().encode(`${process.env.NUXT_SESSION_PASSWORD}-secret`)
+
+  const verifiedRefreshToken = await verify<JWTClaims>(session.jwt.refreshToken, refreshTokenKey).catch(() => false as const)
+
+  if (!verifiedRefreshToken || isExpired(verifiedRefreshToken)) {
     throw createError({
       statusCode: 401,
       message: 'refresh token is invalid',
     })
   }
 
-  const accessToken = await jwt.sign(
+  const accessToken = await sign(
     {
       hello: 'world',
       exp: Math.floor(Date.now() / 1000) + 30, // 30 seconds
     },
-    process.env.NUXT_SESSION_PASSWORD!,
+    accessTokenKey,
+    {
+      alg: 'HS256',
+    },
   )
 
   await setUserSession(event, {
@@ -37,3 +47,7 @@ export default eventHandler(async (event) => {
     refreshToken: session.jwt.refreshToken,
   }
 })
+
+function isExpired(payload: JWSVerifyResult<JWTClaims>) {
+  return payload.payload?.exp && payload.payload.exp < (Date.now() / 1000)
+}
