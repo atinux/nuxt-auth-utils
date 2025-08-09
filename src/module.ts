@@ -246,6 +246,18 @@ export default defineNuxtModule<ModuleOptions>({
       userURL: '',
       redirectURL: '',
     })
+    // Microsoft Entra External ID
+    runtimeConfig.oauth.entraexternal = defu(runtimeConfig.oauth.entraexternal, {
+      clientId: '',
+      clientSecret: '',
+      tenant: '',
+      tenantId: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
+      redirectURL: '',
+    })
     // Discord OAuth
     runtimeConfig.oauth.discord = defu(runtimeConfig.oauth.discord, {
       clientId: '',

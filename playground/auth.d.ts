@@ -39,6 +39,7 @@ declare module '#auth-utils' {
     atlassian?: string
     apple?: string
     azureb2c?: string
+    entraexternal?: string
     kick?: string
     salesforce?: string
     slack?: string
