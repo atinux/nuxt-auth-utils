@@ -75,33 +75,33 @@ export interface OAuthEntraExternalConfig {
 export function defineOAuthEntraExternalEventHandler({
   config,
   onSuccess,
-  onError
+  onError,
 }: OAuthConfig<OAuthEntraExternalConfig>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(
       config,
       useRuntimeConfig(event).oauth?.entraexternal,
-      { authorizationParams: {} }
+      { authorizationParams: {} },
     ) as OAuthEntraExternalConfig
 
-    const query = getQuery<{ code?: string; state?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
 
     if (!config.clientId || !config.tenant) {
       return handleMissingConfiguration(
         event,
         'entraexternal',
         ['clientId', 'tenant'],
-        onError
+        onError,
       )
     }
 
     // Build Entra External endpoints (ciamlogin)
-    const authorizationURL =
-      config.authorizationURL ||
-      `https://${config.tenant}.ciamlogin.com/${config.tenantId}/oauth2/v2.0/authorize`
-    const tokenURL =
-      config.tokenURL ||
-      `https://${config.tenant}.ciamlogin.com/${config.tenantId}/oauth2/v2.0/token`
+    const authorizationURL
+      = config.authorizationURL
+        || `https://${config.tenant}.ciamlogin.com/${config.tenantId}/oauth2/v2.0/authorize`
+    const tokenURL
+      = config.tokenURL
+        || `https://${config.tenant}.ciamlogin.com/${config.tenantId}/oauth2/v2.0/token`
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
@@ -125,8 +125,8 @@ export function defineOAuthEntraExternalEventHandler({
           state,
           code_challenge: verifier.code_challenge,
           code_challenge_method: verifier.code_challenge_method,
-          ...config.authorizationParams
-        })
+          ...config.authorizationParams,
+        }),
       )
     }
 
@@ -135,20 +135,20 @@ export function defineOAuthEntraExternalEventHandler({
       return handleInvalidState(event, 'entraexternal', onError)
     }
 
-      const tokens = await requestAccessToken(tokenURL, {
-        body: {
-          grant_type: 'authorization_code',
-          client_id: config.clientId,
-          code: query.code as string,
-          redirect_uri: redirectURL,
-          code_verifier: verifier.code_verifier,
-          // optional but fine to include:
-          scope: config.scope.join(' ')
-        },
-        headers: {
-          origin: event.node.req.headers.origin || '',
-        }
-      })
+    const tokens = await requestAccessToken(tokenURL, {
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        code: query.code as string,
+        redirect_uri: redirectURL,
+        code_verifier: verifier.code_verifier,
+        // optional but fine to include:
+        scope: config.scope.join(' '),
+      },
+      headers: {
+        origin: event.node.req.headers.origin || '',
+      },
+    })
 
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'entraexternal', tokens, onError)
@@ -161,14 +161,14 @@ export function defineOAuthEntraExternalEventHandler({
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: any = await $fetch(userURL, {
-      headers: { Authorization: `${tokenType} ${accessToken}` }
-    }).catch((error) => ({ error }))
+      headers: { Authorization: `${tokenType} ${accessToken}` },
+    }).catch(error => ({ error }))
 
     if (user.error) {
       const error = createError({
         statusCode: 401,
         message: `entraexternal login failed: ${user.error || 'Unknown error'}`,
-        data: user
+        data: user,
       })
       if (!onError) throw error
       return onError(event, error)
