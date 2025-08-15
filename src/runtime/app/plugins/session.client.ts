@@ -3,7 +3,7 @@ import {} from 'nuxt/app'
 import { defineNuxtPlugin, useUserSession, useError } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  if (!nuxtApp.$config.public.disableAuthAutoLoad) {
+  if (!nuxtApp.$config.public.auth.disableAutoLoad) {
     if (!nuxtApp.payload.serverRendered) {
       await useUserSession().fetch()
     }

@@ -600,6 +600,18 @@ This is because the user session is stored in a secure cookie and cannot be acce
 
 **This means that you should not rely on the user session during prerendering.**
 
+You may also choose to instruct Nuxt AUth Utils to not fetch automatically the user session, with the `disableAutoLoad` option in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    disableAutoLoad: true
+  }
+})
+```
+
+When using the `disableAutoLoad` option, the user session should be manually fetched by calling `fetch` from the `useUserSession` composable.
+
 ### `<AuthState>` component
 
 You can use the `<AuthState>` component to safely display auth-related data in your components without worrying about the rendering mode.
@@ -617,7 +629,7 @@ One common use case if the Login button in the header:
 </template>
 ```
 
-If the page is cached or prerendered, nothing will be rendered until the user session is fetched on the client-side.
+If the page is cached or prerendered, or the auto-loading of the session disabled and the session not manually fetched on the server side, nothing will be rendered until the user session is fetched on the client-side.
 
 You can use the `placeholder` slot to show a placeholder on server-side and while the user session is being fetched on client-side for the prerendered pages:
 

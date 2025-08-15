@@ -39,6 +39,10 @@ export interface ModuleOptions {
      */
     scrypt?: ScryptConfig
   }
+  /**
+   * Disable automatically fething the session
+   */
+  disableAutoLoad?: boolean
 }
 
 declare module 'nuxt/schema' {
@@ -50,7 +54,11 @@ declare module 'nuxt/schema' {
      * Session configuration
      */
     session: SessionConfig
-    disableAuthAutoLoad?: boolean
+  }
+  interface PublicRuntimeConfig {
+    auth: {
+      disableAutoLoad?: boolean
+    }
   }
 }
 
@@ -161,6 +169,13 @@ export default defineNuxtModule<ModuleOptions>({
           'utf-8',
         )
       }
+    }
+
+    // Publicly expose disableAutoLoad if needed
+    if (options.disableAutoLoad && runtimeConfig.public.auth?.disableAutoLoad === undefined) {
+      runtimeConfig.public.auth = defu(runtimeConfig.public.auth, {
+        disableAutoLoad: options.disableAutoLoad,
+      })
     }
 
     // WebAuthn settings
@@ -496,10 +511,5 @@ export default defineNuxtModule<ModuleOptions>({
       tokenURL: '',
       userURL: '',
     })
-
-    // Publicly expose disableAuthAutoLoad if needed
-    if (runtimeConfig.disableAuthAutoLoad && runtimeConfig.public.disableAuthAutoLoad === undefined) {
-      runtimeConfig.public.disableAuthAutoLoad = runtimeConfig.disableAuthAutoLoad
-    }
   },
 })
