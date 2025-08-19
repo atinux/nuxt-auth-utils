@@ -36,6 +36,12 @@ export interface OAuthOidcConfig {
    * @default process.env.NUXT_OAUTH_OIDC_REDIRECT_URL
    */
   redirectURL?: string
+  /**
+   * Additional custom parameters that are passed to the specific endpoint requests.
+   * Can be used to provide custom (query) parameters.
+   */
+  parameters?: Partial<Record<'authorization_endpoint' | 'token_endpoint' | 'userinfo_endpoint', object>>
+
 }
 
 /**
@@ -266,6 +272,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
           response_type: 'code',
           code_challenge: verifier.code_challenge,
           code_challenge_method: verifier.code_challenge_method,
+          ...config.parameters?.authorization_endpoint,
         }),
       )
     }
@@ -281,6 +288,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
         redirect_uri: redirectURL,
         code: query.code,
         code_verifier: verifier.code_verifier,
+        ...config.parameters?.token_endpoint,
       },
     })
 
@@ -296,6 +304,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
         headers: {
           Authorization: `${tokens.token_type} ${tokens.access_token}`,
         },
+        body: config.parameters?.userinfo_endpoint,
       })
     }
 
