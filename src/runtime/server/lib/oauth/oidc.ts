@@ -14,12 +14,6 @@ export interface OAuthOidcConfig {
    */
   clientId?: string
   /**
-   * OAuth Client Secret
-   *
-   * @default process.env.NUXT_OAUTH_OIDC_CLIENT_SECRET
-   */
-  clientSecret?: string
-  /**
    * URL to the OpenID Configuration endpoint. Used to fetch the endpoint URLs from.
    *
    * @default process.env.NUXT_OAUTH_OIDC_CONFIG_URL
@@ -247,11 +241,11 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       return onError(event, error)
     }
 
-    if (!config.clientId || !config.clientSecret || !config.configUrl) {
-      return handleMissingConfiguration(event, 'oidc', ['clientId', 'clientSecret', 'configUrl'], onError)
+    if (!config.clientId || !config.configUrl) {
+      return handleMissingConfiguration(event, 'oidc', ['clientId', 'configUrl'], onError)
     }
 
-    const oidcConfig = await $fetch<{ authorization_endpoint: string, token_endpoint: string, userinfo_endpoint: string }>(config.configUrl)
+    const oidcConfig = await $fetch<{ authorization_endpoint: string, token_endpoint: string, userinfo_endpoint?: string }>(config.configUrl)
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
     const state = await handleState(event)
@@ -282,7 +276,6 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       body: {
         grant_type: 'authorization_code',
         client_id: config.clientId,
-        client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
         code_verifier: verifier?.code_verifier,
@@ -293,11 +286,16 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       return handleAccessTokenErrorResponse(event, 'oidc', tokens, onError)
     }
 
-    const user = await $fetch<TUser>(oidcConfig.userinfo_endpoint, {
-      headers: {
-        Authorization: `${tokens.token_type} ${tokens.access_token}`,
-      },
-    })
+    let user = {} as TUser
+
+    // some OIDC providers to not support a userinfo endpoint so we only call it when its defined inside the OIDC config
+    if (oidcConfig.userinfo_endpoint) {
+      user = await $fetch<TUser>(oidcConfig.userinfo_endpoint, {
+        headers: {
+          Authorization: `${tokens.token_type} ${tokens.access_token}`,
+        },
+      })
+    }
 
     return onSuccess(event, {
       user,
