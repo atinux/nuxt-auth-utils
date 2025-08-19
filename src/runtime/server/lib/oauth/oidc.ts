@@ -20,7 +20,7 @@ export interface OAuthOidcConfig {
    * Alternatively, an object can be set with the required endpoint URLs.
    *
    * @default process.env.NUXT_OAUTH_OIDC_OPENID_CONFIG
-   * @example "https://my-provider.com/nidp/oauth/nam/.well-known/openid-configuration"
+   * @example "https://my-provider.com/.well-known/openid-configuration"
    */
   openidConfig?: string | OIDCConfiguration
   /**
