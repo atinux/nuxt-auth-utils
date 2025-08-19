@@ -14,12 +14,15 @@ export interface OAuthOidcConfig {
    */
   clientId?: string
   /**
-   * URL to the OpenID Configuration endpoint. Used to fetch the endpoint URLs from.
+   * OpenID configuration. If a string is passed, it is considered to be the full URL to the OpenID configuration endpoint
+   * where all required endpoints are listed and fetched from automatically.
    *
-   * @default process.env.NUXT_OAUTH_OIDC_CONFIG_URL
+   * Alternatively, an object can be set with the required endpoint URLs.
+   *
+   * @default process.env.NUXT_OAUTH_OIDC_OPENID_CONFIG
    * @example "https://my-provider.com/nidp/oauth/nam/.well-known/openid-configuration"
    */
-  configUrl?: string
+  openidConfig?: string | OIDCConfiguration
   /**
    * OAuth Scope
    *
@@ -198,7 +201,7 @@ interface OidcUser {
 /**
  * Address claim structure as defined in OpenID Connect specification
  */
-export interface AddressClaim {
+interface AddressClaim {
   /** Full mailing address, formatted for display or use on a mailing label */
   formatted?: string
   /** Full street address component, which may include house number, street name, post office box, and multi-line extended street address information */
@@ -217,6 +220,12 @@ interface OidcTokens {
   access_token: string
   scope: string
   token_type: string
+}
+
+interface OIDCConfiguration {
+  authorization_endpoint: string
+  token_endpoint: string
+  userinfo_endpoint?: string
 }
 
 /**
@@ -241,11 +250,11 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       return onError(event, error)
     }
 
-    if (!config.clientId || !config.configUrl) {
-      return handleMissingConfiguration(event, 'oidc', ['clientId', 'configUrl'], onError)
+    if (!config.clientId || !config.openidConfig) {
+      return handleMissingConfiguration(event, 'oidc', ['clientId', 'openidConfig'], onError)
     }
 
-    const oidcConfig = await $fetch<{ authorization_endpoint: string, token_endpoint: string, userinfo_endpoint?: string }>(config.configUrl)
+    const oidcConfig = typeof config.openidConfig === 'string' ? await $fetch<OIDCConfiguration>(config.openidConfig) : config.openidConfig
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
     const state = await handleState(event)

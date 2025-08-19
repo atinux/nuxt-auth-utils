@@ -533,7 +533,7 @@ export default defineNuxtModule<ModuleOptions>({
     // OIDC OAuth
     runtimeConfig.oauth.oidc = defu(runtimeConfig.oauth.oidc, {
       clientId: '',
-      configUrl: '',
+      openidConfig: '',
       redirectUrl: '',
       scope: [],
     })
