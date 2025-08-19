@@ -48,7 +48,7 @@ export interface RequestAccessTokenOptions {
  */
 // TODO: waiting for https://github.com/atinux/nuxt-auth-utils/pull/140
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function requestAccessToken(url: string, options: RequestAccessTokenOptions): Promise<any> {
+export async function requestAccessToken<T = any>(url: string, options: RequestAccessTokenOptions): Promise<T> {
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     ...options.headers,

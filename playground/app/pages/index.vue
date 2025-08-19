@@ -281,6 +281,11 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.shopifyCustomer),
       icon: 'i-simple-icons-shopify',
     },
+    {
+      label: user.value?.oidc || 'OIDC',
+      to: '/auth/oidc',
+      disabled: Boolean(user.value?.oidc),
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
