@@ -14,6 +14,13 @@ export interface OAuthOidcConfig {
    */
   clientId?: string
   /**
+   * OAuth Client secret.
+   * If unset, PKCE will be used where no client secret is needed.
+   *
+   * @default process.env.NUXT_OAUTH_OIDC_CLIENT_SECRET
+   */
+  clientSecret?: string
+  /**
    * OpenID configuration. If a string is passed, it is considered to be the full URL to the OpenID configuration endpoint
    * where all required endpoints are listed and fetched from automatically.
    *
@@ -257,7 +264,9 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
     const state = await handleState(event)
-    const verifier = await handlePkceVerifier(event)
+
+    // if no client secret is provided, we will use PKCE so no client secret is needed
+    const verifier = !config.clientSecret ? await handlePkceVerifier(event) : undefined
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -270,8 +279,8 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
           scope: config.scope.join(' '),
           state,
           response_type: 'code',
-          code_challenge: verifier.code_challenge,
-          code_challenge_method: verifier.code_challenge_method,
+          code_challenge: verifier?.code_challenge,
+          code_challenge_method: verifier?.code_challenge_method,
           ...config.parameters?.authorization_endpoint,
         }),
       )
@@ -285,9 +294,10 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       body: {
         grant_type: 'authorization_code',
         client_id: config.clientId,
+        client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
-        code_verifier: verifier.code_verifier,
+        code_verifier: verifier?.code_verifier,
         ...config.parameters?.token_endpoint,
       },
     })
