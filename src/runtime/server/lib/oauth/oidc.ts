@@ -36,12 +36,6 @@ export interface OAuthOidcConfig {
    * @default process.env.NUXT_OAUTH_OIDC_REDIRECT_URL
    */
   redirectURL?: string
-  /**
-   * Whether to use [PKCE](https://datatracker.ietf.org/doc/html/rfc7636).
-   *
-   * @default true
-   */
-  usePKCE?: boolean
 }
 
 /**
@@ -235,7 +229,6 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.oidc, {
       scope: ['openid'],
-      usePKCE: true,
     } satisfies OAuthOidcConfig)
 
     const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
@@ -258,7 +251,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
     const state = await handleState(event)
-    const verifier = config.usePKCE ? await handlePkceVerifier(event) : undefined
+    const verifier = await handlePkceVerifier(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -271,8 +264,8 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
           scope: config.scope.join(' '),
           state,
           response_type: 'code',
-          code_challenge: verifier?.code_challenge,
-          code_challenge_method: verifier?.code_challenge_method,
+          code_challenge: verifier.code_challenge,
+          code_challenge_method: verifier.code_challenge_method,
         }),
       )
     }
@@ -287,7 +280,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
         client_id: config.clientId,
         redirect_uri: redirectURL,
         code: query.code,
-        code_verifier: verifier?.code_verifier,
+        code_verifier: verifier.code_verifier,
       },
     })
 
