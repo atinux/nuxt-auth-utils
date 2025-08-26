@@ -109,7 +109,7 @@ let sessionConfig: SessionConfig
 function _useSession(event: UseSessionEvent, config: Partial<SessionConfig> = {}) {
   if (!sessionConfig) {
     const runtimeConfig = useRuntimeConfig(isEvent(event) ? event : undefined)
-    const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
+    const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_SESSION_PASSWORD'
 
     sessionConfig = defu({ password: process.env[envSessionPassword] }, runtimeConfig.session)
     if (!sessionConfig.password) {
