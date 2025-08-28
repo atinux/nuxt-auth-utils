@@ -27,7 +27,13 @@ export interface OAuthAuthentikConfig {
    * Redirect URL to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_AUTHENTIK_REDIRECT_URL or current URL
    */
-  redirectURL?: string
+  redirectURL?: string,
+
+  /**
+   * Authentik Scope
+   * @default ['openid', 'profile', 'email']
+   */
+  scope?: string[]
 }
 
 export function defineOAuthAuthentikEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuthentikConfig>) {
@@ -63,7 +69,7 @@ export function defineOAuthAuthentikEventHandler({ config, onSuccess, onError }:
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectURL,
-          scope: ['openid', 'profile', 'email'].join(' '),
+          scope: (config.scope || ['openid', 'profile', 'email']).join(' '),
         }),
       )
     }
