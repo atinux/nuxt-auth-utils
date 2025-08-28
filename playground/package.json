@@ -17,8 +17,5 @@
     "nuxt": "^3.15.4",
     "nuxt-auth-utils": "latest",
     "zod": "^3.24.1"
-  },
-  "devDependencies": {
-    "better-sqlite3": "^11.8.1"
   }
 }
