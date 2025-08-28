@@ -31,7 +31,7 @@ export interface OAuthAuthentikConfig {
 
   /**
    * Authentik Scope
-   * @default []
+   * @default ['openid', 'profile', 'email']
    */
   scope?: string[]
 }
