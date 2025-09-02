@@ -134,8 +134,11 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // Set node:crypto as unenv external
     nuxt.options.nitro.unenv ||= {}
+    // @ts-ignore we can use external as array
     nuxt.options.nitro.unenv.external ||= []
+    // @ts-ignore see comment above
     if (!nuxt.options.nitro.unenv.external.includes('node:crypto')) {
+    // @ts-ignore see comment above
       nuxt.options.nitro.unenv.external.push('node:crypto')
     }
 
