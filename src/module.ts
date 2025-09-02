@@ -39,6 +39,11 @@ export interface ModuleOptions {
      */
     scrypt?: ScryptConfig
   }
+  /**
+   * Session load strategy
+   * @default 'server-first'
+   */
+  loadStrategy?: 'server-first' | 'client-only'
 }
 
 declare module 'nuxt/schema' {
@@ -50,6 +55,12 @@ declare module 'nuxt/schema' {
      * Session configuration
      */
     session: SessionConfig
+  }
+
+  interface PublicRuntimeConfig {
+    auth: {
+      loadStrategy: 'server-first' | 'client-only'
+    }
   }
 }
 
@@ -65,6 +76,7 @@ export default defineNuxtModule<ModuleOptions>({
     hash: {
       scrypt: {},
     },
+    loadStrategy: 'server-first',
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -122,8 +134,11 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // Set node:crypto as unenv external
     nuxt.options.nitro.unenv ||= {}
+    // @ts-expect-error we can use external as array
     nuxt.options.nitro.unenv.external ||= []
+    // @ts-expect-error see comment above
     if (!nuxt.options.nitro.unenv.external.includes('node:crypto')) {
+    // @ts-expect-error see comment above
       nuxt.options.nitro.unenv.external.push('node:crypto')
     }
 
@@ -161,6 +176,11 @@ export default defineNuxtModule<ModuleOptions>({
         )
       }
     }
+
+    // Load strategy
+    runtimeConfig.public.auth = defu(runtimeConfig.public.auth, {
+      loadStrategy: options.loadStrategy ?? 'server-first',
+    })
 
     // WebAuthn settings
     runtimeConfig.webauthn = defu(runtimeConfig.webauthn, {

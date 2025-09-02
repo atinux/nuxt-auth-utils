@@ -27,7 +27,7 @@ export interface OAuthAuthentikConfig {
    * Redirect URL to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_AUTHENTIK_REDIRECT_URL or current URL
    */
-  redirectURL?: string,
+  redirectURL?: string
 
   /**
    * Authentik Scope
