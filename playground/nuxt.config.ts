@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   // ssr: false,
   extends: ['@nuxt/ui-pro'],
-  modules: ['nuxt-auth-utils', '@nuxt/ui', '@vueuse/nuxt'],
+  modules: ['../src/module', '@nuxt/ui', '@vueuse/nuxt'],
   imports: {
     autoImport: true,
   },
@@ -26,6 +26,7 @@ export default defineNuxtConfig({
   auth: {
     webAuthn: true,
     atproto: true,
+    // loadStrategy: 'client-only'
   },
   icon: {
     customCollections: [{

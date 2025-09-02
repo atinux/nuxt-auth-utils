@@ -8,7 +8,9 @@ export default defineNuxtPlugin({
   async setup(nuxtApp) {
     // Flag if request is cached
     nuxtApp.payload.isCached = Boolean(useRequestEvent()?.context.cache)
-    if (nuxtApp.payload.serverRendered && !nuxtApp.payload.prerenderedAt && !nuxtApp.payload.isCached) {
+    if (nuxtApp.payload.serverRendered && !nuxtApp.payload.prerenderedAt && !nuxtApp.payload.isCached
+      && nuxtApp.$config.public.auth.loadStrategy !== 'client-only'
+    ) {
       await useUserSession().fetch()
     }
   },
