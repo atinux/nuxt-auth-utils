@@ -239,6 +239,7 @@ It can also be set using environment variables:
 - LinkedIn
 - LiveChat
 - Microsoft
+- OIDC / OpenID Connect (Generic)
 - Okta
 - Ory
 - PayPal
@@ -411,7 +412,7 @@ export default defineWebAuthnRegisterEventHandler({
     // If he registers a new account with credentials
     return z.object({
       // we want the userName to be a valid email
-      userName: z.string().email() 
+      userName: z.string().email()
     }).parse(userBody)
   },
   async onSuccess(event, { credential, user }) {

@@ -46,6 +46,7 @@ declare module '#auth-utils' {
     roblox?: string
     okta?: string
     ory?: string
+    oidc?: string
   }
 
   interface UserSession {
@@ -62,4 +63,4 @@ declare module '#auth-utils' {
   }
 }
 
-export {}
+export { }
