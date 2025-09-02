@@ -81,6 +81,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-microsoftazure',
     },
     {
+      label: user.value?.entraexternal || 'Entra External ID',
+      to: '/auth/entraexternal',
+      disabled: Boolean(user.value?.entraexternal),
+      icon: 'i-simple-icons-microsoftazure',
+    },
+    {
       label: user.value?.cognito || 'Cognito',
       to: '/auth/cognito',
       disabled: Boolean(user.value?.cognito),
