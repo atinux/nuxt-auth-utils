@@ -81,8 +81,7 @@ export interface LiveChatConfig {
   userURL?: string
 
   /**
-   * LiveChat OAuth Scope. accounts--my:ro is always applied to get user profile.
-   * @default ['accounts--my:ro']
+   * LiveChat OAuth Scope. If not provided, the default scope from LiveChat will be used.
    * @example ['accounts--my:ro', 'chats--my:ro']
    */
   scope?: string[]
@@ -104,7 +103,6 @@ export function defineOAuthLiveChatEventHandler({
       authorizationURL: 'https://accounts.livechat.com',
       tokenURL: 'https://accounts.livechat.com/v2/token',
       userURL: 'https://accounts.livechat.com/v2/accounts/me',
-      scope: [],
       authorizationParams: {
         state: randomUUID(),
       },
@@ -122,9 +120,6 @@ export function defineOAuthLiveChatEventHandler({
     const query = getQuery<{ code?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
-    // Ensure accounts--my:ro is always applied.
-    const scope = [...new Set([...config.scope!, 'accounts--my:ro'])].join(' ')
-
     if (!query.code) {
       return sendRedirect(
         event,
@@ -132,7 +127,7 @@ export function defineOAuthLiveChatEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           response_type: 'code',
-          scope,
+          scope: config.scope?.length ? config.scope.join(' ') : undefined,
           ...config.authorizationParams,
         }),
       )

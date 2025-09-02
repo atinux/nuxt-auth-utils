@@ -249,6 +249,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-heroku',
     },
     {
+      label: user.value?.livechat || 'Livechat',
+      to: '/auth/livechat',
+      disabled: Boolean(user.value?.livechat),
+      icon: 'i-simple-icons-livechat',
+    },
+    {
       label: user.value?.roblox || 'Roblox',
       to: '/auth/roblox',
       disabled: Boolean(user.value?.roblox),
