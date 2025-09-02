@@ -8,6 +8,5 @@ export default defineOAuthLiveChatEventHandler({
     })
 
     return sendRedirect(event, '/')
-  },
-  async onError() {},
+  }
 })

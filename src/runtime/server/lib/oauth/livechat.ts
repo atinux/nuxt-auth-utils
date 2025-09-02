@@ -81,10 +81,10 @@ export interface LiveChatConfig {
   userURL?: string
 
   /**
-   * LiveChat OAuth Scope.
-   * @example 'accounts--my:ro chats--my:ro'
+   * LiveChat OAuth Scope. If not provided, the default scope from LiveChat will be used.
+   * @example ['accounts--my:ro', 'chats--my:ro']
    */
-  scope?: string
+  scope?: string[]
 
   /**
    * Extra authorization parameters to provide to the authorization URL
@@ -113,6 +113,7 @@ export function defineOAuthLiveChatEventHandler({
         event,
         'livechat',
         ['clientId', 'clientSecret'],
+        onError,
       )
     }
 
@@ -126,7 +127,7 @@ export function defineOAuthLiveChatEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           response_type: 'code',
-          scope: config.scope,
+          scope: config.scope?.length ? config.scope.join(' ') : undefined,
           ...config.authorizationParams,
         }),
       )
