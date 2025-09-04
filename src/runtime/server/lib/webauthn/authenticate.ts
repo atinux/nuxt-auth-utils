@@ -36,7 +36,7 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
         }
 
         const options = await generateAuthenticationOptions(_config as GenerateAuthenticationOptionsOpts)
-        const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+        const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)).buffer)
 
         if (storeChallenge) {
           await storeChallenge(event, options.challenge, attemptId)
