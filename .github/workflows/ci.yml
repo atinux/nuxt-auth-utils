@@ -68,5 +68,3 @@ jobs:
       - name: Test types
         run: pnpm test:types
 
-      # - name: Test playground types
-      #   run: pnpm test:types:playground

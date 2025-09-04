@@ -1,8 +1,5 @@
-<script setup lang="ts">
-const { user, openInPopup } = useUserSession()
-
 const inPopup = ref(false)
-const providers = computed(() =>
+export const providers = computed(() =>
   [
     {
       label: user.value?.google || 'Google',
@@ -30,7 +27,7 @@ const providers = computed(() =>
     },
     {
       label: user.value?.bluesky || 'Bluesky',
-      click() {
+      onClick() {
         const handle = prompt('Enter your Bluesky handle')
         if (handle) {
           navigateTo({
@@ -144,7 +141,7 @@ const providers = computed(() =>
       label: user.value?.xsuaa || 'XSUAA',
       to: '/auth/xsuaa',
       disabled: Boolean(user.value?.xsuaa),
-      icon: 'i-simple-icons-sap',
+      icon: 'i-lucide-globe',
     },
     {
       label: user.value?.vk || 'VK',
@@ -258,7 +255,7 @@ const providers = computed(() =>
       label: user.value?.okta || 'Okta',
       to: '/auth/okta',
       disabled: Boolean(user.value?.okta),
-      icon: 'i-simple-icons-okta',
+      icon: 'i-simple-icons-xsuaa',
     },
     {
       label: user.value?.ory || 'Ory',
@@ -271,70 +268,6 @@ const providers = computed(() =>
     prefetch: false,
     external: true,
     to: inPopup.value ? '#' : p.to,
-    click: inPopup.value && p.to ? () => openInPopup(p.to) : p.click,
+    onClick: inPopup.value && p.to ? () => openInPopup(p.to) : p.onClick,
   })),
 )
-</script>
-
-<template>
-  <UHeader>
-    <template #logo>
-      Nuxt Auth Utils
-    </template>
-    <template #right>
-      <AuthState>
-        <template #default="{ loggedIn, clear }">
-          <AuthRegister />
-          <AuthLogin />
-          <WebAuthnModal />
-          <PasswordModal />
-          <UDropdown
-            :items="[providers]"
-            :ui="{ base: 'max-h-48' }"
-          >
-            <UButton
-              icon="i-heroicons-chevron-down"
-              trailing
-              color="gray"
-              size="xs"
-            >
-              Sign in with
-            </UButton>
-          </UDropdown>
-          <UButton
-            v-if="loggedIn"
-            color="gray"
-            size="xs"
-            @click="clear"
-          >
-            Logout
-          </UButton>
-        </template>
-        <template #placeholder>
-          <UButton
-            size="xs"
-            color="gray"
-            disabled
-          >
-            Loading...
-          </UButton>
-        </template>
-      </AuthState>
-    </template>
-  </UHeader>
-  <UMain>
-    <UContainer>
-      <div class="text-xs mt-4">
-        Popup mode
-        <UToggle
-          v-model="inPopup"
-          size="xs"
-          name="open-in-popup"
-          label="Open in popup"
-        />
-      </div>
-      <NuxtPage />
-    </UContainer>
-  </UMain>
-  <UNotifications />
-</template>

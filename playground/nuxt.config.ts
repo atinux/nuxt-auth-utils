@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   // ssr: false,
-  extends: ['@nuxt/ui-pro'],
   modules: ['../src/module', '@nuxt/ui', '@vueuse/nuxt'],
+  css: ['~/assets/css/main.css'],
   imports: {
     autoImport: true,
   },
@@ -27,6 +27,9 @@ export default defineNuxtConfig({
     webAuthn: true,
     atproto: true,
     // loadStrategy: 'client-only'
+  },
+  ui: {
+    mdc: true,
   },
   icon: {
     customCollections: [{
