@@ -1,5 +1,5 @@
 import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import type { GenerateRegistrationOptionsOpts } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
@@ -17,7 +17,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   excludeCredentials,
   onSuccess,
   onError,
-}: WebAuthnRegisterEventHandlerOptions<T>) {
+}: WebAuthnRegisterEventHandlerOptions<T>): EventHandler {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody<T>>(event)
