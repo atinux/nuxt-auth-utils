@@ -1,7 +1,3 @@
-<script setup lang="ts">
-const { user } = useUserSession()
-</script>
-
 <template>
   <UApp>
     <UHeader title="Nuxt Auth Utils">

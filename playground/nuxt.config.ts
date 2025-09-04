@@ -1,11 +1,14 @@
 export default defineNuxtConfig({
   // ssr: false,
   modules: ['../src/module', '@nuxt/ui', '@vueuse/nuxt'],
-  css: ['~/assets/css/main.css'],
   imports: {
     autoImport: true,
   },
   devtools: { enabled: true },
+  css: ['~/assets/css/main.css'],
+  ui: {
+    mdc: true,
+  },
   routeRules: {
     '/': {
       // prerender: true,
@@ -27,9 +30,6 @@ export default defineNuxtConfig({
     webAuthn: true,
     atproto: true,
     // loadStrategy: 'client-only'
-  },
-  ui: {
-    mdc: true,
   },
   icon: {
     customCollections: [{
