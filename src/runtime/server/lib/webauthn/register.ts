@@ -1,5 +1,5 @@
 import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
-import type { H3Event } from 'h3'
+import type { H3Event, EventHandler } from 'h3'
 import type { GenerateRegistrationOptionsOpts } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
@@ -17,7 +17,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   excludeCredentials,
   onSuccess,
   onError,
-}: WebAuthnRegisterEventHandlerOptions<T>) {
+}: WebAuthnRegisterEventHandlerOptions<T>): EventHandler {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody<T>>(event)
@@ -53,7 +53,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
         }
 
         const options = await generateRegistrationOptions(_config as GenerateRegistrationOptionsOpts)
-        const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+        const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)).buffer)
 
         // If the developer has stricter storage requirements, they can implement their own storeChallenge function to store the options in a database or KV store
         if (storeChallenge) {
@@ -98,7 +98,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
         user,
         credential: {
           id: verification.registrationInfo!.credential.id,
-          publicKey: bufferToBase64URLString(verification.registrationInfo!.credential.publicKey),
+          publicKey: bufferToBase64URLString((verification.registrationInfo!.credential.publicKey as Uint8Array).buffer as ArrayBuffer),
           counter: verification.registrationInfo!.credential.counter,
           backedUp: verification.registrationInfo!.credentialBackedUp,
           transports: verification.registrationInfo!.credential.transports,

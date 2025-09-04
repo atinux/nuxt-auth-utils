@@ -1,4 +1,5 @@
 import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
+import type { EventHandler } from 'h3'
 import type { GenerateAuthenticationOptionsOpts } from '@simplewebauthn/server'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
@@ -16,7 +17,7 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
   getOptions,
   onSuccess,
   onError,
-}: WebAuthnAuthenticateEventHandlerOptions<T>) {
+}: WebAuthnAuthenticateEventHandlerOptions<T>): EventHandler {
   return eventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<AuthenticationBody>(event)
@@ -35,7 +36,7 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
         }
 
         const options = await generateAuthenticationOptions(_config as GenerateAuthenticationOptionsOpts)
-        const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)))
+        const attemptId = bufferToBase64URLString(getRandomValues(new Uint8Array(32)).buffer)
 
         if (storeChallenge) {
           await storeChallenge(event, options.challenge, attemptId)

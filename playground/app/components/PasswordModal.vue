@@ -21,7 +21,7 @@ async function login() {
     .catch((err) => {
       console.log(err)
       toast.add({
-        color: 'red',
+        color: 'error',
         title: err.data?.message || err.message,
       })
     })
@@ -32,36 +32,41 @@ async function login() {
 <template>
   <UButton
     v-if="!user?.password"
-    size="xs"
-    color="gray"
+    size="sm"
+    variant="subtle"
+    color="neutral"
     @click="show = true"
   >
     Password
   </UButton>
-  <UDashboardModal
-    v-model="show"
+  <UModal
+    v-model:open="show"
     title="Login with password"
     description="Use the password: 123456"
   >
-    <form
-      class="space-y-4"
-      @submit.prevent="login"
-    >
-      <UFormGroup label="Password">
-        <UInput
-          v-model="password"
-          name="password"
-          type="password"
-        />
-      </UFormGroup>
-      <UButton
-        type="submit"
-        :disabled="!password"
-        color="black"
-        class="mt-2"
-      >
-        Login
-      </UButton>
-    </form>
-  </UDashboardModal>
+    <template #content>
+      <div class="p-4">
+        <form
+          class="space-y-4"
+          @submit.prevent="login"
+        >
+          <UFormField label="Password">
+            <UInput
+              v-model="password"
+              name="password"
+              type="password"
+            />
+          </UFormField>
+          <UButton
+            type="submit"
+            :disabled="!password"
+            color="neutral"
+            class="mt-4"
+          >
+            Login
+          </UButton>
+        </form>
+      </div>
+    </template>
+  </UModal>
 </template>

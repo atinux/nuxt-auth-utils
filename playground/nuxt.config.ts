@@ -1,11 +1,14 @@
 export default defineNuxtConfig({
   // ssr: false,
-  extends: ['@nuxt/ui-pro'],
   modules: ['../src/module', '@nuxt/ui', '@vueuse/nuxt'],
   imports: {
     autoImport: true,
   },
   devtools: { enabled: true },
+  css: ['~/assets/css/main.css'],
+  ui: {
+    mdc: true,
+  },
   routeRules: {
     '/': {
       // prerender: true,
