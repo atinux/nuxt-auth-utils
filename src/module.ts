@@ -165,7 +165,8 @@ export default defineNuxtModule<ModuleOptions>({
       // If the password is set in the runtime config, use it
       if (nuxt.options.runtimeConfig.session.password) {
         process.env[envSessionPassword] = nuxt.options.runtimeConfig.session.password
-      } else {
+      }
+      else {
         const password = process.env[envSessionPassword] = randomUUID().replace(/-/g, '')
         // Add it to .env
         const envPath = join(nuxt.options.rootDir, '.env')
