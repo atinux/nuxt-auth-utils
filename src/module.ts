@@ -162,18 +162,24 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Generate the session password
     if (nuxt.options.dev && !process.env[envSessionPassword]) {
-      const password = process.env[envSessionPassword] = randomUUID().replace(/-/g, '')
-      // Add it to .env
-      const envPath = join(nuxt.options.rootDir, '.env')
-      const envContent = await readFile(envPath, 'utf-8').catch(() => '')
-      if (!envContent.includes(envSessionPassword)) {
-        await writeFile(
-          envPath,
-          `${
-            envContent ? envContent + '\n' : envContent
-          }${envSessionPassword}=${password}`,
-          'utf-8',
-        )
+      // If the password is set in the runtime config, use it
+      if (nuxt.options.runtimeConfig.session.password) {
+        process.env[envSessionPassword] = nuxt.options.runtimeConfig.session.password
+      }
+      else {
+        const password = process.env[envSessionPassword] = randomUUID().replace(/-/g, '')
+        // Add it to .env
+        const envPath = join(nuxt.options.rootDir, '.env')
+        const envContent = await readFile(envPath, 'utf-8').catch(() => '')
+        if (!envContent.includes(envSessionPassword)) {
+          await writeFile(
+            envPath,
+            `${
+              envContent ? envContent + '\n' : envContent
+            }${envSessionPassword}=${password}`,
+            'utf-8',
+          )
+        }
       }
     }
 
