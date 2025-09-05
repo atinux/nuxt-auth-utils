@@ -43,6 +43,9 @@ declare module '#auth-utils' {
     salesforce?: string
     slack?: string
     heroku?: string
+    roblox?: string
+    okta?: string
+    ory?: string
   }
 
   interface UserSession {

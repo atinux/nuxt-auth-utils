@@ -27,7 +27,7 @@ export interface RequestAccessTokenBody {
   [key: string]: string | undefined
 }
 
-interface RequestAccessTokenOptions {
+export interface RequestAccessTokenOptions {
   body?: RequestAccessTokenBody
   params?: Record<string, string | undefined>
   headers?: Record<string, string>

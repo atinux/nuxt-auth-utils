@@ -6,7 +6,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   if (!nuxtApp.payload.serverRendered) {
     await useUserSession().fetch()
   }
-  else if (Boolean(nuxtApp.payload.prerenderedAt) || Boolean(nuxtApp.payload.isCached)) {
+  else if (Boolean(nuxtApp.payload.prerenderedAt) || Boolean(nuxtApp.payload.isCached)
+    || nuxtApp.$config.public.auth.loadStrategy === 'client-only'
+  ) {
     // To avoid hydration mismatch
     nuxtApp.hook('app:mounted', async () => {
       await useUserSession().fetch()

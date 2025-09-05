@@ -39,6 +39,11 @@ export interface ModuleOptions {
      */
     scrypt?: ScryptConfig
   }
+  /**
+   * Session load strategy
+   * @default 'server-first'
+   */
+  loadStrategy?: 'server-first' | 'client-only'
 }
 
 declare module 'nuxt/schema' {
@@ -50,6 +55,12 @@ declare module 'nuxt/schema' {
      * Session configuration
      */
     session: SessionConfig
+  }
+
+  interface PublicRuntimeConfig {
+    auth: {
+      loadStrategy: 'server-first' | 'client-only'
+    }
   }
 }
 
@@ -65,6 +76,7 @@ export default defineNuxtModule<ModuleOptions>({
     hash: {
       scrypt: {},
     },
+    loadStrategy: 'server-first',
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -122,8 +134,11 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // Set node:crypto as unenv external
     nuxt.options.nitro.unenv ||= {}
+    // @ts-expect-error we can use external as array
     nuxt.options.nitro.unenv.external ||= []
+    // @ts-expect-error see comment above
     if (!nuxt.options.nitro.unenv.external.includes('node:crypto')) {
+    // @ts-expect-error see comment above
       nuxt.options.nitro.unenv.external.push('node:crypto')
     }
 
@@ -135,7 +150,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
-      password: process.env[envSessionPassword] || '',
+      password: '',
       cookie: {
         sameSite: 'lax',
       },
@@ -146,8 +161,8 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // Generate the session password
-    if (nuxt.options.dev && !runtimeConfig.session.password) {
-      runtimeConfig.session.password = randomUUID().replace(/-/g, '')
+    if (nuxt.options.dev && !process.env[envSessionPassword]) {
+      const password = process.env[envSessionPassword] = randomUUID().replace(/-/g, '')
       // Add it to .env
       const envPath = join(nuxt.options.rootDir, '.env')
       const envContent = await readFile(envPath, 'utf-8').catch(() => '')
@@ -156,11 +171,16 @@ export default defineNuxtModule<ModuleOptions>({
           envPath,
           `${
             envContent ? envContent + '\n' : envContent
-          }${envSessionPassword}=${runtimeConfig.session.password}`,
+          }${envSessionPassword}=${password}`,
           'utf-8',
         )
       }
     }
+
+    // Load strategy
+    runtimeConfig.public.auth = defu(runtimeConfig.public.auth, {
+      loadStrategy: options.loadStrategy ?? 'server-first',
+    })
 
     // WebAuthn settings
     runtimeConfig.webauthn = defu(runtimeConfig.webauthn, {
@@ -467,6 +487,33 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
       scope: '',
+    })
+    // Roblox OAuth
+    runtimeConfig.oauth.roblox = defu(runtimeConfig.oauth.roblox, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
+    })
+    // Okta OAuth
+    runtimeConfig.oauth.okta = defu(runtimeConfig.oauth.okta, {
+      clientId: '',
+      clientSecret: '',
+      domain: '',
+      audience: '',
+      scope: [],
+      redirectURL: '',
+    })
+    // Ory OAuth
+    runtimeConfig.oauth.ory = defu(runtimeConfig.oauth.ory, {
+      clientId: '',
+      clientSecret: '',
+      sdkURL: '',
+      redirectURL: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
     })
   },
 })

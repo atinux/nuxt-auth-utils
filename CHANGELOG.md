@@ -1,6 +1,108 @@
 # Changelog
 
 
+## v0.5.24
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.23...v0.5.24)
+
+### 🚀 Enhancements
+
+- Add client-only load strategy ([#443](https://github.com/atinux/nuxt-auth-utils/pull/443))
+
+### 🩹 Fixes
+
+- **Keycloak:** Use `realmURLInternal` for internal calls ([#414](https://github.com/atinux/nuxt-auth-utils/pull/414))
+- Add configurable scope to Authentik provider ([#446](https://github.com/atinux/nuxt-auth-utils/pull/446))
+
+### 🏡 Chore
+
+- Update all deps ([#448](https://github.com/atinux/nuxt-auth-utils/pull/448))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <seb@nuxt.com>
+- Frédéric Delaporte ([@fredericDelaporte](https://github.com/fredericDelaporte))
+- Vadim Kostin ([@adinvadim](https://github.com/adinvadim))
+- Piotr Kozłowski <piotr.kozlowski@gmail.com>
+
+## v0.5.23
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.22...v0.5.23)
+
+### 🚀 Enhancements
+
+- Add Ory provider ([#417](https://github.com/atinux/nuxt-auth-utils/pull/417))
+- Add Roblox OAuth provider ([#420](https://github.com/atinux/nuxt-auth-utils/pull/420))
+- Add GitHub `state` param ([#423](https://github.com/atinux/nuxt-auth-utils/pull/423))
+
+### 🩹 Fixes
+
+- Prevent session password in .env from being included in production builds ([#419](https://github.com/atinux/nuxt-auth-utils/pull/419))
+
+### 🏡 Chore
+
+- Update deps ([7e86ab9](https://github.com/atinux/nuxt-auth-utils/commit/7e86ab9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Tom Lewis ([@tomlewis0](http://github.com/tomlewis0))
+- Dog ([@dgxo](http://github.com/dgxo))
+- Matthew Messinger ([@mattmess1221](http://github.com/mattmess1221))
+- Jordan Labrosse <jordan.labrosse@gameverse.app>
+
+## v0.5.22
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.20...v0.5.22)
+
+### 🚀 Enhancements
+
+- Add Okta OAuth provider ([#429](https://github.com/atinux/nuxt-auth-utils/pull/429))
+
+### 🩹 Fixes
+
+- **keycloak:** Allow fetch userinfo using internal url ([#430](https://github.com/atinux/nuxt-auth-utils/pull/430))
+
+### 📖 Documentation
+
+- Fix missing auth.d.ts session types in server dir Nuxt 4 ([#437](https://github.com/atinux/nuxt-auth-utils/pull/437))
+
+### 🏡 Chore
+
+- **release:** V0.5.20 ([f7127f5](https://github.com/atinux/nuxt-auth-utils/commit/f7127f5))
+- Update to return when using invalidState ([60f32d8](https://github.com/atinux/nuxt-auth-utils/commit/60f32d8))
+- **release:** V0.5.21 ([c645d59](https://github.com/atinux/nuxt-auth-utils/commit/c645d59))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- André Biseth <andre@biseth.net>
+- Han <han.lee@linkx.dev>
+- Eckhardt (Kaizen) Dreyer <eckhardt.dreyer@gmail.com>
+
+## v0.5.21
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.20...v0.5.21)
+
+### 🩹 Fixes
+
+- **keycloak:** Allow fetch userinfo using internal url ([#430](https://github.com/atinux/nuxt-auth-utils/pull/430))
+
+### 📖 Documentation
+
+- Fix missing auth.d.ts session types in server dir Nuxt 4 ([#437](https://github.com/atinux/nuxt-auth-utils/pull/437))
+
+### 🏡 Chore
+
+- **release:** V0.5.20 ([f7127f5](https://github.com/atinux/nuxt-auth-utils/commit/f7127f5))
+- Update to return when using invalidState ([60f32d8](https://github.com/atinux/nuxt-auth-utils/commit/60f32d8))
+
+### ❤️ Contributors
+
+- Han <han.lee@linkx.dev>
+- Sébastien Chopin ([@atinux](http://github.com/atinux))
+- Eckhardt (Kaizen) Dreyer <eckhardt.dreyer@gmail.com>
+
 ## v0.5.20
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.19...v0.5.20)

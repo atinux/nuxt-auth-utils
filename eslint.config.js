@@ -13,4 +13,5 @@ export default createConfigForNuxt({
   },
 }).overrideRules({
   '@typescript-eslint/no-empty-object-type': 'off',
+  'vue/multi-word-component-names': 'off',
 })
