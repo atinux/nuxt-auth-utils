@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v0.5.25
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.24...v0.5.25)
+
+### 🚀 Enhancements
+
+- **auth0:** Handle errors passed from Auth0 in query string ([#456](https://github.com/atinux/nuxt-auth-utils/pull/456), [#457](https://github.com/atinux/nuxt-auth-utils/pull/457))
+
+### 🩹 Fixes
+
+- **module:** Don't update .env if password set in runtimeConfig ([#452](https://github.com/atinux/nuxt-auth-utils/pull/452))
+
+### 🏡 Chore
+
+- **playground:** Move types/ to shared/types ([988dfc6](https://github.com/atinux/nuxt-auth-utils/commit/988dfc6))
+- Update deps ([9c500d9](https://github.com/atinux/nuxt-auth-utils/commit/9c500d9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](https://github.com/atinux))
+- David Ovčačík ([@dovca](https://github.com/dovca))
+
 ## v0.5.24
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.23...v0.5.24)
