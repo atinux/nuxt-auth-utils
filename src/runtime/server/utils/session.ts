@@ -2,6 +2,7 @@ import type { H3Event, SessionConfig } from 'h3'
 import { useSession, createError, isEvent } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
+import { OmitWithIndexSignature } from "../../utils/type-utils"
 import { useRuntimeConfig } from '#imports'
 import type { UserSession, UserSessionRequired } from '#auth-utils'
 
@@ -40,7 +41,7 @@ export async function getUserSession(event: UseSessionEvent): Promise<UserSessio
  * @param data User session data, please only store public information since it can be decoded with API calls
  * @see https://github.com/atinux/nuxt-auth-utils
  */
-export async function setUserSession(event: H3Event, data: Omit<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
+export async function setUserSession(event: H3Event, data: OmitWithIndexSignature<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
   const session = await _useSession(event, config)
 
   await session.update(defu(data, session.data))
@@ -53,7 +54,7 @@ export async function setUserSession(event: H3Event, data: Omit<UserSession, 'id
  * @param event The Request (h3) event
  * @param data User session data, please only store public information since it can be decoded with API calls
  */
-export async function replaceUserSession(event: H3Event, data: Omit<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
+export async function replaceUserSession(event: H3Event, data: OmitWithIndexSignature<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
   const session = await _useSession(event, config)
 
   await session.clear()
