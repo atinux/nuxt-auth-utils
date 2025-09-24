@@ -156,11 +156,8 @@ const session = await requireUserSession(event)
 
 You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project to augment the `UserSession` type:
 
-> [!NOTE]
-> If you are using Nuxt >=4.0.0 or compatibility version 4 add the `auth.d.ts` file to the `shared` directory to get the correct types in server and client.
-
 ```ts
-// auth.d.ts
+// shared/types/auth.d.ts
 declare module '#auth-utils' {
   interface User {
     // Add your own fields
