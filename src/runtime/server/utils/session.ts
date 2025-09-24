@@ -2,7 +2,7 @@ import type { H3Event, SessionConfig } from 'h3'
 import { useSession, createError, isEvent } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
-import { OmitWithIndexSignature } from "../../utils/type-utils"
+import type { OmitWithIndexSignature } from '../../types/utils'
 import { useRuntimeConfig } from '#imports'
 import type { UserSession, UserSessionRequired } from '#auth-utils'
 
