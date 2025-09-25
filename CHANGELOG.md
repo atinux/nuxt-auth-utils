@@ -1,6 +1,52 @@
 # Changelog
 
 
+## v0.5.25
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.24...v0.5.25)
+
+### 🚀 Enhancements
+
+- **auth0:** Handle errors passed from Auth0 in query string ([#456](https://github.com/atinux/nuxt-auth-utils/pull/456), [#457](https://github.com/atinux/nuxt-auth-utils/pull/457))
+
+### 🩹 Fixes
+
+- **module:** Don't update .env if password set in runtimeConfig ([#452](https://github.com/atinux/nuxt-auth-utils/pull/452))
+
+### 🏡 Chore
+
+- **playground:** Move types/ to shared/types ([988dfc6](https://github.com/atinux/nuxt-auth-utils/commit/988dfc6))
+- Update deps ([9c500d9](https://github.com/atinux/nuxt-auth-utils/commit/9c500d9))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](https://github.com/atinux))
+- David Ovčačík ([@dovca](https://github.com/dovca))
+
+## v0.5.24
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.23...v0.5.24)
+
+### 🚀 Enhancements
+
+- Add client-only load strategy ([#443](https://github.com/atinux/nuxt-auth-utils/pull/443))
+
+### 🩹 Fixes
+
+- **Keycloak:** Use `realmURLInternal` for internal calls ([#414](https://github.com/atinux/nuxt-auth-utils/pull/414))
+- Add configurable scope to Authentik provider ([#446](https://github.com/atinux/nuxt-auth-utils/pull/446))
+
+### 🏡 Chore
+
+- Update all deps ([#448](https://github.com/atinux/nuxt-auth-utils/pull/448))
+
+### ❤️ Contributors
+
+- Sébastien Chopin <seb@nuxt.com>
+- Frédéric Delaporte ([@fredericDelaporte](https://github.com/fredericDelaporte))
+- Vadim Kostin ([@adinvadim](https://github.com/adinvadim))
+- Piotr Kozłowski <piotr.kozlowski@gmail.com>
+
 ## v0.5.23
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.22...v0.5.23)

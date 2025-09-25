@@ -77,8 +77,20 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
     const authorizationURL = `https://${config.domain}/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
 
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, error_description?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (query.error) {
+      return handleAccessTokenErrorResponse(
+        event,
+        'auth0',
+        {
+          error: query.error,
+          error_description: query.error_description,
+        },
+        onError,
+      )
+    }
 
     if (!query.code) {
       config.scope = config.scope || ['openid', 'offline_access']
