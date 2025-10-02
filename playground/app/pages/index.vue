@@ -33,12 +33,15 @@ const providers = computed(() =>
       onClick() {
         const handle = prompt('Enter your Bluesky handle')
         if (handle) {
-          navigateTo({
-            path: '/auth/bluesky',
-            query: { handle },
-          }, {
-            external: true,
-          })
+          navigateTo(
+            {
+              path: '/auth/bluesky',
+              query: { handle },
+            },
+            {
+              external: true,
+            },
+          )
         }
       },
       disabled: Boolean(user.value?.bluesky),
@@ -249,6 +252,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-heroku',
     },
     {
+      title: user.value?.livechat || 'Livechat',
+      to: '/auth/livechat',
+      disabled: Boolean(user.value?.livechat),
+      icon: 'i-simple-icons-livechat',
+    },
+    {
       title: user.value?.roblox || 'Roblox',
       to: '/auth/roblox',
       disabled: Boolean(user.value?.roblox),
@@ -283,7 +292,9 @@ const providers = computed(() =>
       <AuthState>
         <template #default="{ session }">
           <strong>User session:</strong>
-          <pre class="border border-default p-2 bg-muted rounded-md">{{ session || 'null' }}</pre>
+          <pre class="border border-default p-2 bg-muted rounded-md">{{
+            session || "null"
+          }}</pre>
         </template>
         <template #placeholder>
           ...
