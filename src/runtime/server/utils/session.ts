@@ -31,7 +31,7 @@ export async function getUserSession(event: UseSessionEvent): Promise<UserSessio
   const session = await _useSession(event)
   return {
     ...session.data,
-    id: session.id,
+    id: session.id!,
   }
 }
 /**

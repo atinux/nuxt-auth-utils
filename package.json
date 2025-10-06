@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.5.23",
+  "version": "0.5.25",
   "description": "Add Authentication to Nuxt applications with secured & sealed cookies sessions.",
   "repository": {
     "type": "git",
@@ -8,16 +8,21 @@
   },
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.16.1",
   "exports": {
     ".": {
-      "types": "./dist/types.d.ts",
-      "import": "./dist/module.mjs",
-      "require": "./dist/module.cjs"
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
     }
   },
-  "main": "./dist/module.cjs",
-  "types": "./dist/types.d.ts",
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/types.d.mts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],
@@ -30,19 +35,18 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
-    "test:types": "vue-tsc --noEmit",
-    "test:types:playground": "nuxt typecheck playground",
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
     "test:watch": "vitest watch"
   },
   "dependencies": {
     "@adonisjs/hash": "^9.1.1",
-    "@nuxt/kit": "^3.18.1",
+    "@nuxt/kit": "^4.1.2",
     "defu": "^6.1.4",
     "h3": "^1.15.4",
     "hookable": "^5.5.3",
-    "jose": "^5.10.0",
+    "jose": "^6.1.0",
     "ofetch": "^1.4.1",
-    "openid-client": "^6.6.2",
+    "openid-client": "^6.8.0",
     "pathe": "^2.0.3",
     "scule": "^1.3.0",
     "uncrypto": "^0.1.3"
@@ -68,20 +72,20 @@
     }
   },
   "devDependencies": {
-    "@iconify-json/simple-icons": "^1.2.46",
-    "@nuxt/devtools": "2.0.0-beta.7",
-    "@nuxt/eslint-config": "^0.7.6",
-    "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.15.4",
-    "@nuxt/test-utils": "^3.15.4",
-    "@nuxt/ui": "^2.21.0",
-    "@nuxt/ui-pro": "^1.7.0",
-    "@simplewebauthn/types": "^11.0.0",
-    "changelogen": "^0.5.7",
-    "eslint": "^9.32.0",
-    "nuxt": "^3.18.1",
-    "typescript": "5.6.3",
-    "vitest": "^3.0.5",
-    "vue-tsc": "^2.2.12"
+    "@iconify-json/simple-icons": "^1.2.52",
+    "@nuxt/devtools": "2.6.3",
+    "@nuxt/eslint-config": "^1.9.0",
+    "@nuxt/module-builder": "^1.0.2",
+    "@nuxt/schema": "^4.1.2",
+    "@nuxt/test-utils": "^3.19.2",
+    "@types/node": "latest",
+    "@nuxt/ui": "^4.0.0-alpha.1",
+    "@simplewebauthn/types": "^12.0.0",
+    "changelogen": "^0.6.2",
+    "eslint": "^9.35.0",
+    "nuxt": "^4.1.2",
+    "typescript": "5.9.2",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^3.0.7"
   }
 }

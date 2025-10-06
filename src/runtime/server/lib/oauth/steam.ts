@@ -81,7 +81,7 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
         if (!onError) throw error
         return onError(event, error)
       }
-      openIdCheck[`openid.${signed}`] = query[`openid.${signed}`]
+      openIdCheck[`openid.${signed}`] = query[`openid.${signed}`] as string
     }
 
     const auth_validation: string = await $fetch(withQuery(config?.authorizationURL as string, openIdCheck))
