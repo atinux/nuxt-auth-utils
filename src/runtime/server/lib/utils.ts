@@ -190,7 +190,13 @@ export async function handlePkceVerifier(event: H3Event) {
 
   // Create new verifier
   verifier = encodeBase64Url(getRandomBytes())
-  setCookie(event, 'nuxt-auth-pkce', verifier)
+  setCookie(event, 'nuxt-auth-pkce', verifier, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== 'development',
+    sameSite: 'lax',
+    maxAge: 60 * 10, // 10 minutes
+    path: '/',
+  })
 
   // Get pkce
   const encodedPkce = new TextEncoder().encode(verifier)
