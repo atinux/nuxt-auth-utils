@@ -212,6 +212,12 @@ export async function handleState(event: H3Event) {
   }
 
   state = encodeBase64Url(getRandomBytes(8))
-  setCookie(event, 'nuxt-auth-state', state)
+  setCookie(event, 'nuxt-auth-state', state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 10, // 10 minutes
+    path: '/',
+  })
   return state
 }
