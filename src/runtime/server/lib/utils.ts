@@ -7,6 +7,12 @@ import { subtle, getRandomValues } from 'uncrypto'
 import type { OAuthProvider, OnError } from '#auth-utils'
 import { createError } from '#imports'
 
+// Determine if we are in development mode
+const isDevelopment = process.env.NODE_ENV === 'development'
+
+// OAuth cookie expiration time (10 minutes in seconds)
+const OAUTH_COOKIE_MAX_AGE = 60 * 10
+
 export function getOAuthRedirectURL(event: H3Event): string {
   const requestURL = getRequestURL(event)
 
@@ -192,9 +198,9 @@ export async function handlePkceVerifier(event: H3Event) {
   verifier = encodeBase64Url(getRandomBytes())
   setCookie(event, 'nuxt-auth-pkce', verifier, {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development',
+    secure: !isDevelopment,
     sameSite: 'lax',
-    maxAge: 60 * 10, // 10 minutes
+    maxAge: OAUTH_COOKIE_MAX_AGE,
     path: '/',
   })
 
@@ -220,9 +226,9 @@ export async function handleState(event: H3Event) {
   state = encodeBase64Url(getRandomBytes(8))
   setCookie(event, 'nuxt-auth-state', state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development',
+    secure: !isDevelopment,
     sameSite: 'lax',
-    maxAge: 60 * 10, // 10 minutes
+    maxAge: OAUTH_COOKIE_MAX_AGE,
     path: '/',
   })
   return state
