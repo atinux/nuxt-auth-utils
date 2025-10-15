@@ -3,8 +3,8 @@ import { useRuntimeConfig } from '#imports'
 import { defu } from 'defu'
 import type { H3Event } from 'h3'
 import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
-import { withQuery } from 'ufo'
-import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken } from '../utils'
+import { QueryObject, withQuery } from 'ufo'
+import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken, RequestAccessTokenBody } from '../utils'
 
 export interface OAuthOidcConfig {
   /**
@@ -240,7 +240,7 @@ interface OIDCConfiguration {
  */
 export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSuccess, onError }: OAuthConfig<OAuthOidcConfig, { user: TUser, tokens: OidcTokens }>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.oidc, {
+    config = defu(config, useRuntimeConfig(event).oauth.oidc, {
       scope: ['openid'],
     } satisfies OAuthOidcConfig)
 
@@ -271,18 +271,24 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
     if (!query.code) {
       config.scope = config.scope || []
 
-      return sendRedirect(
-        event,
-        withQuery(oidcConfig.authorization_endpoint, {
-          client_id: config.clientId,
-          redirect_uri: redirectURL,
-          scope: config.scope.join(' '),
-          state,
-          response_type: 'code',
-          code_challenge: verifier?.code_challenge,
-          code_challenge_method: verifier?.code_challenge_method,
-          ...config.parameters?.authorization_endpoint,
-        }),
+      const authQuery: QueryObject = {
+        client_id: config.clientId,
+        redirect_uri: redirectURL,
+        scope: config.scope.join(' '),
+        state,
+        response_type: 'code',
+        ...config.parameters?.authorization_endpoint,
+      }
+
+      // when using PKCE, we need to set the code_challenge in the request
+      // since some OIDC providers fail with an error if those parameters are set with "undefined" value
+      // we make sure to only include them at all if they are set
+      if (verifier) {
+        authQuery.code_challenge = verifier.code_challenge
+        authQuery.code_challenge_method = verifier.code_challenge_method
+      }
+
+      return sendRedirect(event, withQuery(oidcConfig.authorization_endpoint, authQuery),
       )
     }
 
@@ -290,16 +296,24 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       return handleInvalidState(event, 'oidc', onError)
     }
 
+    const tokenQuery: RequestAccessTokenBody = {
+      grant_type: 'authorization_code',
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      redirect_uri: redirectURL,
+      code: query.code,
+      ...config.parameters?.token_endpoint,
+    }
+
+    // when using PKCE, we need to set the code_challenge in the request
+    // since some OIDC providers fail with an error if those parameters are set with "undefined" value
+    // we make sure to only include them at all if they are set
+    if (verifier) {
+      tokenQuery.code_verifier = verifier.code_verifier
+    }
+
     const tokens = await requestAccessToken<OidcTokens & { error?: unknown }>(oidcConfig.token_endpoint, {
-      body: {
-        grant_type: 'authorization_code',
-        client_id: config.clientId,
-        client_secret: config.clientSecret,
-        redirect_uri: redirectURL,
-        code: query.code,
-        code_verifier: verifier?.code_verifier,
-        ...config.parameters?.token_endpoint,
-      },
+      body: tokenQuery,
     })
 
     if (tokens.error) {
