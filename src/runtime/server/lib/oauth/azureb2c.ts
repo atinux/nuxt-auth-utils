@@ -81,7 +81,7 @@ export function defineOAuthAzureB2CEventHandler({ config, onSuccess, onError }: 
     config.scope = [...new Set(config.scope)]
 
     // Create pkce verifier
-    const verifier = await handlePkceVerifier(event)
+    const verifier = await handlePkceVerifier(event, { onlyConsume: !!query.code })
     const state = await handleState(event)
 
     if (!query.code) {
