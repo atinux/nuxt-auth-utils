@@ -275,6 +275,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.ory),
       icon: 'i-custom-ory',
     },
+    {
+      title: user.value?.shopifyCustomer || 'Shopify Customer',
+      to: '/auth/shopifyCustomer',
+      disabled: Boolean(user.value?.shopifyCustomer),
+      icon: 'i-simple-icons-shopify',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
