@@ -26,6 +26,16 @@ export interface ModuleOptions {
    */
   webAuthn?: boolean
   /**
+   * Disable User Session Client
+   * @default false
+   */
+  disableUserSessionClientPlugin?: boolean
+  /**
+   * Disable User Session Server
+   * @default false
+   */
+  disableUserSessionServerPlugin?: boolean
+  /**
    * Enable atproto OAuth (Bluesky, etc.)
    * @default false
    */
@@ -96,8 +106,12 @@ export default defineNuxtModule<ModuleOptions>({
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
     addImports(composables)
-    addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
-    addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
+    if (!options.disableUserSessionServerPlugin) {
+      addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
+    }
+    if (!options.disableUserSessionClientPlugin) {
+      addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
+    }
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
