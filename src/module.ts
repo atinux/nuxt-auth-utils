@@ -521,5 +521,12 @@ export default defineNuxtModule<ModuleOptions>({
       tokenURL: '',
       userURL: '',
     })
+    // Shopify Customer
+    runtimeConfig.oauth.shopifyCustomer = defu(runtimeConfig.oauth.shopifyCustomer, {
+      shopDomain: '',
+      clientId: '',
+      redirectURL: '',
+      scope: [],
+    })
   },
 })
