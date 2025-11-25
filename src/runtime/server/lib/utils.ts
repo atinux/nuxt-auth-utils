@@ -181,10 +181,15 @@ function getRandomBytes(size: number = 32) {
   return getRandomValues(new Uint8Array(size))
 }
 
-export async function handlePkceVerifier(event: H3Event) {
+export async function handlePkceVerifier(
+  event: H3Event,
+  { onlyConsume }: { onlyConsume?: boolean } = {},
+) {
   let verifier = getCookie(event, 'nuxt-auth-pkce')
   if (verifier) {
     deleteCookie(event, 'nuxt-auth-pkce')
+  }
+  if (onlyConsume) {
     return { code_verifier: verifier }
   }
 
@@ -204,10 +209,12 @@ export async function handlePkceVerifier(event: H3Event) {
   }
 }
 
-export async function handleState(event: H3Event) {
+export async function handleState(event: H3Event, { onlyConsume }: { onlyConsume?: boolean } = {}) {
   let state = getCookie(event, 'nuxt-auth-state')
   if (state) {
     deleteCookie(event, 'nuxt-auth-state')
+  }
+  if (onlyConsume) {
     return state
   }
 
