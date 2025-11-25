@@ -61,7 +61,8 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
     }
 
     // Create pkce verifier
-    const verifier = await handlePkceVerifier(event, { onlyConsume: !!query.code })
+    const onlyConsume = !!query.code
+    const verifier = await handlePkceVerifier(event, { onlyConsume })
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 

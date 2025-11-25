@@ -209,10 +209,12 @@ export async function handlePkceVerifier(
   }
 }
 
-export async function handleState(event: H3Event) {
+export async function handleState(event: H3Event, { onlyConsume }: { onlyConsume?: boolean } = {}) {
   let state = getCookie(event, 'nuxt-auth-state')
   if (state) {
     deleteCookie(event, 'nuxt-auth-state')
+  }
+  if (onlyConsume) {
     return state
   }
 
