@@ -39,14 +39,15 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
     }
 
     const url = getRequestURL(event)
-
+    const dev = import.meta.dev;
     if (!query['openid.claimed_id']) {
       const redirectURL = config.redirectURL || getRequestURL(event).href
+      const realm = dev && url.hostname === 'localhost' ? `${url.protocol}//${url.hostname}:${url.port}` : `${url.protocol}//${url.hostname}`
       const steamOpenIdParams = {
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',
         'openid.return_to': redirectURL,
-        'openid.realm': `${url.protocol}//${url.hostname}`,
+        'openid.realm': realm,
         'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
         'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
       }
