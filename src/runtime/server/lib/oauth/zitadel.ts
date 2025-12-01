@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
-import { withQuery } from 'ufo'
+import { hasProtocol, withQuery } from 'ufo'
 import { defu } from 'defu'
 import type { RequestAccessTokenOptions } from '../utils'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, handleState, handlePkceVerifier, handleInvalidState } from '../utils'
@@ -48,6 +48,7 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
     config = defu(config, useRuntimeConfig(event).oauth?.zitadel, {
       authorizationParams: {},
     }) as OAuthZitadelConfig
+    const domain = hasProtocol(config.domain) ? config.domain : `https://${config.domain}`
 
     const query = getQuery<{ code?: string, state?: string, error?: string }>(event)
 
@@ -65,8 +66,8 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
       return handleMissingConfiguration(event, 'zitadel', ['clientId', 'domain'], onError)
     }
 
-    const authorizationURL = `https://${config.domain}/oauth/v2/authorize`
-    const tokenURL = `https://${config.domain}/oauth/v2/token`
+    const authorizationURL = `${domain}/oauth/v2/authorize`
+    const tokenURL = `${domain}/oauth/v2/token`
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     // Create pkce verifier
@@ -123,7 +124,7 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
     const accessToken = tokens.access_token
     // Fetch user info
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(`https://${config.domain}/oidc/v1/userinfo`, {
+    const user: any = await $fetch(`${domain}/oidc/v1/userinfo`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/json',
