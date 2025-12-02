@@ -48,7 +48,6 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
     config = defu(config, useRuntimeConfig(event).oauth?.zitadel, {
       authorizationParams: {},
     }) as OAuthZitadelConfig
-    const domain = hasProtocol(config.domain) ? config.domain : `https://${config.domain}`
 
     const query = getQuery<{ code?: string, state?: string, error?: string }>(event)
 
@@ -66,6 +65,7 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
       return handleMissingConfiguration(event, 'zitadel', ['clientId', 'domain'], onError)
     }
 
+    const domain = hasProtocol(config.domain) ? config.domain : `https://${config.domain}`
     const authorizationURL = `${domain}/oauth/v2/authorize`
     const tokenURL = `${domain}/oauth/v2/token`
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
