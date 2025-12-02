@@ -187,7 +187,7 @@ export async function handlePkceVerifier(event: H3Event) {
     deleteCookie(event, 'nuxt-auth-pkce')
   }
   const query = getQuery<{ code?: string }>(event)
-  if (query.code) {
+  if (verifier && query.code) {
     return { code_verifier: verifier }
   }
 
@@ -213,7 +213,7 @@ export async function handleState(event: H3Event) {
     deleteCookie(event, 'nuxt-auth-state')
   }
   const query = getQuery<{ code?: string }>(event)
-  if (query.code) {
+  if (state && query.code) {
     return state
   }
 
