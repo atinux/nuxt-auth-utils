@@ -1,4 +1,4 @@
-import { type H3Event, deleteCookie, getCookie, setCookie } from 'h3'
+import { type H3Event, deleteCookie, getCookie, getQuery, setCookie } from 'h3'
 import { getRequestURL } from 'h3'
 import { FetchError } from 'ofetch'
 import { snakeCase, upperFirst } from 'scule'
@@ -185,7 +185,11 @@ export async function handlePkceVerifier(event: H3Event) {
   let verifier = getCookie(event, 'nuxt-auth-pkce')
   if (verifier) {
     deleteCookie(event, 'nuxt-auth-pkce')
-    return { code_verifier: verifier }
+
+    const query = getQuery<{ code?: string }>(event)
+    if (query.code) {
+      return { code_verifier: verifier }
+    }
   }
 
   // Create new verifier
@@ -208,7 +212,11 @@ export async function handleState(event: H3Event) {
   let state = getCookie(event, 'nuxt-auth-state')
   if (state) {
     deleteCookie(event, 'nuxt-auth-state')
-    return state
+
+    const query = getQuery<{ code?: string }>(event)
+    if (query.code) {
+      return state
+    }
   }
 
   state = encodeBase64Url(getRandomBytes(8))
