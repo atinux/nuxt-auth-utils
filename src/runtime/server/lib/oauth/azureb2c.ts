@@ -81,9 +81,8 @@ export function defineOAuthAzureB2CEventHandler({ config, onSuccess, onError }: 
     config.scope = [...new Set(config.scope)]
 
     // Create pkce verifier
-    const onlyConsume = !!query.code
-    const verifier = await handlePkceVerifier(event, { onlyConsume })
-    const state = await handleState(event, { onlyConsume })
+    const verifier = await handlePkceVerifier(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       // Redirect to Azure B2C Oauth page

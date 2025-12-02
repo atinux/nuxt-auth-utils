@@ -70,9 +70,8 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
     // Create pkce verifier
-    const onlyConsume = !!query.code
-    const verifier = await handlePkceVerifier(event, { onlyConsume })
-    const state = await handleState(event, { onlyConsume })
+    const verifier = await handlePkceVerifier(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || ['openid']
