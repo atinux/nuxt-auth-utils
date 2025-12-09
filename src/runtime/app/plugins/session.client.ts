@@ -1,8 +1,8 @@
 // TODO: https://github.com/nuxt/module-builder/issues/141
-import {} from 'nuxt/app'
+import type { NuxtApp } from 'nuxt/app'
 import { defineNuxtPlugin, useUserSession, useError } from '#imports'
 
-export default defineNuxtPlugin(async (nuxtApp) => {
+export default defineNuxtPlugin(async (nuxtApp: NuxtApp) => {
   if (!nuxtApp.payload.serverRendered) {
     await useUserSession().fetch()
   }

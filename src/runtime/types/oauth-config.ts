@@ -11,7 +11,7 @@ export interface OAuthConfig<TConfig, TResult = { user: any, tokens: any }> {
   config?: TConfig
   onSuccess: (
     event: H3Event,
-    result: TResult
+    result: TResult,
   ) => Promise<void> | void
   onError?: OnError
 }

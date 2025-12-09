@@ -14,7 +14,7 @@ export function useUserSession(): UserSessionComposable {
   const clear = async () => {
     await useRequestFetch()('/api/_auth/session', {
       method: 'DELETE',
-      onResponse({ response: { headers } }) {
+      onResponse({ response: { headers } }: { response: { headers: Headers } }) {
         // Forward the Set-Cookie header to the main server event
         if (import.meta.server && serverEvent) {
           for (const setCookie of headers.getSetCookie()) {
