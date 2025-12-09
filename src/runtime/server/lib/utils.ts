@@ -182,30 +182,29 @@ function getRandomBytes(size: number = 32) {
 }
 
 export async function handlePkceVerifier(event: H3Event) {
-  let verifier = getCookie(event, 'nuxt-auth-pkce')
-  if (verifier) {
-    deleteCookie(event, 'nuxt-auth-pkce')
-
-    const query = getQuery<{ code?: string }>(event)
-    if (query.code) {
-      return { code_verifier: verifier }
-    }
-  }
+  const query = getQuery<{ code?: string }>(event)
 
   // Create new verifier
-  verifier = encodeBase64Url(getRandomBytes())
-  setCookie(event, 'nuxt-auth-pkce', verifier)
+  if (!query.code) {
+    const verifier = encodeBase64Url(getRandomBytes())
+    setCookie(event, 'nuxt-auth-pkce', verifier)
 
-  // Get pkce
-  const encodedPkce = new TextEncoder().encode(verifier)
-  const pkceHash = await subtle.digest('SHA-256', encodedPkce)
-  const pkce = encodeBase64Url(new Uint8Array(pkceHash))
+    // Get pkce
+    const encodedPkce = new TextEncoder().encode(verifier)
+    const pkceHash = await subtle.digest('SHA-256', encodedPkce)
+    const pkce = encodeBase64Url(new Uint8Array(pkceHash))
 
-  return {
-    code_verifier: verifier,
-    code_challenge: pkce,
-    code_challenge_method: 'S256',
+    return {
+      code_verifier: verifier,
+      code_challenge: pkce,
+      code_challenge_method: 'S256',
+    }
   }
+  // If the verifier is in the cookie, get it from the cookie and delete the cookie
+  const verifier = getCookie(event, 'nuxt-auth-pkce')
+  deleteCookie(event, 'nuxt-auth-pkce')
+
+  return { code_verifier: verifier }
 }
 
 export async function handleState(event: H3Event) {
@@ -214,11 +213,7 @@ export async function handleState(event: H3Event) {
   if (query.state) {
     const state = getCookie(event, 'nuxt-auth-state')
     deleteCookie(event, 'nuxt-auth-state')
-
-    const query = getQuery<{ code?: string }>(event)
-    if (query.code) {
-      return state
-    }
+    return state
   }
 
   // If the state is not in the query, generate a new state and set it in the cookie
