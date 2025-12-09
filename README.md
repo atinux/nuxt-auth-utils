@@ -609,6 +609,20 @@ export default defineNuxtConfig({
 
 When using the `client-only` load strategy, the user session can still be manually fetched on the server side by calling `fetch` from the `useUserSession` composable.
 
+### Disable session loading
+
+You may also choose to disable session loading entirely, with the `loadStrategy` option in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    loadStrategy: 'none'
+  }
+})
+```
+
+When using the `none` load strategy, the user session can still be manually fetched by calling `useUserSession().fetch()`.
+
 ### `<AuthState>` component
 
 You can use the `<AuthState>` component to safely display auth-related data in your components without worrying about the rendering mode.
