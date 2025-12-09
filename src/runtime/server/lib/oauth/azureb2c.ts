@@ -105,7 +105,6 @@ export function defineOAuthAzureB2CEventHandler({ config, onSuccess, onError }: 
       return handleInvalidState(event, 'azureb2c', onError)
     }
 
-    console.info('code verifier', verifier.code_verifier)
     const tokens = await requestAccessToken(tokenURL, {
       body: {
         grant_type: 'authorization_code',
