@@ -26,16 +26,6 @@ export interface ModuleOptions {
    */
   webAuthn?: boolean
   /**
-   * Disable User Session Client
-   * @default false
-   */
-  disableUserSessionClientPlugin?: boolean
-  /**
-   * Disable User Session Server
-   * @default false
-   */
-  disableUserSessionServerPlugin?: boolean
-  /**
    * Enable atproto OAuth (Bluesky, etc.)
    * @default false
    */
@@ -53,7 +43,7 @@ export interface ModuleOptions {
    * Session load strategy
    * @default 'server-first'
    */
-  loadStrategy?: 'server-first' | 'client-only'
+  loadStrategy?: 'server-first' | 'client-only' | 'none'
 }
 
 declare module 'nuxt/schema' {
@@ -69,7 +59,7 @@ declare module 'nuxt/schema' {
 
   interface PublicRuntimeConfig {
     auth: {
-      loadStrategy: 'server-first' | 'client-only'
+      loadStrategy: 'server-first' | 'client-only' | 'none'
     }
   }
 }
@@ -106,10 +96,8 @@ export default defineNuxtModule<ModuleOptions>({
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
     addImports(composables)
-    if (!options.disableUserSessionServerPlugin) {
+    if (options.loadStrategy !== 'none') {
       addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
-    }
-    if (!options.disableUserSessionClientPlugin) {
       addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
     }
     // Server

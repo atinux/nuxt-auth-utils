@@ -29,9 +29,8 @@ export default defineNuxtConfig({
   auth: {
     webAuthn: true,
     atproto: true,
-    // disableUserSessionServerPlugin: false,
-    // disableUserSessionClientPlugin: false,
-    // loadStrategy: 'client-only'
+    // loadStrategy: 'none',
+    // loadStrategy: 'client-only',
   },
   icon: {
     customCollections: [{
