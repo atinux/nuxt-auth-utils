@@ -597,7 +597,7 @@ This is because the user session is stored in a secure cookie and cannot be acce
 
 **This means that you should not rely on the user session during prerendering.**
 
-You may also choose to instruct Nuxt AUth Utils to fetch the user session only on the client side, with the `loadStrategy` option in your `nuxt.config.ts`:
+You may also choose to instruct Nuxt Auth Utils to fetch the user session only on the client side, with the `loadStrategy` option in your `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
