@@ -12,7 +12,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     // by using render:html hook
     // this is a hack, but it works
     // https://stackoverflow.com/questions/7131909/facebook-callback-appends-to-return-url
-    // @ts-expect-error - have to ignore for the test:types script
     nitroApp.hooks.hook('render:html', (html: NuxtRenderHTMLContext) => {
       html.head.unshift(`
       <script>

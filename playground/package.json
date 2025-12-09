@@ -15,7 +15,7 @@
     "@vueuse/core": "^14.1.0",
     "@vueuse/nuxt": "^14.1.0",
     "nuxt": "^4.2.1",
-    "nuxt-auth-utils": "latest",
+    "nuxt-auth-utils": "workspace:*",
     "zod": "^4.1.13"
   }
 }
