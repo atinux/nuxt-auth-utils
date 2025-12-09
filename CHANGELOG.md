@@ -1,6 +1,50 @@
 # Changelog
 
 
+## v0.5.26
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.25...v0.5.26)
+
+### 🚀 Enhancements
+
+- Opt out of session plugin with `loadStrategy: 'none'` ([#472](https://github.com/atinux/nuxt-auth-utils/pull/472))
+- Add Shopify Customer Account API OAuth provider ([#470](https://github.com/atinux/nuxt-auth-utils/pull/470))
+- Add utility for checking outdated password hashes during login flow ([#471](https://github.com/atinux/nuxt-auth-utils/pull/471))
+
+### 🩹 Fixes
+
+- **LiveChat:** Remove scope assumption with LiveChat login ([#432](https://github.com/atinux/nuxt-auth-utils/pull/432))
+- Properly handle state if cookie already exists ([3a0a3e7](https://github.com/atinux/nuxt-auth-utils/commit/3a0a3e7))
+- Missing code_challenge and state mismatch ([#465](https://github.com/atinux/nuxt-auth-utils/pull/465))
+- Steam 403 error when running locally ([#473](https://github.com/atinux/nuxt-auth-utils/pull/473))
+- **zitadel:** Don't prefix domain with `https://` if another protocol is used ([#475](https://github.com/atinux/nuxt-auth-utils/pull/475))
+- UserSession type safety ([#459](https://github.com/atinux/nuxt-auth-utils/pull/459))
+- Add explicit security options to OAuth cookies to prevent state mismatch errors ([#463](https://github.com/atinux/nuxt-auth-utils/pull/463))
+
+### 📖 Documentation
+
+- Set the auth.d.ts in shared/types/ ([84f879e](https://github.com/atinux/nuxt-auth-utils/commit/84f879e))
+- Fix typo in README regarding Nuxt Auth Utils ([#474](https://github.com/atinux/nuxt-auth-utils/pull/474))
+
+### 🏡 Chore
+
+- Update dependencies ([00510b6](https://github.com/atinux/nuxt-auth-utils/commit/00510b6))
+- Use latest tsconfig format ([769cb99](https://github.com/atinux/nuxt-auth-utils/commit/769cb99))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](https://github.com/atinux))
+- André Biseth <andre@biseth.net>
+- Daniel Fischnaller <fischnallerdaniel20@gmail.com>
+- Geoff <geoff@gapple.ca>
+- Syrex-o <alberthenkel.ah@gmail.com>
+- Samuel Burkhard ([@samydoesit](https://github.com/samydoesit))
+- Yaroslav Semennikov ([@ysemennikov](https://github.com/ysemennikov))
+- Kubo997 ([@kubo997](https://github.com/kubo997))
+- Jeffrey León ([@jals1212](https://github.com/jals1212))
+- Robert Stein ([@SteinRobert](https://github.com/SteinRobert))
+- Marios Antonoudiou ([@mariosant](https://github.com/mariosant))
+
 ## v0.5.25
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.24...v0.5.25)
