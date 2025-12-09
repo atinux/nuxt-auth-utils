@@ -43,7 +43,7 @@ export interface ModuleOptions {
    * Session load strategy
    * @default 'server-first'
    */
-  loadStrategy?: 'server-first' | 'client-only'
+  loadStrategy?: 'server-first' | 'client-only' | 'none'
 }
 
 declare module 'nuxt/schema' {
@@ -59,7 +59,7 @@ declare module 'nuxt/schema' {
 
   interface PublicRuntimeConfig {
     auth: {
-      loadStrategy: 'server-first' | 'client-only'
+      loadStrategy: 'server-first' | 'client-only' | 'none'
     }
   }
 }
@@ -96,8 +96,10 @@ export default defineNuxtModule<ModuleOptions>({
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
     addImports(composables)
-    addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
-    addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
+    if (options.loadStrategy !== 'none') {
+      addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
+      addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
+    }
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
