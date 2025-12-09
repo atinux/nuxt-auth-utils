@@ -242,6 +242,7 @@ It can also be set using environment variables:
 - Polar
 - Salesforce
 - Seznam
+- Shopify Customer
 - Slack
 - Spotify
 - Steam
