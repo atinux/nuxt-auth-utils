@@ -126,7 +126,7 @@ export function defineOAuthOryEventHandler({ config, onSuccess, onError }: OAuth
     }
 
     if (query.state !== state) {
-      handleInvalidState(event, 'ory', onError)
+      return handleInvalidState(event, 'ory', onError)
     }
 
     const tokenURL = `${config.sdkURL}${config.tokenURL}`

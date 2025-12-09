@@ -209,8 +209,10 @@ export async function handlePkceVerifier(event: H3Event) {
 }
 
 export async function handleState(event: H3Event) {
-  let state = getCookie(event, 'nuxt-auth-state')
-  if (state) {
+  const query = getQuery<{ state?: string }>(event)
+  // If the state is in the query, get it from the cookie and delete the cookie
+  if (query.state) {
+    const state = getCookie(event, 'nuxt-auth-state')
     deleteCookie(event, 'nuxt-auth-state')
 
     const query = getQuery<{ code?: string }>(event)
@@ -219,7 +221,8 @@ export async function handleState(event: H3Event) {
     }
   }
 
-  state = encodeBase64Url(getRandomBytes(8))
+  // If the state is not in the query, generate a new state and set it in the cookie
+  const state = encodeBase64Url(getRandomBytes(8))
   setCookie(event, 'nuxt-auth-state', state)
   return state
 }
