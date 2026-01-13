@@ -1,22 +1,22 @@
-import { writeFile, readFile } from 'node:fs/promises'
+import type { ScryptConfig } from '@adonisjs/hash/types'
 import {
-  defineNuxtModule,
-  addPlugin,
-  createResolver,
-  addImports,
-  addServerHandler,
-  addServerPlugin,
-  addServerImportsDir,
   addComponentsDir,
+  addImports,
+  addPlugin,
+  addServerHandler,
+  addServerImportsDir,
+  addServerPlugin,
+  createResolver,
+  defineNuxtModule,
   logger,
 } from '@nuxt/kit'
-import { join } from 'pathe'
 import { defu } from 'defu'
-import { randomUUID } from 'uncrypto'
-import type { ScryptConfig } from '@adonisjs/hash/types'
 import type { SessionConfig } from 'h3'
-import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
+import { readFile, writeFile } from 'node:fs/promises'
+import { join } from 'pathe'
+import { randomUUID } from 'uncrypto'
 import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
+import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -527,6 +527,14 @@ export default defineNuxtModule<ModuleOptions>({
     runtimeConfig.oauth.shopifyCustomer = defu(runtimeConfig.oauth.shopifyCustomer, {
       shopDomain: '',
       clientId: '',
+      redirectURL: '',
+      scope: [],
+    })
+    // OIDC OAuth
+    runtimeConfig.oauth.oidc = defu(runtimeConfig.oauth.oidc, {
+      clientId: '',
+      clientSecret: '',
+      openidConfig: '',
       redirectURL: '',
       scope: [],
     })
