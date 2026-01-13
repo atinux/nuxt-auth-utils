@@ -227,8 +227,11 @@ interface AddressClaim {
 
 interface OidcTokens {
   access_token: string
-  scope: string
   token_type: string
+  scope?: string
+  id_token?: string
+  refresh_token?: string
+  expires_in?: number
 }
 
 interface OIDCConfiguration {
@@ -324,13 +327,13 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
 
     let user = {} as TUser
 
-    // some OIDC providers to not support a userinfo endpoint so we only call it when its defined inside the OIDC config
+    // some OIDC providers do not support a userinfo endpoint so we only call it when its defined inside the OIDC config
     if (oidcConfig.userinfo_endpoint) {
       user = await $fetch<TUser>(oidcConfig.userinfo_endpoint, {
         headers: {
           Authorization: `${tokens.token_type} ${tokens.access_token}`,
+          ...(config.parameters?.userinfo_endpoint as Record<string, string>),
         },
-        body: config.parameters?.userinfo_endpoint,
       })
     }
 

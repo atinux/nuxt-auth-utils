@@ -535,7 +535,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       openidConfig: '',
-      redirectUrl: '',
+      redirectURL: '',
       scope: [],
     })
   },
