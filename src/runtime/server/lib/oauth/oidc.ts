@@ -50,7 +50,6 @@ export interface OAuthOidcConfig {
    * Can be used to provide custom (query) params.
    */
   params?: Partial<Record<'authorization_endpoint' | 'token_endpoint' | 'userinfo_endpoint', object>>
-
 }
 
 /**
