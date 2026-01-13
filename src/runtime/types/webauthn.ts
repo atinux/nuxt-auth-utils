@@ -14,6 +14,7 @@ export interface WebAuthnCredential {
   counter: number
   backedUp: boolean
   transports?: AuthenticatorTransportFuture[]
+  aaguid?: string
   [key: string]: unknown
 }
 

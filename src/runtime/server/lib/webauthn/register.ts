@@ -102,6 +102,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
           counter: verification.registrationInfo!.credential.counter,
           backedUp: verification.registrationInfo!.credentialBackedUp,
           transports: verification.registrationInfo!.credential.transports,
+          aaguid: verification.registrationInfo!.aaguid,
         },
         registrationInfo: verification.registrationInfo!,
       })
