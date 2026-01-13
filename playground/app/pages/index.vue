@@ -282,9 +282,10 @@ const providers = computed(() =>
       icon: 'i-simple-icons-shopify',
     },
     {
-      label: user.value?.oidc || 'OIDC',
+      title: user.value?.oidc || 'OIDC',
       to: '/auth/oidc',
       disabled: Boolean(user.value?.oidc),
+      icon: 'i-simple-icons-openid',
     },
   ].map(p => ({
     ...p,
