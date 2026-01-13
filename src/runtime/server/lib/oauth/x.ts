@@ -1,16 +1,18 @@
+import type { OAuthConfig } from '#auth-utils'
+import { useRuntimeConfig } from '#imports'
+import { defu } from 'defu'
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
-import { defu } from 'defu'
-import { randomUUID } from 'uncrypto'
 import {
-  handleMissingConfiguration,
-  handleAccessTokenErrorResponse,
   getOAuthRedirectURL,
+  handleAccessTokenErrorResponse,
+  handleInvalidState,
+  handleMissingConfiguration,
+  handlePkceVerifier,
+  handleState,
   requestAccessToken,
 } from '../utils'
-import { useRuntimeConfig } from '#imports'
-import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthXConfig {
   /**
@@ -72,19 +74,19 @@ export function defineOAuthXEventHandler({
       authorizationURL: 'https://x.com/i/oauth2/authorize',
       tokenURL: 'https://api.x.com/2/oauth2/token',
       userURL: 'https://api.x.com/2/users/me',
-      authorizationParams: {
-        state: randomUUID(),
-        code_challenge: randomUUID(),
-      },
+      authorizationParams: {},
     }) as OAuthXConfig
 
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'x', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    const pkce = await handlePkceVerifier(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || [
@@ -98,12 +100,18 @@ export function defineOAuthXEventHandler({
         withQuery(config.authorizationURL as string, {
           response_type: 'code',
           client_id: config.clientId,
-          code_challenge_method: 'plain',
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
+          code_challenge: pkce.code_challenge,
+          code_challenge_method: pkce.code_challenge_method,
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'x', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
@@ -114,7 +122,7 @@ export function defineOAuthXEventHandler({
       },
       params: {
         grant_type: 'authorization_code',
-        code_verifier: config.authorizationParams?.code_challenge,
+        code_verifier: pkce.code_verifier,
         redirect_uri: redirectURL,
         code: query.code,
       },
