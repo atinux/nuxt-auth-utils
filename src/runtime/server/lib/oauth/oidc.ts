@@ -3,8 +3,10 @@ import { useRuntimeConfig } from '#imports'
 import { defu } from 'defu'
 import type { H3Event } from 'h3'
 import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
-import { QueryObject, withQuery } from 'ufo'
-import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken, RequestAccessTokenBody } from '../utils'
+import type { QueryObject } from 'ufo'
+import { withQuery } from 'ufo'
+import type { RequestAccessTokenBody } from '../utils'
+import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken } from '../utils'
 
 export interface OAuthOidcConfig {
   /**
