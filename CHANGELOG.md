@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v0.5.27
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.26...v0.5.27)
+
+### 🚀 Enhancements
+
+- **webauthn:** Expose and pass `aaguid` ([#484](https://github.com/atinux/nuxt-auth-utils/pull/484))
+- Add OpenID Connect (OIDC) provider ([#444](https://github.com/atinux/nuxt-auth-utils/pull/444))
+
+### 🩹 Fixes
+
+- **x:** Use handlePkceVerifier for proper PKCE flow ([#482](https://github.com/atinux/nuxt-auth-utils/pull/482))
+
+### 🏡 Chore
+
+- Update deps ([16e307e](https://github.com/atinux/nuxt-auth-utils/commit/16e307e))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](https://github.com/atinux))
+- Lars Rickert ([@larsrickert](https://github.com/larsrickert))
+- Jon <jon.muller@gmail.com>
+- Kevin Olson ([@acidjazz](https://github.com/acidjazz))
+
 ## v0.5.26
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.25...v0.5.26)
