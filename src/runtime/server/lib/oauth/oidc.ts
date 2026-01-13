@@ -46,10 +46,10 @@ export interface OAuthOidcConfig {
    */
   redirectURL?: string
   /**
-   * Additional custom parameters that are passed to the specific endpoint requests.
-   * Can be used to provide custom (query) parameters.
+   * Additional custom params that are passed to the specific endpoint requests.
+   * Can be used to provide custom (query) params.
    */
-  parameters?: Partial<Record<'authorization_endpoint' | 'token_endpoint' | 'userinfo_endpoint', object>>
+  params?: Partial<Record<'authorization_endpoint' | 'token_endpoint' | 'userinfo_endpoint', object>>
 
 }
 
@@ -282,11 +282,11 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
         scope: config.scope.join(' '),
         state,
         response_type: 'code',
-        ...config.parameters?.authorization_endpoint,
+        ...config.params?.authorization_endpoint,
       }
 
       // when using PKCE, we need to set the code_challenge in the request
-      // since some OIDC providers fail with an error if those parameters are set with "undefined" value
+      // since some OIDC providers fail with an error if those params are set with "undefined" value
       // we make sure to only include them at all if they are set
       if (verifier) {
         authQuery.code_challenge = verifier.code_challenge
@@ -307,11 +307,11 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       client_secret: config.clientSecret,
       redirect_uri: redirectURL,
       code: query.code,
-      ...config.parameters?.token_endpoint,
+      ...config.params?.token_endpoint,
     }
 
     // when using PKCE, we need to set the code_challenge in the request
-    // since some OIDC providers fail with an error if those parameters are set with "undefined" value
+    // since some OIDC providers fail with an error if those params are set with "undefined" value
     // we make sure to only include them at all if they are set
     if (verifier) {
       tokenQuery.code_verifier = verifier.code_verifier
@@ -332,7 +332,9 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       user = await $fetch<TUser>(oidcConfig.userinfo_endpoint, {
         headers: {
           Authorization: `${tokens.token_type} ${tokens.access_token}`,
-          ...(config.parameters?.userinfo_endpoint as Record<string, string>),
+        },
+        params: {
+          ...(config.params?.userinfo_endpoint as Record<string, string>),
         },
       })
     }
