@@ -12,7 +12,7 @@ export function useUserSession(): UserSessionComposable {
   const authReadyState = useState('nuxt-auth-ready', () => false)
 
   const clear = async () => {
-    await useRequestFetch()('/api/_auth/session', {
+    await useRequestFetch()('/session/_auth/session', {
       method: 'DELETE',
       onResponse({ response: { headers } }: { response: { headers: Headers } }) {
         // Forward the Set-Cookie header to the main server event
@@ -27,7 +27,7 @@ export function useUserSession(): UserSessionComposable {
   }
 
   const fetch = async () => {
-    sessionState.value = await useRequestFetch()<UserSession>('/api/_auth/session', {
+    sessionState.value = await useRequestFetch()<UserSession>('/session/_auth/session', {
       headers: {
         accept: 'application/json',
       },
