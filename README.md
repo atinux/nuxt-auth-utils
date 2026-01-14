@@ -449,6 +449,8 @@ export default defineWebAuthnRegisterEventHandler({
   },
 })
 ```
+> [!TIP]
+> If you want to plug in and use the [Community sourced list of AAGUIDS](https://github.com/passkeydeveloper/passkey-authenticator-aaguids) to decorate your display of added passkeys, you can access the the ID via `credential.aaguid` inside `onSuccess`
 
 ```ts
 // server/api/webauthn/authenticate.post.ts
