@@ -49,7 +49,22 @@ export interface OAuthKickConfig {
   redirectURL?: string
 }
 
-export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthKickConfig>) {
+interface KickUser {
+  email: string
+  name: string
+  profile_picture: string
+  user_id: string
+}
+
+interface KickTokens {
+  access_token: string
+  expires_in: number
+  refresh_token: string
+  scope: string
+  token_type: string
+}
+
+export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthKickConfig, { user: KickUser, tokens: KickTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.kick, {
       authorizationURL: 'https://id.kick.com/oauth/authorize',
@@ -101,9 +116,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
     }
     const accessToken = tokens.access_token
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data }: any = await $fetch('https://api.kick.com/public/v1/users', {
+    const { data } = await $fetch<{ data: KickUser[] }>('https://api.kick.com/public/v1/users', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/json',
