@@ -58,7 +58,29 @@ export interface OAuthTwitchConfig {
   redirectURL?: string
 }
 
-export function defineOAuthTwitchEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig>) {
+interface TwitchUser {
+  id: string
+  login: string
+  display_name: string
+  type: string
+  broadcaster_type: string
+  description: string
+  profile_image_url: string
+  offline_image_url: string
+  view_count: number
+  email?: string
+  created_at: string
+}
+
+interface TwitchTokens {
+  access_token: string
+  expires_in: number
+  refresh_token: string
+  scope: string[]
+  token_type: string
+}
+
+export function defineOAuthTwitchEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig, { user: TwitchUser, tokens: TwitchTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.twitch, {
       authorizationURL: 'https://id.twitch.tv/oauth2/authorize',
@@ -107,9 +129,8 @@ export function defineOAuthTwitchEventHandler({ config, onSuccess, onError }: OA
     }
 
     const accessToken = tokens.access_token
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const users: any = await $fetch('https://api.twitch.tv/helix/users', {
+
+    const users = await $fetch<{ data: TwitchUser[] }>('https://api.twitch.tv/helix/users', {
       headers: {
         'Client-ID': config.clientId,
         'Authorization': `Bearer ${accessToken}`,
