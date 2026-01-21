@@ -6,7 +6,7 @@ import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
 import type { QueryObject } from 'ufo'
 import { withQuery } from 'ufo'
 import type { RequestAccessTokenBody } from '../utils'
-import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken, handleNonce, parseJwt } from '../utils'
 
 export interface OAuthOidcConfig {
   /**
@@ -17,7 +17,6 @@ export interface OAuthOidcConfig {
   clientId?: string
   /**
    * OAuth Client secret.
-   * If unset, PKCE will be used where no client secret is needed.
    *
    * @default process.env.NUXT_OAUTH_OIDC_CLIENT_SECRET
    */
@@ -269,8 +268,9 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
     const state = await handleState(event)
 
-    // if no client secret is provided, we will use PKCE so no client secret is needed
-    const verifier = !config.clientSecret ? await handlePkceVerifier(event) : undefined
+    // We always use PKCE to mitigate man-in-the-middle attacks
+    const verifier = await handlePkceVerifier(event)
+    const nonce = handleNonce(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -280,17 +280,13 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
         redirect_uri: redirectURL,
         scope: config.scope.join(' '),
         state,
+        nonce,
         response_type: 'code',
         ...config.params?.authorization_endpoint,
       }
 
-      // when using PKCE, we need to set the code_challenge in the request
-      // since some OIDC providers fail with an error if those params are set with "undefined" value
-      // we make sure to only include them at all if they are set
-      if (verifier) {
-        authQuery.code_challenge = verifier.code_challenge
-        authQuery.code_challenge_method = verifier.code_challenge_method
-      }
+      authQuery.code_challenge = verifier.code_challenge
+      authQuery.code_challenge_method = verifier.code_challenge_method
 
       return sendRedirect(event, withQuery(oidcConfig.authorization_endpoint, authQuery),
       )
@@ -306,14 +302,8 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       client_secret: config.clientSecret,
       redirect_uri: redirectURL,
       code: query.code,
+      code_verifier: verifier.code_verifier,
       ...config.params?.token_endpoint,
-    }
-
-    // when using PKCE, we need to set the code_challenge in the request
-    // since some OIDC providers fail with an error if those params are set with "undefined" value
-    // we make sure to only include them at all if they are set
-    if (verifier) {
-      tokenQuery.code_verifier = verifier.code_verifier
     }
 
     const tokens = await requestAccessToken<OidcTokens & { error?: unknown }>(oidcConfig.token_endpoint, {
@@ -322,6 +312,18 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
 
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'oidc', tokens, onError)
+    }
+
+    if (tokens.id_token) {
+      const claims = parseJwt(tokens.id_token)
+      if (claims.nonce !== nonce) {
+        const error = createError({
+          statusCode: 401,
+          message: 'OIDC login failed: nonce mismatch',
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
     }
 
     let user = {} as TUser

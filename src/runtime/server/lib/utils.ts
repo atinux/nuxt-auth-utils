@@ -239,3 +239,28 @@ export async function handleState(event: H3Event) {
   })
   return state
 }
+
+export function parseJwt(token: string) {
+  return jose.decodeJwt(token)
+}
+
+export function handleNonce(event: H3Event) {
+  const query = getQuery<{ code?: string }>(event)
+  // If the code is in the query, get the nonce from the cookie and delete the cookie
+  if (query.code) {
+    const nonce = getCookie(event, 'nuxt-auth-nonce')
+    deleteCookie(event, 'nuxt-auth-nonce')
+    return nonce
+  }
+
+  // If the code is not in the query, generate a new nonce and set it in the cookie
+  const nonce = encodeBase64Url(getRandomBytes(8))
+  setCookie(event, 'nuxt-auth-nonce', nonce, {
+    httpOnly: true,
+    secure: !isDevelopment,
+    sameSite: 'lax',
+    maxAge: OAUTH_COOKIE_MAX_AGE,
+    path: '/',
+  })
+  return nonce
+}
