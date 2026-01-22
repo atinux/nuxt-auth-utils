@@ -48,6 +48,7 @@ declare module '#auth-utils' {
     okta?: string
     ory?: string
     oidc?: string
+    osu?: string
   }
 
   interface UserSession {
