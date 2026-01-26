@@ -1,6 +1,35 @@
 # Changelog
 
 
+## v0.5.28
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.27...v0.5.28)
+
+### 🚀 Enhancements
+
+- Add osu! oauth provider ([#492](https://github.com/atinux/nuxt-auth-utils/pull/492))
+
+### 🩹 Fixes
+
+- Rename `oicd` to `oidc` in OAuthProvider type ([#485](https://github.com/atinux/nuxt-auth-utils/pull/485))
+- **OIDC:** Typo + make `PKCE` and `nonce` mandatory as per specs ([#491](https://github.com/atinux/nuxt-auth-utils/pull/491))
+
+### 📖 Documentation
+
+- Add tip in the readme for access aaguid and how to use it ([#487](https://github.com/atinux/nuxt-auth-utils/pull/487))
+
+### 🏡 Chore
+
+- Add types for Kick and Twitch providers ([#489](https://github.com/atinux/nuxt-auth-utils/pull/489))
+
+### ❤️ Contributors
+
+- Sandro Circi ([@sandros94](https://github.com/sandros94))
+- Agatem ([@agatemosu](https://github.com/agatemosu))
+- Lars Rickert <lars.rickert@mail.schwarz>
+- Ahmed Rangel ([@ahmedrangel](https://github.com/ahmedrangel))
+- Kevin Olson ([@acidjazz](https://github.com/acidjazz))
+
 ## v0.5.27
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.26...v0.5.27)
