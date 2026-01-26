@@ -287,6 +287,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.oidc),
       icon: 'i-simple-icons-openid',
     },
+    {
+      title: user.value?.osu || 'osu!',
+      to: '/auth/osu',
+      disabled: Boolean(user.value?.osu),
+      icon: 'i-simple-icons-osu',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,

@@ -538,5 +538,12 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       scope: [],
     })
+    // osu! OAuth
+    runtimeConfig.oauth.osu = defu(runtimeConfig.oauth.osu, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: [],
+    })
   },
 })

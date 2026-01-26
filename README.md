@@ -239,6 +239,7 @@ It can also be set using environment variables:
 - OIDC / OpenID Connect (Generic)
 - Okta
 - Ory
+- osu!
 - PayPal
 - Polar
 - Salesforce
