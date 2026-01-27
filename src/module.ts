@@ -205,6 +205,12 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       baseURL: '',
     })
+    // Box OAuth
+    runtimeConfig.oauth.box = defu(runtimeConfig.oauth.box, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
       clientId: '',
