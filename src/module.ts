@@ -545,5 +545,12 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       scope: [],
     })
+    // RiotGames OAuth
+    runtimeConfig.oauth.riotgames = defu(runtimeConfig.oauth.riotgames, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: [],
+    })
   },
 })

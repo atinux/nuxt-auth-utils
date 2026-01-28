@@ -293,6 +293,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.osu),
       icon: 'i-simple-icons-osu',
     },
+    {
+      title: user.value?.riotgames || 'Riot Games',
+      to: '/auth/riotgames',
+      disabled: Boolean(user.value?.riotgames),
+      icon: 'i-simple-icons-riotgames',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
