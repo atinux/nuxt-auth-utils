@@ -157,7 +157,6 @@ export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }:
       },
     })
 
-
     const account = await $fetch<RiotGamesAccount>(`https://${config.region}.api.riotgames.com/riot/account/v1/accounts/me`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
