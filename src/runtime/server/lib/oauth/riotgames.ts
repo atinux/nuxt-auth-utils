@@ -61,7 +61,7 @@ export interface OAuthRiotGamesConfig {
   region?: 'americas' | 'europe' | 'asia'
 }
 
-interface RiotGamesUser extends RiotGamesAccount, Partial<RiotGamesUserInfo> {}
+interface RiotGamesUser extends RiotGamesAccount, RiotGamesUserInfo {}
 
 interface RiotGamesAccount {
   puuid: string
@@ -151,17 +151,18 @@ export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }:
 
     const accessToken = tokens.access_token
 
-    const userInfo = await $fetch<RiotGamesUserInfo>(`${config.apiURL}/userinfo`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-
-    const account = await $fetch<RiotGamesAccount>(`https://${config.region}.api.riotgames.com/riot/account/v1/accounts/me`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+    const [account, userInfo] = await Promise.all([
+      $fetch<RiotGamesAccount>(`https://${config.region}.api.riotgames.com/riot/account/v1/accounts/me`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }),
+      $fetch<RiotGamesUserInfo>(`${config.apiURL}/userinfo`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }),
+    ])
 
     const user = {
       ...account,
