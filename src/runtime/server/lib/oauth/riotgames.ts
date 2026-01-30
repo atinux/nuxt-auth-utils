@@ -151,15 +151,12 @@ export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }:
 
     const accessToken = tokens.access_token
 
-    let userInfo = {} as RiotGamesUserInfo
+    const userInfo = await $fetch<RiotGamesUserInfo>(`${config.apiURL}/userinfo`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
 
-    if (config.scope?.includes('cpid')) {
-      userInfo = await $fetch<RiotGamesUserInfo>(`${config.apiURL}/userinfo`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    }
 
     const account = await $fetch<RiotGamesAccount>(`https://${config.region}.api.riotgames.com/riot/account/v1/accounts/me`, {
       headers: {
