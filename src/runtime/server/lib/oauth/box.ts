@@ -55,7 +55,7 @@ export interface OAuthBoxConfig {
  * @see https://developer.box.com/reference/get-users-me/
  * @see https://www.postman.com/boxdev/box-s-public-workspace/example/8119550-f7344611-7834-4040-a4ae-d6b3ef95bfdb
  */
-export interface BoxUser {
+interface BoxUser {
   type: 'user'
   id: string
   name: string
@@ -79,7 +79,7 @@ export interface BoxUser {
  * @see https://developer.box.com/reference/post-oauth2-token/
  * @see https://www.postman.com/boxdev/box-s-public-workspace/example/8119550-70a8e5bd-4d25-494c-be2c-5409db9d1ace
  */
-export interface BoxTokens {
+interface BoxTokens {
   access_token: string
   refresh_token: string
   expires_in: number
@@ -107,13 +107,15 @@ export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuth
       authorizationParams: {},
     }) as OAuthBoxConfig
 
-    const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, error_description?: string, state?: string }>(event)
 
     // Handle OAuth error callback
     if (query.error) {
+      // @see https://developer.box.com/reference/resources/oauth2-error
+      const errorMessageParts = [query.error, query.error_description].filter(Boolean).join(': ')
       const error = createError({
         statusCode: 401,
-        message: `Box login failed: ${query.error || 'Unknown error'}`,
+        message: `Box login failed: ${errorMessageParts || 'Unknown error'}`,
         data: query,
       })
 
@@ -169,7 +171,7 @@ export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuth
     // Step 4: Fetch user information
     // TODO: improve typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch(config.userURL as string, {
+    const user: BoxUser = await $fetch(config.userURL as string, {
       headers: {
         Authorization: `Bearer ${tokens.access_token}`,
       },
