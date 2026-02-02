@@ -210,6 +210,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+      scope: [],
     })
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {

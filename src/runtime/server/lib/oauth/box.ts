@@ -55,7 +55,7 @@ export interface OAuthBoxConfig {
  * @see https://developer.box.com/reference/get-users-me/
  * @see https://www.postman.com/boxdev/box-s-public-workspace/example/8119550-f7344611-7834-4040-a4ae-d6b3ef95bfdb
  */
-interface BoxUser {
+interface OAuthBoxUser {
   type: 'user'
   id: string
   name: string
@@ -79,7 +79,7 @@ interface BoxUser {
  * @see https://developer.box.com/reference/post-oauth2-token/
  * @see https://www.postman.com/boxdev/box-s-public-workspace/example/8119550-70a8e5bd-4d25-494c-be2c-5409db9d1ace
  */
-interface BoxTokens {
+interface OAuthBoxTokens {
   access_token: string
   refresh_token: string
   expires_in: number
@@ -98,7 +98,7 @@ interface BoxTokens {
  * @see https://developer.box.com/guides/authentication/oauth2/
  * @see https://www.postman.com/boxdev/box-s-public-workspace/collection/trhp912/box-platform-api
  */
-export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBoxConfig, { user: BoxUser, tokens: BoxTokens }>) {
+export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBoxConfig, { user: OAuthBoxUser, tokens: OAuthBoxTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.box, {
       authorizationURL: 'https://account.box.com/api/oauth2/authorize',
@@ -169,9 +169,7 @@ export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuth
     }
 
     // Step 4: Fetch user information
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: BoxUser = await $fetch(config.userURL as string, {
+    const user: OAuthBoxUser = await $fetch(config.userURL as string, {
       headers: {
         Authorization: `Bearer ${tokens.access_token}`,
       },
