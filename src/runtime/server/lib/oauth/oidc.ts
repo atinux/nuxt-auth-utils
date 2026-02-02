@@ -6,7 +6,7 @@ import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
 import type { QueryObject } from 'ufo'
 import { withQuery } from 'ufo'
 import type { RequestAccessTokenBody } from '../utils'
-import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken, handleNonce, parseJwt } from '../utils'
+import { verifyJwt, getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken, handleNonce, parseJwt } from '../utils'
 
 export interface OAuthOidcConfig {
   /**
@@ -230,6 +230,8 @@ interface OidcTokens {
   id_token?: string
   refresh_token?: string
   expires_in?: number
+  jwks_uri?: string
+  issuer?: string
 }
 
 interface OIDCConfiguration {
@@ -315,7 +317,29 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
     }
 
     if (tokens.id_token) {
-      const claims = parseJwt(tokens.id_token)
+      let claims
+
+      // Check if JWKS is possible
+      if (!oidcConfig.jwks_uri || !oidcConfig.issuer) {
+        claims = parseJwt(tokens.id_token)
+      }
+      else {
+        claims = await verifyJwt(tokens.id_token, {
+          publicJwkUrl: oidcConfig.jwks_uri,
+          issuer: oidcConfig.issuer,
+          audience: config.clientId,
+        })
+      }
+
+      if (!claims) {
+        const error = createError({
+          statusCode: 401,
+          message: 'OIDC login failed: invalid id_token',
+        })
+        if (!onError) throw error
+        return onError(event, error)
+      }
+
       if (claims.nonce !== nonce) {
         const error = createError({
           statusCode: 401,
