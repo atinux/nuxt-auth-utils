@@ -7,6 +7,7 @@ import type { QueryObject } from 'ufo'
 import { withQuery } from 'ufo'
 import type { RequestAccessTokenBody } from '../utils'
 import { verifyJwt, getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken, handleNonce, parseJwt } from '../utils'
+import type { JWTPayload } from 'jose'
 
 export interface OAuthOidcConfig {
   /**
@@ -240,10 +241,14 @@ interface OIDCConfiguration {
   userinfo_endpoint?: string
 }
 
+interface IdTokenPayload extends JWTPayload {
+  nonce?: string
+}
+
 /**
  * Event handler for generic OAuth using OIDC and PKCE.
  */
-export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSuccess, onError }: OAuthConfig<OAuthOidcConfig, { user: TUser, tokens: OidcTokens }>) {
+export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSuccess, onError }: OAuthConfig<OAuthOidcConfig, { user: TUser, tokens: OidcTokens, claims?: IdTokenPayload }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth.oidc, {
       scope: ['openid'],
@@ -315,11 +320,10 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'oidc', tokens, onError)
     }
-
+    // Since not all OIDC providers support the userinfo endpoint,
+    // this should probably be allowed as "user" when verified?
+    let claims: IdTokenPayload | undefined
     if (tokens.id_token) {
-      let claims
-
-      // Check if JWKS is possible
       if (!oidcConfig.jwks_uri || !oidcConfig.issuer) {
         claims = parseJwt(tokens.id_token)
       }
@@ -367,6 +371,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
     return onSuccess(event, {
       user,
       tokens,
+      claims,
     })
   })
 }
