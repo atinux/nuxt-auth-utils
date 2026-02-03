@@ -273,7 +273,7 @@ const providers = computed(() =>
       title: user.value?.ory || 'Ory',
       to: '/auth/ory',
       disabled: Boolean(user.value?.ory),
-      icon: 'i-custom-ory',
+      icon: 'i-simple-icons-ory',
     },
     {
       title: user.value?.shopifyCustomer || 'Shopify Customer',
