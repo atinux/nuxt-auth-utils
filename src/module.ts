@@ -102,6 +102,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
+    addServerPlugin(resolver.resolve('./runtime/server/plugins/site-config'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
     if (nuxt.options.nitro?.experimental?.websocket) {
       addServerPlugin(resolver.resolve('./runtime/server/plugins/ws'))
@@ -140,14 +141,13 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.nitro.unenv.external ||= []
     // @ts-expect-error see comment above
     if (!nuxt.options.nitro.unenv.external.includes('node:crypto')) {
-    // @ts-expect-error see comment above
+      // @ts-expect-error see comment above
       nuxt.options.nitro.unenv.external.push('node:crypto')
     }
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
-    const envSessionPassword = `${
-      runtimeConfig.nitro?.envPrefix || 'NUXT_'
+    const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'
     }SESSION_PASSWORD`
 
     runtimeConfig.session = defu(runtimeConfig.session, {
@@ -176,8 +176,7 @@ export default defineNuxtModule<ModuleOptions>({
         if (!envContent.includes(envSessionPassword)) {
           await writeFile(
             envPath,
-            `${
-              envContent ? envContent + '\n' : envContent
+            `${envContent ? envContent + '\n' : envContent
             }${envSessionPassword}=${password}`,
             'utf-8',
           )
