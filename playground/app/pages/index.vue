@@ -120,6 +120,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-battledotnet',
     },
     {
+      title: user.value?.box || 'Box',
+      to: '/auth/box',
+      disabled: Boolean(user.value?.box),
+      icon: 'i-simple-icons-box',
+    },
+    {
       title: user.value?.keycloak || 'Keycloak',
       to: '/auth/keycloak',
       disabled: Boolean(user.value?.keycloak),

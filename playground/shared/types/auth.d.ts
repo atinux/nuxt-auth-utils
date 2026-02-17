@@ -14,6 +14,7 @@ declare module '#auth-utils' {
     microsoft?: string
     discord?: string
     battledotnet?: string
+    box?: string
     keycloak?: string
     line?: string
     linear?: string
