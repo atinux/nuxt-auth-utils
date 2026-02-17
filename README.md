@@ -219,6 +219,7 @@ It can also be set using environment variables:
 - Azure B2C
 - Battle.net
 - Bluesky (AT Protocol)
+- Box.com
 - Discord
 - Dropbox
 - Facebook
