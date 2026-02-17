@@ -123,10 +123,10 @@ export function defineOAuthKeycloakEventHandler({
         code: query.code,
       } })
       .catch((error) => {
-          if (error instanceof FetchError) {
-            return handleAccessTokenErrorResponse(event, 'keycloak', error.data, onError)
-          }
-          return handleAccessTokenErrorResponse(event, 'keycloak', error, onError) 
+        if (error instanceof FetchError) {
+          return handleAccessTokenErrorResponse(event, 'keycloak', error.data, onError)
+        }
+        return handleAccessTokenErrorResponse(event, 'keycloak', error, onError)
       })
 
     if (tokens.error) {
