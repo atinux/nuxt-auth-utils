@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
+import { FetchError } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
@@ -121,6 +122,12 @@ export function defineOAuthKeycloakEventHandler({
         redirect_uri: redirectURL,
         code: query.code,
       } })
+      .catch((error) => {
+          if (error instanceof FetchError) {
+            return handleAccessTokenErrorResponse(event, 'keycloak', error.data, onError)
+          }
+          return handleAccessTokenErrorResponse(event, 'keycloak', error, onError) 
+      })
 
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'keycloak', tokens, onError)
