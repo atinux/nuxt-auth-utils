@@ -121,6 +121,9 @@ export function defineOAuthKeycloakEventHandler({
         redirect_uri: redirectURL,
         code: query.code,
       } })
+      .catch((error) => {
+        return handleAccessTokenErrorResponse(event, 'keycloak', error?.data || error, onError)
+      })
 
     if (tokens.error) {
       return handleAccessTokenErrorResponse(event, 'keycloak', tokens, onError)
