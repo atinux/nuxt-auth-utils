@@ -304,7 +304,7 @@ if (await verifyPassword(hashedPassword, 'user_password')) {
 It also provides a `passwordNeedsRehash` function to check if a password needs to be rehashed. This is useful when the hash settings are changed, such as as increasing the scrypt cost parameters.
 
 ```ts
-const needsRehash = await passwordNeedsRehash(hashedPassword)
+const needsRehash = passwordNeedsRehash(hashedPassword)
 
 if (needsRehash) {
   // Password needs to be rehashed
