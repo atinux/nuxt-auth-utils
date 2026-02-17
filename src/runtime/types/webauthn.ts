@@ -102,7 +102,7 @@ export interface WebAuthnComposable {
    * @param user.displayName - The display name to register, used for convenience and personalization and should not be relied upon as a secure identifier for authentication processes
    * @returns true if the registration was successful
    */
-  register: <T extends WebAuthnUser>(data: T) => Promise<boolean>
+  register: <T extends WebAuthnUser>(user: T) => Promise<boolean>
   /**
    * Authenticate a credential
    * @param userName - The user name to authenticate, can be an email address, a username, or any other form of unique ID chosen by the user
