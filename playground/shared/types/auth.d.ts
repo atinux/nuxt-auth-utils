@@ -49,6 +49,7 @@ declare module '#auth-utils' {
     ory?: string
     oidc?: string
     osu?: string
+    riotgames?: string
   }
 
   interface UserSession {
