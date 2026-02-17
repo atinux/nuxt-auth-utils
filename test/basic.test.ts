@@ -23,7 +23,7 @@ describe('ssr', async () => {
 
   it('returns an empty session', async () => {
     // Get response to a server-rendered page with `$fetch`.
-    const session = await $fetch('/api/_auth/session')
+    const session = await $fetch('/session/_auth/session')
     // Session should be an object with an `id` property
     expect(session).toBeInstanceOf(Object)
     expect(session).toHaveProperty('id')
