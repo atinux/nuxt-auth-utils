@@ -10,7 +10,7 @@ export default defineNuxtPlugin(async (nuxtApp: NuxtApp) => {
     || nuxtApp.$config.public.auth.loadStrategy === 'client-only'
   ) {
     // To avoid hydration mismatch
-    nuxtApp.hook('app:mounted', async () => {
+    nuxtApp.hook('app:suspense:resolve', async () => {
       await useUserSession().fetch()
     })
   }
