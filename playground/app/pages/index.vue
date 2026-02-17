@@ -279,7 +279,7 @@ const providers = computed(() =>
       title: user.value?.ory || 'Ory',
       to: '/auth/ory',
       disabled: Boolean(user.value?.ory),
-      icon: 'i-custom-ory',
+      icon: 'i-simple-icons-ory',
     },
     {
       title: user.value?.shopifyCustomer || 'Shopify Customer',
@@ -298,6 +298,12 @@ const providers = computed(() =>
       to: '/auth/osu',
       disabled: Boolean(user.value?.osu),
       icon: 'i-simple-icons-osu',
+    },
+    {
+      title: user.value?.riotgames || 'Riot Games',
+      to: '/auth/riotgames',
+      disabled: Boolean(user.value?.riotgames),
+      icon: 'i-simple-icons-riotgames',
     },
   ].map(p => ({
     ...p,
