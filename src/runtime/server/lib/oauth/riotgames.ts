@@ -86,7 +86,7 @@ interface RiotGamesTokens {
 
 export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthRiotGamesConfig, { user: RiotGamesUser, tokens: RiotGamesTokens }>) {
   return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event)?.oauth.riotgames, {
+    config = defu(config, useRuntimeConfig(event).oauth?.riotgames, {
       authorizationURL: 'https://auth.riotgames.com/authorize',
       tokenURL: 'https://auth.riotgames.com/token',
       apiURL: 'https://auth.riotgames.com',

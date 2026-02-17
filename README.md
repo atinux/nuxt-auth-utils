@@ -242,7 +242,7 @@ It can also be set using environment variables:
 - osu!
 - PayPal
 - Polar
-- RiotGames
+- Riot Games
 - Salesforce
 - Seznam
 - Shopify Customer

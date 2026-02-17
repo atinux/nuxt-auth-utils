@@ -37,6 +37,7 @@ coverage
 # Intellij idea
 *.iml
 .idea
+.cursor
 
 # OSX
 .DS_Store
