@@ -1,6 +1,37 @@
 # Changelog
 
 
+## v0.5.29
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.28...v0.5.29)
+
+### 🚀 Enhancements
+
+- Add RiotGames OAuth provider ([#495](https://github.com/atinux/nuxt-auth-utils/pull/495))
+- Add Box provider ([#498](https://github.com/atinux/nuxt-auth-utils/pull/498))
+
+### 🩹 Fixes
+
+- Keycloak provider unhandled error on requestAccessToken ([#504](https://github.com/atinux/nuxt-auth-utils/pull/504))
+
+### 📖 Documentation
+
+- Fix passwordNeedsRehash usage in README ([#502](https://github.com/atinux/nuxt-auth-utils/pull/502))
+
+### 🏡 Chore
+
+- **playground:** Remove local icon Ory ([#499](https://github.com/atinux/nuxt-auth-utils/pull/499))
+- Update deps ([a3d6317](https://github.com/atinux/nuxt-auth-utils/commit/a3d6317))
+
+### ❤️ Contributors
+
+- Sébastien Chopin ([@atinux](https://github.com/atinux))
+- Ciril.tr <ciroman@gmail.com>
+- Robert Hoffmann <mail.someone@gmail.com>
+- Ahmed Rangel ([@ahmedrangel](https://github.com/ahmedrangel))
+- Jordan Labrosse <jordan.labrosse@gameverse.app>
+- Richex-cn <i@richex.cn>
+
 ## v0.5.28
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.27...v0.5.28)
