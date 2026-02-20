@@ -196,6 +196,17 @@ export default defineNuxtModule<ModuleOptions>({
       authenticate: {},
     })
 
+    // Security settings
+    runtimeConfig.nuxtAuthUtils = defu(runtimeConfig.nuxtAuthUtils, {})
+    runtimeConfig.nuxtAuthUtils.security = defu(runtimeConfig.nuxtAuthUtils.security, {
+      cookie: {
+        secure: true,
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 60 * 15,
+      },
+    })
+
     // OAuth settings
     runtimeConfig.oauth = defu(runtimeConfig.oauth, {})
     // Gitea OAuth

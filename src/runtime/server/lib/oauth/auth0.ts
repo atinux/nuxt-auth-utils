@@ -1,8 +1,10 @@
-import type { H3Event } from 'h3'
+import type { H3Event, H3Error } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { checks } from '../../utils/security'
+import { type OAuthChecks, checks } from '../../utils/security'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -24,7 +26,7 @@ export interface OAuthAuth0Config {
   domain?: string
   /**
    * Auth0 OAuth Audience
-   * @default process.env.NUXT_OAUTH_AUTH0_AUDIENCE
+   * @default ''
    */
   audience?: string
   /**
@@ -45,6 +47,20 @@ export interface OAuthAuth0Config {
    * @see https://auth0.com/docs/authenticate/login/max-age-reauthentication
    */
   maxAge?: number
+  /**
+   * checks
+   * @default []
+   * @see https://auth0.com/docs/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce
+   * @see https://auth0.com/docs/protocols/oauth2/oauth-state
+   */
+  checks?: OAuthChecks[]
+  /**
+   * checks
+   * @default []
+   * @see https://auth0.com/docs/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce
+   * @see https://auth0.com/docs/protocols/oauth2/oauth-state
+   */
+  checks?: OAuthChecks[]
   /**
    * Login connection. If no connection is specified, it will redirect to the standard Auth0 login page and show the Login Widget.
    * @default ''
@@ -93,6 +109,7 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
     }
 
     if (!query.code) {
+      const authParam = await checks.create(event, config.checks) // Initialize checks
       config.scope = config.scope || ['openid', 'offline_access']
       if (config.emailRequired && !config.scope.includes('email')) {
         config.scope.push('email')
@@ -109,8 +126,19 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
           max_age: config.maxAge || 0,
           connection: config.connection || '',
           ...config.authorizationParams,
+          ...authParam,
         }),
       )
+    }
+
+    // Verify checks
+    let checkResult
+    try {
+      checkResult = await checks.use(event, config.checks)
+    }
+    catch (error) {
+      if (!onError) throw error
+      return onError(event, error as H3Error)
     }
 
     const tokens = await requestAccessToken(tokenURL as string, {
@@ -123,6 +151,7 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
+        ...checkResult,
       },
     })
 
