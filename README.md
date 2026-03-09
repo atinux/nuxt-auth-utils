@@ -254,6 +254,7 @@ It can also be set using environment variables:
 - TikTok
 - Twitch
 - VK
+- WeChat
 - WorkOS
 - X (Twitter)
 - XSUAA
