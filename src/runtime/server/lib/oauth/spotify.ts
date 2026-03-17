@@ -21,14 +21,9 @@ export interface OAuthSpotifyConfig {
    * Spotify OAuth Scope
    * @default []
    * @see https://developer.spotify.com/documentation/web-api/concepts/scopes
-   * @example ['user-read-email']
+   * @example ['playlist-read-private']
    */
   scope?: string[]
-  /**
-   * Require email from user, adds the ['user-read-email'] scope if not present
-   * @default false
-   */
-  emailRequired?: boolean
 
   /**
    * Spotify OAuth Authorization URL
@@ -96,9 +91,6 @@ export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: O
 
     if (!query.code) {
       config.scope = config.scope || []
-      if (config.emailRequired && !config.scope.includes('user-read-email')) {
-        config.scope.push('user-read-email')
-      }
       // Redirect to Spotify Oauth page
       return sendRedirect(
         event,
