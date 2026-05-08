@@ -100,10 +100,10 @@ export function defineOAuthSalesforceEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state,
+          ...config.authorizationParams,
           code_challenge: pkce.code_challenge,
           code_challenge_method: pkce.code_challenge_method,
-          ...config.authorizationParams,
+          state,
         }),
       )
     }
