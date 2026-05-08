@@ -96,11 +96,11 @@ export function defineOAuthSalesforceEventHandler({
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {
+          ...config.authorizationParams,
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          ...config.authorizationParams,
           code_challenge: pkce.code_challenge,
           code_challenge_method: pkce.code_challenge_method,
           state,
