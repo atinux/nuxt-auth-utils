@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, handleState, handleInvalidState } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, handleState, handleInvalidState, handlePkceVerifier } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -82,6 +82,7 @@ export function defineOAuthSalesforceEventHandler({
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const pkce = await handlePkceVerifier(event)
     const state = await handleState(event)
 
     if (!query.code) {
@@ -94,6 +95,8 @@ export function defineOAuthSalesforceEventHandler({
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           state,
+          code_challenge: pkce.code_challenge,
+          code_challenge_method: pkce.code_challenge_method,
           ...config.authorizationParams,
         }),
       )
@@ -110,6 +113,7 @@ export function defineOAuthSalesforceEventHandler({
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
+        code_verifier: pkce.code_verifier,
       },
     })
 
