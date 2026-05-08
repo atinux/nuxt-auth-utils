@@ -40,6 +40,11 @@ export interface OAuthSalesforceConfig {
    */
   tokenURL?: string
   /**
+   * Salesforce OAuth User URL
+   * @default 'https://login.salesforce.com/services/oauth2/userinfo'
+   */
+  userURL?: string
+  /**
    * Extra authorization parameters to provide to the authorization URL
    * @default {}
    */
@@ -62,6 +67,7 @@ export function defineOAuthSalesforceEventHandler({
     config = defu(config, runtimeConfig, {
       authorizationURL: `${baseURL}/services/oauth2/authorize`,
       tokenURL: `${baseURL}/services/oauth2/token`,
+      userURL: `${baseURL}/services/oauth2/userinfo`,
       authorizationParams: {},
     }) as OAuthSalesforceConfig
 
@@ -122,7 +128,7 @@ export function defineOAuthSalesforceEventHandler({
     }
 
     const accessToken = tokens.access_token
-    const user = await $fetch(`${baseURL}/services/oauth2/userinfo`, {
+    const user = await $fetch(config.userURL as string, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
