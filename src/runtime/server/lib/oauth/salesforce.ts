@@ -31,17 +31,17 @@ export interface OAuthSalesforceConfig {
   baseURL?: string
   /**
    * Salesforce OAuth Authorization URL
-   * @default 'https://login.salesforce.com/services/oauth2/authorize'
+   * @default '${baseURL}/services/oauth2/authorize'
    */
   authorizationURL?: string
   /**
-   * Salesforce OAuth Authorization URL
-   * @default 'https://login.salesforce.com/services/oauth2/token'
+   * Salesforce OAuth Token URL
+   * @default '${baseURL}/services/oauth2/token'
    */
   tokenURL?: string
   /**
    * Salesforce OAuth User URL
-   * @default 'https://login.salesforce.com/services/oauth2/userinfo'
+   * @default '${baseURL}/services/oauth2/userinfo'
    */
   userURL?: string
   /**
