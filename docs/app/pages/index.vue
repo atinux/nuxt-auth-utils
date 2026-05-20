@@ -2,7 +2,7 @@
 definePageMeta({ layout: 'default' })
 
 const title = 'Nuxt Auth Utils — Authentication for Nuxt'
-const description = 'Add Authentication to Nuxt applications with secured & sealed cookies sessions'
+const description = 'Add authentication to Nuxt applications with secure, sealed cookie sessions'
 
 useSeoMeta({
   title: title,
