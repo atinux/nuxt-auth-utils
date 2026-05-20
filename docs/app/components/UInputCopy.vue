@@ -20,7 +20,7 @@ const { copy, copied } = useClipboard()
       disabled
       :ui="{
         root: 'w-max max-w-full font-mono',
-        base: 'field-sizing-content min-w-[34ch] whitespace-nowrap',
+        base: 'u-input-copy-base min-w-[34ch] whitespace-nowrap',
         trailing: 'pe-1 shrink-0',
       }"
     >
@@ -44,3 +44,11 @@ const { copy, copied } = useClipboard()
     </UInput>
   </label>
 </template>
+
+<style scoped>
+@supports (field-sizing: content) {
+  .u-input-copy-base {
+    field-sizing: content;
+  }
+}
+</style>
