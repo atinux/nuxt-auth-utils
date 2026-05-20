@@ -10,6 +10,7 @@
         to="https://github.com/atinux/nuxt-auth-utils/blob/main/LICENSE"
         target="_blank"
         class="text-sm text-muted"
+        rel="noopener noreferrer"
       >
         Published under <span class="text-highlighted">MIT License</span>
       </NuxtLink>
