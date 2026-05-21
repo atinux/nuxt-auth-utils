@@ -22,6 +22,7 @@
         icon="i-simple-icons-github"
         to="https://github.com/atinux/nuxt-auth-utils"
         target="_blank"
+        rel="noopener noreferrer"
         color="neutral"
         variant="ghost"
         size="sm"
