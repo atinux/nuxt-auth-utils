@@ -14,12 +14,6 @@ export default defineNuxtConfig({
     preference: 'dark',
   },
 
-  content: {
-    experimental: {
-      sqliteConnector: 'native',
-    },
-  },
-
   compatibilityDate: '2025-05-18',
 
   ogImage: {
