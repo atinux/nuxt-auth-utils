@@ -29,6 +29,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-github',
     },
     {
+      title: user.value?.cloudflare || 'Cloudflare',
+      to: '/auth/cloudflare',
+      disabled: Boolean(user.value?.cloudflare),
+      icon: 'i-simple-icons-cloudflare',
+    },
+    {
       title: user.value?.bluesky || 'Bluesky',
       onClick() {
         const handle = prompt('Enter your Bluesky handle')
