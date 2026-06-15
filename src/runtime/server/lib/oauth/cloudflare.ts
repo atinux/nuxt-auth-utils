@@ -26,7 +26,9 @@ export interface OAuthCloudflareConfig {
    */
   clientId?: string
   /**
-   * Cloudflare OAuth Client Secret
+   * Cloudflare OAuth Client Secret. Required for confidential clients
+   * (`client_secret_post`/`client_secret_basic`); omit for public PKCE-only
+   * clients (`token_endpoint_auth_method=none`).
    * @default process.env.NUXT_OAUTH_CLOUDFLARE_CLIENT_SECRET
    */
   clientSecret?: string
@@ -112,8 +114,8 @@ export function defineOAuthCloudflareEventHandler({ config, onSuccess, onError }
       return onError(event, error)
     }
 
-    if (!config.clientId || !config.clientSecret) {
-      return handleMissingConfiguration(event, 'cloudflare', ['clientId', 'clientSecret'], onError)
+    if (!config.clientId) {
+      return handleMissingConfiguration(event, 'cloudflare', ['clientId'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
@@ -147,7 +149,8 @@ export function defineOAuthCloudflareEventHandler({ config, onSuccess, onError }
       body: {
         grant_type: 'authorization_code',
         client_id: config.clientId,
-        client_secret: config.clientSecret,
+        // Public (PKCE-only) clients authenticate with `none` and send no secret.
+        ...(config.clientSecret ? { client_secret: config.clientSecret } : {}),
         redirect_uri: redirectURL,
         code: query.code,
         code_verifier: pkce.code_verifier,
