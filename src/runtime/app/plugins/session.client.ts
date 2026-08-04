@@ -15,10 +15,15 @@ export default defineNuxtPlugin(async (nuxtApp: NuxtApp) => {
     })
   }
 
-  if (localStorage.getItem('temp-nuxt-auth-utils-popup')) {
-    // There is a local storage item. That's mean we are coming back in the popup
-    localStorage.removeItem('temp-nuxt-auth-utils-popup')
-    const error = useError()
-    if (!error.value) window.close()
+  try {
+    if (localStorage.getItem('temp-nuxt-auth-utils-popup')) {
+      // There is a local storage item. That's mean we are coming back in the popup
+      localStorage.removeItem('temp-nuxt-auth-utils-popup')
+      const error = useError()
+      if (!error.value) window.close()
+    }
+  }
+  catch (error) {
+    console.error('[nuxt-auth-utils] Could not use localStorage during popup flow last step. Popup won\'t be closed automatically.', error)
   }
 })
