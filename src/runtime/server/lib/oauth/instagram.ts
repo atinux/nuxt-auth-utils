@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -75,6 +75,7 @@ export function defineOAuthInstagramEventHandler({
       error?: string
       error_reason?: string
       error_description?: string
+      state?: string
     }>(event)
 
     if (query.error) {
@@ -96,6 +97,7 @@ export function defineOAuthInstagramEventHandler({
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -107,8 +109,13 @@ export function defineOAuthInstagramEventHandler({
           redirect_uri: redirectURL,
           scope: config.scope.join(),
           response_type: 'code',
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'instagram', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

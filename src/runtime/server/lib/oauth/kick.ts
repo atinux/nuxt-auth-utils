@@ -2,8 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { randomUUID } from 'uncrypto'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, handlePkceVerifier } from '../utils'
+import { handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, handlePkceVerifier, handleState } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -70,13 +69,14 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
       authorizationURL: 'https://id.kick.com/oauth/authorize',
       tokenURL: 'https://id.kick.com/oauth/token',
     }) as OAuthKickConfig
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'kick', ['clientId', 'clientSecret'], onError)
     }
 
     // Create pkce verifier
     const verifier = await handlePkceVerifier(event)
+    const state = await handleState(event)
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
@@ -93,11 +93,15 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state: randomUUID(),
+          state,
           code_challenge: verifier.code_challenge,
           code_challenge_method: verifier.code_challenge_method,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'kick', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

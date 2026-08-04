@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
-import { setup, $fetch } from '@nuxt/test-utils'
+import { setup, $fetch, fetch } from '@nuxt/test-utils'
 import { randomUUID } from 'uncrypto'
 
 describe('ssr', async () => {
@@ -27,5 +27,31 @@ describe('ssr', async () => {
     // Session should be an object with an `id` property
     expect(session).toBeInstanceOf(Object)
     expect(session).toHaveProperty('id')
+  })
+
+  it('generates state for OAuth authorization requests', async () => {
+    const response = await fetch('/auth/google', {
+      redirect: 'manual',
+    })
+    const location = new URL(response.headers.get('location')!)
+    const state = location.searchParams.get('state')
+
+    expect(response.status).toBe(302)
+    expect(state).toBeTruthy()
+    expect(state).not.toBe('configured-state-must-not-override-generated-state')
+  })
+
+  it('rejects OAuth callbacks without matching browser state', async () => {
+    const response = await $fetch<{ success: boolean, error: string }>('/auth/google', {
+      query: {
+        code: 'attacker-code',
+        state: 'attacker-state',
+      },
+    })
+
+    expect(response).toEqual({
+      success: false,
+      error: 'Google login failed: state mismatch',
+    })
   })
 })

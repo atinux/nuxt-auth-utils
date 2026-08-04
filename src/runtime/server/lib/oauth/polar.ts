@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, getOAuthRedirectURL, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -67,12 +67,13 @@ export function defineOAuthPolarEventHandler({ config, onSuccess, onError }: OAu
       authorizationURL: 'https://polar.sh/oauth2/authorize',
       tokenURL: 'https://api.polar.sh/v1/oauth2/token',
     }) as OAuthPolarConfig
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'polar', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -90,8 +91,13 @@ export function defineOAuthPolarEventHandler({ config, onSuccess, onError }: OAu
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'polar', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

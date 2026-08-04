@@ -3,7 +3,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { discovery } from 'openid-client'
 import { withQuery } from 'ufo'
-import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleMissingConfiguration, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -65,8 +65,9 @@ export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: O
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       end_session_endpoint: logoutURL,
     } = issuer.serverMetadata()
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || ['openid', 'profile']
@@ -79,8 +80,13 @@ export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: O
           response_type: 'code',
           scope: config.scope.join(' '),
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'cognito', onError)
     }
 
     const tokens = await requestAccessToken(

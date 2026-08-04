@@ -142,8 +142,8 @@ export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuth
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: scope.join(' '),
-          state,
           ...config.authorizationParams,
+          state,
         }),
       )
     }

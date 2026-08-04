@@ -86,8 +86,8 @@ export function defineOAuthOsuEventHandler({ config, onSuccess, onError }: OAuth
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state,
           ...config.authorizationParams,
+          state,
         }),
       )
     }

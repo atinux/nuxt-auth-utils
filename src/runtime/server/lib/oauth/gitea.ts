@@ -6,6 +6,8 @@ import {
   handleMissingConfiguration,
   handleAccessTokenErrorResponse,
   getOAuthRedirectURL,
+  handleInvalidState,
+  handleState,
   requestAccessToken,
 } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
@@ -80,7 +82,7 @@ export function defineOAuthGiteaEventHandler({
       authorizationParams: {},
     }) as OAuthGiteaConfig
 
-    const query = getQuery<{ code?: string, error?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -102,6 +104,7 @@ export function defineOAuthGiteaEventHandler({
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -120,8 +123,13 @@ export function defineOAuthGiteaEventHandler({
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'gitea', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

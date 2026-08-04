@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -114,6 +114,10 @@ export function defineOAuthShopifyCustomerEventHandler({
           code_challenge_method: verifier.code_challenge_method,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'shopifyCustomer', onError)
     }
 
     const tokens: AccessTokenResponse = await requestAccessToken(discoveryResponse.token_endpoint, {

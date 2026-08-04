@@ -6,6 +6,8 @@ import {
   getOAuthRedirectURL,
   handleAccessTokenErrorResponse,
   handleMissingConfiguration,
+  handleInvalidState,
+  handleState,
   requestAccessToken,
 } from '../utils'
 import { useRuntimeConfig } from '#imports'
@@ -81,6 +83,8 @@ export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: O
       return handleAccessTokenErrorResponse(event, 'hubspot', query, onError)
     }
 
+    const state = await handleState(event)
+
     if (!query.code) {
       return sendRedirect(
         event,
@@ -88,8 +92,13 @@ export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: O
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope?.join(' ') || 'oauth',
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'hubspot', onError)
     }
 
     const tokens = await requestAccessToken(

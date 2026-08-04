@@ -214,26 +214,32 @@ export async function handlePkceVerifier(event: H3Event) {
   }
   // If the verifier is in the cookie, get it from the cookie and delete the cookie
   const verifier = getCookie(event, 'nuxt-auth-pkce')
-  deleteCookie(event, 'nuxt-auth-pkce')
+  deleteCookie(event, 'nuxt-auth-pkce', { path: '/' })
 
   return { code_verifier: verifier }
 }
 
-export async function handleState(event: H3Event) {
-  const query = getQuery<{ state?: string }>(event)
-  // If the state is in the query, get it from the cookie and delete the cookie
-  if (query.state) {
+interface HandleStateOptions {
+  isCallback?: boolean
+  sameSite?: 'lax' | 'none' | 'strict'
+}
+
+export async function handleState(event: H3Event, options: HandleStateOptions = {}) {
+  const query = getQuery<{ code?: string }>(event)
+  const isCallback = options.isCallback ?? Boolean(query.code)
+
+  if (isCallback) {
     const state = getCookie(event, 'nuxt-auth-state')
-    deleteCookie(event, 'nuxt-auth-state')
+    deleteCookie(event, 'nuxt-auth-state', { path: '/' })
     return state
   }
 
-  // If the state is not in the query, generate a new state and set it in the cookie
-  const state = encodeBase64Url(getRandomBytes(8))
+  const state = encodeBase64Url(getRandomBytes())
+  const sameSite = options.sameSite || 'lax'
   setCookie(event, 'nuxt-auth-state', state, {
     httpOnly: true,
-    secure: !isDevelopment,
-    sameSite: 'lax',
+    secure: sameSite === 'none' || !isDevelopment,
+    sameSite,
     maxAge: OAUTH_COOKIE_MAX_AGE,
     path: '/',
   })
@@ -249,12 +255,12 @@ export function handleNonce(event: H3Event) {
   // If the code is in the query, get the nonce from the cookie and delete the cookie
   if (query.code) {
     const nonce = getCookie(event, 'nuxt-auth-nonce')
-    deleteCookie(event, 'nuxt-auth-nonce')
+    deleteCookie(event, 'nuxt-auth-nonce', { path: '/' })
     return nonce
   }
 
   // If the code is not in the query, generate a new nonce and set it in the cookie
-  const nonce = encodeBase64Url(getRandomBytes(8))
+  const nonce = encodeBase64Url(getRandomBytes())
   setCookie(event, 'nuxt-auth-nonce', nonce, {
     httpOnly: true,
     secure: !isDevelopment,

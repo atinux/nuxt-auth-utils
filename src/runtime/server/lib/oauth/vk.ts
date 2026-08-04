@@ -7,6 +7,8 @@ import {
   handleMissingConfiguration,
   handleAccessTokenErrorResponse,
   getOAuthRedirectURL,
+  handleInvalidState,
+  handleState,
   requestAccessToken,
   type RequestAccessTokenBody,
 } from '../utils'
@@ -77,7 +79,7 @@ export function defineOAuthVKEventHandler({
       userURL: 'https://id.vk.com/oauth2/user_info',
     }) as OAuthVKConfig
 
-    const query = getQuery<{ code?: string, device_id?: string }>(event)
+    const query = getQuery<{ code?: string, device_id?: string, state?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(
@@ -90,6 +92,7 @@ export function defineOAuthVKEventHandler({
 
     const codeVerifier = 'verify'
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -105,11 +108,15 @@ export function defineOAuthVKEventHandler({
           client_id: config.clientId,
           code_challenge: crypto.createHash('sha256').update(codeVerifier).digest('base64url'),
           code_challenge_method: 's256',
-          state: crypto.randomUUID(),
+          state,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'vk', onError)
     }
 
     interface VKRequestAccessTokenBody extends RequestAccessTokenBody {

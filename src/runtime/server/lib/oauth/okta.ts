@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError, deleteCookie } from 'h3'
+import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleState, handleInvalidState, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
@@ -233,15 +233,14 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
           audience: config.audience || '',
           max_age: config.maxAge || 0,
           connection: config.connection || '',
-          state,
           ...config.authorizationParams,
+          state,
         }),
       )
     }
 
     // Step 2: Validate callback state
     if (query.state !== state) {
-      deleteCookie(event, 'nuxt-auth-state')
       return handleInvalidState(event, 'okta', onError)
     }
 

@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -54,7 +54,7 @@ export function defineOAuthLinearEventHandler({ config, onSuccess, onError }: OA
       authorizationParams: {},
     }) as OAuthLinearConfig
 
-    const query = getQuery<{ code?: string, error?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -71,6 +71,7 @@ export function defineOAuthLinearEventHandler({ config, onSuccess, onError }: OA
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || ['read']
@@ -83,8 +84,13 @@ export function defineOAuthLinearEventHandler({ config, onSuccess, onError }: OA
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'linear', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

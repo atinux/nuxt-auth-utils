@@ -93,10 +93,10 @@ export function defineOAuthAzureB2CEventHandler({ config, onSuccess, onError }: 
           response_type: 'code',
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state,
           code_challenge: verifier.code_challenge,
           code_challenge_method: verifier.code_challenge_method,
           ...config.authorizationParams,
+          state,
         }),
       )
     }

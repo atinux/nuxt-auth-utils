@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -62,13 +62,14 @@ export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: O
       tokenURL: 'https://accounts.spotify.com/api/token',
       authorizationParams: {},
     }) as OAuthSpotifyConfig
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'spotify', ['clientId', 'clientSecret'], onError)
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -84,8 +85,13 @@ export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: O
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'spotify', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

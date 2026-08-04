@@ -2,11 +2,12 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { defu } from 'defu'
 import { withQuery } from 'ufo'
-import { randomUUID } from 'uncrypto'
 import {
   getOAuthRedirectURL,
   handleAccessTokenErrorResponse,
+  handleInvalidState,
   handleMissingConfiguration,
+  handleState,
   requestAccessToken,
 } from '../utils'
 import { useRuntimeConfig } from '#imports'
@@ -103,9 +104,7 @@ export function defineOAuthLiveChatEventHandler({
       authorizationURL: 'https://accounts.livechat.com',
       tokenURL: 'https://accounts.livechat.com/v2/token',
       userURL: 'https://accounts.livechat.com/v2/accounts/me',
-      authorizationParams: {
-        state: randomUUID(),
-      },
+      authorizationParams: {},
     }) as LiveChatConfig
 
     if (!config.clientId || !config.clientSecret) {
@@ -117,8 +116,9 @@ export function defineOAuthLiveChatEventHandler({
       )
     }
 
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       return sendRedirect(
@@ -129,8 +129,13 @@ export function defineOAuthLiveChatEventHandler({
           response_type: 'code',
           scope: config.scope?.length ? config.scope.join(' ') : undefined,
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'livechat', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL!, {

@@ -6,6 +6,8 @@ import {
   handleMissingConfiguration,
   handleAccessTokenErrorResponse,
   getOAuthRedirectURL,
+  handleInvalidState,
+  handleState,
   requestAccessToken,
 } from '../utils'
 import { useRuntimeConfig } from '#imports'
@@ -75,7 +77,7 @@ export function defineOAuthYandexEventHandler({
       userURL: 'https://login.yandex.ru/info',
     }) as OAuthYandexConfig
 
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(
@@ -87,6 +89,7 @@ export function defineOAuthYandexEventHandler({
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || []
@@ -101,8 +104,13 @@ export function defineOAuthYandexEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'yandex', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

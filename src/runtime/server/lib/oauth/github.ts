@@ -145,8 +145,8 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state,
           ...config.authorizationParams,
+          state,
         }),
       )
     }

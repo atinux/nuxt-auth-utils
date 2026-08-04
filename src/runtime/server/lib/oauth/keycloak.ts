@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -63,7 +63,7 @@ export function defineOAuthKeycloakEventHandler({
       authorizationParams: {},
     }) as OAuthKeycloakConfig
 
-    const query = getQuery<{ code?: string, error?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
     if (query.error) {
       const error = createError({
@@ -90,6 +90,7 @@ export function defineOAuthKeycloakEventHandler({
     const authorizationURL = `${realmURL}/protocol/openid-connect/auth`
     const tokenURL = `${realmURLInternal}/protocol/openid-connect/token`
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || ['openid']
@@ -104,8 +105,13 @@ export function defineOAuthKeycloakEventHandler({
           scope: config.scope.join(' '),
           response_type: 'code',
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'keycloak', onError)
     }
 
     config.scope = config.scope || []

@@ -3,7 +3,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, type RequestAccessTokenBody } from '../utils'
+import { handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, getOAuthRedirectURL, handleState, requestAccessToken, type RequestAccessTokenBody } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -64,12 +64,13 @@ export function defineOAuthTikTokEventHandler({ config, onSuccess, onError }: OA
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
     }) as OAuthTikTokConfig
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
     if (!config.clientKey || !config.clientSecret) {
       return handleMissingConfiguration(event, 'tiktok', ['clientKey', 'clientSecret'], onError)
     }
     const codeVerifier = 'verify'
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
     if (!query.code) {
       config.scope = config.scope || []
       if (!config.scope.includes('user.info.basic')) {
@@ -89,8 +90,13 @@ export function defineOAuthTikTokEventHandler({ config, onSuccess, onError }: OA
                 code_challenge: crypto.createHash('sha256').update(codeVerifier).digest('hex'),
                 code_challenge_method: 'S256' }
             : {},
+          state,
         }),
       )
+    }
+
+    if (query.state !== state) {
+      return handleInvalidState(event, 'tiktok', onError)
     }
 
     interface TikTokRequestAccessTokenBody extends RequestAccessTokenBody {

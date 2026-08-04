@@ -88,8 +88,8 @@ export function defineOAuthHerokuEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state,
           ...config.authorizationParams,
+          state,
         }),
       )
     }

@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getRequestHeader, readBody, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, signJwt, verifyJwt } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken, signJwt, verifyJwt } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -108,12 +108,18 @@ export function defineOAuthAppleEventHandler({
     const isPost = getRequestHeader(event, 'content-type') === 'application/x-www-form-urlencoded'
 
     let code: string | undefined
+    let state: string | undefined
     let user: OAuthAppleUser | undefined
 
     if (isPost) {
       // `user` will only be available the first time a user logs in.
-      ({ code, user } = await readBody<{ code: string, user?: OAuthAppleUser }>(event))
+      ({ code, state, user } = await readBody<{ code: string, state: string, user?: OAuthAppleUser }>(event))
     }
+
+    const storedState = await handleState(event, {
+      isCallback: isPost && Boolean(code),
+      sameSite: 'none',
+    })
 
     // Send user to apple login page.
     if (!isPost || !code) {
@@ -132,8 +138,13 @@ export function defineOAuthAppleEventHandler({
           redirect_uri: redirectURL,
           scope: config.scope,
           ...config.authorizationParams,
+          state: storedState,
         }),
       )
+    }
+
+    if (state !== storedState) {
+      return handleInvalidState(event, 'apple', onError)
     }
 
     // Verify the form post data we got back from apple
