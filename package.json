@@ -36,7 +36,9 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "docs:dev": "nuxt-module-build prepare && nuxi dev docs",
+    "docs:build": "nuxt-module-build prepare && nuxi build docs"
   },
   "dependencies": {
     "@adonisjs/hash": "^9.1.1",
@@ -78,14 +80,23 @@
     "@nuxt/module-builder": "^1.0.2",
     "@nuxt/schema": "^4.3.1",
     "@nuxt/test-utils": "^4.0.0",
-    "@types/node": "latest",
     "@nuxt/ui": "^4.4.0",
     "@simplewebauthn/types": "^12.0.0",
+    "@types/node": "latest",
     "changelogen": "^0.6.2",
     "eslint": "^10.0.0",
     "nuxt": "^4.3.1",
     "typescript": "5.9.3",
     "vitest": "^4.0.18",
     "vue-tsc": "^3.2.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "better-sqlite3",
+      "esbuild",
+      "unrs-resolver",
+      "vue-demi"
+    ]
   }
 }

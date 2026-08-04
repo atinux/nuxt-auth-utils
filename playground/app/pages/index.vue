@@ -87,7 +87,7 @@ const providers = computed(() =>
       title: user.value?.cognito || 'Cognito',
       to: '/auth/cognito',
       disabled: Boolean(user.value?.cognito),
-      icon: 'i-simple-icons-amazonaws',
+      icon: 'i-simple-icons-amazonwebservices',
     },
     {
       title: user.value?.discord || 'Discord',
@@ -153,7 +153,7 @@ const providers = computed(() =>
       title: user.value?.xsuaa || 'XSUAA',
       to: '/auth/xsuaa',
       disabled: Boolean(user.value?.xsuaa),
-      icon: 'i-lucide-globe',
+      icon: 'i-gravity-ui-globe',
     },
     {
       title: user.value?.vk || 'VK',

@@ -1,0 +1,24 @@
+{
+  "name": "nuxt-auth-utils-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate",
+    "preview": "nuxi preview"
+  },
+  "dependencies": {
+    "@nuxt/content": "^3.14.0",
+    "@nuxt/fonts": "^0.14.0",
+    "@nuxt/ui": "^4.4.0",
+    "@vueuse/nuxt": "^14.1.0",
+    "better-sqlite3": "^12.10.0",
+    "nuxt": "^4.3.1"
+  },
+  "devDependencies": {
+    "@iconify-json/heroicons": "^1.2.2",
+    "@iconify-json/simple-icons": "^1.2.71",
+    "nuxt-og-image": "^6.5.1"
+  }
+}
