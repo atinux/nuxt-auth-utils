@@ -418,7 +418,7 @@ export default defineWebAuthnRegisterEventHandler({
     // And verify that the email is the same as the one in session
     const session = await getUserSession(event)
     if (session.user?.email && session.user.email !== userBody.userName) {
-      throw createError({ statusCode: 400, message: 'Email not matching curent session' })
+      throw createError({ statusCode: 400, message: 'Email not matching current session' })
     }
 
     // If he registers a new account with credentials
