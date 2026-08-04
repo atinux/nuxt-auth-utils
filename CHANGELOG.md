@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.5.30
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.29...v0.5.30)
+
+### 🩹 Fixes
+
+- Use `app:suspense:resolve` hook ([#505](https://github.com/atinux/nuxt-auth-utils/pull/505))
+
+### 🏡 Chore
+
+- Typo in README.md ([#536](https://github.com/atinux/nuxt-auth-utils/pull/536))
+
+### ❤️ Contributors
+
+- Arb85
+- Sébastien Chopin <seb@nuxt.com>
+
 ## v0.5.29
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.28...v0.5.29)
