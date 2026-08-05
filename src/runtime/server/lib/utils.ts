@@ -66,9 +66,17 @@ export async function requestAccessToken<T = any>(url: string, options: RequestA
     body,
   }).catch((error) => {
     /**
-     * For a better error handling, only unauthorized errors are intercepted, and other errors are re-thrown.
+     * Per RFC 6749 §5.2 the token endpoint returns a 4xx status (usually 400,
+     * e.g. `invalid_grant`) with a structured `{ error }` body for OAuth
+     * failures — only `invalid_client` may use 401. Intercept any such
+     * structured error response so it is routed to `onError`, and re-throw
+     * everything else (network errors, 5xx, opaque non-OAuth responses).
      */
-    if (error instanceof FetchError && error.status === 401) {
+    if (
+      error instanceof FetchError
+      && error.status && error.status >= 400 && error.status < 500
+      && error.data?.error
+    ) {
       return error.data
     }
     throw error
