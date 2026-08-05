@@ -60,6 +60,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-line',
     },
     {
+      title: user.value?.wechat || 'WeChat',
+      to: '/auth/wechat',
+      disabled: Boolean(user.value?.wechat),
+      icon: 'i-simple-icons-wechat',
+    },
+    {
       title: user.value?.linear || 'Linear',
       to: '/auth/linear',
       disabled: Boolean(user.value?.linear),
