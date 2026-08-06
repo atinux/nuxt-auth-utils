@@ -51,6 +51,7 @@ declare module '#auth-utils' {
     oidc?: string
     osu?: string
     riotgames?: string
+    zendesk?: string
   }
 
   interface UserSession {

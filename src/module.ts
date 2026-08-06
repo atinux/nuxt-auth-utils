@@ -559,5 +559,12 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       scope: [],
     })
+    // Zendesk OAuth
+    runtimeConfig.oauth.zendesk = defu(runtimeConfig.oauth.zendesk, {
+      clientId: '',
+      clientSecret: '',
+      subdomain: '',
+      redirectURL: '',
+    })
   },
 })
