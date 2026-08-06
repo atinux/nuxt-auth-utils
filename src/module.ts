@@ -565,6 +565,10 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       subdomain: '',
       redirectURL: '',
+      marketplaceName: '',
+      marketplaceOrgId: '',
+      marketplaceBotId: '',
+      marketplaceAppId: '',
     })
   },
 })

@@ -65,6 +65,12 @@ export interface OAuthZendeskConfig {
    * @default process.env.NUXT_OAUTH_ZENDESK_MARKETPLACE_BOT_ID
    */
   marketplaceBotId?: string
+  /**
+   * Zendesk Marketplace app ID header value.
+   * Only required for apps published in the Zendesk Marketplace.
+   * @default process.env.NUXT_OAUTH_ZENDESK_MARKETPLACE_APP_ID
+   */
+  marketplaceAppId?: string
 }
 
 export interface ZendeskUser {
@@ -139,6 +145,9 @@ function getMarketplaceHeaders(config: OAuthZendeskConfig): Record<string, strin
   if (config.marketplaceBotId) {
     headers['X-Zendesk-Marketplace-Bot-Id'] = config.marketplaceBotId
   }
+  if (config.marketplaceAppId) {
+    headers['X-Zendesk-Marketplace-App-Id'] = config.marketplaceAppId
+  }
   return headers
 }
 
@@ -212,9 +221,8 @@ export function defineOAuthZendeskEventHandler({
 
     const marketplaceHeaders = getMarketplaceHeaders(config)
 
-    const tokens: ZendeskTokens = await requestAccessToken(tokenURL, {
+    const tokens: ZendeskTokens & { error?: string, error_description?: string } = await requestAccessToken(tokenURL, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
         ...marketplaceHeaders,
       },
       body: {
@@ -255,6 +263,7 @@ export function defineOAuthZendeskEventHandler({
     const data: { user: ZendeskUser } = await $fetch(`https://${subdomain}.zendesk.com/api/v2/users/me.json`, {
       headers: {
         Authorization: `Bearer ${tokens.access_token}`,
+        ...marketplaceHeaders,
       },
     })
 
