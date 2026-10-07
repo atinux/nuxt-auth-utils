@@ -4,9 +4,10 @@ import { defu } from 'defu'
 import { createHooks } from 'hookable'
 import type { OmitWithIndexSignature } from '../../types/utils'
 import { useRuntimeConfig } from '#imports'
-import type { UserSession, UserSessionRequired } from '#auth-utils'
+import type { SessionEvent, UserSession, UserSessionRequired } from '#auth-utils'
 
-type UseSessionEvent = Parameters<typeof useSession>[0]
+// Also accepts the event of a `nuxt/server` handler, on Nitro 2 it is a proxy over the h3 event
+type UseSessionEvent = Parameters<typeof useSession>[0] | SessionEvent
 
 export interface SessionHooks {
   /**
@@ -41,7 +42,7 @@ export async function getUserSession(event: UseSessionEvent): Promise<UserSessio
  * @param data User session data, please only store public information since it can be decoded with API calls
  * @see https://github.com/atinux/nuxt-auth-utils
  */
-export async function setUserSession(event: H3Event, data: OmitWithIndexSignature<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
+export async function setUserSession(event: SessionEvent, data: OmitWithIndexSignature<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
   const session = await _useSession(event, config)
 
   await session.update(defu(data, session.data))
@@ -54,7 +55,7 @@ export async function setUserSession(event: H3Event, data: OmitWithIndexSignatur
  * @param event The Request (h3) event
  * @param data User session data, please only store public information since it can be decoded with API calls
  */
-export async function replaceUserSession(event: H3Event, data: OmitWithIndexSignature<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
+export async function replaceUserSession(event: SessionEvent, data: OmitWithIndexSignature<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
   const session = await _useSession(event, config)
 
   await session.clear()
@@ -68,10 +69,10 @@ export async function replaceUserSession(event: H3Event, data: OmitWithIndexSign
  * @param event The Request (h3) event
  * @returns true if the session was cleared
  */
-export async function clearUserSession(event: H3Event, config?: Partial<SessionConfig>): Promise<boolean> {
+export async function clearUserSession(event: SessionEvent, config?: Partial<SessionConfig>): Promise<boolean> {
   const session = await _useSession(event, config)
 
-  await sessionHooks.callHookParallel('clear', session.data, event)
+  await sessionHooks.callHookParallel('clear', session.data, event as H3Event)
   await session.clear()
 
   return true
@@ -118,5 +119,5 @@ function _useSession(event: UseSessionEvent, config: Partial<SessionConfig> = {}
     }
   }
   const finalConfig = defu(config, sessionConfig) as SessionConfig
-  return useSession<UserSession>(event, finalConfig)
+  return useSession<UserSession>(event as H3Event, finalConfig)
 }
