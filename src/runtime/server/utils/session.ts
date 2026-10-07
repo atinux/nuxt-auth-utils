@@ -58,7 +58,13 @@ export async function replaceUserSession(event: H3Event, data: OmitWithIndexSign
   const session = await _useSession(event, config)
 
   await session.clear()
-  await session.update(data)
+  await session.update((oldData) => {
+    // h3 can restore the incoming cookie after clear(), before merging this update.
+    for (const key of Object.keys(oldData)) {
+      Reflect.deleteProperty(oldData, key)
+    }
+    return data
+  })
 
   return session.data
 }
