@@ -45,8 +45,13 @@ export function useUserSession(): UserSessionComposable {
     }
   }
   const openInPopup = (route: string, size: { width?: number, height?: number } = {}) => {
-    // Set a local storage item to tell the popup that we pending auth
-    localStorage.setItem('temp-nuxt-auth-utils-popup', 'true')
+    try {
+      // Set a local storage item to tell the popup that we pending auth
+      localStorage.setItem('temp-nuxt-auth-utils-popup', 'true')
+    }
+    catch (error) {
+      console.error('[nuxt-auth-utils] Could not use localStorage during popup flow initialization.', error)
+    }
 
     const width = size.width ?? 960
     const height = size.height ?? 600
