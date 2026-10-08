@@ -29,6 +29,17 @@ describe('ssr', async () => {
     expect(session).toHaveProperty('id')
   })
 
+  it('shares the session between `nuxt/server` and h3 handlers', async () => {
+    const response = await fetch('/api/nuxt-server')
+    const written = await response.json()
+    const cookie = response.headers.getSetCookie().at(-1)!.split(';')[0]!
+
+    expect(written).toMatchObject({ fromNuxtServer: true })
+
+    const session = await $fetch('/api/_auth/session', { headers: { cookie } })
+    expect(session).toEqual(written)
+  })
+
   it('generates state for OAuth authorization requests', async () => {
     const response = await fetch('/auth/google', {
       redirect: 'manual',
