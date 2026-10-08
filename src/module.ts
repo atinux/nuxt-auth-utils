@@ -293,6 +293,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Cloudflare OAuth
+    runtimeConfig.oauth.cloudflare = defu(runtimeConfig.oauth.cloudflare, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
 
     // Atproto OAuth
     for (const provider of atprotoProviders) {
