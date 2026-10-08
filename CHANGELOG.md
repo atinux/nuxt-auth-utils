@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.31
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.30...v0.5.31)
+
+### 🩹 Fixes
+
+- **session:** Accept `nuxt/server` events ([#544](https://github.com/atinux/nuxt-auth-utils/pull/544))
+
+### ❤️ Contributors
+
+- Benjamin Canac <canacb1@gmail.com>
+
 ## v0.5.30
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.29...v0.5.30)
