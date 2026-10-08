@@ -20,6 +20,9 @@ importers:
       '@nuxt/kit':
         specifier: ^4.3.1
         version: 4.6.0(@nuxt/schema@4.6.0)(confbox@0.3.1)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@0.30.21)(mlly@1.8.0)(rolldown@1.2.12)(unplugin@2.3.11)
+      '@nuxt/schema':
+        specifier: ^4.6.0
+        version: 4.6.0
       '@simplewebauthn/browser':
         specifier: ^11.0.0
         version: 11.0.0
@@ -66,9 +69,6 @@ importers:
       '@nuxt/module-builder':
         specifier: ^1.0.2
         version: 1.0.2(@nuxt/cli@4.0.0(@nuxt/schema@4.6.0)(jiti@2.7.0)(rolldown@1.2.12)(vite@7.3.1(@types/node@25.2.3)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.8.2)))(@vue/compiler-core@3.5.43)(esbuild@0.28.2)(typescript@5.9.3)(vue-tsc@3.2.4(typescript@5.9.3))(vue@3.5.43(typescript@5.9.3))
-      '@nuxt/schema':
-        specifier: ^4.6.0
-        version: 4.6.0
       '@nuxt/test-utils':
         specifier: ^4.0.0
         version: 4.0.0(crossws@0.4.12(srvx@1.0.5))(magicast@0.5.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.8.2))(vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.8.2))
@@ -7782,7 +7782,7 @@ snapshots:
       execa: 8.0.1
       magicast: 0.5.2
       pathe: 2.0.3
-      pkg-types: 2.3.0
+      pkg-types: 2.3.3
       prompts: 2.4.2
       semver: 7.7.4
 
@@ -10523,7 +10523,7 @@ snapshots:
       ohash: 2.0.12
       pathe: 2.0.3
       perfect-debounce: 2.1.0
-      pkg-types: 2.3.0
+      pkg-types: 2.3.3
       rc9: 2.1.2
     optionalDependencies:
       magicast: 0.5.5
@@ -12120,7 +12120,7 @@ snapshots:
       jiti: 1.21.7
       mlly: 1.8.0
       pathe: 2.0.3
-      pkg-types: 2.3.0
+      pkg-types: 2.3.3
       postcss: 8.5.6
       postcss-nested: 7.0.2(postcss@8.5.6)
       semver: 7.7.4
@@ -14047,7 +14047,7 @@ snapshots:
       mkdist: 2.3.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.43)(esbuild@0.28.2)(vue@3.5.43(typescript@5.9.3)))(vue-tsc@3.2.4(typescript@5.9.3))(vue@3.5.43(typescript@5.9.3))
       mlly: 1.8.0
       pathe: 2.0.3
-      pkg-types: 2.3.0
+      pkg-types: 2.3.3
       pretty-bytes: 7.1.0
       rollup: 4.57.1
       rollup-plugin-dts: 6.2.3(rollup@4.57.1)(typescript@5.9.3)
