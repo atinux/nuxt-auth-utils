@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthAuthentikConfig {
@@ -37,14 +37,14 @@ export interface OAuthAuthentikConfig {
 }
 
 export function defineOAuthAuthentikEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuthentikConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.authentik) as OAuthAuthentikConfig
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.authentik) as OAuthAuthentikConfig
 
     const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Authentik login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -109,7 +109,7 @@ export function defineOAuthAuthentikEventHandler({ config, onSuccess, onError }:
 
     if (!user) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get Authentik user',
         data: tokens,
       })

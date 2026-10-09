@@ -1,3 +1,4 @@
+import { createError, defineEventHandler, deriveSecret } from 'nuxt/server'
 import jwt from '@tsndr/cloudflare-worker-jwt'
 
 export default defineEventHandler(async (event) => {
@@ -5,17 +6,14 @@ export default defineEventHandler(async (event) => {
   const user = await getUserSession(event)
   if (!user) {
     throw createError({
-      statusCode: 401,
+      status: 401,
       message: 'Unauthorized',
     })
   }
 
-  if (!process.env.NUXT_SESSION_PASSWORD) {
-    throw createError({
-      statusCode: 500,
-      message: 'Session secret not configured',
-    })
-  }
+  // Secrets derived from `appSecret` (`NUXT_APP_SECRET`)
+  const accessSecret = await deriveSecret('playground:jwt-access')
+  const refreshSecret = await deriveSecret('playground:jwt-refresh')
 
   // Generate tokens
   const accessToken = await jwt.sign(
@@ -23,14 +21,14 @@ export default defineEventHandler(async (event) => {
       hello: 'world',
       exp: Math.floor(Date.now() / 1000) + 5, // 30 seconds
     },
-    process.env.NUXT_SESSION_PASSWORD,
+    accessSecret,
   )
 
   const refreshToken = await jwt.sign(
     {
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days
     },
-    `${process.env.NUXT_SESSION_PASSWORD}-secret`,
+    refreshSecret,
   )
 
   await setUserSession(event, {

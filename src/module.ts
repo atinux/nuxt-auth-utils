@@ -5,16 +5,13 @@ import {
   addPlugin,
   addServerHandler,
   addServerImportsDir,
-  addServerPlugin,
   createResolver,
   defineNuxtModule,
+  getNitroVersion,
   logger,
 } from '@nuxt/kit'
 import { defu } from 'defu'
-import type { SessionConfig } from 'h3'
-import { readFile, writeFile } from 'node:fs/promises'
-import { join } from 'pathe'
-import { randomUUID } from 'uncrypto'
+import type { SessionConfig } from 'nuxt/server'
 import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
 import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
 
@@ -52,9 +49,9 @@ declare module 'nuxt/schema' {
       scrypt: ScryptConfig
     }
     /**
-     * Session configuration
+     * Session configuration, the session is sealed with a secret derived from `appSecret` (`NUXT_APP_SECRET`)
      */
-    session: SessionConfig
+    session: Omit<SessionConfig, 'password'>
   }
 
   interface PublicRuntimeConfig {
@@ -68,6 +65,9 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'auth-utils',
     configKey: 'auth',
+    compatibility: {
+      nuxt: '>=4.6.0',
+    },
   },
   // Default configuration options of the Nuxt module
   defaults: {
@@ -100,12 +100,9 @@ export default defineNuxtModule<ModuleOptions>({
       addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
       addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
     }
+    addPlugin(resolver.resolve('./runtime/app/plugins/oauth-hash.server'))
     // Server
-    addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
-    if (nuxt.options.nitro?.experimental?.websocket) {
-      addServerPlugin(resolver.resolve('./runtime/server/plugins/ws'))
-    }
     // WebAuthn enabled
     if (options.webAuthn) {
       // Check if dependencies are installed
@@ -134,56 +131,34 @@ export default defineNuxtModule<ModuleOptions>({
       route: '/api/_auth/session',
       method: 'get',
     })
-    // Set node:crypto as unenv external
-    nuxt.options.nitro.unenv ||= {}
-    // @ts-expect-error we can use external as array
-    nuxt.options.nitro.unenv.external ||= []
-    // @ts-expect-error see comment above
-    if (!nuxt.options.nitro.unenv.external.includes('node:crypto')) {
-    // @ts-expect-error see comment above
-      nuxt.options.nitro.unenv.external.push('node:crypto')
+    // Set node:crypto as unenv external (Nitro 2)
+    if (getNitroVersion(nuxt) === 2) {
+      const nitroOptions = nuxt.options.nitro as { unenv?: { external?: string[] } }
+      nitroOptions.unenv ||= {}
+      nitroOptions.unenv.external ||= []
+      if (!nitroOptions.unenv.external.includes('node:crypto')) {
+        nitroOptions.unenv.external.push('node:crypto')
+      }
     }
 
     // Runtime Config
     const runtimeConfig = nuxt.options.runtimeConfig
-    const envSessionPassword = `${
-      runtimeConfig.nitro?.envPrefix || 'NUXT_'
-    }SESSION_PASSWORD`
+
+    // The session is sealed with a secret derived from `appSecret` (`NUXT_APP_SECRET`)
+    const envSessionPassword = `${(runtimeConfig.nitro as { envPrefix?: string } | undefined)?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
+    if (process.env[envSessionPassword] || (runtimeConfig.session as SessionConfig | undefined)?.password) {
+      logger.withTag('nuxt-auth-utils').warn(`\`${envSessionPassword}\` (\`runtimeConfig.session.password\`) is not used anymore. Set \`NUXT_APP_SECRET\` instead, for example with \`openssl rand -base64 32\`. Sessions are now sealed with a secret derived from \`appSecret\`, so users are logged out once.`)
+    }
 
     runtimeConfig.session = defu(runtimeConfig.session, {
-      name: 'nuxt-session',
-      password: '',
       cookie: {
-        sameSite: 'lax',
+        sameSite: 'lax' as const,
       },
-    }) as SessionConfig
+    })
 
     runtimeConfig.hash = defu(runtimeConfig.hash, {
       scrypt: options.hash?.scrypt,
     })
-
-    // Generate the session password
-    if (nuxt.options.dev && !process.env[envSessionPassword]) {
-      // If the password is set in the runtime config, use it
-      if (nuxt.options.runtimeConfig.session.password) {
-        process.env[envSessionPassword] = nuxt.options.runtimeConfig.session.password
-      }
-      else {
-        const password = process.env[envSessionPassword] = randomUUID().replace(/-/g, '')
-        // Add it to .env
-        const envPath = join(nuxt.options.rootDir, '.env')
-        const envContent = await readFile(envPath, 'utf-8').catch(() => '')
-        if (!envContent.includes(envSessionPassword)) {
-          await writeFile(
-            envPath,
-            `${
-              envContent ? envContent + '\n' : envContent
-            }${envSessionPassword}=${password}`,
-            'utf-8',
-          )
-        }
-      }
-    }
 
     // Load strategy
     runtimeConfig.public.auth = defu(runtimeConfig.public.auth, {

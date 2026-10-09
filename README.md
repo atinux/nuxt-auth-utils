@@ -29,6 +29,8 @@ It has few dependencies (only from [UnJS](https://github.com/unjs)), run on mult
 
 ## Requirements
 
+This module requires Nuxt 4.6 or later. If you upgrade from v0.5, read [Migrate from v0.5](#migrate-from-v05).
+
 This module only works with a Nuxt server running as it uses server API routes (`nuxt build`).
 
 This means that you cannot use this module with `nuxt generate`.
@@ -43,14 +45,19 @@ You can anyway use [Hybrid Rendering](#hybrid-rendering) to pre-render pages of 
 npx nuxi@latest module add auth-utils
 ```
 
-2. Add a `NUXT_SESSION_PASSWORD` env variable with at least 32 characters in the `.env`.
+2. Set the `NUXT_APP_SECRET` env variable in production, with at least 32 characters.
+
+```bash
+# Generate a secret
+openssl rand -base64 32
+```
 
 ```bash
 # .env
-NUXT_SESSION_PASSWORD=password-with-at-least-32-characters
+NUXT_APP_SECRET=<the-generated-secret>
 ```
 
-Nuxt Auth Utils generates one for you when running Nuxt in development the first time if no `NUXT_SESSION_PASSWORD` is set.
+Nuxt Auth Utils seals the session cookie with a secret that it derives from the [Nuxt `appSecret`](https://nuxt.com/blog/v4-6). In development, Nuxt generates an `appSecret` for you if none is set. Builds never generate one, so you must set `NUXT_APP_SECRET` in production.
 
 3. That's it! You can now add authentication to your Nuxt app ✨
 
@@ -122,6 +129,19 @@ interface UserSessionComposable {
 
 The following helpers are auto-imported in your `server/` directory.
 
+They accept the event of a handler defined with `defineEventHandler` from `nuxt/server`. On Nuxt 4, they also accept the event of a handler defined with the auto-imported `defineEventHandler` from h3.
+
+```ts
+// server/api/me.get.ts
+import { defineEventHandler } from 'nuxt/server'
+
+export default defineEventHandler(async (event) => {
+  const { user } = await requireUserSession(event)
+
+  return user
+})
+```
+
 ### Session Management
 
 ```ts
@@ -152,6 +172,9 @@ await clearUserSession(event)
 
 // Require a user session (send back 401 if no `user` key in session)
 const session = await requireUserSession(event)
+
+// Customize the error status and message
+const session = await requireUserSession(event, { status: 403, message: 'Forbidden' })
 ```
 
 You can define the type for your user session by creating a type declaration file (for example, `auth.d.ts`) in your project to augment the `UserSession` type:
@@ -267,6 +290,8 @@ You can add your favorite provider by creating a new file in [src/runtime/server
 Example: `~/server/routes/auth/github.get.ts`
 
 ```ts
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthGitHubEventHandler({
   config: {
     emailRequired: true
@@ -286,6 +311,8 @@ export default defineOAuthGitHubEventHandler({
   },
 })
 ```
+
+The `event` given to `onSuccess` and `onError` is a `RequestEvent` from `nuxt/server`. Import the helpers you use from `nuxt/server`, for example `sendRedirect`. On Nuxt 4, the auto-imported h3 helpers also work, but TypeScript reports a type error.
 
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
 
@@ -418,7 +445,7 @@ export default defineWebAuthnRegisterEventHandler({
     // And verify that the email is the same as the one in session
     const session = await getUserSession(event)
     if (session.user?.email && session.user.email !== userBody.userName) {
-      throw createError({ statusCode: 400, message: 'Email not matching current session' })
+      throw createError({ status: 400, message: 'Email not matching current session' })
     }
 
     // If he registers a new account with credentials
@@ -463,7 +490,7 @@ export default defineWebAuthnAuthenticateEventHandler({
     const credentials = await useDatabase().sql`...`
     // If no credentials are found, the authentication cannot be completed
     if (!credentials.length)
-      throw createError({ statusCode: 400, message: 'User not found' })
+      throw createError({ status: 400, message: 'User not found' })
 
     // If user is found, only allow credentials that are registered
     // The browser will automatically try to use the credential that it knows about
@@ -477,7 +504,7 @@ export default defineWebAuthnAuthenticateEventHandler({
 
     // If the credential is not found, there is no account to log in to
     if (!credential)
-      throw createError({ statusCode: 400, message: 'Credential not found' })
+      throw createError({ status: 400, message: 'Credential not found' })
 
     return credential
   },
@@ -517,7 +544,7 @@ export default defineWebAuthnAuthenticateEventHandler({
 >     await useStorage().removeItem(`attempt:${attemptId}`)
 >
 >     if (!challenge)
->       throw createError({ statusCode: 400, message: 'Challenge expired' })
+>       throw createError({ status: 400, message: 'Challenge expired' })
 >
 >     return challenge
 >   },
@@ -696,7 +723,7 @@ export default defineNuxtConfig({
 })
 ```
 
-You can use the `requireUserSession` function in the `upgrade` function to check if the user is authenticated before upgrading the WebSocket connection.
+You can use the `requireUserSession` function in the `upgrade` function to check if the user is authenticated before upgrading the WebSocket connection. In WebSocket handlers, the session is read-only: `setUserSession` and `clearUserSession` don't send a cookie back to the client.
 
 ```ts
 // server/routes/ws.ts
@@ -741,7 +768,7 @@ onMounted(open)
 
 ## Configuration
 
-We leverage `runtimeConfig.session` to give the defaults option to [h3 `useSession`](https://h3.unjs.io/examples/handle-session).
+Nuxt Auth Utils stores the user session with `useSession` from `nuxt/server`. It uses `runtimeConfig.session` for the default options.
 
 You can overwrite the options in your `nuxt.config.ts`:
 
@@ -760,13 +787,20 @@ Our defaults are:
 
 ```ts
 {
-  name: 'nuxt-session',
-  password: process.env.NUXT_SESSION_PASSWORD || '',
+  name: 'nuxt-auth-session',
   cookie: {
     sameSite: 'lax'
   }
 }
 ```
+
+The available options are:
+
+- `name`: the name of the session cookie.
+- `maxAge`: the lifetime of the cookie and of the sealed session, in seconds.
+- `cookie`: the cookie options, merged over `httpOnly: true`, `secure: true`, `sameSite: 'lax'`, and `path: '/'`.
+
+The session is sealed with a secret that Nuxt derives from `appSecret`. The module ignores `runtimeConfig.session.password`.
 
 You can also overwrite the session config by passing it as 3rd argument of the `setUserSession` and `replaceUserSession` functions:
 
@@ -776,7 +810,30 @@ await setUserSession(event, { ... } , {
 })
 ```
 
-Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15c1647e1369e7d7ef19f567d/src/utils/session.ts#L20) for all options.
+## Migrate from v0.5
+
+Nuxt Auth Utils v0.6 moves to `nuxt/server`, the server API of Nuxt 4.6. The same server code runs on Nuxt 4 and Nuxt 5. This release has breaking changes.
+
+> [!WARNING]
+> All users are logged out once after the upgrade. The session cookie has a new name and a new format.
+
+To migrate your app, follow these steps:
+
+1. Upgrade Nuxt to 4.6 or later.
+2. Generate a secret with `openssl rand -base64 32`.
+3. Set the secret as `NUXT_APP_SECRET` in your production environment.
+4. Remove `NUXT_SESSION_PASSWORD` from your environment and from your `.env` file. The module logs a warning while it is set.
+5. Change `statusCode` to `status` in `createError()` calls.
+6. In `onSuccess` and `onError` callbacks, import helpers such as `sendRedirect` from `nuxt/server`.
+
+The other changes in v0.6 are:
+
+- The session cookie is `nuxt-auth-session`. It was `nuxt-session`, which is now the default name of `useSession` from `nuxt/server`.
+- The session can't be read from the `x-nuxt-session-session` request header anymore.
+- The `sessionHeader`, `seal`, `crypto`, `generateId`, and `password` session options are removed.
+- The `event` in the OAuth and WebAuthn callbacks is a `RequestEvent` from `nuxt/server`, and `error` is a `NuxtError`.
+- `requireUserSession` accepts a `status` option. The `statusCode` option still works, but it's deprecated.
+- Nuxt throws a 500 error if a session cookie is larger than 4096 bytes.
 
 ## More
 

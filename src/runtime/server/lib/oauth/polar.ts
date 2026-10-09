@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, getOAuthRedirectURL, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthPolarConfig {
@@ -62,8 +62,8 @@ export interface OAuthPolarConfig {
 }
 
 export function defineOAuthPolarEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPolarConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.polar, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.polar, {
       authorizationURL: 'https://polar.sh/oauth2/authorize',
       tokenURL: 'https://api.polar.sh/v1/oauth2/token',
     }) as OAuthPolarConfig
@@ -126,7 +126,7 @@ export function defineOAuthPolarEventHandler({ config, onSuccess, onError }: OAu
 
     if (!user) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get Polar user',
         data: tokens,
       })
