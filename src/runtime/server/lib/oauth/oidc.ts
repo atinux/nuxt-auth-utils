@@ -1,8 +1,8 @@
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import type { OAuthConfig } from '#auth-utils'
-import { useRuntimeConfig } from '#imports'
 import { defu } from 'defu'
-import type { H3Event } from 'h3'
-import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
 import type { QueryObject } from 'ufo'
 import { withQuery } from 'ufo'
 import type { RequestAccessTokenBody } from '../utils'
@@ -242,8 +242,8 @@ interface OIDCConfiguration {
  * Event handler for generic OAuth using OIDC and PKCE.
  */
 export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSuccess, onError }: OAuthConfig<OAuthOidcConfig, { user: TUser, tokens: OidcTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth.oidc, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth.oidc, {
       scope: ['openid'],
     } satisfies OAuthOidcConfig)
 
@@ -251,7 +251,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `OIDC login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -318,7 +318,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       const claims = parseJwt(tokens.id_token)
       if (claims.nonce !== nonce) {
         const error = createError({
-          statusCode: 401,
+          status: 401,
           message: 'OIDC login failed: nonce mismatch',
         })
         if (!onError) throw error

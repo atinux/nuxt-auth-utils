@@ -1,22 +1,23 @@
+import { createError, defineEventHandler, deriveSecret } from 'nuxt/server'
 import jwt from '@tsndr/cloudflare-worker-jwt'
 
-export default eventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
   if (!session.jwt?.accessToken) {
     throw createError({
-      statusCode: 401,
+      status: 401,
       message: 'Unauthorized',
     })
   }
 
   try {
-    return await jwt.verify(session.jwt.accessToken, process.env.NUXT_SESSION_PASSWORD!, {
+    return await jwt.verify(session.jwt.accessToken, await deriveSecret('playground:jwt-access'), {
       throwError: true,
     })
   }
   catch (err) {
     throw createError({
-      statusCode: 401,
+      status: 401,
       message: (err as Error).message,
     })
   }

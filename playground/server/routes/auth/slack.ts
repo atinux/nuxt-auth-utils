@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthSlackEventHandler({
   config: {},
   async onSuccess(event, { user }) {

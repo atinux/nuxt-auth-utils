@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, handlePkceVerifier, handleState } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthKickConfig {
@@ -64,8 +64,8 @@ interface KickTokens {
 }
 
 export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthKickConfig, { user: KickUser, tokens: KickTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.kick, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.kick, {
       authorizationURL: 'https://id.kick.com/oauth/authorize',
       tokenURL: 'https://id.kick.com/oauth/token',
     }) as OAuthKickConfig
@@ -129,7 +129,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
 
     if (!data || !data.length) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get Kick user',
         data: tokens,
       })
@@ -137,7 +137,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
       return onError(event, error)
     }
 
-    const user = data[0]
+    const user = data[0]!
 
     return onSuccess(event, {
       tokens,

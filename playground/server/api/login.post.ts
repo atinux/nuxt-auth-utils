@@ -1,3 +1,4 @@
+import { createError, defineEventHandler, readValidatedBody, setResponseStatus } from 'nuxt/server'
 import { z } from 'zod'
 
 interface DBUser {
@@ -7,7 +8,7 @@ interface DBUser {
 }
 
 const invalidCredentialsError = createError({
-  statusCode: 401,
+  status: 401,
   // This message is intentionally vague to prevent user enumeration attacks.
   message: 'Invalid credentials',
 })
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const { email, password } = await readValidatedBody(event, z.object({
     email: z.string().email(),
     password: z.string().min(8),
-  }).parse)
+  }))
 
   const user = await db.sql<{ rows: DBUser[] }>`SELECT * FROM users WHERE email = ${email}`.then(result => result.rows[0])
 
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (passwordNeedsReHash(password)) {
-    await db.sql`UPDATE users SET password = ${hashPassword(password)} WHERE id = ${user.id}`
+    await db.sql`UPDATE users SET password = ${await hashPassword(password)} WHERE id = ${user.id}`
   }
 
   await setUserSession(event, {
@@ -41,5 +42,6 @@ export default defineEventHandler(async (event) => {
     loggedInAt: Date.now(),
   })
 
-  return setResponseStatus(event, 201)
+  setResponseStatus(event, 201)
+  return {}
 })

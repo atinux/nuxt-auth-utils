@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthAuth0EventHandler({
   config: {
     emailRequired: true,

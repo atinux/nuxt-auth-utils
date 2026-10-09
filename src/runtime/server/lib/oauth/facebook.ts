@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthFacebookConfig {
@@ -62,8 +62,8 @@ export function defineOAuthFacebookEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthFacebookConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.facebook, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.facebook, {
       authorizationURL: 'https://www.facebook.com/v19.0/dialog/oauth',
       tokenURL: 'https://graph.facebook.com/v19.0/oauth/access_token',
       authorizationParams: {},
@@ -73,7 +73,7 @@ export function defineOAuthFacebookEventHandler({
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Facebook login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -133,7 +133,7 @@ export function defineOAuthFacebookEventHandler({
 
     if (!user) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get Facebook user',
         data: tokens,
       })

@@ -1,6 +1,6 @@
 import type { AuthenticationResponseJSON, AuthenticatorTransportFuture, RegistrationResponseJSON } from '@simplewebauthn/types'
 import type { Ref } from 'vue'
-import type { H3Event, H3Error, ValidateResult } from 'h3'
+import type { NuxtError, RequestEvent, ValidateResult } from 'nuxt/server'
 import type {
   GenerateAuthenticationOptionsOpts,
   GenerateRegistrationOptionsOpts,
@@ -28,15 +28,15 @@ type CredentialsList = NonNullable<GenerateAuthenticationOptionsOpts['allowCrede
 
 // Using a discriminated union makes it such that you can only define both storeChallenge and getChallenge or neither
 type WebAuthnEventHandlerBase<T extends Record<PropertyKey, unknown>> = {
-  storeChallenge: (event: H3Event, challenge: string, attemptId: string) => void | Promise<void>
-  getChallenge: (event: H3Event, attemptId: string) => string | Promise<string>
-  onSuccess: (event: H3Event, data: T) => void | Promise<void>
-  onError?: (event: H3Event, error: H3Error) => void | Promise<void>
+  storeChallenge: (event: RequestEvent, challenge: string, attemptId: string) => void | Promise<void>
+  getChallenge: (event: RequestEvent, attemptId: string) => string | Promise<string>
+  onSuccess: (event: RequestEvent, data: T) => unknown
+  onError?: (event: RequestEvent, error: NuxtError) => unknown
 } | {
   storeChallenge?: undefined
   getChallenge?: undefined
-  onSuccess: (event: H3Event, data: T) => void | Promise<void>
-  onError?: (event: H3Event, error: H3Error) => void | Promise<void>
+  onSuccess: (event: RequestEvent, data: T) => unknown
+  onError?: (event: RequestEvent, error: NuxtError) => unknown
 }
 
 export type RegistrationBody<T extends WebAuthnUser> = {
@@ -49,16 +49,16 @@ export type RegistrationBody<T extends WebAuthnUser> = {
   response: RegistrationResponseJSON
 }
 
-export type ValidateUserFunction<T> = (userBody: WebAuthnUser, event: H3Event) => ValidateResult<T> | Promise<ValidateResult<T>>
+export type ValidateUserFunction<T> = (userBody: WebAuthnUser, event: RequestEvent) => ValidateResult<T> | Promise<ValidateResult<T>>
 
 export type WebAuthnRegisterEventHandlerOptions<T extends WebAuthnUser> = WebAuthnEventHandlerBase<{
   user: T
   credential: WebAuthnCredential
   registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>
 }> & {
-  getOptions?: (event: H3Event, body: RegistrationBody<T>) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
+  getOptions?: (event: RequestEvent, body: RegistrationBody<T>) => Partial<GenerateRegistrationOptionsOpts> | Promise<Partial<GenerateRegistrationOptionsOpts>>
   validateUser?: ValidateUserFunction<T>
-  excludeCredentials?: (event: H3Event, userName: string) => CredentialsList | Promise<CredentialsList>
+  excludeCredentials?: (event: RequestEvent, userName: string) => CredentialsList | Promise<CredentialsList>
 }
 
 export type AuthenticationBody = {
@@ -75,9 +75,9 @@ export type WebAuthnAuthenticateEventHandlerOptions<T extends WebAuthnCredential
   credential: T
   authenticationInfo: Exclude<VerifiedAuthenticationResponse['authenticationInfo'], undefined>
 }> & {
-  getOptions?: (event: H3Event, body: AuthenticationBody) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
-  getCredential: (event: H3Event, credentialID: string) => T | Promise<T>
-  allowCredentials?: (event: H3Event, userName: string) => CredentialsList | Promise<CredentialsList>
+  getOptions?: (event: RequestEvent, body: AuthenticationBody) => Partial<GenerateAuthenticationOptionsOpts> | Promise<Partial<GenerateAuthenticationOptionsOpts>>
+  getCredential: (event: RequestEvent, credentialID: string) => T | Promise<T>
+  allowCredentials?: (event: RequestEvent, userName: string) => CredentialsList | Promise<CredentialsList>
 }
 
 export interface WebAuthnComposable {

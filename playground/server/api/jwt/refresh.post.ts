@@ -1,17 +1,18 @@
+import { createError, defineEventHandler, deriveSecret } from 'nuxt/server'
 import jwt from '@tsndr/cloudflare-worker-jwt'
 
-export default eventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
   if (!session.jwt?.accessToken && !session.jwt?.refreshToken) {
     throw createError({
-      statusCode: 401,
+      status: 401,
       message: 'Unauthorized',
     })
   }
 
-  if (!await jwt.verify(session.jwt.refreshToken, `${process.env.NUXT_SESSION_PASSWORD!}-secret`)) {
+  if (!await jwt.verify(session.jwt.refreshToken, await deriveSecret('playground:jwt-refresh'))) {
     throw createError({
-      statusCode: 401,
+      status: 401,
       message: 'refresh token is invalid',
     })
   }
@@ -21,7 +22,7 @@ export default eventHandler(async (event) => {
       hello: 'world',
       exp: Math.floor(Date.now() / 1000) + 30, // 30 seconds
     },
-    process.env.NUXT_SESSION_PASSWORD!,
+    await deriveSecret('playground:jwt-access'),
   )
 
   await setUserSession(event, {

@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthAppleEventHandler({
   async onSuccess(event, { user, tokens, payload }) {
     const userToSet = user?.name?.firstName && user?.name?.lastName

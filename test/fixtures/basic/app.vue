@@ -1,6 +1,4 @@
 <template>
   <div>Nuxt Auth Utils</div>
+  <NuxtPage />
 </template>
-
-<script setup>
-</script>

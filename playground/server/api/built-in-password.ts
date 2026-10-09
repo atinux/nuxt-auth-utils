@@ -1,9 +1,11 @@
-export default eventHandler(async (event) => {
-  const { password } = await readBody(event)
+import { createError, defineEventHandler, readBody } from 'nuxt/server'
+
+export default defineEventHandler(async (event) => {
+  const { password } = await readBody<{ password?: string }>(event)
 
   if (password !== '123456') {
     throw createError({
-      statusCode: 401,
+      status: 401,
       message: 'Wrong password',
     })
   }

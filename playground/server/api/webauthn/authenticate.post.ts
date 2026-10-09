@@ -1,3 +1,5 @@
+import { createError } from 'nuxt/server'
+
 interface Credential {
   userId: number
   id: string
@@ -16,7 +18,7 @@ export default defineWebAuthnAuthenticateEventHandler({
       WHERE users.email = ${userName}`
 
     if (!rows.length)
-      throw createError({ statusCode: 400, message: 'User not found' })
+      throw createError({ status: 400, message: 'User not found' })
 
     return rows
   },
@@ -26,7 +28,7 @@ export default defineWebAuthnAuthenticateEventHandler({
 
     // The credential trying to authenticate is not registered, so there is no account to log in to
     if (!rows.length)
-      throw createError({ statusCode: 400, message: 'Credential not found' })
+      throw createError({ status: 400, message: 'Credential not found' })
 
     const [credential] = rows
     return {

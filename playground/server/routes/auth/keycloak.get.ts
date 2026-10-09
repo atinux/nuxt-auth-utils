@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthKeycloakEventHandler({
   async onSuccess(event, { user }) {
     await setUserSession(event, {

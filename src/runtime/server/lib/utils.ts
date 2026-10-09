@@ -1,11 +1,10 @@
-import { type H3Event, deleteCookie, getCookie, getQuery, setCookie } from 'h3'
-import { getRequestURL } from 'h3'
-import { FetchError } from 'ofetch'
+import type { RequestEvent } from 'nuxt/server'
+import { createError, deleteCookie, getCookie, getQuery, getRequestURL, setCookie } from 'nuxt/server'
+import { $fetch, FetchError } from 'ofetch'
 import { snakeCase, upperFirst } from 'scule'
 import * as jose from 'jose'
 import { subtle, getRandomValues } from 'uncrypto'
 import type { OAuthProvider, OnError } from '#auth-utils'
-import { createError } from '#imports'
 
 // Determine if we are in development mode
 const isDevelopment = process.env.NODE_ENV === 'development'
@@ -13,7 +12,7 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 // OAuth cookie expiration time (10 minutes in seconds)
 const OAUTH_COOKIE_MAX_AGE = 60 * 10
 
-export function getOAuthRedirectURL(event: H3Event): string {
+export function getOAuthRedirectURL(event: RequestEvent): string {
   const requestURL = getRequestURL(event)
 
   return `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
@@ -82,11 +81,11 @@ export async function requestAccessToken<T = any>(url: string, options: RequestA
  */
 // TODO: waiting for https://github.com/atinux/nuxt-auth-utils/pull/140
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function handleAccessTokenErrorResponse(event: H3Event, oauthProvider: OAuthProvider, oauthError: any, onError?: OnError) {
+export function handleAccessTokenErrorResponse(event: RequestEvent, oauthProvider: OAuthProvider, oauthError: any, onError?: OnError) {
   const message = `${upperFirst(oauthProvider)} login failed: ${oauthError.error_description || oauthError.error || 'Unknown error'}`
 
   const error = createError({
-    statusCode: 401,
+    status: 401,
     message,
     data: oauthError,
   })
@@ -95,11 +94,11 @@ export function handleAccessTokenErrorResponse(event: H3Event, oauthProvider: OA
   return onError(event, error)
 }
 
-export function handleMissingConfiguration(event: H3Event, provider: OAuthProvider, missingKeys: string[], onError?: OnError) {
+export function handleMissingConfiguration(event: RequestEvent, provider: OAuthProvider, missingKeys: string[], onError?: OnError) {
   const environmentVariables = missingKeys.map(key => `NUXT_OAUTH_${provider.toUpperCase()}_${snakeCase(key).toUpperCase()}`)
 
   const error = createError({
-    statusCode: 500,
+    status: 500,
     message: `Missing ${environmentVariables.join(' or ')} env ${missingKeys.length > 1 ? 'variables' : 'variable'}.`,
   })
 
@@ -107,11 +106,11 @@ export function handleMissingConfiguration(event: H3Event, provider: OAuthProvid
   return onError(event, error)
 }
 
-export function handleInvalidState(event: H3Event, provider: OAuthProvider, onError?: OnError) {
+export function handleInvalidState(event: RequestEvent, provider: OAuthProvider, onError?: OnError) {
   const message = `${upperFirst(provider)} login failed: state mismatch`
 
   const error = createError({
-    statusCode: 500,
+    status: 500,
     message,
   })
 
@@ -187,7 +186,7 @@ function getRandomBytes(size: number = 32) {
   return getRandomValues(new Uint8Array(size))
 }
 
-export async function handlePkceVerifier(event: H3Event) {
+export async function handlePkceVerifier(event: RequestEvent) {
   const query = getQuery<{ code?: string }>(event)
 
   // Create new verifier
@@ -224,7 +223,7 @@ interface HandleStateOptions {
   sameSite?: 'lax' | 'none' | 'strict'
 }
 
-export async function handleState(event: H3Event, options: HandleStateOptions = {}) {
+export async function handleState(event: RequestEvent, options: HandleStateOptions = {}) {
   const query = getQuery<{ code?: string }>(event)
   const isCallback = options.isCallback ?? Boolean(query.code)
 
@@ -250,7 +249,7 @@ export function parseJwt(token: string) {
   return jose.decodeJwt(token)
 }
 
-export function handleNonce(event: H3Event) {
+export function handleNonce(event: RequestEvent) {
   const query = getQuery<{ code?: string }>(event)
   // If the code is in the query, get the nonce from the cookie and delete the cookie
   if (query.code) {

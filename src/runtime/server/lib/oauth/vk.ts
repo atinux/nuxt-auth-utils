@@ -1,6 +1,7 @@
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import crypto from 'node:crypto'
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import {
@@ -12,7 +13,6 @@ import {
   requestAccessToken,
   type RequestAccessTokenBody,
 } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthVKConfig {
@@ -72,8 +72,8 @@ export function defineOAuthVKEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthVKConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.vk, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.vk, {
       authorizationURL: 'https://id.vk.com/authorize',
       tokenURL: 'https://id.vk.com/oauth2/auth',
       userURL: 'https://id.vk.com/oauth2/user_info',
@@ -152,7 +152,7 @@ export function defineOAuthVKEventHandler({
 
     if (!user) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get VK user',
         data: tokens,
       })

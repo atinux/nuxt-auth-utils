@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthMicrosoftConfig {
@@ -60,8 +60,8 @@ export interface OAuthMicrosoftConfig {
 }
 
 export function defineOAuthMicrosoftEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthMicrosoftConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.microsoft, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.microsoft, {
       authorizationParams: {},
     }) as OAuthMicrosoftConfig
 
@@ -127,7 +127,7 @@ export function defineOAuthMicrosoftEventHandler({ config, onSuccess, onError }:
     })
     if (user.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Microsoft login failed: ${user.error || 'Unknown error'}`,
         data: user,
       })

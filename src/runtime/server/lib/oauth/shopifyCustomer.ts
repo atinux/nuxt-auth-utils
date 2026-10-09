@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 interface ShopifyCustomer {
@@ -69,8 +69,8 @@ export function defineOAuthShopifyCustomerEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthShopifyCustomerConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.shopifyCustomer, {}) as OAuthShopifyCustomerConfig
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.shopifyCustomer, {}) as OAuthShopifyCustomerConfig
 
     const query = getQuery<{ code?: string, state?: string }>(event)
 
@@ -87,7 +87,7 @@ export function defineOAuthShopifyCustomerEventHandler({
       .catch(() => null)
     if (!discoveryResponse?.issuer) {
       const error = createError({
-        statusCode: 400,
+        status: 400,
         message: 'Getting Shopify discovery endpoint failed.',
       })
       if (!onError) throw error
@@ -141,7 +141,7 @@ export function defineOAuthShopifyCustomerEventHandler({
 
     if (!apiDiscoveryUrl?.graphql_api) {
       const error = createError({
-        statusCode: 400,
+        status: 400,
         message: 'Getting Shopify api endpoints failed.',
       })
       if (!onError) throw error
@@ -163,7 +163,7 @@ export function defineOAuthShopifyCustomerEventHandler({
 
     if (!user || !user.customer) {
       const error = createError({
-        statusCode: 400,
+        status: 400,
         message: 'Getting Shopify Customer failed.',
       })
       if (!onError) throw error

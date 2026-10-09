@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthGitHubConfig {
@@ -106,8 +106,8 @@ interface GitHubTokens {
 }
 
 export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig, { user: GitHubUser, tokens: GitHubTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.github, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.github, {
       authorizationURL: 'https://github.com/login/oauth/authorize',
       tokenURL: 'https://github.com/login/oauth/access_token',
       apiURL: 'https://api.github.com',
@@ -118,7 +118,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `GitHub login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -195,7 +195,7 @@ export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OA
       // Still no email
       if (!primaryEmail) {
         const error = createError({
-          statusCode: 500,
+          status: 500,
           message: 'Could not get GitHub user email',
           data: tokens,
         })
