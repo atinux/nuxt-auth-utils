@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthTwitchEventHandler({
   config: {
     emailRequired: true,

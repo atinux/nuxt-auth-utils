@@ -1,5 +1,6 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import {
@@ -10,7 +11,6 @@ import {
   handleState,
   requestAccessToken,
 } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthZendeskConfig {
@@ -143,8 +143,8 @@ export function defineOAuthZendeskEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthZendeskConfig, { user: ZendeskUser, tokens: ZendeskTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    const runtimeConfig = useRuntimeConfig(event).oauth?.zendesk
+  return defineEventHandler(async (event: RequestEvent) => {
+    const runtimeConfig = useRuntimeConfig().oauth?.zendesk
     config = defu(config, runtimeConfig) as OAuthZendeskConfig
     // Not a defu default: defu would append 'read' to a configured scope
     config.scope = config.scope?.length ? config.scope : ['read']

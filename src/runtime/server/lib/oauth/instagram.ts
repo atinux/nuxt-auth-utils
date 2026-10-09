@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthInstagramConfig {
@@ -62,8 +62,8 @@ export function defineOAuthInstagramEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthInstagramConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.instagram, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.instagram, {
       scope: ['business_basic'],
       authorizationURL: 'https://www.instagram.com/oauth/authorize',
       tokenURL: 'https://api.instagram.com/oauth/access_token',
@@ -80,7 +80,7 @@ export function defineOAuthInstagramEventHandler({
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Instagram login failed: ${query.error || 'Unknown error'}`,
         data: {
           error: query.error,
@@ -144,7 +144,7 @@ export function defineOAuthInstagramEventHandler({
 
     if (!user) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get Instagram user',
         data: tokens,
       })

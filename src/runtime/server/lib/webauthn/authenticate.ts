@@ -1,12 +1,11 @@
-import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
-import type { EventHandler } from 'h3'
+import { defineEventHandler, createError, getRequestURL, isNuxtError, readBody, useRuntimeConfig } from 'nuxt/server'
+import type { EventHandler, NuxtError } from 'nuxt/server'
 import type { GenerateAuthenticationOptionsOpts } from '@simplewebauthn/server'
 import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
 import { getRandomValues } from 'uncrypto'
 import { base64URLStringToBuffer, bufferToBase64URLString } from '@simplewebauthn/browser'
 import type { AuthenticationBody } from '../../../types/webauthn'
-import { useRuntimeConfig } from '#imports'
 import type { WebAuthnAuthenticateEventHandlerOptions, WebAuthnCredential } from '#auth-utils'
 
 export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredential>({
@@ -18,10 +17,10 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
   onSuccess,
   onError,
 }: WebAuthnAuthenticateEventHandlerOptions<T>): EventHandler {
-  return eventHandler(async (event) => {
+  return defineEventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<AuthenticationBody>(event)
-    const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig(event).webauthn.authenticate, {
+    const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig().webauthn.authenticate, {
       rpID: url.hostname,
     } satisfies GenerateAuthenticationOptionsOpts)
 
@@ -49,7 +48,7 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
       }
 
       if (!body.attemptId)
-        throw createError({ statusCode: 400 })
+        throw createError({ status: 400 })
 
       let expectedChallenge = ''
       if (getChallenge) {
@@ -72,7 +71,7 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
       })
 
       if (!verification.verified)
-        throw createError({ statusCode: 400, message: 'Failed to verify registration response' })
+        throw createError({ status: 400, message: 'Failed to verify registration response' })
 
       await onSuccess(event, {
         credential,
@@ -82,9 +81,9 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
     }
     catch (error) {
       if (!onError) throw error
-      if (error instanceof H3Error)
-        return onError(event, error)
-      return onError(event, createError({ statusCode: 500, message: 'Failed to authenticate credential' }))
+      if (isNuxtError(error))
+        return onError(event, error as NuxtError)
+      return onError(event, createError({ status: 500, message: 'Failed to authenticate credential' }))
     }
   })
 }

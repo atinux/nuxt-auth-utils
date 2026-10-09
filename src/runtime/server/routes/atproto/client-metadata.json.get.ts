@@ -1,12 +1,12 @@
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler, getRequestURL, useRuntimeConfig } from 'nuxt/server'
+import { withoutBase } from 'ufo'
 import { getAtprotoClientMetadata } from '../../utils/atproto'
 import { atprotoProviders, getClientMetadataFilename } from '../../../utils/atproto'
 import type { AtprotoProviderClientMetadata } from '../../../types/atproto'
-import { useRuntimeConfig } from '#imports'
 
 export default defineEventHandler((event) => {
-  const path = event.path.slice(1)
-  const runtimeConfig = useRuntimeConfig(event)
+  const runtimeConfig = useRuntimeConfig()
+  const path = withoutBase(getRequestURL(event).pathname, runtimeConfig.app.baseURL).slice(1)
 
   for (const provider of atprotoProviders) {
     const config = runtimeConfig.oauth[provider] as AtprotoProviderClientMetadata
@@ -17,7 +17,7 @@ export default defineEventHandler((event) => {
   }
 
   throw createError({
-    statusCode: 404,
+    status: 404,
     message: 'Provider not found',
   })
 })

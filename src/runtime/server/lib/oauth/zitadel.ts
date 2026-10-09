@@ -1,10 +1,10 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { hasProtocol, withQuery } from 'ufo'
 import { defu } from 'defu'
 import type { RequestAccessTokenOptions } from '../utils'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, handleState, handlePkceVerifier, handleInvalidState } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthZitadelConfig {
@@ -44,8 +44,8 @@ export interface OAuthZitadelConfig {
 }
 
 export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthZitadelConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.zitadel, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.zitadel, {
       authorizationParams: {},
     }) as OAuthZitadelConfig
 
@@ -53,7 +53,7 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Zitadel login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -133,7 +133,7 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
 
     if (!user) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get Zitadel user',
         data: tokens,
       })

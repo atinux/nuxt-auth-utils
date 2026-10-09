@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthStravaEventHandler({
   config: {
     approvalPrompt: 'force',

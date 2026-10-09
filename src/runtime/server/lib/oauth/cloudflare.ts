@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handlePkceVerifier, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 /**
@@ -92,8 +92,8 @@ export interface CloudflareTokens {
 }
 
 export function defineOAuthCloudflareEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCloudflareConfig, { user: CloudflareUser, tokens: CloudflareTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.cloudflare, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.cloudflare, {
       authorizationURL: 'https://dash.cloudflare.com/oauth2/auth',
       tokenURL: 'https://dash.cloudflare.com/oauth2/token',
       userURL: 'https://dash.cloudflare.com/oauth2/userinfo',
@@ -104,7 +104,7 @@ export function defineOAuthCloudflareEventHandler({ config, onSuccess, onError }
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Cloudflare login failed: ${query.error_description || query.error}`,
         data: query,
       })

@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthOidcEventHandler({
   config: {
     scope: ['openid', 'profile', 'email'],
