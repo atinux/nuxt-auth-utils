@@ -1,12 +1,11 @@
-import { eventHandler, H3Error, createError, getRequestURL, readBody } from 'h3'
-import type { H3Event, EventHandler } from 'h3'
+import { defineEventHandler, createError, getRequestURL, isNuxtError, readBody, useRuntimeConfig } from 'nuxt/server'
+import type { EventHandler, NuxtError, RequestEvent } from 'nuxt/server'
 import type { GenerateRegistrationOptionsOpts } from '@simplewebauthn/server'
 import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server'
 import defu from 'defu'
 import { bufferToBase64URLString } from '@simplewebauthn/browser'
 import { getRandomValues } from 'uncrypto'
 import type { RegistrationBody, ValidateUserFunction } from '../../../types/webauthn'
-import { useRuntimeConfig } from '#imports'
 import type { WebAuthnUser, WebAuthnRegisterEventHandlerOptions } from '#auth-utils'
 
 export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
@@ -18,13 +17,13 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   onSuccess,
   onError,
 }: WebAuthnRegisterEventHandlerOptions<T>): EventHandler {
-  return eventHandler(async (event) => {
+  return defineEventHandler(async (event) => {
     const url = getRequestURL(event)
     const body = await readBody<RegistrationBody<T>>(event)
     if (body.verify === undefined || !body.user?.userName)
       throw createError({
         message: 'Invalid request, missing userName or verify property',
-        statusCode: 400,
+        status: 400,
       })
 
     let user = body.user
@@ -32,7 +31,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
       user = await validateUserData(body.user, event, validateUser)
     }
 
-    const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig(event).webauthn.register, {
+    const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig().webauthn.register, {
       rpID: url.hostname,
       rpName: url.hostname,
       userName: user.userName,
@@ -69,7 +68,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
       if (!body.attemptId) {
         throw createError({
           message: 'Invalid request, missing attemptId',
-          statusCode: 400,
+          status: 400,
         })
       }
 
@@ -90,7 +89,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
       if (!verification.verified) {
         throw createError({
           message: 'Failed to verify registration response',
-          statusCode: 400,
+          status: 400,
         })
       }
 
@@ -110,9 +109,9 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
     }
     catch (error) {
       if (!onError) throw error
-      if (error instanceof H3Error)
-        return onError(event, error)
-      return onError(event, createError({ statusCode: 500, message: 'Failed to register credential' }))
+      if (isNuxtError(error))
+        return onError(event, error as NuxtError)
+      return onError(event, createError({ status: 500, message: 'Failed to register credential' }))
     }
   })
 }
@@ -120,7 +119,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
 // Taken from h3
 export async function validateUserData<T>(
   userBody: WebAuthnUser,
-  event: H3Event,
+  event: RequestEvent,
   fn: ValidateUserFunction<T>,
 ): Promise<T> {
   try {
@@ -140,7 +139,7 @@ export async function validateUserData<T>(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createUserValidationError(validateError?: any) {
   throw createError({
-    status: validateError?.statusCode || 400,
+    status: validateError?.status || validateError?.statusCode || 400,
     message: validateError?.message || 'User Validation Error',
     data: validateError,
   })

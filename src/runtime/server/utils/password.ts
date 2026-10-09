@@ -1,7 +1,7 @@
 import { Hash } from '@adonisjs/hash'
 import { Scrypt } from '@adonisjs/hash/drivers/scrypt'
 import type { ScryptConfig } from '@adonisjs/hash/types'
-import { useRuntimeConfig } from '#imports'
+import { useRuntimeConfig } from 'nuxt/server'
 
 let _hash: Hash
 

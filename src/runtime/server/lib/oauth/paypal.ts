@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthPaypalConfig {
@@ -65,8 +65,8 @@ export interface OAuthPaypalConfig {
 }
 
 export function defineOAuthPaypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.paypal, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.paypal, {
       sandbox: import.meta.dev,
       authorizationURL: 'https://www.paypal.com/signin/authorize',
       tokenURL: 'https://api-m.paypal.com/v1/oauth2/token',
@@ -150,7 +150,7 @@ export function defineOAuthPaypalEventHandler({ config, onSuccess, onError }: OA
 
     if (!user) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get PayPal user',
         data: tokens,
       })

@@ -1,10 +1,11 @@
+import { createError } from 'nuxt/server'
 import { z } from 'zod'
 
 export default defineWebAuthnRegisterEventHandler({
   async validateUser(userBody, event) {
     const session = await getUserSession(event)
     if (session.user?.email && session.user.email !== userBody.userName) {
-      throw createError({ statusCode: 400, message: 'Email not matching curent session' })
+      throw createError({ status: 400, message: 'Email not matching curent session' })
     }
 
     return z.object({
@@ -50,7 +51,7 @@ export default defineWebAuthnRegisterEventHandler({
     catch (err) {
       await db.sql`ROLLBACK`
       throw createError({
-        statusCode: 500,
+        status: 500,
         message: err instanceof Error && err.message.includes('UNIQUE constraint failed') ? 'User already registered' : 'Failed to store credential',
       })
     }

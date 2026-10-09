@@ -1,5 +1,6 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { defu } from 'defu'
 import { withQuery } from 'ufo'
 import {
@@ -10,7 +11,6 @@ import {
   handleState,
   requestAccessToken,
 } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface LiveChatTokens {
@@ -99,8 +99,8 @@ export function defineOAuthLiveChatEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<LiveChatConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.livechat, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.livechat, {
       authorizationURL: 'https://accounts.livechat.com',
       tokenURL: 'https://accounts.livechat.com/v2/token',
       userURL: 'https://accounts.livechat.com/v2/accounts/me',

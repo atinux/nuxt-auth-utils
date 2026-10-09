@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleState, handleInvalidState, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OpenIdConfig {
@@ -28,8 +28,8 @@ export interface OAuthConfigExt<TConfig, TResult = {
   openIdConfig: OpenIdConfig
 }> extends OAuthConfig<TConfig, TResult> {
   config?: TConfig
-  onSuccess: (event: H3Event, result: TResult) => Promise<void> | void
-  onError?: (event: H3Event, error: unknown) => Promise<void> | void
+  onSuccess: (event: RequestEvent, result: TResult) => unknown
+  onError?: (event: RequestEvent, error: unknown) => unknown
 }
 
 export interface OAuthOktaConfig {
@@ -125,8 +125,8 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
   }
 
   // Event handler for Okta OAuth. Is called multiple times during the OAuth flow.
-  return eventHandler(async (event: H3Event) => {
-    const runtimeConfig = useRuntimeConfig(event)
+  return defineEventHandler(async (event: RequestEvent) => {
+    const runtimeConfig = useRuntimeConfig()
     config = defu(config, runtimeConfig.oauth?.okta, {
       authorizationParams: {},
     }) as OAuthOktaConfig
@@ -139,7 +139,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Okta login failed: ${query.error || 'Unknown error'} - ${query.error_description || ''}`,
         data: query,
       })
@@ -149,7 +149,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
 
     config.scope = normalizeScope(config.scope, config.emailRequired)
 
-    const getOpenIdConfig = async (openIdConfigurationUrl: string, event?: H3Event): Promise<OpenIdConfig> => {
+    const getOpenIdConfig = async (openIdConfigurationUrl: string, event?: RequestEvent): Promise<OpenIdConfig> => {
       const now = Date.now()
       const cacheTTL = config?.openIdConfigCacheTTL || DEFAULT_CACHE_TTL
 
@@ -198,7 +198,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
           // Log and throw a more actionable error if OpenID config fetch fails and no fallback is possible
           console.error('Failed to fetch Okta OpenID configuration. Please check your Okta domain and network connectivity:', error)
           const err = createError({
-            statusCode: 500,
+            status: 500,
             message: 'Could not get Okta OpenID configuration. Please verify that your Okta domain is correct and reachable, and that the OpenID configuration endpoint is accessible.',
             data: error,
           })
@@ -270,7 +270,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
       || !tokens.token_type || typeof tokens.token_type !== 'string'
     ) {
       const err = createError({
-        statusCode: 400,
+        status: 400,
         message: 'Invalid token response from Okta',
         data: tokens,
       })
@@ -292,7 +292,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
     }
     catch (error: unknown) {
       const err = createError({
-        statusCode: 410,
+        status: 410,
         message: `Could not get Okta user info - ${error instanceof Error ? error.message : String(error)}`,
         data: tokens,
       })

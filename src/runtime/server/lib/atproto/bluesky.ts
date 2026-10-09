@@ -1,5 +1,5 @@
-import type { H3Event } from 'h3'
-import { createError, eventHandler, getQuery, sendRedirect, getCookie, setCookie, deleteCookie } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, deleteCookie, getCookie, getQuery, sendRedirect, setCookie } from 'nuxt/server'
 import { NodeOAuthClient, OAuthCallbackError, OAuthResolverError, OAuthResponseError } from '@atproto/oauth-client-node'
 import type {
   NodeSavedSession,
@@ -32,7 +32,7 @@ type BlueSkyUser = AppBskyActorDefs.ProfileViewDetailed | Pick<AppBskyActorDefs.
 type BlueSkyTokens = NodeSavedSession['tokenSet']
 
 export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBlueskyConfig, { user: BlueSkyUser, tokens: BlueSkyTokens }>) {
-  return eventHandler(async (event: H3Event) => {
+  return defineEventHandler(async (event: RequestEvent) => {
     const clientMetadata = getAtprotoClientMetadata(event, 'bluesky', config)
     const scopes = clientMetadata.scope?.split(' ') ?? []
 
@@ -51,7 +51,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
       try {
         const handle = query.handle?.toString()
         if (!handle) throw createError({
-          statusCode: 400,
+          status: 400,
           message: 'Query parameter `handle` empty or missing. Please provide a valid Bluesky handle.',
         })
 
@@ -63,14 +63,14 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
           switch (true) {
             case err instanceof OAuthResponseError:
               return createError({
-                statusCode: 500,
+                status: 500,
                 message: `Bluesky login failed: ${err.errorDescription || 'Unknown error'}`,
                 data: err.payload,
               })
 
             case err instanceof OAuthResolverError:
               return createError({
-                statusCode: 400,
+                status: 400,
                 message: `Bluesky login failed: ${err.message || 'Unknown error'}`,
               })
 
@@ -101,7 +101,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
     catch (err) {
       if (!(err instanceof OAuthCallbackError)) throw err
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: `Bluesky login failed: ${err.message || 'Unknown error'}`,
       })
       if (!onError) throw error
@@ -113,7 +113,7 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
 export class StateStore implements NodeSavedStateStore {
   private readonly stateKey = 'oauth-bluesky-state'
 
-  constructor(private event: H3Event) {}
+  constructor(private event: RequestEvent) {}
 
   async get(): Promise<NodeSavedState | undefined> {
     const result = getCookie(this.event, this.stateKey)

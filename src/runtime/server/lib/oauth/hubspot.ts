@@ -1,5 +1,6 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import defu from 'defu'
 import {
@@ -10,7 +11,6 @@ import {
   handleState,
   requestAccessToken,
 } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthHubspotConfig {
@@ -69,8 +69,8 @@ interface OAuthHubspotAccessInfo {
 }
 
 export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthHubspotConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.hubspot) as OAuthHubspotConfig
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.hubspot) as OAuthHubspotConfig
 
     if (!config.clientId || !config.clientSecret || !config.redirectURL) {
       return handleMissingConfiguration(event, 'hubspot', ['clientId', 'clientSecret', 'redirectURL'], onError)

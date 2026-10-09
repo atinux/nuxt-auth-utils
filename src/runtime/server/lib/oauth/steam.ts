@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, getRequestURL, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleInvalidState, handleMissingConfiguration, handleState } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthSteamConfig {
@@ -28,8 +28,8 @@ export interface OAuthSteamConfig {
 }
 
 export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSteamConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.steam, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.steam, {
       authorizationURL: 'https://steamcommunity.com/openid/login',
     }) as OAuthSteamConfig
     const query = getQuery<Record<string, string>>(event)
@@ -63,7 +63,7 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
       || !query['openid.sig']
     ) {
       const error = createError({
-        statusCode: 400,
+        status: 400,
         message: 'Steam login failed: Incomplete query.',
       })
       if (!onError) throw error
@@ -80,7 +80,7 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
     for (const signed of query['openid.signed'].split(',')) {
       if (!query[`openid.${signed}`]) {
         const error = createError({
-          statusCode: 400,
+          status: 400,
           message: 'Steam login failed: Incomplete query.',
         })
         if (!onError) throw error
@@ -96,7 +96,7 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
 
     if (!valid) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: 'Steam login failed: Claimed identity is invalid.',
       })
       if (!onError) throw error

@@ -1,5 +1,6 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import {
@@ -10,7 +11,6 @@ import {
   handleState,
   requestAccessToken,
 } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthYandexConfig {
@@ -70,8 +70,8 @@ export function defineOAuthYandexEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthYandexConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.yandex, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.yandex, {
       authorizationURL: 'https://oauth.yandex.ru/authorize',
       tokenURL: 'https://oauth.yandex.ru/token',
       userURL: 'https://login.yandex.ru/info',

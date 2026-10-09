@@ -1,3 +1,4 @@
+import { defineEventHandler, readValidatedBody, setResponseStatus } from 'nuxt/server'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -5,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const { email, password } = await readValidatedBody(event, z.object({
     email: z.string().email(),
     password: z.string().min(8),
-  }).parse)
+  }))
 
   const hashedPassword = await hashPassword(password)
 
@@ -20,5 +21,6 @@ export default defineEventHandler(async (event) => {
     loggedInAt: Date.now(),
   })
 
-  return setResponseStatus(event, 201)
+  setResponseStatus(event, 201)
+  return {}
 })

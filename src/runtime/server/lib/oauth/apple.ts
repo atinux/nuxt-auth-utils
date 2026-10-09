@@ -1,9 +1,8 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getRequestHeader, readBody, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getRequestHeader, readBody, sendRedirect, useRuntimeConfig } from 'nuxt/server'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken, signJwt, verifyJwt } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthAppleConfig {
@@ -94,8 +93,8 @@ export function defineOAuthAppleEventHandler({
   onError,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: OAuthConfig<OAuthAppleConfig, { user: OAuthAppleUser, payload: OAuthAppleTokens, tokens: any }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.apple, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.apple, {
       authorizationURL: config?.authorizationURL || 'https://appleid.apple.com/auth/authorize',
       authorizationParams: {},
     }) as OAuthAppleConfig

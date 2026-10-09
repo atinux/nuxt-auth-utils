@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 interface AtlassianUser {
@@ -99,7 +99,7 @@ export function defineOAuthAtlassianEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthAtlassianConfig, { user: AtlassianUser, tokens: AtlassianTokens }>) {
-  return eventHandler(async (event: H3Event) => {
+  return defineEventHandler(async (event: RequestEvent) => {
     config = defu(config, useRuntimeConfig().oauth?.atlassian, {
       authorizationURL: 'https://auth.atlassian.com/authorize',
       tokenURL: 'https://auth.atlassian.com/oauth/token',
@@ -142,7 +142,7 @@ export function defineOAuthAtlassianEventHandler({
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Atlassian login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -180,8 +180,8 @@ export function defineOAuthAtlassianEventHandler({
 
     if (user.account_status === 'inactive') {
       const error = createError({
-        statusCode: 403,
-        statusMessage: 'Atlassian account is inactive',
+        status: 403,
+        message: 'Atlassian account is inactive',
         data: { accountStatus: user.account_status },
       })
       if (!onError) throw error
@@ -190,8 +190,8 @@ export function defineOAuthAtlassianEventHandler({
 
     if (!user.email_verified) {
       const error = createError({
-        statusCode: 400,
-        statusMessage: 'Email address is not verified',
+        status: 400,
+        message: 'Email address is not verified',
         data: { email: user.email },
       })
       if (!onError) throw error

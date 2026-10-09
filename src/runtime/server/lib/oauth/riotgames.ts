@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthRiotGamesConfig {
@@ -85,8 +85,8 @@ interface RiotGamesTokens {
 }
 
 export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthRiotGamesConfig, { user: RiotGamesUser, tokens: RiotGamesTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.riotgames, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.riotgames, {
       authorizationURL: 'https://auth.riotgames.com/authorize',
       tokenURL: 'https://auth.riotgames.com/token',
       apiURL: 'https://auth.riotgames.com',
@@ -97,7 +97,7 @@ export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }:
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `RiotGames login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
