@@ -723,7 +723,7 @@ export default defineNuxtConfig({
 })
 ```
 
-You can use the `requireUserSession` function in the `upgrade` function to check if the user is authenticated before upgrading the WebSocket connection. In WebSocket handlers, the session is read-only: `setUserSession` and `clearUserSession` don't send a cookie back to the client.
+You can use the `requireUserSession` function in the `upgrade` function to check if the user is authenticated before upgrading the WebSocket connection. In WebSocket handlers, the session is read-only: `setUserSession`, `replaceUserSession` and `clearUserSession` throw an error when given a WebSocket peer or upgrade request.
 
 ```ts
 // server/routes/ws.ts
@@ -832,6 +832,7 @@ The other changes in v0.6 are:
 - The session can't be read from the `x-nuxt-session-session` request header anymore.
 - The `sessionHeader`, `seal`, `crypto`, `generateId`, and `password` session options are removed.
 - The `event` in the OAuth and WebAuthn callbacks is a `RequestEvent` from `nuxt/server`, and `error` is a `NuxtError`.
+- In WebSocket handlers, `setUserSession`, `replaceUserSession` and `clearUserSession` throw an error, as the session cookie can't be sent back to the client.
 - `requireUserSession` accepts a `status` option. The `statusCode` option still works, but it's deprecated.
 - Nuxt throws a 500 error if a session cookie is larger than 4096 bytes.
 
