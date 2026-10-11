@@ -3,7 +3,7 @@ import { createError, defineEventHandler, useRuntimeConfig, useSession } from 'n
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
 import type { OmitWithIndexSignature } from '../../types/utils'
-import type { SessionEvent, UserSession, UserSessionRequired } from '#auth-utils'
+import type { LegacyH3Event, SessionEvent, UserSession, UserSessionRequired } from '#auth-utils'
 
 /**
  * Name of the cookie the user session is sealed into.
@@ -11,6 +11,16 @@ import type { SessionEvent, UserSession, UserSessionRequired } from '#auth-utils
 export const USER_SESSION_COOKIE_NAME = 'nuxt-auth-session'
 
 type UserSessionData = OmitWithIndexSignature<UserSession, 'id'>
+
+/**
+ * Session options, the session is always sealed with a secret derived from `appSecret`.
+ */
+type UserSessionConfig = Omit<SessionConfig, 'password'>
+
+/**
+ * An event the session can be written with, WebSocket peers and upgrade requests are read-only.
+ */
+type WritableSessionEvent = RequestEvent | LegacyH3Event
 
 /**
  * The part of the event the session helpers of `nuxt/server` read and write.
@@ -51,8 +61,8 @@ export async function getUserSession(event: SessionEvent): Promise<UserSession> 
  * @param data User session data, please only store public information since it can be decoded with API calls
  * @see https://github.com/atinux/nuxt-auth-utils
  */
-export async function setUserSession(event: SessionEvent, data: UserSessionData, config?: Partial<SessionConfig>): Promise<UserSession> {
-  const session = await _useSession(event, config)
+export async function setUserSession(event: WritableSessionEvent, data: UserSessionData, config?: UserSessionConfig): Promise<UserSession> {
+  const session = await _useSession(event, config, true)
 
   await session.update(defu(data, session.data))
 
@@ -64,8 +74,8 @@ export async function setUserSession(event: SessionEvent, data: UserSessionData,
  * @param event The request event
  * @param data User session data, please only store public information since it can be decoded with API calls
  */
-export async function replaceUserSession(event: SessionEvent, data: UserSessionData, config?: Partial<SessionConfig>): Promise<UserSession> {
-  const session = await _useSession(event, config)
+export async function replaceUserSession(event: WritableSessionEvent, data: UserSessionData, config?: UserSessionConfig): Promise<UserSession> {
+  const session = await _useSession(event, config, true)
 
   // Replace the data in place: `clear()` would also generate a new session id
   await session.update((oldData) => {
@@ -83,8 +93,8 @@ export async function replaceUserSession(event: SessionEvent, data: UserSessionD
  * @param event The request event
  * @returns true if the session was cleared
  */
-export async function clearUserSession(event: SessionEvent, config?: Partial<SessionConfig>): Promise<boolean> {
-  const session = await _useSession(event, config)
+export async function clearUserSession(event: WritableSessionEvent, config?: UserSessionConfig): Promise<boolean> {
+  const session = await _useSession(event, config, true)
 
   await sessionHooks.callHookParallel('clear', session.data as UserSession, toSessionEvent(event).event as RequestEvent)
   await session.clear()
@@ -116,20 +126,26 @@ export async function requireUserSession(event: SessionEvent, opts: { status?: n
   return userSession as UserSessionRequired
 }
 
-async function _useSession(event: SessionEvent, config: Partial<SessionConfig> = {}) {
+async function _useSession(event: SessionEvent, config: UserSessionConfig = {}, write = false) {
+  const { event: sessionEvent, webSocket } = toSessionEvent(event)
+  if (write && webSocket) {
+    throw createError({
+      status: 500,
+      message: '[nuxt-auth-utils] The user session is read-only in WebSocket handlers: `setUserSession`, `replaceUserSession` and `clearUserSession` need the event of an HTTP request.',
+    })
+  }
   const runtimeConfig = useRuntimeConfig()
   warnLegacySessionPassword(runtimeConfig)
 
   // The session is sealed with a secret derived from `appSecret` (`NUXT_APP_SECRET`)
-  const { password: _password, ...sessionConfig } = (runtimeConfig.session || {}) as SessionConfig
-  const finalConfig = defu(config, sessionConfig, { name: USER_SESSION_COOKIE_NAME }) as SessionConfig
+  const { password: _password, ...finalConfig } = defu(config, runtimeConfig.session, { name: USER_SESSION_COOKIE_NAME }) as SessionConfig
   // `nuxt-session` is the cookie of the app's own `useSession()`: sharing it would mix both sessions
   if (finalConfig.name === APP_SESSION_COOKIE_NAME) {
     warnAppSessionName()
     finalConfig.name = USER_SESSION_COOKIE_NAME
   }
 
-  return useSession<UserSessionData>(toSessionEvent(event).event, finalConfig)
+  return useSession<UserSessionData>(sessionEvent, finalConfig)
 }
 
 const APP_SESSION_COOKIE_NAME = 'nuxt-session'

@@ -14,8 +14,14 @@ describe('ssr', async () => {
   await setup({
     rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
     nuxtConfig: {
+      routeRules: {
+        '/spa': { ssr: false },
+      },
       runtimeConfig: {
         appSecret: 'a-test-app-secret-with-at-least-32-characters',
+        oauth: {
+          facebook: { clientId: 'facebook-client-id' },
+        },
       },
     },
   })
@@ -24,6 +30,12 @@ describe('ssr', async () => {
     // Get response to a server-rendered page with `$fetch`.
     const html = await $fetch('/')
     expect(html).toContain('<div>Nuxt Auth Utils</div>')
+  })
+
+  it('removes the Facebook `#_=_` hash, also on `ssr: false` pages', async () => {
+    for (const path of ['/', '/spa']) {
+      expect(await $fetch<string>(path)).toContain('window.location.hash==="#_=_"')
+    }
   })
 
   it('fetches the user session during SSR', async () => {
@@ -152,7 +164,10 @@ describe('ssr', async () => {
       })
       ws.addEventListener('error', reject)
     })
-    expect(JSON.parse(message)).toEqual({ user: { fromNuxtServer: true } })
+    expect(JSON.parse(message)).toEqual({
+      user: { fromNuxtServer: true },
+      writeError: expect.stringContaining('read-only in WebSocket handlers'),
+    })
 
     const rejected = await new Promise<boolean>((resolve) => {
       const ws = new WebSocket(wsURL)

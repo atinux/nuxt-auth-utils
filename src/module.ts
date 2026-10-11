@@ -5,6 +5,7 @@ import {
   addPlugin,
   addServerHandler,
   addServerImportsDir,
+  addServerPlugin,
   createResolver,
   defineNuxtModule,
   getNitroVersion,
@@ -100,8 +101,8 @@ export default defineNuxtModule<ModuleOptions>({
       addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
       addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
     }
-    addPlugin(resolver.resolve('./runtime/app/plugins/oauth-hash.server'))
     // Server
+    addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth-hash'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
     // WebAuthn enabled
     if (options.webAuthn) {

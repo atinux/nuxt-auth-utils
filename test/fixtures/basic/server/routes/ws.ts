@@ -4,6 +4,8 @@ export default defineWebSocketHandler({
   },
   async open(peer) {
     const { user } = await requireUserSession(peer)
-    peer.send(JSON.stringify({ user }))
+    // @ts-expect-error the session is read-only in WebSocket handlers
+    const writeError = await setUserSession(peer, { user: { fromWebSocket: true } }).then(() => null, (error: Error) => error.message)
+    peer.send(JSON.stringify({ user, writeError }))
   },
 })
