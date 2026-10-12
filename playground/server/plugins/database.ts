@@ -1,4 +1,6 @@
-export default defineNitroPlugin(async () => {
+import { useDatabase } from '../utils/database'
+
+export default async () => {
   const db = useDatabase()
 
   // Email / Password
@@ -19,4 +21,4 @@ export default defineNitroPlugin(async () => {
       transports TEXT NOT NULL,
       PRIMARY KEY ("userId", "id")
     )`
-})
+}

@@ -1,3 +1,4 @@
+import { useDatabase } from '../utils/database'
 import { defineEventHandler, readValidatedBody, setResponseStatus } from 'nuxt/server'
 import { z } from 'zod'
 

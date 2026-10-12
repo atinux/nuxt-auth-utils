@@ -1,3 +1,4 @@
+import { useDatabase } from '../../utils/database'
 import { createError } from 'nuxt/server'
 import { z } from 'zod'
 

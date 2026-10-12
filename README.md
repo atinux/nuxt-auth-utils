@@ -634,7 +634,8 @@ We leverage hooks to let you extend the session data with your own data or log w
 
 ```ts
 // server/plugins/session.ts
-export default defineNitroPlugin(() => {
+// A server plugin is a function, so this file runs on Nuxt 4 (Nitro 2) and Nuxt 5 (Nitro 3)
+export default () => {
   // Called when the session is fetched during SSR for the Vue composable (/api/_auth/session)
   // Or when we call useUserSession().fetch()
   sessionHooks.hook('fetch', async (session, event) => {
@@ -647,7 +648,7 @@ export default defineNitroPlugin(() => {
   sessionHooks.hook('clear', async (session, event) => {
     // Log that user logged out
   })
-})
+}
 ```
 
 ## Server-Side Rendering
@@ -759,6 +760,9 @@ You can use the `requireUserSession` function in the `upgrade` function to check
 
 ```ts
 // server/routes/ws.ts
+// `defineWebSocketHandler` is not auto-imported on Nuxt 5, `h3` works on Nuxt 4 and Nuxt 5
+import { defineWebSocketHandler } from 'h3'
+
 export default defineWebSocketHandler({
   async upgrade(request) {
     // Make sure the user is authenticated before upgrading the WebSocket connection
@@ -909,6 +913,12 @@ pnpm run dev:prepare
 
 # Develop with the playground
 pnpm run dev
+
+# Develop with the playground on the Nuxt 5 nightly (Nitro 3), run `pnpm install` to go back to the lockfile
+pnpm run dev:v5
+
+# Run the tests on the Nuxt 5 nightly
+pnpm run install:nuxt5 && pnpm run dev:prepare && pnpm run test
 
 # Build the playground
 pnpm run dev:build

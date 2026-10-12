@@ -34,6 +34,8 @@
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "dev:v5": "pnpm install:nuxt5 && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground && nuxi dev playground",
+    "install:nuxt5": "pnpm install --config.pnpmfile=scripts/nuxt-nightly.cjs --config.lockfile=false --config.minimum-release-age-exclude=*-nightly",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
