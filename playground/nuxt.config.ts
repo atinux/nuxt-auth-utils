@@ -6,9 +6,6 @@ export default defineNuxtConfig({
   },
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
-  ui: {
-    mdc: true,
-  },
   routeRules: {
     '/': {
       // prerender: true,
@@ -25,7 +22,6 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-06-17',
   nitro: {
     experimental: {
-      database: true,
       websocket: true,
     },
   },
