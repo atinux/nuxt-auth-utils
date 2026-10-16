@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.5.32
+
+[compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.31...v0.5.32)
+
+### 🩹 Fixes
+
+- **playground:** Check the stored password hash before rehashing ([#547](https://github.com/atinux/nuxt-auth-utils/pull/547))
+
+### 🏡 Chore
+
+- Add Amp orb setup and playground service ([9fa2848](https://github.com/atinux/nuxt-auth-utils/commit/9fa2848))
+
+### ❤️ Contributors
+
+- Sean0407 <sean0407@gmail.com>
+- Amp <amp@ampcode.com>
+
 ## v0.5.31
 
 [compare changes](https://github.com/atinux/nuxt-auth-utils/compare/v0.5.30...v0.5.31)
