@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthSalesforceEventHandler({
   config: {},
   async onSuccess(event, { user }) {

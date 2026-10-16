@@ -1,19 +1,18 @@
-import type { H3Event } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
 import type { OAuthClientMetadataInput, OAuthGrantType } from '@atproto/oauth-client-node'
-import { getRequestURL } from 'h3'
+import { getRequestURL, useRuntimeConfig } from 'nuxt/server'
 import type { AtprotoProviderClientMetadata } from '../../types/atproto'
 import type { OAuthBlueskyConfig } from '../lib/atproto/bluesky'
 import { getOAuthRedirectURL } from '../lib/utils'
 import { getClientMetadataFilename } from '../../utils/atproto'
 import type { ATProtoProvider, OAuthConfig } from '#auth-utils'
-import { useRuntimeConfig } from '#imports'
 
 export function getAtprotoClientMetadata(
-  event: H3Event,
+  event: RequestEvent,
   provider: ATProtoProvider,
   config?: OAuthConfig<OAuthBlueskyConfig>['config'],
 ): OAuthClientMetadataInput {
-  const providerRuntimeConfig: AtprotoProviderClientMetadata = useRuntimeConfig(event).oauth[provider] as AtprotoProviderClientMetadata
+  const providerRuntimeConfig: AtprotoProviderClientMetadata = useRuntimeConfig().oauth[provider] as AtprotoProviderClientMetadata
   const scopes = [...new Set(['atproto', ...config?.scope ?? [], ...providerRuntimeConfig.scope ?? []])]
   const scope = scopes.join(' ')
 

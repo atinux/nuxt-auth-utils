@@ -1,4 +1,3 @@
-import { appendResponseHeader } from 'h3'
 import { useState, computed, useRequestFetch, useRequestEvent } from '#imports'
 import type { UserSession, UserSessionComposable } from '#auth-utils'
 
@@ -18,7 +17,7 @@ export function useUserSession(): UserSessionComposable {
         // Forward the Set-Cookie header to the main server event
         if (import.meta.server && serverEvent) {
           for (const setCookie of headers.getSetCookie()) {
-            appendResponseHeader(serverEvent, 'Set-Cookie', setCookie)
+            serverEvent.res.headers.append('set-cookie', setCookie)
           }
         }
       },

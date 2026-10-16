@@ -1,7 +1,7 @@
-import { eventHandler } from 'h3'
+import { defineEventHandler } from 'nuxt/server'
 import { getUserSession, sessionHooks } from '../utils/session'
 
-export default eventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
 
   // If session is not empty, call fetch hook

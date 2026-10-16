@@ -1,4 +1,3 @@
-import { appendResponseHeader } from 'h3'
 import { parse, parseSetCookie, serialize } from 'cookie-es'
 import type { JwtData } from '@tsndr/cloudflare-worker-jwt'
 import { decode } from '@tsndr/cloudflare-worker-jwt'
@@ -13,7 +12,6 @@ export default defineNuxtRouteMiddleware(async () => {
   if (!session.value?.jwt) return
 
   const serverEvent = useRequestEvent()
-  const runtimeConfig = useRuntimeConfig()
   const { accessToken, refreshToken } = session.value.jwt
 
   const accessPayload = decode(accessToken)
@@ -34,20 +32,14 @@ export default defineNuxtRouteMiddleware(async () => {
         // Forward the Set-Cookie header to the main server event
         if (import.meta.server && serverEvent) {
           for (const setCookie of headers.getSetCookie()) {
-            appendResponseHeader(serverEvent, 'Set-Cookie', setCookie)
-            // Update session cookie for next fetch requests
+            serverEvent.res.headers.append('set-cookie', setCookie)
+            // Update the session cookie of the request, for the next fetch requests
             const { name, value } = parseSetCookie(setCookie)
-            if (name === runtimeConfig.session.name) {
-              // console.log('updating headers.cookie to', value)
-              const cookies = parse(serverEvent.headers.get('cookie') || '')
+            if (name === 'nuxt-auth-session') {
+              const cookies = parse(serverEvent.req.headers.get('cookie') || '')
               // set or overwrite existing cookie
               cookies[name] = value
-              // update cookie event header for future requests
-              serverEvent.headers.set('cookie', Object.entries(cookies).map(([name, value]) => serialize(name, value)).join('; '))
-              // Also apply to serverEvent.node.req.headers
-              if (serverEvent.node?.req?.headers) {
-                serverEvent.node.req.headers['cookie'] = serverEvent.headers.get('cookie') || ''
-              }
+              serverEvent.req.headers.set('cookie', Object.entries(cookies).map(([name, value]) => serialize(name, value)).join('; '))
             }
           }
         }

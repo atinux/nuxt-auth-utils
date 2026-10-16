@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthLinearConfig {
@@ -47,8 +47,8 @@ export interface OAuthLinearConfig {
 }
 
 export function defineOAuthLinearEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLinearConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.linear, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.linear, {
       authorizationURL: 'https://linear.app/oauth/authorize',
       tokenURL: 'https://api.linear.app/oauth/token',
       authorizationParams: {},
@@ -58,7 +58,7 @@ export function defineOAuthLinearEventHandler({ config, onSuccess, onError }: OA
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Linear login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -126,7 +126,7 @@ export function defineOAuthLinearEventHandler({ config, onSuccess, onError }: OA
 
     if (!user.data || !user.data.viewer) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get Linear user',
         data: tokens,
       })

@@ -26,11 +26,16 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
+  },
   "scripts": {
     "prepack": "nuxt-module-build build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "dev:v5": "pnpm install:nuxt5 && pnpm dev:prepare && pnpm dev",
+    "install:nuxt5": "pnpm install --config.pnpmfile=scripts/nuxt-nightly.cjs --config.lockfile=false --config.minimum-release-age=0",
     "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -40,15 +45,13 @@
   },
   "dependencies": {
     "@adonisjs/hash": "^9.1.1",
-    "@nuxt/kit": "^4.3.1",
+    "@nuxt/kit": "^4.6.0",
     "@nuxt/schema": "^4.6.0",
     "defu": "^6.1.4",
-    "h3": "^1.15.4",
     "hookable": "^6.0.1",
     "jose": "^6.1.3",
     "ofetch": "^1.5.1",
     "openid-client": "^6.8.2",
-    "pathe": "^2.0.3",
     "scule": "^1.3.0",
     "uncrypto": "^0.1.3"
   },
