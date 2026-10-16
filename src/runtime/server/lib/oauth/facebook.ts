@@ -103,7 +103,7 @@ export function defineOAuthFacebookEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'facebook', onError)
     }
 

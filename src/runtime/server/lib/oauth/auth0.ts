@@ -116,7 +116,7 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'auth0', onError)
     }
 

@@ -65,4 +65,17 @@ describe('ssr', async () => {
       error: 'Google login failed: state mismatch',
     })
   })
+
+  it('rejects OAuth callbacks without state when the browser holds no state', async () => {
+    const response = await $fetch<{ success: boolean, error: string }>('/auth/google', {
+      query: {
+        code: 'attacker-code',
+      },
+    })
+
+    expect(response).toEqual({
+      success: false,
+      error: 'Google login failed: state mismatch',
+    })
+  })
 })

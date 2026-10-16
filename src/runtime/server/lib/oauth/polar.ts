@@ -96,7 +96,7 @@ export function defineOAuthPolarEventHandler({ config, onSuccess, onError }: OAu
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'polar', onError)
     }
 

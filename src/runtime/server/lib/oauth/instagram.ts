@@ -114,7 +114,7 @@ export function defineOAuthInstagramEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'instagram', onError)
     }
 

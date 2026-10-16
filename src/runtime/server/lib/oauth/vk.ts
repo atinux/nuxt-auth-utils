@@ -115,7 +115,7 @@ export function defineOAuthVKEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'vk', onError)
     }
 

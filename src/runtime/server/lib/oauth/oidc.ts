@@ -292,7 +292,7 @@ export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSucces
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'oidc', onError)
     }
 

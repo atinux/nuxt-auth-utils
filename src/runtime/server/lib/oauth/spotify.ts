@@ -90,7 +90,7 @@ export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: O
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'spotify', onError)
     }
 

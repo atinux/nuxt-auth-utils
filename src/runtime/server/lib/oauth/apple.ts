@@ -143,7 +143,7 @@ export function defineOAuthAppleEventHandler({
       )
     }
 
-    if (state !== storedState) {
+    if (!storedState || state !== storedState) {
       return handleInvalidState(event, 'apple', onError)
     }
 

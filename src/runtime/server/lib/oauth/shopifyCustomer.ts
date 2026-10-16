@@ -116,7 +116,7 @@ export function defineOAuthShopifyCustomerEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'shopifyCustomer', onError)
     }
 

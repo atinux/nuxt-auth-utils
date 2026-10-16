@@ -94,7 +94,7 @@ export function defineOAuthHerokuEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'heroku', onError)
     }
 
