@@ -6,6 +6,7 @@ import * as jose from 'jose'
 import { subtle, getRandomValues } from 'uncrypto'
 import type { OAuthProvider, OnError } from '#auth-utils'
 import { createError } from '#imports'
+import { resolveURL } from 'ufo'
 
 // Determine if we are in development mode
 const isDevelopment = process.env.NODE_ENV === 'development'
@@ -15,8 +16,15 @@ const OAUTH_COOKIE_MAX_AGE = 60 * 10
 
 export function getOAuthRedirectURL(event: H3Event): string {
   const requestURL = getRequestURL(event)
+  let redirectURL = `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
+  const getNitroOrigin = event.context.__authUtilsSiteConfig.getNitroOrigin
 
-  return `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
+  if (getNitroOrigin) {
+    const siteOrigin = getNitroOrigin(event)
+    redirectURL = resolveURL(siteOrigin, requestURL.pathname)
+  }
+
+  return redirectURL
 }
 
 /**
