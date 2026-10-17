@@ -116,7 +116,7 @@ interface UserSessionComposable {
 ```
 
 > [!IMPORTANT]
-> Nuxt Auth Utils uses the `/api/_auth/session` route for session management. Ensure your API route middleware doesn't interfere with this path.
+> Nuxt Auth Utils uses the `/session/_auth/session` route for session management. Ensure your API route middleware doesn't interfere with this path.
 
 ## Server Utils
 
@@ -576,7 +576,7 @@ We leverage hooks to let you extend the session data with your own data or log w
 ```ts
 // server/plugins/session.ts
 export default defineNitroPlugin(() => {
-  // Called when the session is fetched during SSR for the Vue composable (/api/_auth/session)
+  // Called when the session is fetched during SSR for the Vue composable (/session/_auth/session)
   // Or when we call useUserSession().fetch()
   sessionHooks.hook('fetch', async (session, event) => {
     // extend User Session by calling your database
