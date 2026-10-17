@@ -14,7 +14,7 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 const OAUTH_COOKIE_MAX_AGE = 60 * 10
 
 export function getOAuthRedirectURL(event: H3Event): string {
-  const requestURL = getRequestURL(event)
+  const requestURL = getRequestURL(event, { xForwardedHost: true })
 
   return `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
 }
