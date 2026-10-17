@@ -305,6 +305,12 @@ const providers = computed(() =>
       disabled: Boolean(user.value?.riotgames),
       icon: 'i-simple-icons-riotgames',
     },
+    {
+      title: user.value?.zendesk || 'Zendesk',
+      to: '/auth/zendesk',
+      disabled: Boolean(user.value?.zendesk),
+      icon: 'i-simple-icons-zendesk',
+    },
   ].map(p => ({
     ...p,
     prefetch: false,
