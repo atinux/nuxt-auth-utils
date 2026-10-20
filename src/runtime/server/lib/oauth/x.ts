@@ -1,8 +1,8 @@
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import type { OAuthConfig } from '#auth-utils'
-import { useRuntimeConfig } from '#imports'
 import { defu } from 'defu'
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import {
   getOAuthRedirectURL,
@@ -69,8 +69,8 @@ export function defineOAuthXEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthXConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.x, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.x, {
       authorizationURL: 'https://x.com/i/oauth2/authorize',
       tokenURL: 'https://api.x.com/2/oauth2/token',
       userURL: 'https://api.x.com/2/users/me',

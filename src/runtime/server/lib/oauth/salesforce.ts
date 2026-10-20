@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, handleState, handleInvalidState } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthSalesforceConfig {
@@ -56,8 +56,8 @@ export function defineOAuthSalesforceEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthSalesforceConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    const runtimeConfig = useRuntimeConfig(event).oauth?.salesforce
+  return defineEventHandler(async (event: RequestEvent) => {
+    const runtimeConfig = useRuntimeConfig().oauth?.salesforce
     const baseURL = config?.baseURL || 'https://login.salesforce.com'
     config = defu(config, runtimeConfig, {
       authorizationURL: `${baseURL}/services/oauth2/authorize`,
@@ -69,7 +69,7 @@ export function defineOAuthSalesforceEventHandler({
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Salesforce login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })

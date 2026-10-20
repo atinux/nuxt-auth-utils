@@ -1,3 +1,5 @@
+import { defineWebSocketHandler } from 'h3'
+
 export default defineWebSocketHandler({
   async upgrade(request) {
     await requireUserSession(request)

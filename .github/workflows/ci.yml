@@ -36,7 +36,7 @@ jobs:
       - run: npm i -g --force corepack && corepack enable
       - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
-          node-version: 20
+          node-version: 22
           cache: "pnpm"
 
       - name: Install dependencies
@@ -53,7 +53,7 @@ jobs:
       - run: npm i -g --force corepack && corepack enable
       - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
-          node-version: 20
+          node-version: 22
           cache: "pnpm"
 
       - name: Install dependencies
@@ -68,3 +68,25 @@ jobs:
       - name: Test types
         run: pnpm test:types
 
+  test-nuxt5:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          # The nightly packages are installed without a lockfile, keep the token out of their reach
+          persist-credentials: false
+      - run: npm i -g --force corepack && corepack enable
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies with the Nuxt 5 nightly (Nitro 3)
+        run: pnpm install:nuxt5
+
+      - name: Prepare module environment
+        run: pnpm dev:prepare
+
+      - name: Run test suite
+        run: pnpm test

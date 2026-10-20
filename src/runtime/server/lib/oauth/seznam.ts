@@ -1,9 +1,9 @@
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import defu from 'defu'
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthSeznamConfig {
@@ -117,8 +117,8 @@ export interface OAuthSeznamUser {
 }
 
 export function defineOAuthSeznamEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSeznamConfig, { user: OAuthSeznamUser, tokens: unknown }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.seznam, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.seznam, {
       authorizationURL: 'https://login.szn.cz/api/v1/oauth/auth',
       tokenURL: 'https://login.szn.cz/api/v1/oauth/token',
       userURL: 'https://login.szn.cz/api/v1/user',

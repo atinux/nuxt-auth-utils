@@ -1,5 +1,6 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import {
@@ -11,7 +12,6 @@ import {
   handleState,
   requestAccessToken,
 } from '../utils'
-import { createError, useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 /**
@@ -69,8 +69,8 @@ export interface OAuthOryConfig {
 }
 
 export function defineOAuthOryEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthOryConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.ory, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.ory, {
       scope: ['openid', 'offline'],
       sdkURL: 'https://playground.projects.oryapis.com',
       authorizationURL: '/oauth2/auth',
@@ -85,7 +85,7 @@ export function defineOAuthOryEventHandler({ config, onSuccess, onError }: OAuth
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Ory login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -161,7 +161,7 @@ export function defineOAuthOryEventHandler({ config, onSuccess, onError }: OAuth
     })
     if (user.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Ory userinfo failed: ${user.error || 'Unknown error'}`,
         data: user,
       })

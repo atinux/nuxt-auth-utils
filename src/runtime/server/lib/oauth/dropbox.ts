@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthDropboxConfig {
@@ -59,8 +59,8 @@ export interface OAuthDropboxConfig {
 }
 
 export function defineOAuthDropboxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDropboxConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.dropbox, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.dropbox, {
       authorizationURL: 'https://www.dropbox.com/oauth2/authorize',
       tokenURL: 'https://api.dropboxapi.com/oauth2/token',
       authorizationParams: {},
@@ -131,7 +131,7 @@ export function defineOAuthDropboxEventHandler({ config, onSuccess, onError }: O
 
     if (!user) {
       const error = createError({
-        statusCode: 500,
+        status: 500,
         message: 'Could not get Dropbox user',
         data: tokens,
       })
