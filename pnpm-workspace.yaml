@@ -9,3 +9,8 @@ minimumReleaseAgeExclude:
   - '@nuxt/vite-builder@4.6.0'
   - '@nuxt/vite-server@4.6.0'
   - '@nuxt/cli@4.0.0'
+shamefullyHoist: true
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+  vue-demi: true

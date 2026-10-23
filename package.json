@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@10.29.3",
+  "packageManager": "pnpm@12.15.0",
   "exports": {
     ".": {
       "types": "./dist/types.d.mts",
@@ -31,7 +31,7 @@
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+    "release": "npm run lint && npm run test && bumpp",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
@@ -81,7 +81,7 @@
     "@nuxt/ui": "^4.4.0",
     "@simplewebauthn/types": "^12.0.0",
     "@types/node": "latest",
-    "changelogen": "^0.6.2",
+    "bumpp": "^12.3.0",
     "eslint": "^10.0.0",
     "nuxt": "^4.6.0",
     "typescript": "5.9.3",
