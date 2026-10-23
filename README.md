@@ -803,10 +803,9 @@ pnpm run lint
 # Run Vitest
 pnpm run test
 pnpm run test:watch
-
-# Release new version
-pnpm run release
 ```
+
+Releases are automated with [uppt](https://github.com/danielroe/uppt): every push to `main` opens or updates a draft release PR from conventional commits. Merging it tags the version, creates the GitHub release and stages the npm publish, which is then approved on npmjs.com.
 
 <!-- Badges -->
 [npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-utils/latest.svg?style=flat&colorA=020420&colorB=00DC82

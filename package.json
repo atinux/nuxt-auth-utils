@@ -27,11 +27,10 @@
     "dist"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build",
+    "prepack": "nuxt-module-build prepare && nuxt-module-build build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "release": "npm run lint && npm run test && bumpp",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
@@ -81,7 +80,6 @@
     "@nuxt/ui": "^4.4.0",
     "@simplewebauthn/types": "^12.0.0",
     "@types/node": "latest",
-    "bumpp": "^12.3.0",
     "eslint": "^10.0.0",
     "nuxt": "^4.6.0",
     "typescript": "5.9.3",
