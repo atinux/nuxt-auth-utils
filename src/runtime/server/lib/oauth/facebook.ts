@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import crypto from 'node:crypto'
+import { subtle } from 'uncrypto'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
@@ -145,10 +145,10 @@ export function defineOAuthFacebookEventHandler({
 
     config.fields = [...new Set(config.fields || ['id', 'name'])]
     const fields = config.fields.join(',')
-    const appsecretProof = crypto
-      .createHmac('sha256', config.clientSecret)
-      .update(accessToken)
-      .digest('hex')
+    const encoder = new TextEncoder()
+    const key = await subtle.importKey('raw', encoder.encode(config.clientSecret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+    const signature = await subtle.sign('HMAC', key, encoder.encode(accessToken))
+    const appsecretProof = Array.from(new Uint8Array(signature), b => b.toString(16).padStart(2, '0')).join('')
 
     const user = await $fetch(
       withQuery(config.userURL as string, {
