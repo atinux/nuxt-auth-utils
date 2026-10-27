@@ -293,6 +293,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Cloudflare OAuth
+    runtimeConfig.oauth.cloudflare = defu(runtimeConfig.oauth.cloudflare, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
 
     // Atproto OAuth
     for (const provider of atprotoProviders) {
@@ -462,6 +468,13 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+    })
+    // WeChat OAuth
+    runtimeConfig.oauth.wechat = defu(runtimeConfig.oauth.wechat, {
+      appId: '',
+      appSecret: '',
+      redirectURL: '',
+      scope: [],
     })
     // Atlassian OAuth
     runtimeConfig.oauth.atlassian = defu(runtimeConfig.oauth.atlassian, {

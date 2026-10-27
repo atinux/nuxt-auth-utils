@@ -220,6 +220,7 @@ It can also be set using environment variables:
 - Battle.net
 - Bluesky (AT Protocol)
 - Box.com
+- Cloudflare
 - Discord
 - Dropbox
 - Facebook
@@ -255,6 +256,7 @@ It can also be set using environment variables:
 - TikTok
 - Twitch
 - VK
+- WeChat
 - WorkOS
 - X (Twitter)
 - XSUAA

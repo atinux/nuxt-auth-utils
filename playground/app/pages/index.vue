@@ -29,6 +29,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-github',
     },
     {
+      title: user.value?.cloudflare || 'Cloudflare',
+      to: '/auth/cloudflare',
+      disabled: Boolean(user.value?.cloudflare),
+      icon: 'i-simple-icons-cloudflare',
+    },
+    {
       title: user.value?.bluesky || 'Bluesky',
       onClick() {
         const handle = prompt('Enter your Bluesky handle')
@@ -75,6 +81,12 @@ const providers = computed(() =>
       to: '/auth/line',
       disabled: Boolean(user.value?.line),
       icon: 'i-simple-icons-line',
+    },
+    {
+      title: user.value?.wechat || 'WeChat',
+      to: '/auth/wechat',
+      disabled: Boolean(user.value?.wechat),
+      icon: 'i-simple-icons-wechat',
     },
     {
       title: user.value?.linear || 'Linear',
