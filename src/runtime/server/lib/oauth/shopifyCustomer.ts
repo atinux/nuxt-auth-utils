@@ -75,7 +75,7 @@ export function defineOAuthShopifyCustomerEventHandler({
     const query = getQuery<{ code?: string, state?: string }>(event)
 
     if (!config.clientId || !config.shopDomain) {
-      return handleMissingConfiguration(event, 'spotify', ['clientId', 'shopDomain'], onError)
+      return handleMissingConfiguration(event, 'shopifyCustomer', ['clientId', 'shopDomain'], onError)
     }
 
     // Create pkce verifier
@@ -116,7 +116,7 @@ export function defineOAuthShopifyCustomerEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'shopifyCustomer', onError)
     }
 

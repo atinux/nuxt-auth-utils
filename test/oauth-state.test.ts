@@ -14,7 +14,7 @@ describe('OAuth state protection', () => {
     expect(source).toContain('handleState(event')
     expect(source).toContain('handleInvalidState')
     expect(source).toMatch(provider === 'apple'
-      ? /if \(state !== storedState\)/
-      : /if \(query\.state !== state\)/)
+      ? /if \(!storedState \|\| state !== storedState\)/
+      : /if \(!state \|\| query\.state !== state\)/)
   })
 })

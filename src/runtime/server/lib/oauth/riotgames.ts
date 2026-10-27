@@ -131,7 +131,7 @@ export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }:
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'riotgames', onError)
     }
 

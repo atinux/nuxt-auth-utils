@@ -101,7 +101,7 @@ export function defineOAuthAzureB2CEventHandler({ config, onSuccess, onError }: 
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'azureb2c', onError)
     }
 

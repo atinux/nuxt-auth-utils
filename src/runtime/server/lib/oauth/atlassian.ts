@@ -150,7 +150,7 @@ export function defineOAuthAtlassianEventHandler({
       return onError(event, error)
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'atlassian', onError)
     }
 

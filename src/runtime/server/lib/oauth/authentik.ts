@@ -76,7 +76,7 @@ export function defineOAuthAuthentikEventHandler({ config, onSuccess, onError }:
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'authentik', onError)
     }
 

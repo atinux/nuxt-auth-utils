@@ -228,7 +228,7 @@ export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OA
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'roblox', onError)
     }
 

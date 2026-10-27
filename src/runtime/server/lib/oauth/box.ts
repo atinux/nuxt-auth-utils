@@ -149,7 +149,7 @@ export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuth
     }
 
     // Step 2: Handle callback with authorization code
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'box', onError)
     }
 
