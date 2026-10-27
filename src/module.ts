@@ -350,6 +350,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Mastodon OAuth
+    runtimeConfig.oauth.mastodon = defu(runtimeConfig.oauth.mastodon, {
+      instance: '',
+      clientName: '',
+      redirectURL: '',
+    })
     // Cognito OAuth
     runtimeConfig.oauth.cognito = defu(runtimeConfig.oauth.cognito, {
       clientId: '',
@@ -494,6 +500,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
       baseURL: '',
+      userURL: '',
       scope: '',
     })
     // Slack OAuth
