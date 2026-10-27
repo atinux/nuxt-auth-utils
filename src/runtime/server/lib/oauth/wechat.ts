@@ -141,7 +141,7 @@ export function defineOAuthWechatEventHandler({
     const state = await handleState(event)
 
     if (!query.code) {
-      config.scope = config.scope || ['snsapi_login']
+      config.scope = config.scope?.length ? config.scope : ['snsapi_login']
       return sendRedirect(
         event,
         `${withQuery(config.authorizationURL as string, {
@@ -159,6 +159,8 @@ export function defineOAuthWechatEventHandler({
     }
 
     const tokens = await $fetch<WechatOAuthTokens | WechatOAuthError>(config.tokenURL as string, {
+      // WeChat answers JSON with a text/plain content type
+      responseType: 'json',
       query: {
         appid: config.appId,
         secret: config.appSecret,
@@ -172,6 +174,7 @@ export function defineOAuthWechatEventHandler({
     }
 
     const user = await $fetch<WechatOAuthUser | WechatOAuthError>(config.userURL as string, {
+      responseType: 'json',
       query: {
         access_token: tokens.access_token,
         openid: tokens.openid,
