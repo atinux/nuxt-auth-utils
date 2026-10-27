@@ -88,8 +88,6 @@ export interface CloudflareTokens {
   expires_in: number
   /** Present when scope includes `offline_access` */
   refresh_token?: string
-  /** Present when scope includes `openid` */
-  id_token?: string
   scope: string
 }
 
