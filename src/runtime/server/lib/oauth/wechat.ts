@@ -154,7 +154,7 @@ export function defineOAuthWechatEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'wechat', onError)
     }
 
