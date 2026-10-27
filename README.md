@@ -780,21 +780,24 @@ Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15
 
 ## Shared session between microservices and subdomains
 
-To share the same session between multiple hosted applications you can set and share the same `NUXT_SESSION_PASSWORD`
+To share a session between multiple applications, use the same `NUXT_SESSION_PASSWORD` and session `name` in each of them.
 
-If the applications are hosted on multiple subdomains, you also need to set the `cookie.domain` environment variable:
+If the applications run on different subdomains, also set the session cookie `domain` to the parent domain in each `nuxt.config.ts`:
 
 ```ts
-{
-  session: {
-    cookie: {
-      domain: ''
+export default defineNuxtConfig({
+  modules: ['nuxt-auth-utils'],
+  runtimeConfig: {
+    session: {
+      cookie: {
+        domain: '.example.com'
+      }
     }
   }
-}
+})
 ```
 
-This will allow h3 to decode your session cookie across every applications
+The browser then sends the session cookie to every subdomain of `example.com`, and each application can decrypt it.
 
 ## More
 
