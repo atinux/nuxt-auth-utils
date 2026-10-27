@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { createError, eventHandler, getQuery, sendRedirect } from 'h3'
+import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import {
@@ -25,8 +25,7 @@ export interface OAuthZendeskConfig {
    */
   clientSecret?: string
   /**
-   * Zendesk subdomain. If provided, uses the standard OAuth flow.
-   * If omitted, uses the OAuth bridge flow (https://oauth-bridge.zendesk.com).
+   * Zendesk subdomain, for example `mycompany` for `mycompany.zendesk.com`
    * @default process.env.NUXT_OAUTH_ZENDESK_SUBDOMAIN
    */
   subdomain?: string
@@ -122,13 +121,6 @@ export interface ZendeskTokens {
   refresh_token_expires_in?: number
 }
 
-interface ZendeskTokenInfo {
-  app: {
-    id: string
-    subdomain: string
-  }
-}
-
 function getMarketplaceHeaders(config: OAuthZendeskConfig): Record<string, string> {
   const headers: Record<string, string> = {}
   if (config.marketplaceName) {
@@ -161,23 +153,16 @@ export function defineOAuthZendeskEventHandler({
       config.scope.push('users:read')
     }
 
-    if (!config.clientId || !config.clientSecret) {
+    if (!config.clientId || !config.clientSecret || !config.subdomain) {
       return handleMissingConfiguration(
         event,
         'zendesk',
-        ['clientId', 'clientSecret'],
+        ['clientId', 'clientSecret', 'subdomain'],
         onError,
       )
     }
 
-    const isBridge = !config.subdomain
-    const bridgeBaseURL = 'https://oauth-bridge.zendesk.com'
-    const authorizationURL = isBridge
-      ? `${bridgeBaseURL}/sc/oauth/authorize`
-      : `https://${config.subdomain}.zendesk.com/oauth/authorizations/new`
-    const tokenURL = isBridge
-      ? `${bridgeBaseURL}/sc/oauth/token`
-      : `https://${config.subdomain}.zendesk.com/oauth/tokens`
+    const baseURL = `https://${config.subdomain}.zendesk.com`
 
     const query = getQuery<{ code?: string, error?: string, error_description?: string, state?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
@@ -199,7 +184,7 @@ export function defineOAuthZendeskEventHandler({
     if (!query.code) {
       return sendRedirect(
         event,
-        withQuery(authorizationURL, {
+        withQuery(`${baseURL}/oauth/authorizations/new`, {
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: redirectURL,
@@ -215,9 +200,9 @@ export function defineOAuthZendeskEventHandler({
 
     const marketplaceHeaders = getMarketplaceHeaders(config)
 
-    const tokens: ZendeskTokens & { error?: string, error_description?: string } = await requestAccessToken(tokenURL, {
+    const tokens: ZendeskTokens & { error?: string, error_description?: string } = await requestAccessToken(`${baseURL}/oauth/tokens`, {
       headers: {
-        // Both Zendesk token endpoints document JSON bodies
+        // Zendesk documents JSON bodies for the token endpoint
         'Content-Type': 'application/json',
         ...marketplaceHeaders,
       },
@@ -227,8 +212,7 @@ export function defineOAuthZendeskEventHandler({
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code as string,
-        // The bridge token endpoint takes no scope
-        ...(isBridge ? {} : { scope: config.scope.join(' ') }),
+        scope: config.scope.join(' '),
       },
     })
 
@@ -236,29 +220,7 @@ export function defineOAuthZendeskEventHandler({
       return handleAccessTokenErrorResponse(event, 'zendesk', tokens, onError)
     }
 
-    let subdomain = config.subdomain as string
-
-    if (isBridge) {
-      const tokenInfo: ZendeskTokenInfo = await $fetch(`${bridgeBaseURL}/sc/v2/tokenInfo`, {
-        headers: {
-          Authorization: `Bearer ${tokens.access_token}`,
-          ...marketplaceHeaders,
-        },
-      })
-
-      if (!tokenInfo.app?.subdomain) {
-        const error = createError({
-          statusCode: 500,
-          message: 'Zendesk login failed: could not determine subdomain from token info',
-        })
-        if (!onError) throw error
-        return onError(event, error)
-      }
-
-      subdomain = tokenInfo.app.subdomain
-    }
-
-    const data: { user: ZendeskUser } = await $fetch(`https://${subdomain}.zendesk.com/api/v2/users/me.json`, {
+    const data: { user: ZendeskUser } = await $fetch(`${baseURL}/api/v2/users/me.json`, {
       headers: {
         Authorization: `Bearer ${tokens.access_token}`,
         ...marketplaceHeaders,
