@@ -14,6 +14,7 @@ declare module '#auth-utils' {
     microsoft?: string
     discord?: string
     battledotnet?: string
+    cloudflare?: string
     box?: string
     keycloak?: string
     line?: string
@@ -51,6 +52,7 @@ declare module '#auth-utils' {
     oidc?: string
     osu?: string
     riotgames?: string
+    wechat?: string
   }
 
   interface UserSession {

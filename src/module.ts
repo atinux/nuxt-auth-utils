@@ -293,6 +293,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Cloudflare OAuth
+    runtimeConfig.oauth.cloudflare = defu(runtimeConfig.oauth.cloudflare, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+    })
 
     // Atproto OAuth
     for (const provider of atprotoProviders) {
@@ -344,6 +350,12 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // Mastodon OAuth
+    runtimeConfig.oauth.mastodon = defu(runtimeConfig.oauth.mastodon, {
+      instance: '',
+      clientName: '',
+      redirectURL: '',
+    })
     // Cognito OAuth
     runtimeConfig.oauth.cognito = defu(runtimeConfig.oauth.cognito, {
       clientId: '',
@@ -357,6 +369,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+      apiVersion: 'v25.0',
     })
     // Instagram OAuth
     runtimeConfig.oauth.instagram = defu(runtimeConfig.oauth.instagram, {
@@ -456,6 +469,13 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // WeChat OAuth
+    runtimeConfig.oauth.wechat = defu(runtimeConfig.oauth.wechat, {
+      appId: '',
+      appSecret: '',
+      redirectURL: '',
+      scope: [],
+    })
     // Atlassian OAuth
     runtimeConfig.oauth.atlassian = defu(runtimeConfig.oauth.atlassian, {
       clientId: '',
@@ -487,6 +507,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
       baseURL: '',
+      userURL: '',
       scope: '',
     })
     // Slack OAuth
