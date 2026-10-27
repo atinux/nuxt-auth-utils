@@ -52,6 +52,7 @@
     "ofetch": "^1.5.1",
     "openid-client": "^6.8.2",
     "scule": "^1.3.0",
+    "ufo": "^1.6.4",
     "uncrypto": "^0.1.3"
   },
   "peerDependencies": {
