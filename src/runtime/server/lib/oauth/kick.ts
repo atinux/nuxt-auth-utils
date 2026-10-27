@@ -2,8 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { randomUUID } from 'uncrypto'
-import { handleAccessTokenErrorResponse, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, handlePkceVerifier } from '../utils'
+import { handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, getOAuthRedirectURL, requestAccessToken, handlePkceVerifier, handleState } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -49,19 +48,35 @@ export interface OAuthKickConfig {
   redirectURL?: string
 }
 
-export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthKickConfig>) {
+interface KickUser {
+  email: string
+  name: string
+  profile_picture: string
+  user_id: string
+}
+
+interface KickTokens {
+  access_token: string
+  expires_in: number
+  refresh_token: string
+  scope: string
+  token_type: string
+}
+
+export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthKickConfig, { user: KickUser, tokens: KickTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.kick, {
       authorizationURL: 'https://id.kick.com/oauth/authorize',
       tokenURL: 'https://id.kick.com/oauth/token',
     }) as OAuthKickConfig
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'kick', ['clientId', 'clientSecret'], onError)
     }
 
     // Create pkce verifier
     const verifier = await handlePkceVerifier(event)
+    const state = await handleState(event)
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
 
@@ -78,11 +93,15 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state: randomUUID(),
+          state,
           code_challenge: verifier.code_challenge,
           code_challenge_method: verifier.code_challenge_method,
         }),
       )
+    }
+
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'kick', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
@@ -101,9 +120,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
     }
     const accessToken = tokens.access_token
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data }: any = await $fetch('https://api.kick.com/public/v1/users', {
+    const { data } = await $fetch<{ data: KickUser[] }>('https://api.kick.com/public/v1/users', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/json',

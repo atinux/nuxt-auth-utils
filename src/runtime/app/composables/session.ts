@@ -10,11 +10,12 @@ export function useUserSession(): UserSessionComposable {
   const serverEvent = import.meta.server ? useRequestEvent() : null
   const sessionState = useState<UserSession | null>('nuxt-session', () => null)
   const authReadyState = useState('nuxt-auth-ready', () => false)
+  const requestFetch = useRequestFetch()
 
   const clear = async () => {
-    await useRequestFetch()('/api/_auth/session', {
+    await requestFetch('/api/_auth/session', {
       method: 'DELETE',
-      onResponse({ response: { headers } }) {
+      onResponse({ response: { headers } }: { response: { headers: Headers } }) {
         // Forward the Set-Cookie header to the main server event
         if (import.meta.server && serverEvent) {
           for (const setCookie of headers.getSetCookie()) {
@@ -27,7 +28,7 @@ export function useUserSession(): UserSessionComposable {
   }
 
   const fetch = async () => {
-    sessionState.value = await useRequestFetch()<UserSession>('/api/_auth/session', {
+    sessionState.value = await requestFetch<UserSession>('/api/_auth/session', {
       headers: {
         accept: 'application/json',
       },
@@ -45,8 +46,13 @@ export function useUserSession(): UserSessionComposable {
     }
   }
   const openInPopup = (route: string, size: { width?: number, height?: number } = {}) => {
-    // Set a local storage item to tell the popup that we pending auth
-    localStorage.setItem('temp-nuxt-auth-utils-popup', 'true')
+    try {
+      // Set a local storage item to tell the popup that we pending auth
+      localStorage.setItem('temp-nuxt-auth-utils-popup', 'true')
+    }
+    catch (error) {
+      console.error('[nuxt-auth-utils] Could not use localStorage during popup flow initialization.', error)
+    }
 
     const width = size.width ?? 960
     const height = size.height ?? 600

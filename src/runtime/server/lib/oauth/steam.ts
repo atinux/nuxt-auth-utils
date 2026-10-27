@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, createError, getQuery, getRequestURL, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration } from '../utils'
+import { handleInvalidState, handleMissingConfiguration, handleState } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -39,19 +39,24 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
     }
 
     const url = getRequestURL(event)
-
+    const state = await handleState(event, { isCallback: Boolean(query['openid.claimed_id']) })
     if (!query['openid.claimed_id']) {
-      const redirectURL = config.redirectURL || getRequestURL(event).href
+      const redirectURL = withQuery(config.redirectURL || getRequestURL(event).href, { state })
+      const realm = url.port ? `${url.protocol}//${url.hostname}:${url.port}` : `${url.protocol}//${url.hostname}`
       const steamOpenIdParams = {
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',
         'openid.return_to': redirectURL,
-        'openid.realm': `${url.protocol}//${url.hostname}`,
+        'openid.realm': realm,
         'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
         'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
       }
       // Redirect to Steam Oauth page
       return sendRedirect(event, withQuery(config.authorizationURL as string, steamOpenIdParams))
+    }
+
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'steam', onError)
     }
 
     if (!query['openid.signed']

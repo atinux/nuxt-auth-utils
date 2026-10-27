@@ -120,6 +120,12 @@ const providers = computed(() =>
       icon: 'i-simple-icons-battledotnet',
     },
     {
+      title: user.value?.box || 'Box',
+      to: '/auth/box',
+      disabled: Boolean(user.value?.box),
+      icon: 'i-simple-icons-box',
+    },
+    {
       title: user.value?.keycloak || 'Keycloak',
       to: '/auth/keycloak',
       disabled: Boolean(user.value?.keycloak),
@@ -273,7 +279,31 @@ const providers = computed(() =>
       title: user.value?.ory || 'Ory',
       to: '/auth/ory',
       disabled: Boolean(user.value?.ory),
-      icon: 'i-custom-ory',
+      icon: 'i-simple-icons-ory',
+    },
+    {
+      title: user.value?.shopifyCustomer || 'Shopify Customer',
+      to: '/auth/shopifyCustomer',
+      disabled: Boolean(user.value?.shopifyCustomer),
+      icon: 'i-simple-icons-shopify',
+    },
+    {
+      title: user.value?.oidc || 'OIDC',
+      to: '/auth/oidc',
+      disabled: Boolean(user.value?.oidc),
+      icon: 'i-simple-icons-openid',
+    },
+    {
+      title: user.value?.osu || 'osu!',
+      to: '/auth/osu',
+      disabled: Boolean(user.value?.osu),
+      icon: 'i-simple-icons-osu',
+    },
+    {
+      title: user.value?.riotgames || 'Riot Games',
+      to: '/auth/riotgames',
+      disabled: Boolean(user.value?.riotgames),
+      icon: 'i-simple-icons-riotgames',
     },
   ].map(p => ({
     ...p,

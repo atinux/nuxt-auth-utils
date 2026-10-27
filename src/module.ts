@@ -1,22 +1,22 @@
-import { writeFile, readFile } from 'node:fs/promises'
+import type { ScryptConfig } from '@adonisjs/hash/types'
 import {
-  defineNuxtModule,
-  addPlugin,
-  createResolver,
-  addImports,
-  addServerHandler,
-  addServerPlugin,
-  addServerImportsDir,
   addComponentsDir,
+  addImports,
+  addPlugin,
+  addServerHandler,
+  addServerImportsDir,
+  addServerPlugin,
+  createResolver,
+  defineNuxtModule,
   logger,
 } from '@nuxt/kit'
-import { join } from 'pathe'
 import { defu } from 'defu'
-import { randomUUID } from 'uncrypto'
-import type { ScryptConfig } from '@adonisjs/hash/types'
 import type { SessionConfig } from 'h3'
-import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
+import { readFile, writeFile } from 'node:fs/promises'
+import { join } from 'pathe'
+import { randomUUID } from 'uncrypto'
 import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
+import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -43,7 +43,7 @@ export interface ModuleOptions {
    * Session load strategy
    * @default 'server-first'
    */
-  loadStrategy?: 'server-first' | 'client-only'
+  loadStrategy?: 'server-first' | 'client-only' | 'none'
 }
 
 declare module 'nuxt/schema' {
@@ -59,7 +59,7 @@ declare module 'nuxt/schema' {
 
   interface PublicRuntimeConfig {
     auth: {
-      loadStrategy: 'server-first' | 'client-only'
+      loadStrategy: 'server-first' | 'client-only' | 'none'
     }
   }
 }
@@ -96,8 +96,10 @@ export default defineNuxtModule<ModuleOptions>({
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
     addImports(composables)
-    addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
-    addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
+    if (options.loadStrategy !== 'none') {
+      addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
+      addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
+    }
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
@@ -202,6 +204,13 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
       baseURL: '',
+    })
+    // Box OAuth
+    runtimeConfig.oauth.box = defu(runtimeConfig.oauth.box, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: [],
     })
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
@@ -348,6 +357,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+      apiVersion: 'v25.0',
     })
     // Instagram OAuth
     runtimeConfig.oauth.instagram = defu(runtimeConfig.oauth.instagram, {
@@ -520,6 +530,35 @@ export default defineNuxtModule<ModuleOptions>({
       authorizationURL: '',
       tokenURL: '',
       userURL: '',
+    })
+    // Shopify Customer
+    runtimeConfig.oauth.shopifyCustomer = defu(runtimeConfig.oauth.shopifyCustomer, {
+      shopDomain: '',
+      clientId: '',
+      redirectURL: '',
+      scope: [],
+    })
+    // OIDC OAuth
+    runtimeConfig.oauth.oidc = defu(runtimeConfig.oauth.oidc, {
+      clientId: '',
+      clientSecret: '',
+      openidConfig: '',
+      redirectURL: '',
+      scope: [],
+    })
+    // osu! OAuth
+    runtimeConfig.oauth.osu = defu(runtimeConfig.oauth.osu, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: [],
+    })
+    // RiotGames OAuth
+    runtimeConfig.oauth.riotgames = defu(runtimeConfig.oauth.riotgames, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: [],
     })
   },
 })

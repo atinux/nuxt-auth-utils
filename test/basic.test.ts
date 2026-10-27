@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
-import { setup, $fetch } from '@nuxt/test-utils'
+import { setup, $fetch, fetch } from '@nuxt/test-utils'
 import { randomUUID } from 'uncrypto'
 
 describe('ssr', async () => {
@@ -27,5 +27,79 @@ describe('ssr', async () => {
     // Session should be an object with an `id` property
     expect(session).toBeInstanceOf(Object)
     expect(session).toHaveProperty('id')
+  })
+
+  it('shares the session between `nuxt/server` and h3 handlers', async () => {
+    const response = await fetch('/api/nuxt-server')
+    const written = await response.json()
+    const cookie = response.headers.getSetCookie().at(-1)!.split(';')[0]!
+
+    expect(written).toMatchObject({ fromNuxtServer: true })
+
+    const session = await $fetch('/api/_auth/session', { headers: { cookie } })
+    expect(session).toEqual(written)
+  })
+
+  it('replaces existing cookie data in the current and following requests', async () => {
+    const seeded = await fetch('/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ operation: 'set', data: { impersonatorId: 'admin' } }),
+    })
+    const original = await seeded.json()
+    const originalCookie = seeded.headers.getSetCookie().at(-1)!.split(';')[0]!
+    const replaced = await fetch('/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'cookie': originalCookie },
+      body: JSON.stringify({ operation: 'replace', data: { userId: 'user' } }),
+    })
+    const response = await replaced.json()
+
+    expect(response.result).toEqual({ userId: 'user' })
+    expect(response.session).toEqual({ userId: 'user', id: expect.any(String) })
+    expect(response.session.id).toBe(original.session.id)
+
+    const replacementCookie = replaced.headers.getSetCookie().at(-1)!.split(';')[0]!
+    const session = await $fetch('/api/_auth/session', { headers: { cookie: replacementCookie } })
+    expect(session).toEqual({ userId: 'user', id: expect.any(String) })
+  })
+
+  it('generates state for OAuth authorization requests', async () => {
+    const response = await fetch('/auth/google', {
+      redirect: 'manual',
+    })
+    const location = new URL(response.headers.get('location')!)
+    const state = location.searchParams.get('state')
+
+    expect(response.status).toBe(302)
+    expect(state).toBeTruthy()
+    expect(state).not.toBe('configured-state-must-not-override-generated-state')
+  })
+
+  it('rejects OAuth callbacks without matching browser state', async () => {
+    const response = await $fetch<{ success: boolean, error: string }>('/auth/google', {
+      query: {
+        code: 'attacker-code',
+        state: 'attacker-state',
+      },
+    })
+
+    expect(response).toEqual({
+      success: false,
+      error: 'Google login failed: state mismatch',
+    })
+  })
+
+  it('rejects OAuth callbacks without state when the browser holds no state', async () => {
+    const response = await $fetch<{ success: boolean, error: string }>('/auth/google', {
+      query: {
+        code: 'attacker-code',
+      },
+    })
+
+    expect(response).toEqual({
+      success: false,
+      error: 'Google login failed: state mismatch',
+    })
   })
 })

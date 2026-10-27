@@ -1,8 +1,8 @@
 // TODO: https://github.com/nuxt/module-builder/issues/141
-import {} from 'nuxt/app'
+import type { NuxtApp } from 'nuxt/app'
 import { defineNuxtPlugin, useUserSession, useError } from '#imports'
 
-export default defineNuxtPlugin(async (nuxtApp) => {
+export default defineNuxtPlugin(async (nuxtApp: NuxtApp) => {
   if (!nuxtApp.payload.serverRendered) {
     await useUserSession().fetch()
   }
@@ -10,15 +10,20 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     || nuxtApp.$config.public.auth.loadStrategy === 'client-only'
   ) {
     // To avoid hydration mismatch
-    nuxtApp.hook('app:mounted', async () => {
+    nuxtApp.hook('app:suspense:resolve', async () => {
       await useUserSession().fetch()
     })
   }
 
-  if (localStorage.getItem('temp-nuxt-auth-utils-popup')) {
-    // There is a local storage item. That's mean we are coming back in the popup
-    localStorage.removeItem('temp-nuxt-auth-utils-popup')
-    const error = useError()
-    if (!error.value) window.close()
+  try {
+    if (localStorage.getItem('temp-nuxt-auth-utils-popup')) {
+      // There is a local storage item. That's mean we are coming back in the popup
+      localStorage.removeItem('temp-nuxt-auth-utils-popup')
+      const error = useError()
+      if (!error.value) window.close()
+    }
+  }
+  catch (error) {
+    console.error('[nuxt-auth-utils] Could not use localStorage during popup flow last step. Popup won\'t be closed automatically.', error)
   }
 })

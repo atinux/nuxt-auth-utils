@@ -14,6 +14,7 @@ declare module '#auth-utils' {
     microsoft?: string
     discord?: string
     battledotnet?: string
+    box?: string
     keycloak?: string
     line?: string
     linear?: string
@@ -47,6 +48,9 @@ declare module '#auth-utils' {
     roblox?: string
     okta?: string
     ory?: string
+    oidc?: string
+    osu?: string
+    riotgames?: string
   }
 
   interface UserSession {

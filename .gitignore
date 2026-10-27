@@ -37,6 +37,7 @@ coverage
 # Intellij idea
 *.iml
 .idea
+.cursor
 
 # OSX
 .DS_Store
@@ -47,3 +48,6 @@ coverage
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Amp orb portal manifests
+.amp/portals/*

@@ -42,3 +42,23 @@ export async function hashPassword(password: string) {
 export async function verifyPassword(hashedPassword: string, plainPassword: string) {
   return await getHash().verify(hashedPassword, plainPassword)
 }
+
+/**
+ * Check if the hash value needs a rehash or not. The rehash is required if
+ * configuration settings have changed.
+ * @param hashedPassword - The hashed password to check
+ * @returns `true` if a rehash is needed, `false` otherwise
+ * @example
+ * ```ts
+ * const isValid = await verifyPassword(hashedPassword, plainText)
+ *
+ * // Plain password is valid, and hash needs a rehash
+ * if (isValid && passwordNeedsReHash(hashedPassword)) {
+ *   const newHash = await hashPassword(plainText)
+ * }
+ * ```
+ * @more you can configure the scrypt options in `auth.hash.scrypt`
+ */
+export function passwordNeedsReHash(hashedPassword: string) {
+  return getHash().needsReHash(hashedPassword)
+}

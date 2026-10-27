@@ -93,19 +93,18 @@ export function defineOAuthAzureB2CEventHandler({ config, onSuccess, onError }: 
           response_type: 'code',
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state,
           code_challenge: verifier.code_challenge,
           code_challenge_method: verifier.code_challenge_method,
           ...config.authorizationParams,
+          state,
         }),
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'azureb2c', onError)
     }
 
-    console.info('code verifier', verifier.code_verifier)
     const tokens = await requestAccessToken(tokenURL, {
       body: {
         grant_type: 'authorization_code',

@@ -7,7 +7,7 @@
 
 Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 
-- [Release Notes](/CHANGELOG.md)
+- [Release Notes](https://github.com/atinux/nuxt-auth-utils/releases)
 - [Demo with OAuth](https://github.com/atinux/atidone)
 - [Demo with Passkeys](https://github.com/atinux/todo-passkeys)
 <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/nuxt-auth-utils?file=playground%2Fapp.vue) -->
@@ -219,6 +219,7 @@ It can also be set using environment variables:
 - Azure B2C
 - Battle.net
 - Bluesky (AT Protocol)
+- Box.com
 - Discord
 - Dropbox
 - Facebook
@@ -236,12 +237,16 @@ It can also be set using environment variables:
 - LinkedIn
 - LiveChat
 - Microsoft
+- OIDC / OpenID Connect (Generic)
 - Okta
 - Ory
+- osu!
 - PayPal
 - Polar
+- Riot Games
 - Salesforce
 - Seznam
+- Shopify Customer
 - Slack
 - Spotify
 - Steam
@@ -295,6 +300,17 @@ const hashedPassword = await hashPassword('user_password')
 
 if (await verifyPassword(hashedPassword, 'user_password')) {
   // Password is valid
+}
+```
+
+It also provides a `passwordNeedsRehash` function to check if a password needs to be rehashed. This is useful when the hash settings are changed, such as as increasing the scrypt cost parameters.
+
+```ts
+const needsRehash = passwordNeedsRehash(hashedPassword)
+
+if (needsRehash) {
+  // Password needs to be rehashed
+  hashedPassword = await hashPassword('user_password')
 }
 ```
 
@@ -402,13 +418,13 @@ export default defineWebAuthnRegisterEventHandler({
     // And verify that the email is the same as the one in session
     const session = await getUserSession(event)
     if (session.user?.email && session.user.email !== userBody.userName) {
-      throw createError({ statusCode: 400, message: 'Email not matching curent session' })
+      throw createError({ statusCode: 400, message: 'Email not matching current session' })
     }
 
     // If he registers a new account with credentials
     return z.object({
       // we want the userName to be a valid email
-      userName: z.string().email() 
+      userName: z.string().email()
     }).parse(userBody)
   },
   async onSuccess(event, { credential, user }) {
@@ -436,6 +452,8 @@ export default defineWebAuthnRegisterEventHandler({
   },
 })
 ```
+> [!TIP]
+> If you want to plug in and use the [Community sourced list of AAGUIDS](https://github.com/passkeydeveloper/passkey-authenticator-aaguids) to decorate your display of added passkeys, you can access the the ID via `credential.aaguid` inside `onSuccess`
 
 ```ts
 // server/api/webauthn/authenticate.post.ts
@@ -597,7 +615,7 @@ This is because the user session is stored in a secure cookie and cannot be acce
 
 **This means that you should not rely on the user session during prerendering.**
 
-You may also choose to instruct Nuxt AUth Utils to fetch the user session only on the client side, with the `loadStrategy` option in your `nuxt.config.ts`:
+You may also choose to instruct Nuxt Auth Utils to fetch the user session only on the client side, with the `loadStrategy` option in your `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
@@ -608,6 +626,20 @@ export default defineNuxtConfig({
 ```
 
 When using the `client-only` load strategy, the user session can still be manually fetched on the server side by calling `fetch` from the `useUserSession` composable.
+
+### Disable session loading
+
+You may also choose to disable session loading entirely, with the `loadStrategy` option in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    loadStrategy: 'none'
+  }
+})
+```
+
+When using the `none` load strategy, the user session can still be manually fetched by calling `useUserSession().fetch()`.
 
 ### `<AuthState>` component
 
@@ -789,10 +821,9 @@ pnpm run lint
 # Run Vitest
 pnpm run test
 pnpm run test:watch
-
-# Release new version
-pnpm run release
 ```
+
+Releases are automated with [uppt](https://github.com/danielroe/uppt): every push to `main` opens or updates a draft release PR from conventional commits. Merging it tags the version, creates the GitHub release and stages the npm publish, which is then approved on npmjs.com.
 
 <!-- Badges -->
 [npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-utils/latest.svg?style=flat&colorA=020420&colorB=00DC82

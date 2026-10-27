@@ -117,16 +117,16 @@ export function defineOAuthOryEventHandler({ config, onSuccess, onError }: OAuth
           response_type: 'code',
           redirect_uri: redirectURL,
           scope: config.scope,
-          state,
           code_challenge: verifier.code_challenge,
           code_challenge_method: verifier.code_challenge_method,
           ...config.authorizationParams,
+          state,
         }),
       )
     }
 
-    if (query.state !== state) {
-      handleInvalidState(event, 'ory', onError)
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'ory', onError)
     }
 
     const tokenURL = `${config.sdkURL}${config.tokenURL}`

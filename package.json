@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.5.25",
+  "version": "0.5.32",
   "description": "Add Authentication to Nuxt applications with secured & sealed cookies sessions.",
   "repository": {
     "type": "git",
@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@10.16.1",
+  "packageManager": "pnpm@12.15.0",
   "exports": {
     ".": {
       "types": "./dist/types.d.mts",
@@ -27,11 +27,10 @@
     "dist"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build",
+    "prepack": "nuxt-module-build prepare && nuxt-module-build build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
@@ -40,13 +39,14 @@
   },
   "dependencies": {
     "@adonisjs/hash": "^9.1.1",
-    "@nuxt/kit": "^4.1.2",
+    "@nuxt/kit": "^4.3.1",
+    "@nuxt/schema": "^4.6.0",
     "defu": "^6.1.4",
     "h3": "^1.15.4",
-    "hookable": "^5.5.3",
-    "jose": "^6.1.0",
-    "ofetch": "^1.4.1",
-    "openid-client": "^6.8.0",
+    "hookable": "^6.0.1",
+    "jose": "^6.1.3",
+    "ofetch": "^1.5.1",
+    "openid-client": "^6.8.2",
     "pathe": "^2.0.3",
     "scule": "^1.3.0",
     "uncrypto": "^0.1.3"
@@ -72,20 +72,18 @@
     }
   },
   "devDependencies": {
-    "@iconify-json/simple-icons": "^1.2.52",
-    "@nuxt/devtools": "2.6.3",
-    "@nuxt/eslint-config": "^1.9.0",
+    "@iconify-json/simple-icons": "^1.2.71",
+    "@nuxt/devtools": "3.2.1",
+    "@nuxt/eslint-config": "^1.15.1",
     "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/schema": "^4.1.2",
-    "@nuxt/test-utils": "^3.19.2",
-    "@types/node": "latest",
-    "@nuxt/ui": "^4.0.0-alpha.1",
+    "@nuxt/test-utils": "^4.0.0",
+    "@nuxt/ui": "^4.4.0",
     "@simplewebauthn/types": "^12.0.0",
-    "changelogen": "^0.6.2",
-    "eslint": "^9.35.0",
-    "nuxt": "^4.1.2",
-    "typescript": "5.9.2",
-    "vitest": "^3.2.4",
-    "vue-tsc": "^3.0.7"
+    "@types/node": "latest",
+    "eslint": "^10.0.0",
+    "nuxt": "^4.6.0",
+    "typescript": "5.9.3",
+    "vitest": "^4.0.18",
+    "vue-tsc": "^3.2.4"
   }
 }
