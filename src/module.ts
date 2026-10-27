@@ -469,6 +469,13 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
     })
+    // WeChat OAuth
+    runtimeConfig.oauth.wechat = defu(runtimeConfig.oauth.wechat, {
+      appId: '',
+      appSecret: '',
+      redirectURL: '',
+      scope: [],
+    })
     // Atlassian OAuth
     runtimeConfig.oauth.atlassian = defu(runtimeConfig.oauth.atlassian, {
       clientId: '',

@@ -52,6 +52,7 @@ declare module '#auth-utils' {
     oidc?: string
     osu?: string
     riotgames?: string
+    wechat?: string
   }
 
   interface UserSession {
