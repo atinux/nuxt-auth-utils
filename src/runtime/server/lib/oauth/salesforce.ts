@@ -67,7 +67,6 @@ export function defineOAuthSalesforceEventHandler({
     config = defu(config, runtimeConfig, {
       authorizationURL: `${baseURL}/services/oauth2/authorize`,
       tokenURL: `${baseURL}/services/oauth2/token`,
-      userURL: `${baseURL}/services/oauth2/userinfo`,
       authorizationParams: {},
     }) as OAuthSalesforceConfig
 
@@ -128,7 +127,7 @@ export function defineOAuthSalesforceEventHandler({
     }
 
     const accessToken = tokens.access_token
-    const user = await $fetch(config.userURL as string, {
+    const user = await $fetch(config.userURL || `${baseURL}/services/oauth2/userinfo`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
