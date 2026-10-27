@@ -807,6 +807,27 @@ await setUserSession(event, { ... } , {
 
 Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15c1647e1369e7d7ef19f567d/src/utils/session.ts#L20) for all options.
 
+## Shared session between microservices and subdomains
+
+To share a session between multiple applications, use the same `NUXT_SESSION_PASSWORD` and session `name` in each of them.
+
+If the applications run on different subdomains, also set the session cookie `domain` to the parent domain in each `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-auth-utils'],
+  runtimeConfig: {
+    session: {
+      cookie: {
+        domain: '.example.com'
+      }
+    }
+  }
+})
+```
+
+The browser then sends the session cookie to every subdomain of `example.com`, and each application can decrypt it.
+
 ## More
 
 - [nuxt-authorization](https://github.com/barbapapazes/nuxt-authorization): Authorization module for managing permissions inside a Nuxt app, compatible with `nuxt-auth-utils`
