@@ -133,15 +133,15 @@ export function defineOAuthCloudflareEventHandler({ config, onSuccess, onError }
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope?.length ? config.scope.join(' ') : undefined,
-          state,
+          ...config.authorizationParams,
           code_challenge: pkce.code_challenge,
           code_challenge_method: pkce.code_challenge_method,
-          ...config.authorizationParams,
+          state,
         }),
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'cloudflare', onError)
     }
 
