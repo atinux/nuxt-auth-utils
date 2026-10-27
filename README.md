@@ -7,7 +7,7 @@
 
 Add Authentication to Nuxt applications with secured & sealed cookies sessions.
 
-- [Release Notes](/CHANGELOG.md)
+- [Release Notes](https://github.com/atinux/nuxt-auth-utils/releases)
 - [Demo with OAuth](https://github.com/atinux/atidone)
 - [Demo with Passkeys](https://github.com/atinux/todo-passkeys)
 <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/nuxt-auth-utils?file=playground%2Fapp.vue) -->
@@ -419,7 +419,7 @@ export default defineWebAuthnRegisterEventHandler({
     // And verify that the email is the same as the one in session
     const session = await getUserSession(event)
     if (session.user?.email && session.user.email !== userBody.userName) {
-      throw createError({ statusCode: 400, message: 'Email not matching curent session' })
+      throw createError({ statusCode: 400, message: 'Email not matching current session' })
     }
 
     // If he registers a new account with credentials
@@ -804,10 +804,9 @@ pnpm run lint
 # Run Vitest
 pnpm run test
 pnpm run test:watch
-
-# Release new version
-pnpm run release
 ```
+
+Releases are automated with [uppt](https://github.com/danielroe/uppt): every push to `main` opens or updates a draft release PR from conventional commits. Merging it tags the version, creates the GitHub release and stages the npm publish, which is then approved on npmjs.com.
 
 <!-- Badges -->
 [npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-utils/latest.svg?style=flat&colorA=020420&colorB=00DC82

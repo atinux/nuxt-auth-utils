@@ -2,7 +2,8 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { subtle } from 'uncrypto'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -17,6 +18,12 @@ export interface OAuthFacebookConfig {
    * @default process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET
    */
   clientSecret?: string
+  /**
+   * Facebook Graph API version used for default OAuth and /me URLs
+   * @default 'v25.0'
+   * @see https://developers.facebook.com/docs/graph-api/changelog/versions/
+   */
+  apiVersion?: string
   /**
    * Facebook OAuth Scope
    * @default []
@@ -35,15 +42,21 @@ export interface OAuthFacebookConfig {
 
   /**
    * Facebook OAuth Authorization URL
-   * @default 'https://www.facebook.com/v19.0/dialog/oauth'
+   * @default 'https://www.facebook.com/${apiVersion}/dialog/oauth'
    */
   authorizationURL?: string
 
   /**
    * Facebook OAuth Token URL
-   * @default 'https://graph.facebook.com/v19.0/oauth/access_token'
+   * @default 'https://graph.facebook.com/${apiVersion}/oauth/access_token'
    */
   tokenURL?: string
+
+  /**
+   * Facebook Graph API user profile URL
+   * @default 'https://graph.facebook.com/${apiVersion}/me'
+   */
+  userURL?: string
 
   /**
    * Extra authorization parameters to provide to the authorization URL
@@ -63,9 +76,15 @@ export function defineOAuthFacebookEventHandler({
   onError,
 }: OAuthConfig<OAuthFacebookConfig>) {
   return eventHandler(async (event: H3Event) => {
+    const apiVersion = config?.apiVersion
+      || useRuntimeConfig(event).oauth?.facebook?.apiVersion
+      || 'v25.0'
+
     config = defu(config, useRuntimeConfig(event).oauth?.facebook, {
-      authorizationURL: 'https://www.facebook.com/v19.0/dialog/oauth',
-      tokenURL: 'https://graph.facebook.com/v19.0/oauth/access_token',
+      apiVersion,
+      authorizationURL: `https://www.facebook.com/${apiVersion}/dialog/oauth`,
+      tokenURL: `https://graph.facebook.com/${apiVersion}/oauth/access_token`,
+      userURL: `https://graph.facebook.com/${apiVersion}/me`,
       authorizationParams: {},
     }) as OAuthFacebookConfig
 
@@ -86,6 +105,7 @@ export function defineOAuthFacebookEventHandler({
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = [...new Set(config.scope)]
@@ -96,10 +116,14 @@ export function defineOAuthFacebookEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state: query.state || '',
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'facebook', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {
@@ -121,9 +145,17 @@ export function defineOAuthFacebookEventHandler({
 
     config.fields = [...new Set(config.fields || ['id', 'name'])]
     const fields = config.fields.join(',')
+    const encoder = new TextEncoder()
+    const key = await subtle.importKey('raw', encoder.encode(config.clientSecret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+    const signature = await subtle.sign('HMAC', key, encoder.encode(accessToken))
+    const appsecretProof = Array.from(new Uint8Array(signature), b => b.toString(16).padStart(2, '0')).join('')
 
     const user = await $fetch(
-      `https://graph.facebook.com/v19.0/me?fields=${fields}&access_token=${accessToken}`,
+      withQuery(config.userURL as string, {
+        fields,
+        access_token: accessToken,
+        appsecret_proof: appsecretProof,
+      }),
     )
 
     if (!user) {

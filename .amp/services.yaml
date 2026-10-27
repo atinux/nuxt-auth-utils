@@ -1,0 +1,6 @@
+services:
+  playground:
+    command: pnpm dev --host 0.0.0.0 --port "$PORT"
+    portal:
+      title: Playground
+      description: Nuxt Auth Utils playground (pnpm dev). OAuth providers need credentials in playground/.env.
