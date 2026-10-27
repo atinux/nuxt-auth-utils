@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auth-utils",
-  "version": "0.5.29",
+  "version": "0.5.32",
   "description": "Add Authentication to Nuxt applications with secured & sealed cookies sessions.",
   "repository": {
     "type": "git",
@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@10.29.3",
+  "packageManager": "pnpm@12.15.0",
   "exports": {
     ".": {
       "types": "./dist/types.d.mts",
@@ -27,11 +27,10 @@
     "dist"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build",
+    "prepack": "nuxt-module-build prepare && nuxt-module-build build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
@@ -41,6 +40,7 @@
   "dependencies": {
     "@adonisjs/hash": "^9.1.1",
     "@nuxt/kit": "^4.3.1",
+    "@nuxt/schema": "^4.6.0",
     "defu": "^6.1.4",
     "h3": "^1.15.4",
     "hookable": "^6.0.1",
@@ -76,14 +76,12 @@
     "@nuxt/devtools": "3.2.1",
     "@nuxt/eslint-config": "^1.15.1",
     "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/schema": "^4.3.1",
     "@nuxt/test-utils": "^4.0.0",
-    "@types/node": "latest",
     "@nuxt/ui": "^4.4.0",
     "@simplewebauthn/types": "^12.0.0",
-    "changelogen": "^0.6.2",
+    "@types/node": "latest",
     "eslint": "^10.0.0",
-    "nuxt": "^4.3.1",
+    "nuxt": "^4.6.0",
     "typescript": "5.9.3",
     "vitest": "^4.0.18",
     "vue-tsc": "^3.2.4"
