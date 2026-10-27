@@ -318,7 +318,7 @@ navigateTo({ path: '/auth/mastodon', query: { instance: 'mastodon.social' } }, {
 
 A full handle (`@user@mastodon.social`) is also accepted and only the instance part is used, since that's all that is required to start the OAuth flow.
 
-Registered apps are cached in memory per instance for the lifetime of the server process, so it does not re-register on every login. This is intentionally the same trade-off the Bluesky provider makes for its session store; swap in `useStorage()` if you need registrations to survive restarts.
+Registered apps are cached in memory per instance and redirect URL for the lifetime of the server process, so it does not re-register on every login. The callback doesn't depend on this cache, so after a restart or on another worker, the next login only registers a new application.
 
 ### Password Hashing
 
