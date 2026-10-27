@@ -107,7 +107,14 @@ function appRegistryKey(instance: string, redirectURL: string): string {
 function resolveInstanceDomain(input: string): string {
   const withoutProtocol = input.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
   const withoutLeadingAt = withoutProtocol.replace(/^@/, '')
-  return withoutLeadingAt.includes('@') ? withoutLeadingAt.split('@').pop()! : withoutLeadingAt
+  const domain = withoutLeadingAt.includes('@') ? withoutLeadingAt.split('@').pop()! : withoutLeadingAt
+  // Normalize like `fetch` will (lowercase, punycode, canonical IPv4) so the checks below see the real host
+  try {
+    return new URL(`https://${domain}`).hostname
+  }
+  catch {
+    return domain
+  }
 }
 
 // `instance` is user-controlled, so we register applications and exchange tokens only against domains
@@ -115,7 +122,15 @@ function resolveInstanceDomain(input: string): string {
 // link-local ranges, and bare IPs). It relies on the hostname string alone and does not resolve DNS, so
 // a domain that only resolves to a private address at request time is not caught here.
 function isPubliclyAddressableInstance(instance: string): boolean {
-  if (!instance || /\s/.test(instance)) return false
+  if (!instance || /\s/.test(instance) || instance.endsWith('.')) return false
+  // Compare with the hostname `fetch` would actually use, so `#`, `?`, ports, credentials and
+  // alternative IP notations (`2130706433`, `0x7f.1`) can't smuggle in a different host
+  try {
+    if (new URL(`https://${instance}`).hostname !== instance) return false
+  }
+  catch {
+    return false
+  }
   if (instance === 'localhost' || instance.endsWith('.localhost') || instance.endsWith('.local')) return false
   if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(instance)) return false // bare IPv4
   if (instance.includes(':')) return false // bare IPv6 or a stray port
