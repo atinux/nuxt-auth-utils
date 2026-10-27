@@ -125,13 +125,13 @@ export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }:
           redirect_uri: redirectURL,
           response_type: 'code',
           scope: config.scope.join(' '),
-          state,
           ...config.authorizationParams,
+          state,
         }),
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'riotgames', onError)
     }
 

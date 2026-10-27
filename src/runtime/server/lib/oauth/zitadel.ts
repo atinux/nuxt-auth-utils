@@ -85,15 +85,15 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state,
           code_challenge: verifier.code_challenge,
           code_challenge_method: verifier.code_challenge_method,
           ...config.authorizationParams,
+          state,
         }),
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'zitadel', onError)
     }
 

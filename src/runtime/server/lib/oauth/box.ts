@@ -142,14 +142,14 @@ export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuth
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: scope.join(' '),
-          state,
           ...config.authorizationParams,
+          state,
         }),
       )
     }
 
     // Step 2: Handle callback with authorization code
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'box', onError)
     }
 

@@ -48,3 +48,6 @@ coverage
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Amp orb portal manifests
+.amp/portals/*
