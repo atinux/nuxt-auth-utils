@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Prepares an Amp orb for nuxt-auth-utils development.
+# Runs on fresh orbs and again on stale snapshots, so every step must be idempotent.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+step() {
+  local label="$1"
+  shift
+  echo "==> $label"
+  local start=$SECONDS
+  "$@"
+  echo "<== $label ($((SECONDS - start))s)"
+}
+
+ensure_pnpm() {
+  # Match the pnpm version pinned in package.json's packageManager field.
+  local wanted
+  wanted="$(node -p "require('./package.json').packageManager.split('@')[1]")"
+  if [[ "$(pnpm --version 2>/dev/null || true)" != "$wanted" ]]; then
+    npm install -g "pnpm@$wanted"
+  fi
+  echo "node $(node --version), pnpm $(pnpm --version)"
+}
+
+export CI=true
+
+step "pnpm" ensure_pnpm
+step "pnpm install" pnpm install --frozen-lockfile
+# Builds module stubs and generates .nuxt types for the module and playground,
+# which tests (`pnpm test`) and type checks (`pnpm test:types`) rely on.
+step "pnpm dev:prepare" pnpm dev:prepare
