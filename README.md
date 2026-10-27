@@ -236,6 +236,7 @@ It can also be set using environment variables:
 - Linear
 - LinkedIn
 - LiveChat
+- Mastodon
 - Microsoft
 - OIDC / OpenID Connect (Generic)
 - Okta
@@ -291,6 +292,34 @@ export default defineOAuthGitHubEventHandler({
 Make sure to set the callback URL in your OAuth app settings as `<your-domain>/auth/github`.
 
 If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
+
+#### Mastodon
+
+Mastodon does not have a single shared OAuth server: every account lives on its own instance (e.g. `mastodon.social`, `h4.io`), and there is no portable identity across instances the way there is with AT Protocol/Bluesky. Because of this, the provider needs to know which instance to talk to before it can start the flow, and it registers an application against that instance on first use via `POST /api/v1/apps` (Mastodon's own API, not the RFC 7591 Dynamic Client Registration spec it superficially resembles).
+
+```ts
+// server/routes/auth/mastodon.get.ts
+export default defineOAuthMastodonEventHandler({
+  async onSuccess(event, { user }) {
+    await setUserSession(event, {
+      user: {
+        mastodon: user.acct,
+      },
+    })
+    return sendRedirect(event, '/')
+  },
+})
+```
+
+The instance can be provided either as a static `instance` config/`NUXT_OAUTH_MASTODON_INSTANCE` env variable, or per-request as an `instance` query parameter, e.g. `/auth/mastodon?instance=mastodon.social`:
+
+```ts
+navigateTo({ path: '/auth/mastodon', query: { instance: 'mastodon.social' } }, { external: true })
+```
+
+A full handle (`@user@mastodon.social`) is also accepted and only the instance part is used, since that's all that is required to start the OAuth flow.
+
+Registered apps are cached in memory per instance and redirect URL for the lifetime of the server process, so it does not re-register on every login. The callback doesn't depend on this cache, so after a restart or on another worker, the next login only registers a new application.
 
 ### Password Hashing
 
@@ -778,6 +807,27 @@ await setUserSession(event, { ... } , {
 ```
 
 Checkout the [`SessionConfig`](https://github.com/unjs/h3/blob/c04c458810e34eb15c1647e1369e7d7ef19f567d/src/utils/session.ts#L20) for all options.
+
+## Shared session between microservices and subdomains
+
+To share a session between multiple applications, use the same `NUXT_SESSION_PASSWORD` and session `name` in each of them.
+
+If the applications run on different subdomains, also set the session cookie `domain` to the parent domain in each `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-auth-utils'],
+  runtimeConfig: {
+    session: {
+      cookie: {
+        domain: '.example.com'
+      }
+    }
+  }
+})
+```
+
+The browser then sends the session cookie to every subdomain of `example.com`, and each application can decrypt it.
 
 ## More
 
