@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, handleState, handleInvalidState } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken, handleState, handleInvalidState, handlePkceVerifier } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -31,14 +31,19 @@ export interface OAuthSalesforceConfig {
   baseURL?: string
   /**
    * Salesforce OAuth Authorization URL
-   * @default 'https://login.salesforce.com/services/oauth2/authorize'
+   * @default '${baseURL}/services/oauth2/authorize'
    */
   authorizationURL?: string
   /**
-   * Salesforce OAuth Authorization URL
-   * @default 'https://login.salesforce.com/services/oauth2/token'
+   * Salesforce OAuth Token URL
+   * @default '${baseURL}/services/oauth2/token'
    */
   tokenURL?: string
+  /**
+   * Salesforce OAuth User URL
+   * @default '${baseURL}/services/oauth2/userinfo'
+   */
+  userURL?: string
   /**
    * Extra authorization parameters to provide to the authorization URL
    * @default {}
@@ -58,7 +63,7 @@ export function defineOAuthSalesforceEventHandler({
 }: OAuthConfig<OAuthSalesforceConfig>) {
   return eventHandler(async (event: H3Event) => {
     const runtimeConfig = useRuntimeConfig(event).oauth?.salesforce
-    const baseURL = config?.baseURL || 'https://login.salesforce.com'
+    const baseURL = config?.baseURL || runtimeConfig?.baseURL || 'https://login.salesforce.com'
     config = defu(config, runtimeConfig, {
       authorizationURL: `${baseURL}/services/oauth2/authorize`,
       tokenURL: `${baseURL}/services/oauth2/token`,
@@ -82,6 +87,7 @@ export function defineOAuthSalesforceEventHandler({
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const pkce = await handlePkceVerifier(event)
     const state = await handleState(event)
 
     if (!query.code) {
@@ -94,6 +100,8 @@ export function defineOAuthSalesforceEventHandler({
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
+          code_challenge: pkce.code_challenge,
+          code_challenge_method: pkce.code_challenge_method,
           state,
         }),
       )
@@ -110,6 +118,7 @@ export function defineOAuthSalesforceEventHandler({
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code,
+        code_verifier: pkce.code_verifier,
       },
     })
 
@@ -118,7 +127,7 @@ export function defineOAuthSalesforceEventHandler({
     }
 
     const accessToken = tokens.access_token
-    const user = await $fetch(`${baseURL}/services/oauth2/userinfo`, {
+    const user = await $fetch(config.userURL || `${baseURL}/services/oauth2/userinfo`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
