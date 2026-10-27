@@ -2,11 +2,12 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { defu } from 'defu'
 import { withQuery } from 'ufo'
-import { randomUUID } from 'uncrypto'
 import {
   getOAuthRedirectURL,
   handleAccessTokenErrorResponse,
+  handleInvalidState,
   handleMissingConfiguration,
+  handleState,
   requestAccessToken,
 } from '../utils'
 import { useRuntimeConfig } from '#imports'
@@ -81,8 +82,7 @@ export interface LiveChatConfig {
   userURL?: string
 
   /**
-   * LiveChat OAuth Scope. accounts--my:ro is always applied to get user profile.
-   * @default ['accounts--my:ro']
+   * LiveChat OAuth Scope. If not provided, the default scope from LiveChat will be used.
    * @example ['accounts--my:ro', 'chats--my:ro']
    */
   scope?: string[]
@@ -104,10 +104,7 @@ export function defineOAuthLiveChatEventHandler({
       authorizationURL: 'https://accounts.livechat.com',
       tokenURL: 'https://accounts.livechat.com/v2/token',
       userURL: 'https://accounts.livechat.com/v2/accounts/me',
-      scope: [],
-      authorizationParams: {
-        state: randomUUID(),
-      },
+      authorizationParams: {},
     }) as LiveChatConfig
 
     if (!config.clientId || !config.clientSecret) {
@@ -119,11 +116,9 @@ export function defineOAuthLiveChatEventHandler({
       )
     }
 
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, state?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
-
-    // Ensure accounts--my:ro is always applied.
-    const scope = [...new Set([...config.scope!, 'accounts--my:ro'])].join(' ')
+    const state = await handleState(event)
 
     if (!query.code) {
       return sendRedirect(
@@ -132,10 +127,15 @@ export function defineOAuthLiveChatEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           response_type: 'code',
-          scope,
+          scope: config.scope?.length ? config.scope.join(' ') : undefined,
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'livechat', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL!, {

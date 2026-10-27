@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect, getRequestIP, getRequestHeader } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -72,7 +72,7 @@ export interface OAuthWorkOSTokens {
   refresh_token: string
 }
 
-export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthWorkOSConfig, OAuthWorkOSUser, OAuthWorkOSTokens>) {
+export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthWorkOSConfig, { user: OAuthWorkOSUser, tokens: OAuthWorkOSTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.workos, { screen_hint: 'sign-in' }) as OAuthWorkOSConfig
 
@@ -87,6 +87,8 @@ export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OA
       return handleAccessTokenErrorResponse(event, 'workos', query, onError)
     }
 
+    const state = await handleState(event)
+
     if (!query.code) {
       // Redirect to WorkOS Oauth page
       return sendRedirect(
@@ -99,8 +101,13 @@ export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OA
           connection_id: config.connectionId || undefined,
           screen_hint: config.screenHint || 'sign-in',
           organization_id: config.organizationId || undefined,
+          state,
         }),
       )
+    }
+
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'workos', onError)
     }
 
     const authenticateResponse: OAuthWorkOSAuthenticateResponse = await requestAccessToken('https://api.workos.com/user_management/authenticate', {

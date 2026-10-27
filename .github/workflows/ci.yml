@@ -33,10 +33,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - run: npm i -g --force corepack && corepack enable
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
-          node-version: 20
+          node-version: 24
           cache: "pnpm"
 
       - name: Install dependencies
@@ -50,10 +50,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - run: npm i -g --force corepack && corepack enable
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
-          node-version: 20
+          node-version: 24
           cache: "pnpm"
 
       - name: Install dependencies
@@ -65,8 +65,6 @@ jobs:
       - name: Run test suite
         run: pnpm test
 
-      # - name: Test types
-      #   run: pnpm test:types
+      - name: Test types
+        run: pnpm test:types
 
-      # - name: Test playground types
-      #   run: pnpm test:types:playground

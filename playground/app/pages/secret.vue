@@ -10,10 +10,13 @@ definePageMeta({
 </script>
 
 <template>
-  <div>
-    <h1>Secret</h1>
-    <NuxtLink to="/">
+  <UPageHeader title="Secret Page" />
+  <UPageBody>
+    <UButton
+      to="/"
+      color="neutral"
+    >
       Home
-    </NuxtLink>
-  </div>
+    </UButton>
+  </UPageBody>
 </template>

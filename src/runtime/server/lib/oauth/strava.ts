@@ -5,7 +5,9 @@ import { defu } from 'defu'
 import {
   getOAuthRedirectURL,
   handleAccessTokenErrorResponse,
+  handleInvalidState,
   handleMissingConfiguration,
+  handleState,
   requestAccessToken,
 } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
@@ -152,7 +154,7 @@ export function defineOAuthStravaEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthStravaConfig, OAuthStravaUser>) {
+}: OAuthConfig<OAuthStravaConfig, { user: OAuthStravaUser, tokens: OAuthStravaTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.strava) as OAuthStravaConfig
 
@@ -180,6 +182,7 @@ export function defineOAuthStravaEventHandler({
     const authorizationURL = 'https://www.strava.com/oauth/authorize'
     const tokenURL = 'https://www.strava.com/oauth/token'
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       // Redirect to Strava login page
@@ -191,8 +194,13 @@ export function defineOAuthStravaEventHandler({
           response_type: 'code',
           approval_prompt: config.approvalPrompt || 'auto',
           scope: config.scope,
+          state,
         }),
       )
+    }
+
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'strava', onError)
     }
 
     const tokens: OAuthStravaTokens = await requestAccessToken(tokenURL, {

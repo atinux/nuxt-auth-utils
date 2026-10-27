@@ -8,13 +8,14 @@ import type { UserSession, UserSessionComposable } from '#auth-utils'
  */
 export function useUserSession(): UserSessionComposable {
   const serverEvent = import.meta.server ? useRequestEvent() : null
-  const sessionState = useState<UserSession>('nuxt-session', () => ({}))
+  const sessionState = useState<UserSession | null>('nuxt-session', () => null)
   const authReadyState = useState('nuxt-auth-ready', () => false)
+  const requestFetch = useRequestFetch()
 
   const clear = async () => {
-    await useRequestFetch()('/api/_auth/session', {
+    await requestFetch('/api/_auth/session', {
       method: 'DELETE',
-      onResponse({ response: { headers } }) {
+      onResponse({ response: { headers } }: { response: { headers: Headers } }) {
         // Forward the Set-Cookie header to the main server event
         if (import.meta.server && serverEvent) {
           for (const setCookie of headers.getSetCookie()) {
@@ -23,16 +24,16 @@ export function useUserSession(): UserSessionComposable {
         }
       },
     })
-    sessionState.value = {}
+    sessionState.value = null
   }
 
   const fetch = async () => {
-    sessionState.value = await useRequestFetch()('/api/_auth/session', {
+    sessionState.value = await requestFetch<UserSession>('/api/_auth/session', {
       headers: {
         accept: 'application/json',
       },
       retry: false,
-    }).catch(() => ({}))
+    }).catch(() => null)
     if (!authReadyState.value) {
       authReadyState.value = true
     }
@@ -68,8 +69,8 @@ export function useUserSession(): UserSessionComposable {
 
   return {
     ready: computed(() => authReadyState.value),
-    loggedIn: computed(() => Boolean(sessionState.value.user)),
-    user: computed(() => sessionState.value.user || null),
+    loggedIn: computed(() => Boolean(sessionState.value?.user)),
+    user: computed(() => sessionState.value?.user || null),
     session: sessionState,
     fetch,
     openInPopup,

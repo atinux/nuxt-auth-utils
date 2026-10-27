@@ -88,14 +88,14 @@ export function defineOAuthHerokuEventHandler({
           client_id: config.clientId,
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
-          state,
           ...config.authorizationParams,
+          state,
         }),
       )
     }
 
-    if (query.state !== state) {
-      handleInvalidState(event, 'heroku', onError)
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'heroku', onError)
     }
 
     const tokens = await requestAccessToken(config.tokenURL as string, {

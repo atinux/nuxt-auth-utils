@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -77,8 +77,22 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
     const authorizationURL = `https://${config.domain}/authorize`
     const tokenURL = `https://${config.domain}/oauth/token`
 
-    const query = getQuery<{ code?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, error_description?: string, state?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    if (query.error) {
+      return handleAccessTokenErrorResponse(
+        event,
+        'auth0',
+        {
+          error: query.error,
+          error_description: query.error_description,
+        },
+        onError,
+      )
+    }
+
+    const state = await handleState(event)
 
     if (!query.code) {
       config.scope = config.scope || ['openid', 'offline_access']
@@ -97,8 +111,13 @@ export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAu
           max_age: config.maxAge || 0,
           connection: config.connection || '',
           ...config.authorizationParams,
+          state,
         }),
       )
+    }
+
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'auth0', onError)
     }
 
     const tokens = await requestAccessToken(tokenURL as string, {

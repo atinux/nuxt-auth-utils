@@ -2,8 +2,7 @@ import type { H3Event } from 'h3'
 import { eventHandler, getQuery, sendRedirect } from 'h3'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { randomUUID } from 'uncrypto'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, requestAccessToken } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
 import { useRuntimeConfig, createError } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
@@ -99,7 +98,7 @@ export function defineOAuthAtlassianEventHandler({
   config,
   onSuccess,
   onError,
-}: OAuthConfig<OAuthAtlassianConfig>) {
+}: OAuthConfig<OAuthAtlassianConfig, { user: AtlassianUser, tokens: AtlassianTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig().oauth?.atlassian, {
       authorizationURL: 'https://auth.atlassian.com/authorize',
@@ -121,8 +120,9 @@ export function defineOAuthAtlassianEventHandler({
       config.scope?.push('read:me')
     }
 
-    const query = getQuery<{ code?: string, error?: string }>(event)
+    const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const state = await handleState(event)
 
     if (!query.code) {
       return sendRedirect(
@@ -132,10 +132,10 @@ export function defineOAuthAtlassianEventHandler({
           client_id: config.clientId,
           scope: config.scope?.join(' '),
           redirect_uri: redirectURL,
-          state: randomUUID(),
           response_type: 'code',
           prompt: 'consent',
           ...config.authorizationParams,
+          state,
         }),
       )
     }
@@ -148,6 +148,10 @@ export function defineOAuthAtlassianEventHandler({
       })
       if (!onError) throw error
       return onError(event, error)
+    }
+
+    if (!state || query.state !== state) {
+      return handleInvalidState(event, 'atlassian', onError)
     }
 
     const tokens: AtlassianTokens = await requestAccessToken(config.tokenURL as string, {

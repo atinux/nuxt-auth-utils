@@ -31,7 +31,7 @@ export interface OAuthBlueskyConfig {
 type BlueSkyUser = AppBskyActorDefs.ProfileViewDetailed | Pick<AppBskyActorDefs.ProfileView, 'did'>
 type BlueSkyTokens = NodeSavedSession['tokenSet']
 
-export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBlueskyConfig, BlueSkyUser, BlueSkyTokens>) {
+export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBlueskyConfig, { user: BlueSkyUser, tokens: BlueSkyTokens }>) {
   return eventHandler(async (event: H3Event) => {
     const clientMetadata = getAtprotoClientMetadata(event, 'bluesky', config)
     const scopes = clientMetadata.scope?.split(' ') ?? []

@@ -10,7 +10,7 @@ export interface UserSession {
   /**
    * Session ID
    */
-  id?: string
+  id: string
   /**
    * User session data, available on client and server
    */
@@ -26,7 +26,6 @@ export interface UserSession {
 }
 
 export interface UserSessionRequired extends UserSession {
-  id: string
   user: User
 }
 
@@ -46,7 +45,7 @@ export interface UserSessionComposable {
   /**
    * The session object.
    */
-  session: Ref<UserSession>
+  session: Ref<UserSession | null>
   /**
    * Fetch the user session from the server.
    */

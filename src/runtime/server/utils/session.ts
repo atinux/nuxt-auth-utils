@@ -2,10 +2,12 @@ import type { H3Event, SessionConfig } from 'h3'
 import { useSession, createError, isEvent } from 'h3'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
+import type { OmitWithIndexSignature } from '../../types/utils'
 import { useRuntimeConfig } from '#imports'
-import type { UserSession, UserSessionRequired } from '#auth-utils'
+import type { SessionEvent, UserSession, UserSessionRequired } from '#auth-utils'
 
-type UseSessionEvent = Parameters<typeof useSession>[0]
+// Also accepts the event of a `nuxt/server` handler, on Nitro 2 it is a proxy over the h3 event
+type UseSessionEvent = Parameters<typeof useSession>[0] | SessionEvent
 
 export interface SessionHooks {
   /**
@@ -27,11 +29,11 @@ export const sessionHooks = createHooks<SessionHooks>()
  * @param event The Request (h3) event
  * @returns The user session
  */
-export async function getUserSession(event: UseSessionEvent) {
+export async function getUserSession(event: UseSessionEvent): Promise<UserSession> {
   const session = await _useSession(event)
   return {
-    id: session.id,
     ...session.data,
+    id: session.id!,
   }
 }
 /**
@@ -40,7 +42,7 @@ export async function getUserSession(event: UseSessionEvent) {
  * @param data User session data, please only store public information since it can be decoded with API calls
  * @see https://github.com/atinux/nuxt-auth-utils
  */
-export async function setUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>) {
+export async function setUserSession(event: SessionEvent, data: OmitWithIndexSignature<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
   const session = await _useSession(event, config)
 
   await session.update(defu(data, session.data))
@@ -53,11 +55,17 @@ export async function setUserSession(event: H3Event, data: UserSession, config?:
  * @param event The Request (h3) event
  * @param data User session data, please only store public information since it can be decoded with API calls
  */
-export async function replaceUserSession(event: H3Event, data: UserSession, config?: Partial<SessionConfig>) {
+export async function replaceUserSession(event: SessionEvent, data: OmitWithIndexSignature<UserSession, 'id'>, config?: Partial<SessionConfig>): Promise<UserSession> {
   const session = await _useSession(event, config)
 
   await session.clear()
-  await session.update(data)
+  await session.update((oldData) => {
+    // h3 can restore the incoming cookie after clear(), before merging this update.
+    for (const key of Object.keys(oldData)) {
+      Reflect.deleteProperty(oldData, key)
+    }
+    return data
+  })
 
   return session.data
 }
@@ -67,10 +75,10 @@ export async function replaceUserSession(event: H3Event, data: UserSession, conf
  * @param event The Request (h3) event
  * @returns true if the session was cleared
  */
-export async function clearUserSession(event: H3Event, config?: Partial<SessionConfig>) {
+export async function clearUserSession(event: SessionEvent, config?: Partial<SessionConfig>): Promise<boolean> {
   const session = await _useSession(event, config)
 
-  await sessionHooks.callHookParallel('clear', session.data, event)
+  await sessionHooks.callHookParallel('clear', session.data, event as H3Event)
   await session.clear()
 
   return true
@@ -112,7 +120,10 @@ function _useSession(event: UseSessionEvent, config: Partial<SessionConfig> = {}
     const envSessionPassword = `${runtimeConfig.nitro?.envPrefix || 'NUXT_'}SESSION_PASSWORD`
 
     sessionConfig = defu({ password: process.env[envSessionPassword] }, runtimeConfig.session)
+    if (!sessionConfig.password) {
+      console.error(`[nuxt-auth-utils] ${envSessionPassword} environment variable or runtimeConfig.session.password was not set.`)
+    }
   }
   const finalConfig = defu(config, sessionConfig) as SessionConfig
-  return useSession<UserSession>(event, finalConfig)
+  return useSession<UserSession>(event as H3Event, finalConfig)
 }

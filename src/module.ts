@@ -1,22 +1,22 @@
-import { writeFile, readFile } from 'node:fs/promises'
+import type { ScryptConfig } from '@adonisjs/hash/types'
 import {
-  defineNuxtModule,
-  addPlugin,
-  createResolver,
-  addImports,
-  addServerHandler,
-  addServerPlugin,
-  addServerImportsDir,
   addComponentsDir,
+  addImports,
+  addPlugin,
+  addServerHandler,
+  addServerImportsDir,
+  addServerPlugin,
+  createResolver,
+  defineNuxtModule,
   logger,
 } from '@nuxt/kit'
-import { join } from 'pathe'
 import { defu } from 'defu'
-import { randomUUID } from 'uncrypto'
-import type { ScryptConfig } from '@adonisjs/hash/types'
 import type { SessionConfig } from 'h3'
-import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
+import { readFile, writeFile } from 'node:fs/promises'
+import { join } from 'pathe'
+import { randomUUID } from 'uncrypto'
 import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
+import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -39,6 +39,11 @@ export interface ModuleOptions {
      */
     scrypt?: ScryptConfig
   }
+  /**
+   * Session load strategy
+   * @default 'server-first'
+   */
+  loadStrategy?: 'server-first' | 'client-only' | 'none'
 }
 
 declare module 'nuxt/schema' {
@@ -50,6 +55,12 @@ declare module 'nuxt/schema' {
      * Session configuration
      */
     session: SessionConfig
+  }
+
+  interface PublicRuntimeConfig {
+    auth: {
+      loadStrategy: 'server-first' | 'client-only' | 'none'
+    }
   }
 }
 
@@ -65,6 +76,7 @@ export default defineNuxtModule<ModuleOptions>({
     hash: {
       scrypt: {},
     },
+    loadStrategy: 'server-first',
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -84,8 +96,10 @@ export default defineNuxtModule<ModuleOptions>({
     // App
     addComponentsDir({ path: resolver.resolve('./runtime/app/components') })
     addImports(composables)
-    addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
-    addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
+    if (options.loadStrategy !== 'none') {
+      addPlugin(resolver.resolve('./runtime/app/plugins/session.server'))
+      addPlugin(resolver.resolve('./runtime/app/plugins/session.client'))
+    }
     // Server
     addServerPlugin(resolver.resolve('./runtime/server/plugins/oauth'))
     addServerImportsDir(resolver.resolve('./runtime/server/lib/oauth'))
@@ -122,8 +136,11 @@ export default defineNuxtModule<ModuleOptions>({
     })
     // Set node:crypto as unenv external
     nuxt.options.nitro.unenv ||= {}
+    // @ts-expect-error we can use external as array
     nuxt.options.nitro.unenv.external ||= []
+    // @ts-expect-error see comment above
     if (!nuxt.options.nitro.unenv.external.includes('node:crypto')) {
+    // @ts-expect-error see comment above
       nuxt.options.nitro.unenv.external.push('node:crypto')
     }
 
@@ -135,7 +152,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     runtimeConfig.session = defu(runtimeConfig.session, {
       name: 'nuxt-session',
-      password: process.env[envSessionPassword] || '',
+      password: '',
       cookie: {
         sameSite: 'lax',
       },
@@ -146,21 +163,32 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // Generate the session password
-    if (nuxt.options.dev && !runtimeConfig.session.password) {
-      runtimeConfig.session.password = randomUUID().replace(/-/g, '')
-      // Add it to .env
-      const envPath = join(nuxt.options.rootDir, '.env')
-      const envContent = await readFile(envPath, 'utf-8').catch(() => '')
-      if (!envContent.includes(envSessionPassword)) {
-        await writeFile(
-          envPath,
-          `${
-            envContent ? envContent + '\n' : envContent
-          }${envSessionPassword}=${runtimeConfig.session.password}`,
-          'utf-8',
-        )
+    if (nuxt.options.dev && !process.env[envSessionPassword]) {
+      // If the password is set in the runtime config, use it
+      if (nuxt.options.runtimeConfig.session.password) {
+        process.env[envSessionPassword] = nuxt.options.runtimeConfig.session.password
+      }
+      else {
+        const password = process.env[envSessionPassword] = randomUUID().replace(/-/g, '')
+        // Add it to .env
+        const envPath = join(nuxt.options.rootDir, '.env')
+        const envContent = await readFile(envPath, 'utf-8').catch(() => '')
+        if (!envContent.includes(envSessionPassword)) {
+          await writeFile(
+            envPath,
+            `${
+              envContent ? envContent + '\n' : envContent
+            }${envSessionPassword}=${password}`,
+            'utf-8',
+          )
+        }
       }
     }
+
+    // Load strategy
+    runtimeConfig.public.auth = defu(runtimeConfig.public.auth, {
+      loadStrategy: options.loadStrategy ?? 'server-first',
+    })
 
     // WebAuthn settings
     runtimeConfig.webauthn = defu(runtimeConfig.webauthn, {
@@ -176,6 +204,13 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
       baseURL: '',
+    })
+    // Box OAuth
+    runtimeConfig.oauth.box = defu(runtimeConfig.oauth.box, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: [],
     })
     // GitHub OAuth
     runtimeConfig.oauth.github = defu(runtimeConfig.oauth.github, {
@@ -322,6 +357,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+      apiVersion: 'v25.0',
     })
     // Instagram OAuth
     runtimeConfig.oauth.instagram = defu(runtimeConfig.oauth.instagram, {
@@ -467,6 +503,62 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
       scope: '',
+    })
+    // Roblox OAuth
+    runtimeConfig.oauth.roblox = defu(runtimeConfig.oauth.roblox, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: '',
+    })
+    // Okta OAuth
+    runtimeConfig.oauth.okta = defu(runtimeConfig.oauth.okta, {
+      clientId: '',
+      clientSecret: '',
+      domain: '',
+      audience: '',
+      scope: [],
+      redirectURL: '',
+    })
+    // Ory OAuth
+    runtimeConfig.oauth.ory = defu(runtimeConfig.oauth.ory, {
+      clientId: '',
+      clientSecret: '',
+      sdkURL: '',
+      redirectURL: '',
+      scope: [],
+      authorizationURL: '',
+      tokenURL: '',
+      userURL: '',
+    })
+    // Shopify Customer
+    runtimeConfig.oauth.shopifyCustomer = defu(runtimeConfig.oauth.shopifyCustomer, {
+      shopDomain: '',
+      clientId: '',
+      redirectURL: '',
+      scope: [],
+    })
+    // OIDC OAuth
+    runtimeConfig.oauth.oidc = defu(runtimeConfig.oauth.oidc, {
+      clientId: '',
+      clientSecret: '',
+      openidConfig: '',
+      redirectURL: '',
+      scope: [],
+    })
+    // osu! OAuth
+    runtimeConfig.oauth.osu = defu(runtimeConfig.oauth.osu, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: [],
+    })
+    // RiotGames OAuth
+    runtimeConfig.oauth.riotgames = defu(runtimeConfig.oauth.riotgames, {
+      clientId: '',
+      clientSecret: '',
+      redirectURL: '',
+      scope: [],
     })
   },
 })

@@ -6,15 +6,16 @@ export const atprotoProviders = ['bluesky'] satisfies ATProtoProvider[]
 export const atprotoProviderDefaultClientMetadata: AtprotoProviderClientMetadata = {
   clientMetadataFilename: '',
   clientName: '',
-  clientUri: '',
-  logoUri: '',
-  policyUri: '',
-  tosUri: '',
+  clientUri: undefined,
+  logoUri: undefined,
+  policyUri: undefined,
+  tosUri: undefined,
   scope: ['atproto'],
   grantTypes: ['authorization_code'],
   responseTypes: ['code'],
   applicationType: 'web',
-  redirectUris: [] as unknown as [string, ...string[]],
+  // @ts-expect-error TypeScript is too smart for its own good
+  redirectUris: undefined,
   dpopBoundAccessTokens: true as const,
   tokenEndpointAuthMethod: 'none',
 }
