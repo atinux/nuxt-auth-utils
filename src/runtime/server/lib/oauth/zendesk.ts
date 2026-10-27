@@ -219,6 +219,8 @@ export function defineOAuthZendeskEventHandler({
 
     const tokens: ZendeskTokens & { error?: string, error_description?: string } = await requestAccessToken(tokenURL, {
       headers: {
+        // Both Zendesk token endpoints document JSON bodies
+        'Content-Type': 'application/json',
         ...marketplaceHeaders,
       },
       body: {
