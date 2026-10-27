@@ -138,6 +138,19 @@ export function defineOAuthWechatEventHandler({
     }
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+
+    // WeChat redirects back with only `state` when the user denies authorization
+    if (!query.code && query.state) {
+      await handleState(event, { isCallback: true })
+      const error = createError({
+        statusCode: 401,
+        message: 'WeChat login failed: authorization denied',
+        data: query,
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
+
     const state = await handleState(event)
 
     if (!query.code) {
@@ -158,6 +171,7 @@ export function defineOAuthWechatEventHandler({
       return handleInvalidState(event, 'wechat', onError)
     }
 
+    // The request URLs carry the app secret and access token, so don't let a fetch error (and its URL) reach the logs
     const tokens = await $fetch<WechatOAuthTokens | WechatOAuthError>(config.tokenURL as string, {
       // WeChat answers JSON with a text/plain content type
       responseType: 'json',
@@ -167,7 +181,7 @@ export function defineOAuthWechatEventHandler({
         code: query.code,
         grant_type: 'authorization_code',
       },
-    })
+    }).catch((error): WechatOAuthError => ({ errcode: error?.response?.status ?? -1, errmsg: 'token request failed' }))
 
     if (isWechatOAuthError(tokens)) {
       return handleWechatOAuthError(event, 'token', tokens, onError)
@@ -180,7 +194,7 @@ export function defineOAuthWechatEventHandler({
         openid: tokens.openid,
         lang: config.lang,
       },
-    })
+    }).catch((error): WechatOAuthError => ({ errcode: error?.response?.status ?? -1, errmsg: 'userinfo request failed' }))
 
     if (isWechatOAuthError(user)) {
       return handleWechatOAuthError(event, 'userinfo', user, onError)
