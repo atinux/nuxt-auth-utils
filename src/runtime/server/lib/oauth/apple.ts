@@ -174,6 +174,10 @@ export function defineOAuthAppleEventHandler({
         },
       })
 
+      if (accessTokenResult.error) {
+        return handleAccessTokenErrorResponse(event, 'apple', accessTokenResult, onError)
+      }
+
       const payload = await verifyJwt<OAuthAppleTokens>(accessTokenResult.id_token, {
         publicJwkUrl: 'https://appleid.apple.com/auth/keys',
         audience: config.clientId,
