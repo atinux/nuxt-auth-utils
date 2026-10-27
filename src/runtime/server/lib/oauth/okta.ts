@@ -163,7 +163,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
         }
       }
 
-      let openIdConfig: OpenIdConfig | null = null
+      let openIdConfig: OpenIdConfig | null
       try {
         openIdConfig = await $fetch<OpenIdConfig>(openIdConfigurationUrl)
         if (openIdConfig) {
