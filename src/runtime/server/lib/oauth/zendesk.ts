@@ -153,9 +153,13 @@ export function defineOAuthZendeskEventHandler({
 }: OAuthConfig<OAuthZendeskConfig, { user: ZendeskUser, tokens: ZendeskTokens }>) {
   return eventHandler(async (event: H3Event) => {
     const runtimeConfig = useRuntimeConfig(event).oauth?.zendesk
-    config = defu(config, runtimeConfig, {
-      scope: ['read'],
-    }) as OAuthZendeskConfig
+    config = defu(config, runtimeConfig) as OAuthZendeskConfig
+    // Not a defu default: defu would append 'read' to a configured scope
+    config.scope = config.scope?.length ? config.scope : ['read']
+    // The user profile is always fetched, which needs `read` or `users:read`
+    if (!config.scope.includes('read') && !config.scope.includes('users:read')) {
+      config.scope.push('users:read')
+    }
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(
@@ -193,12 +197,6 @@ export function defineOAuthZendeskEventHandler({
     const state = await handleState(event)
 
     if (!query.code) {
-      config.scope = config.scope || ['read']
-      // The user profile is always fetched, which needs `read` or `users:read`
-      if (!config.scope.includes('read') && !config.scope.includes('users:read')) {
-        config.scope.push('users:read')
-      }
-
       return sendRedirect(
         event,
         withQuery(authorizationURL, {
@@ -230,7 +228,7 @@ export function defineOAuthZendeskEventHandler({
         redirect_uri: redirectURL,
         code: query.code as string,
         // The bridge token endpoint takes no scope
-        ...(isBridge ? {} : { scope: config.scope?.join(' ') }),
+        ...(isBridge ? {} : { scope: config.scope.join(' ') }),
       },
     })
 
