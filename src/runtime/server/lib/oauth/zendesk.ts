@@ -38,11 +38,6 @@ export interface OAuthZendeskConfig {
    */
   scope?: string[]
   /**
-   * Require email from user, adds the ['users:read'] scope if not present
-   * @default false
-   */
-  emailRequired?: boolean
-  /**
    * Redirect URL to allow overriding for situations like prod failing to determine public hostname
    * @default process.env.NUXT_OAUTH_ZENDESK_REDIRECT_URL
    */
@@ -83,7 +78,7 @@ export interface ZendeskUser {
   time_zone: string | null
   iana_time_zone: string | null
   phone: string | null
-  shared_phone_number: string | null
+  shared_phone_number: boolean | null
   photo: {
     url: string | null
     content_url: string | null
@@ -120,11 +115,11 @@ export interface ZendeskUser {
 
 export interface ZendeskTokens {
   access_token: string
-  refresh_token: string
+  refresh_token?: string
   token_type: string
   scope: string
-  expires_in: number
-  refresh_token_expires_in: number
+  expires_in?: number
+  refresh_token_expires_in?: number
 }
 
 interface ZendeskTokenInfo {
@@ -199,7 +194,8 @@ export function defineOAuthZendeskEventHandler({
 
     if (!query.code) {
       config.scope = config.scope || ['read']
-      if (config.emailRequired && !config.scope.includes('users:read')) {
+      // The user profile is always fetched, which needs `read` or `users:read`
+      if (!config.scope.includes('read') && !config.scope.includes('users:read')) {
         config.scope.push('users:read')
       }
 
@@ -231,6 +227,8 @@ export function defineOAuthZendeskEventHandler({
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
         code: query.code as string,
+        // The bridge token endpoint takes no scope
+        ...(isBridge ? {} : { scope: config.scope?.join(' ') }),
       },
     })
 
