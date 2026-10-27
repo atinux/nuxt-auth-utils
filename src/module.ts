@@ -488,6 +488,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientSecret: '',
       redirectURL: '',
       baseURL: '',
+      userURL: '',
       scope: '',
     })
     // Slack OAuth
