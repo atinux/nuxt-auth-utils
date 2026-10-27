@@ -91,7 +91,7 @@ export async function requestAccessToken<T = any>(url: string, options: RequestA
 // TODO: waiting for https://github.com/atinux/nuxt-auth-utils/pull/140
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleAccessTokenErrorResponse(event: H3Event, oauthProvider: OAuthProvider, oauthError: any, onError?: OnError) {
-  const message = `${upperFirst(oauthProvider)} login failed: ${oauthError.error_description || oauthError.error || 'Unknown error'}`
+  const message = `${upperFirst(oauthProvider)} login failed: ${oauthError.error_description || oauthError.error?.message || oauthError.error || 'Unknown error'}`
 
   const error = createError({
     statusCode: 401,
