@@ -143,7 +143,7 @@ export function defineOAuthAppleEventHandler({
       )
     }
 
-    if (state !== storedState) {
+    if (!storedState || state !== storedState) {
       return handleInvalidState(event, 'apple', onError)
     }
 
@@ -173,6 +173,10 @@ export function defineOAuthAppleEventHandler({
           redirect_uri: config.redirectURL,
         },
       })
+
+      if (accessTokenResult.error) {
+        return handleAccessTokenErrorResponse(event, 'apple', accessTokenResult, onError)
+      }
 
       const payload = await verifyJwt<OAuthAppleTokens>(accessTokenResult.id_token, {
         publicJwkUrl: 'https://appleid.apple.com/auth/keys',

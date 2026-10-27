@@ -55,7 +55,7 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
       return sendRedirect(event, withQuery(config.authorizationURL as string, steamOpenIdParams))
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'steam', onError)
     }
 

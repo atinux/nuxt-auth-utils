@@ -363,6 +363,7 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       redirectURL: '',
+      apiVersion: 'v25.0',
     })
     // Instagram OAuth
     runtimeConfig.oauth.instagram = defu(runtimeConfig.oauth.instagram, {

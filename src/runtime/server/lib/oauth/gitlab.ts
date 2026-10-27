@@ -130,7 +130,7 @@ export function defineOAuthGitLabEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'gitlab', onError)
     }
 

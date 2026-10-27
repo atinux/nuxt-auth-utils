@@ -106,7 +106,7 @@ export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OA
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'workos', onError)
     }
 

@@ -240,7 +240,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
     }
 
     // Step 2: Validate callback state
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'okta', onError)
     }
 

@@ -92,7 +92,7 @@ export function defineOAuthOsuEventHandler({ config, onSuccess, onError }: OAuth
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'osu', onError)
     }
 

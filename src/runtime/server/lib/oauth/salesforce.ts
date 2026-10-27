@@ -99,7 +99,7 @@ export function defineOAuthSalesforceEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'salesforce', onError)
     }
 

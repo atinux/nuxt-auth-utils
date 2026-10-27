@@ -95,7 +95,7 @@ export function defineOAuthMicrosoftEventHandler({ config, onSuccess, onError }:
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'microsoft', onError)
     }
 
