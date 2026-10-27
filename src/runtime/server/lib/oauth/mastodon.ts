@@ -247,7 +247,7 @@ export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ con
       }))
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'mastodon', onError)
     }
 
@@ -262,7 +262,8 @@ export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ con
       flowState = undefined
     }
 
-    if (!flowState) {
+    // The cookie is client-controlled, so re-check the instance before the server fetches it
+    if (!flowState || !isPubliclyAddressableInstance(flowState.instance)) {
       const error = createError({
         statusCode: 400,
         message: 'Mastodon login failed: could not recover the application credentials for this login (missing or invalid flow cookie, the flow may have taken too long or cookies are blocked).',
