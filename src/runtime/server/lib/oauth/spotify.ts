@@ -24,6 +24,13 @@ export interface OAuthSpotifyConfig {
    * @example ['playlist-read-private']
    */
   scope?: string[]
+  /**
+   * Require email from user, adds the ['user-read-email'] scope if not present
+   * @default false
+   * @deprecated Spotify no longer returns the user's email since its February 2026 Web API changes
+   * @see https://developer.spotify.com/documentation/web-api/references/changes/february-2026#user
+   */
+  emailRequired?: boolean
 
   /**
    * Spotify OAuth Authorization URL
@@ -64,6 +71,22 @@ interface SpotifyUser {
   }[]
   type: string
   uri: string
+  /** @deprecated Removed by Spotify in February 2026 */
+  country?: string
+  /** @deprecated Removed by Spotify in February 2026 */
+  email?: string
+  /** @deprecated Removed by Spotify in February 2026 */
+  explicit_content?: {
+    filter_enabled: boolean
+    filter_locked: boolean
+  }
+  /** @deprecated Removed by Spotify in February 2026 */
+  followers?: {
+    href: string | null
+    total: number
+  }
+  /** @deprecated Removed by Spotify in February 2026 */
+  product?: string
 }
 
 interface SpotifyTokens {
@@ -92,6 +115,9 @@ export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: O
 
     if (!query.code) {
       config.scope = config.scope || []
+      if (config.emailRequired && !config.scope.includes('user-read-email')) {
+        config.scope.push('user-read-email')
+      }
       // Redirect to Spotify Oauth page
       return sendRedirect(
         event,
