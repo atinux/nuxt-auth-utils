@@ -5,13 +5,9 @@ import {
   startAuthentication,
   startRegistration,
 } from '@simplewebauthn/browser'
-import type { VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
+import type { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import { ref, onMounted } from '#imports'
 import type { WebAuthnComposable, WebAuthnUser } from '#auth-utils'
-
-// Derived from the function signatures so they resolve with both SimpleWebAuthn v11 (`@simplewebauthn/types`) and v13
-type PublicKeyCredentialCreationOptionsJSON = Parameters<typeof startRegistration>[0]['optionsJSON']
-type PublicKeyCredentialRequestOptionsJSON = Parameters<typeof startAuthentication>[0]['optionsJSON']
 
 interface RegistrationInitResponse {
   creationOptions: PublicKeyCredentialCreationOptionsJSON

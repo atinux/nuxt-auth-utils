@@ -58,8 +58,8 @@
   "peerDependencies": {
     "@atproto/api": "^0.13.15",
     "@atproto/oauth-client-node": "^0.2.0",
-    "@simplewebauthn/browser": "^11.0.0 || ^13.0.0",
-    "@simplewebauthn/server": "^11.0.0 || ^13.3.2"
+    "@simplewebauthn/browser": "^13.0.0",
+    "@simplewebauthn/server": "^13.3.2"
   },
   "peerDependenciesMeta": {
     "@simplewebauthn/browser": {
