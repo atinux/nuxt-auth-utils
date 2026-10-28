@@ -27,7 +27,7 @@ export interface OAuthSpotifyConfig {
   /**
    * Require email from user, adds the ['user-read-email'] scope if not present
    *
-   * Since February 2026, Spotify only returns the email to Extended Quota Mode apps, not to Development Mode apps.
+   * Spotify doesn't return the email to Development Mode apps created since February 11, 2026, nor to existing ones since March 9, 2026. Extended Quota Mode apps still receive it.
    * @default false
    * @see https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide
    */
