@@ -26,9 +26,10 @@ export interface OAuthSpotifyConfig {
   scope?: string[]
   /**
    * Require email from user, adds the ['user-read-email'] scope if not present
+   *
+   * Since February 2026, Spotify only returns the email to Extended Quota Mode apps, not to Development Mode apps.
    * @default false
-   * @deprecated Since February 2026, Spotify only returns the email to Extended Quota Mode apps, not Development Mode apps
-   * @see https://developer.spotify.com/documentation/web-api/references/changes/february-2026#user
+   * @see https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide
    */
   emailRequired?: boolean
 
