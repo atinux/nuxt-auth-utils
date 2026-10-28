@@ -182,10 +182,10 @@ importers:
         specifier: ^4.6.0
         version: 4.6.2
       '@simplewebauthn/browser':
-        specifier: ^13.0.0
+        specifier: ^11.0.0 || ^13.0.0
         version: 13.3.0
       '@simplewebauthn/server':
-        specifier: ^13.0.0
+        specifier: ^11.0.0 || ^13.0.0
         version: 13.3.3
       defu:
         specifier: ^6.1.5

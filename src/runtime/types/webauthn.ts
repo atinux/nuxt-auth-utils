@@ -1,14 +1,18 @@
 import type { Ref } from 'vue'
 import type { H3Event, H3Error, ValidateResult } from 'h3'
 import type {
-  AuthenticationResponseJSON,
-  AuthenticatorTransportFuture, 
   GenerateAuthenticationOptionsOpts,
   GenerateRegistrationOptionsOpts,
-  RegistrationResponseJSON,
   VerifiedAuthenticationResponse,
   VerifiedRegistrationResponse,
+  verifyAuthenticationResponse,
+  verifyRegistrationResponse,
 } from '@simplewebauthn/server'
+
+// Derived from the function signatures so they resolve with both SimpleWebAuthn v11 (`@simplewebauthn/types`) and v13
+type RegistrationResponseJSON = Parameters<typeof verifyRegistrationResponse>[0]['response']
+type AuthenticationResponseJSON = Parameters<typeof verifyAuthenticationResponse>[0]['response']
+type AuthenticatorTransportFuture = NonNullable<Parameters<typeof verifyAuthenticationResponse>[0]['credential']['transports']>[number]
 
 export interface WebAuthnCredential {
   id: string
