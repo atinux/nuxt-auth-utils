@@ -53,6 +53,7 @@ declare module '#auth-utils' {
     osu?: string
     riotgames?: string
     wechat?: string
+    zendesk?: string
   }
 
   interface UserSession {
