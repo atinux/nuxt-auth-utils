@@ -8,7 +8,7 @@ import type { OAuthProvider, OnError } from '#auth-utils'
 import { createError } from '#imports'
 
 // Determine if we are in development mode
-const isDevelopment = process.env.NODE_ENV === 'development'
+export const isDevelopment = process.env.NODE_ENV === 'development'
 
 // OAuth cookie expiration time (10 minutes in seconds)
 const OAUTH_COOKIE_MAX_AGE = 60 * 10
@@ -66,9 +66,17 @@ export async function requestAccessToken<T = any>(url: string, options: RequestA
     body,
   }).catch((error) => {
     /**
-     * For a better error handling, only unauthorized errors are intercepted, and other errors are re-thrown.
+     * Per RFC 6749 §5.2 the token endpoint returns a 4xx status (usually 400,
+     * e.g. `invalid_grant`) with a structured `{ error }` body for OAuth
+     * failures — only `invalid_client` may use 401. Intercept any such
+     * structured error response so it is routed to `onError`, and re-throw
+     * everything else (network errors, 5xx, opaque non-OAuth responses).
      */
-    if (error instanceof FetchError && error.status === 401) {
+    if (
+      error instanceof FetchError
+      && error.status && error.status >= 400 && error.status < 500
+      && error.data?.error
+    ) {
       return error.data
     }
     throw error
@@ -83,7 +91,7 @@ export async function requestAccessToken<T = any>(url: string, options: RequestA
 // TODO: waiting for https://github.com/atinux/nuxt-auth-utils/pull/140
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleAccessTokenErrorResponse(event: H3Event, oauthProvider: OAuthProvider, oauthError: any, onError?: OnError) {
-  const message = `${upperFirst(oauthProvider)} login failed: ${oauthError.error_description || oauthError.error || 'Unknown error'}`
+  const message = `${upperFirst(oauthProvider)} login failed: ${oauthError.error_description || oauthError.error?.message || oauthError.error || 'Unknown error'}`
 
   const error = createError({
     statusCode: 401,
@@ -214,26 +222,32 @@ export async function handlePkceVerifier(event: H3Event) {
   }
   // If the verifier is in the cookie, get it from the cookie and delete the cookie
   const verifier = getCookie(event, 'nuxt-auth-pkce')
-  deleteCookie(event, 'nuxt-auth-pkce')
+  deleteCookie(event, 'nuxt-auth-pkce', { path: '/' })
 
   return { code_verifier: verifier }
 }
 
-export async function handleState(event: H3Event) {
-  const query = getQuery<{ state?: string }>(event)
-  // If the state is in the query, get it from the cookie and delete the cookie
-  if (query.state) {
+interface HandleStateOptions {
+  isCallback?: boolean
+  sameSite?: 'lax' | 'none' | 'strict'
+}
+
+export async function handleState(event: H3Event, options: HandleStateOptions = {}) {
+  const query = getQuery<{ code?: string }>(event)
+  const isCallback = options.isCallback ?? Boolean(query.code)
+
+  if (isCallback) {
     const state = getCookie(event, 'nuxt-auth-state')
-    deleteCookie(event, 'nuxt-auth-state')
+    deleteCookie(event, 'nuxt-auth-state', { path: '/' })
     return state
   }
 
-  // If the state is not in the query, generate a new state and set it in the cookie
-  const state = encodeBase64Url(getRandomBytes(8))
+  const state = encodeBase64Url(getRandomBytes())
+  const sameSite = options.sameSite || 'lax'
   setCookie(event, 'nuxt-auth-state', state, {
     httpOnly: true,
-    secure: !isDevelopment,
-    sameSite: 'lax',
+    secure: sameSite === 'none' || !isDevelopment,
+    sameSite,
     maxAge: OAUTH_COOKIE_MAX_AGE,
     path: '/',
   })
@@ -249,12 +263,12 @@ export function handleNonce(event: H3Event) {
   // If the code is in the query, get the nonce from the cookie and delete the cookie
   if (query.code) {
     const nonce = getCookie(event, 'nuxt-auth-nonce')
-    deleteCookie(event, 'nuxt-auth-nonce')
+    deleteCookie(event, 'nuxt-auth-nonce', { path: '/' })
     return nonce
   }
 
   // If the code is not in the query, generate a new nonce and set it in the cookie
-  const nonce = encodeBase64Url(getRandomBytes(8))
+  const nonce = encodeBase64Url(getRandomBytes())
   setCookie(event, 'nuxt-auth-nonce', nonce, {
     httpOnly: true,
     secure: !isDevelopment,
