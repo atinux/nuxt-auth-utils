@@ -64,7 +64,7 @@ export async function getUserSession(event: SessionEvent): Promise<UserSession> 
 export async function setUserSession(event: WritableSessionEvent, data: UserSessionData, config?: UserSessionConfig): Promise<UserSession> {
   const session = await _useSession(event, config, true)
 
-  await session.update(defu(data, session.data))
+  await session.update(defu(toJSONData(data), session.data))
 
   return session.data as UserSession
 }
@@ -82,7 +82,7 @@ export async function replaceUserSession(event: WritableSessionEvent, data: User
     for (const key of Object.keys(oldData)) {
       Reflect.deleteProperty(oldData, key)
     }
-    return data
+    return toJSONData(data)
   })
 
   return session.data as UserSession
@@ -146,6 +146,11 @@ async function _useSession(event: SessionEvent, config: UserSessionConfig = {}, 
   }
 
   return useSession<UserSessionData>(sessionEvent, finalConfig)
+}
+
+// The session is sealed as strict JSON: values such as `Date` are stored as their JSON form, as in v0.5
+function toJSONData<T>(data: T): T {
+  return JSON.parse(JSON.stringify(data))
 }
 
 const APP_SESSION_COOKIE_NAME = 'nuxt-session'

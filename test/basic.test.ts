@@ -92,6 +92,16 @@ describe('ssr', async () => {
     expect(session).toEqual({ userId: 'user', id: expect.any(String) })
   })
 
+  it('stores values such as dates in their JSON form', async () => {
+    const response = await fetch('/api/date-session')
+    const expected = { user: { createdAt: '2026-01-02T03:04:05.000Z' }, id: expect.any(String) }
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual(expected)
+
+    const cookie = getCookie(response, SESSION_COOKIE)!
+    expect(await $fetch('/api/_auth/session', { headers: { cookie } })).toEqual(expected)
+  })
+
   it('accepts the event of an h3 v1 handler', async () => {
     const response = await fetch('/api/h3-handler')
     const written = await response.json()
