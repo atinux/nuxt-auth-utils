@@ -27,7 +27,7 @@ export interface OAuthSpotifyConfig {
   /**
    * Require email from user, adds the ['user-read-email'] scope if not present
    * @default false
-   * @deprecated Spotify no longer returns the user's email since its February 2026 Web API changes
+   * @deprecated Since February 2026, Spotify only returns the email to Extended Quota Mode apps, not Development Mode apps
    * @see https://developer.spotify.com/documentation/web-api/references/changes/february-2026#user
    */
   emailRequired?: boolean
@@ -58,7 +58,9 @@ export interface OAuthSpotifyConfig {
 }
 
 interface SpotifyUser {
-  display_name: string
+  /** Stable identifier, recommended by Spotify for account linking instead of `id` */
+  account_id: string
+  display_name: string | null
   external_urls: {
     spotify: string
   }
@@ -66,26 +68,26 @@ interface SpotifyUser {
   id: string
   images: {
     url: string
-    height: number
-    width: number
+    height: number | null
+    width: number | null
   }[]
   type: string
   uri: string
-  /** @deprecated Removed by Spotify in February 2026 */
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
   country?: string
-  /** @deprecated Removed by Spotify in February 2026 */
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
   email?: string
-  /** @deprecated Removed by Spotify in February 2026 */
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
   explicit_content?: {
     filter_enabled: boolean
     filter_locked: boolean
   }
-  /** @deprecated Removed by Spotify in February 2026 */
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
   followers?: {
     href: string | null
     total: number
   }
-  /** @deprecated Removed by Spotify in February 2026 */
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
   product?: string
 }
 
