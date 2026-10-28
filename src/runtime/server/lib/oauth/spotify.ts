@@ -21,12 +21,14 @@ export interface OAuthSpotifyConfig {
    * Spotify OAuth Scope
    * @default []
    * @see https://developer.spotify.com/documentation/web-api/concepts/scopes
-   * @example ['user-read-email']
+   * @example ['playlist-read-private']
    */
   scope?: string[]
   /**
    * Require email from user, adds the ['user-read-email'] scope if not present
    * @default false
+   * @deprecated Since February 2026, Spotify only returns the email to Extended Quota Mode apps, not Development Mode apps
+   * @see https://developer.spotify.com/documentation/web-api/references/changes/february-2026#user
    */
   emailRequired?: boolean
 
@@ -55,7 +57,49 @@ export interface OAuthSpotifyConfig {
   redirectURL?: string
 }
 
-export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig>) {
+interface SpotifyUser {
+  /** Stable identifier, recommended by Spotify for account linking instead of `id` */
+  account_id: string
+  display_name: string | null
+  external_urls: {
+    spotify: string
+  }
+  href: string
+  id: string
+  images: {
+    url: string
+    height: number | null
+    width: number | null
+  }[]
+  type: string
+  uri: string
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
+  country?: string
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
+  email?: string
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
+  explicit_content?: {
+    filter_enabled: boolean
+    filter_locked: boolean
+  }
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
+  followers?: {
+    href: string | null
+    total: number
+  }
+  /** @deprecated Only returned to Extended Quota Mode apps since February 2026 */
+  product?: string
+}
+
+interface SpotifyTokens {
+  access_token: string
+  token_type: string
+  scope: string
+  expires_in: number
+  refresh_token: string
+}
+
+export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig, { user: SpotifyUser, tokens: SpotifyTokens }>) {
   return eventHandler(async (event: H3Event) => {
     config = defu(config, useRuntimeConfig(event).oauth?.spotify, {
       authorizationURL: 'https://accounts.spotify.com/authorize',
@@ -112,9 +156,7 @@ export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: O
 
     const accessToken = tokens.access_token
 
-    // TODO: improve typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await $fetch('https://api.spotify.com/v1/me', {
+    const user = await $fetch<SpotifyUser>('https://api.spotify.com/v1/me', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
