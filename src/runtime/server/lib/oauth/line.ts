@@ -104,7 +104,7 @@ export function defineOAuthLineEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'line', onError)
     }
 

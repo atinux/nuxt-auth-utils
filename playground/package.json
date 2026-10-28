@@ -14,7 +14,7 @@
     "@tsndr/cloudflare-worker-jwt": "^3.2.0",
     "@vueuse/core": "^14.1.0",
     "@vueuse/nuxt": "^14.1.0",
-    "nuxt": "^4.2.1",
+    "nuxt": "^4.6.0",
     "nuxt-auth-utils": "workspace:*",
     "zod": "^4.1.13"
   }

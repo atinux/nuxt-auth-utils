@@ -93,7 +93,7 @@ export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: O
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'zitadel', onError)
     }
 

@@ -96,7 +96,7 @@ export function defineOAuthGoogleEventHandler({
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'google', onError)
     }
 

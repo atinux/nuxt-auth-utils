@@ -100,7 +100,7 @@ export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAut
       )
     }
 
-    if (query.state !== state) {
+    if (!state || query.state !== state) {
       return handleInvalidState(event, 'kick', onError)
     }
 
