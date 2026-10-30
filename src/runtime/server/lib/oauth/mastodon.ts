@@ -1,10 +1,9 @@
-import type { H3Event } from 'h3'
-import { createError, deleteCookie, eventHandler, getCookie, getQuery, sendRedirect, setCookie } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { createError, defineEventHandler, deleteCookie, getCookie, getQuery, sendRedirect, setCookie, useRuntimeConfig } from 'nuxt/server'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { $fetch } from 'ofetch'
 import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleState, isDevelopment, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthMastodonConfig {
@@ -176,13 +175,13 @@ async function getOrRegisterApp(instance: string, redirectURL: string, scope: st
 }
 
 export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthMastodonConfig, { user: TUser, tokens: MastodonTokens }>) {
-  return eventHandler(async (event: H3Event) => {
+  return defineEventHandler(async (event: RequestEvent) => {
     // Merge into a fresh object each request instead of reassigning `userConfig`: defu concatenates
     // arrays, so reusing the same reference across requests would grow `scope` by one 'read' every time.
     // The default `scope` is applied manually (not through defu) for the same reason: defu concatenates
     // array values instead of letting a configured scope replace it, so `['read:accounts']` would
     // otherwise silently end up merged with the default into `['read:accounts', 'read']`.
-    const config: OAuthMastodonConfig = defu({}, userConfig, useRuntimeConfig(event).oauth?.mastodon, {
+    const config: OAuthMastodonConfig = defu({}, userConfig, useRuntimeConfig().oauth?.mastodon, {
       clientName: 'Nuxt Auth Utils',
     })
     config.scope ||= ['read']
@@ -191,7 +190,7 @@ export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ con
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Mastodon login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -207,7 +206,7 @@ export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ con
       const rawInstance = query.instance?.toString() || config.instance
       if (!rawInstance) {
         const error = createError({
-          statusCode: 400,
+          status: 400,
           message: 'Mastodon login failed: missing instance. Provide it via the `instance` query parameter (e.g. `/auth/mastodon?instance=mastodon.social`), a full handle (`@user@mastodon.social`), or the `instance` config/`NUXT_OAUTH_MASTODON_INSTANCE` env variable.',
         })
         if (!onError) throw error
@@ -218,7 +217,7 @@ export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ con
 
       if (!isPubliclyAddressableInstance(instance)) {
         const error = createError({
-          statusCode: 400,
+          status: 400,
           message: `Mastodon login failed: "${instance}" is not a valid instance domain.`,
         })
         if (!onError) throw error
@@ -231,7 +230,7 @@ export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ con
       }
       catch {
         const error = createError({
-          statusCode: 500,
+          status: 500,
           message: `Mastodon login failed: could not register the application with instance "${instance}". Make sure it is a reachable Mastodon (or compatible) server.`,
         })
         if (!onError) throw error
@@ -280,7 +279,7 @@ export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ con
     // The cookie is client-controlled, so re-check the instance before the server fetches it
     if (!flowState || !isPubliclyAddressableInstance(flowState.instance)) {
       const error = createError({
-        statusCode: 400,
+        status: 400,
         message: 'Mastodon login failed: could not recover the application credentials for this login (missing or invalid flow cookie, the flow may have taken too long or cookies are blocked).',
       })
       if (!onError) throw error

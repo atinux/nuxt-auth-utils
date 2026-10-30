@@ -26,11 +26,16 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
+  },
   "scripts": {
     "prepack": "nuxt-module-build prepare && nuxt-module-build build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "dev:v5": "pnpm install:nuxt5 && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground && nuxi dev playground",
+    "install:nuxt5": "pnpm install --config.pnpmfile=scripts/nuxt-nightly.cjs --config.lockfile=false --config.minimum-release-age-exclude=*-nightly",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
@@ -39,23 +44,22 @@
   },
   "dependencies": {
     "@adonisjs/hash": "^9.1.1",
-    "@nuxt/kit": "^4.3.1",
+    "@nuxt/kit": "^4.6.0",
     "@nuxt/schema": "^4.6.0",
     "defu": "^6.1.5",
-    "h3": "^1.15.9",
     "hookable": "^6.0.1",
     "jose": "^6.1.3",
     "ofetch": "^1.5.1",
     "openid-client": "^6.8.2",
-    "pathe": "^2.0.3",
     "scule": "^1.3.0",
+    "ufo": "^1.6.4",
     "uncrypto": "^0.1.3"
   },
   "peerDependencies": {
     "@atproto/api": "^0.13.15",
     "@atproto/oauth-client-node": "^0.2.0",
-    "@simplewebauthn/browser": "^11.0.0 || ^13.0.0",
-    "@simplewebauthn/server": "^11.0.0 || ^13.3.2"
+    "@simplewebauthn/browser": "^13.0.0",
+    "@simplewebauthn/server": "^13.3.2"
   },
   "peerDependenciesMeta": {
     "@simplewebauthn/browser": {

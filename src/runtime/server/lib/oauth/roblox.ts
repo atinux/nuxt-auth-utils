@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthRobloxConfig {
@@ -191,8 +191,8 @@ export interface OAuthRobloxUser {
 }
 
 export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthRobloxConfig>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.roblox, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.roblox, {
       authorizationURL: 'https://apis.roblox.com/oauth/v1/authorize',
       tokenURL: 'https://apis.roblox.com/oauth/v1/token',
       authorizationParams: {},

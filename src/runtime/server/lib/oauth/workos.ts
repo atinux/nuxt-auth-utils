@@ -1,9 +1,8 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, getRequestIP, getRequestHeader } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, getQuery, getRequestHeader, getRequestIP, sendRedirect, useRuntimeConfig } from 'nuxt/server'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 /**
@@ -73,8 +72,8 @@ export interface OAuthWorkOSTokens {
 }
 
 export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthWorkOSConfig, { user: OAuthWorkOSUser, tokens: OAuthWorkOSTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.workos, { screen_hint: 'sign-in' }) as OAuthWorkOSConfig
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.workos, { screen_hint: 'sign-in' }) as OAuthWorkOSConfig
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'workos', ['clientId', 'clientSecret'], onError)

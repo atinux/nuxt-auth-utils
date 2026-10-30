@@ -1,3 +1,5 @@
+import { sendRedirect } from 'nuxt/server'
+
 export default defineOAuthCloudflareEventHandler({
   config: {
     // Cloudflare has no default scope — set the client's registered API-permission ID(s)

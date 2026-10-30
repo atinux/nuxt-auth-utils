@@ -1,5 +1,6 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import {
@@ -8,7 +9,6 @@ import {
   handleMissingConfiguration,
   handleState,
 } from '../utils'
-import { createError, useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthWechatConfig {
@@ -97,9 +97,9 @@ function isWechatOAuthError(value: unknown): value is WechatOAuthError {
   )
 }
 
-function handleWechatOAuthError(event: H3Event, phase: 'token' | 'userinfo', oauthError: WechatOAuthError, onError?: OAuthConfig<OAuthWechatConfig>['onError']) {
+function handleWechatOAuthError(event: RequestEvent, phase: 'token' | 'userinfo', oauthError: WechatOAuthError, onError?: OAuthConfig<OAuthWechatConfig>['onError']) {
   const error = createError({
-    statusCode: 401,
+    status: 401,
     message: `WeChat ${phase} request failed: ${oauthError.errmsg} (${oauthError.errcode})`,
     data: oauthError,
   })
@@ -113,8 +113,8 @@ export function defineOAuthWechatEventHandler({
   onSuccess,
   onError,
 }: OAuthConfig<OAuthWechatConfig, { user: WechatOAuthUser, tokens: WechatOAuthTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.wechat, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.wechat, {
       authorizationURL: 'https://open.weixin.qq.com/connect/qrconnect',
       tokenURL: 'https://api.weixin.qq.com/sns/oauth2/access_token',
       userURL: 'https://api.weixin.qq.com/sns/userinfo',
@@ -125,7 +125,7 @@ export function defineOAuthWechatEventHandler({
 
     if (query.error) {
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `WeChat login failed: ${query.error || 'Unknown error'}`,
         data: query,
       })
@@ -143,7 +143,7 @@ export function defineOAuthWechatEventHandler({
     if (!query.code && query.state) {
       await handleState(event, { isCallback: true })
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: 'WeChat login failed: authorization denied',
         data: query,
       })

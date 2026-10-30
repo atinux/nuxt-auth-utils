@@ -1,4 +1,3 @@
-import { appendResponseHeader } from 'h3'
 import { useState, computed, useRequestFetch, useRequestEvent } from '#imports'
 import type { UserSession, UserSessionComposable } from '#auth-utils'
 
@@ -18,8 +17,11 @@ export function useUserSession(): UserSessionComposable {
       onResponse({ response: { headers } }: { response: { headers: Headers } }) {
         // Forward the Set-Cookie header to the main server event
         if (import.meta.server && serverEvent) {
+          // Nitro 3 events have web response headers, Nitro 2 (h3 v1) events the Node.js response
+          const res = serverEvent.res as { headers?: Headers, appendHeader?: (name: string, value: string) => void }
           for (const setCookie of headers.getSetCookie()) {
-            appendResponseHeader(serverEvent, 'Set-Cookie', setCookie)
+            if (res.headers) res.headers.append('set-cookie', setCookie)
+            else res.appendHeader?.('set-cookie', setCookie)
           }
         }
       },

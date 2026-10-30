@@ -1,3 +1,5 @@
+import { defineEventHandler, readBody } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const { operation, data } = await readBody(event)
   const result = operation === 'replace'

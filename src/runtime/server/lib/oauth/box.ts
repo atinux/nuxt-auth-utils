@@ -1,9 +1,9 @@
-import type { H3Event } from 'h3'
-import { eventHandler, getQuery, sendRedirect, createError } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleMissingConfiguration, handleState, requestAccessToken } from '../utils'
-import { useRuntimeConfig } from '#imports'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthBoxConfig {
@@ -99,8 +99,8 @@ interface OAuthBoxTokens {
  * @see https://www.postman.com/boxdev/box-s-public-workspace/collection/trhp912/box-platform-api
  */
 export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBoxConfig, { user: OAuthBoxUser, tokens: OAuthBoxTokens }>) {
-  return eventHandler(async (event: H3Event) => {
-    config = defu(config, useRuntimeConfig(event).oauth?.box, {
+  return defineEventHandler(async (event: RequestEvent) => {
+    config = defu(config, useRuntimeConfig().oauth?.box, {
       authorizationURL: 'https://account.box.com/api/oauth2/authorize',
       tokenURL: 'https://api.box.com/oauth2/token',
       userURL: 'https://api.box.com/2.0/users/me',
@@ -114,7 +114,7 @@ export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuth
       // @see https://developer.box.com/reference/resources/oauth2-error
       const errorMessageParts = [query.error, query.error_description].filter(Boolean).join(': ')
       const error = createError({
-        statusCode: 401,
+        status: 401,
         message: `Box login failed: ${errorMessageParts || 'Unknown error'}`,
         data: query,
       })
