@@ -202,6 +202,14 @@ describe('ssr', async () => {
     expect(state).not.toBe('configured-state-must-not-override-generated-state')
   })
 
+  it('sets the OAuth state cookie as Secure', async () => {
+    const response = await fetch('/auth/google', {
+      redirect: 'manual',
+    })
+
+    expect(response.headers.getSetCookie().find(c => c.startsWith('nuxt-auth-state='))).toMatch(/; Secure/i)
+  })
+
   it('uses the forwarded protocol in the OAuth redirect URI', async () => {
     const response = await fetch('/auth/google', {
       redirect: 'manual',

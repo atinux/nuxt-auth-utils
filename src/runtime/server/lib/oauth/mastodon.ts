@@ -3,7 +3,7 @@ import { createError, defineEventHandler, deleteCookie, getCookie, getQuery, sen
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
 import { $fetch } from 'ofetch'
-import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleState, isDevelopment, requestAccessToken } from '../utils'
+import { getOAuthRedirectURL, handleAccessTokenErrorResponse, handleInvalidState, handleState, isOAuthCookieSecure, requestAccessToken } from '../utils'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthMastodonConfig {
@@ -246,7 +246,7 @@ export function defineOAuthMastodonEventHandler<TUser = OAuthMastodonUser>({ con
       const flowState: MastodonFlowState = { instance, clientId: app.client_id, clientSecret: app.client_secret }
       setCookie(event, FLOW_COOKIE_NAME, btoa(JSON.stringify(flowState)), {
         httpOnly: true,
-        secure: !isDevelopment,
+        secure: isOAuthCookieSecure(),
         sameSite: 'lax',
         maxAge: 60 * 10,
         path: '/',

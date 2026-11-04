@@ -1,5 +1,5 @@
 import type { RequestEvent } from 'nuxt/server'
-import { createError, deleteCookie, getCookie, getQuery, getRequestURL, setCookie } from 'nuxt/server'
+import { createError, deleteCookie, getCookie, getQuery, getRequestURL, setCookie, useRuntimeConfig } from 'nuxt/server'
 import { $fetch, FetchError } from 'ofetch'
 import { snakeCase, upperFirst } from 'scule'
 import * as jose from 'jose'
@@ -8,6 +8,10 @@ import type { OAuthProvider, OnError } from '#auth-utils'
 
 // Determine if we are in development mode
 export const isDevelopment = process.env.NODE_ENV === 'development'
+
+export function isOAuthCookieSecure(): boolean {
+  return !isDevelopment && useRuntimeConfig().session.cookie?.secure !== false
+}
 
 // OAuth cookie expiration time (10 minutes in seconds)
 const OAUTH_COOKIE_MAX_AGE = 60 * 10
@@ -202,7 +206,7 @@ export async function handlePkceVerifier(event: RequestEvent) {
     const verifier = encodeBase64Url(getRandomBytes())
     setCookie(event, 'nuxt-auth-pkce', verifier, {
       httpOnly: true,
-      secure: !isDevelopment,
+      secure: isOAuthCookieSecure(),
       sameSite: 'lax',
       maxAge: OAUTH_COOKIE_MAX_AGE,
       path: '/',
@@ -245,7 +249,7 @@ export async function handleState(event: RequestEvent, options: HandleStateOptio
   const sameSite = options.sameSite || 'lax'
   setCookie(event, 'nuxt-auth-state', state, {
     httpOnly: true,
-    secure: sameSite === 'none' || !isDevelopment,
+    secure: sameSite === 'none' || isOAuthCookieSecure(),
     sameSite,
     maxAge: OAUTH_COOKIE_MAX_AGE,
     path: '/',
@@ -270,7 +274,7 @@ export function handleNonce(event: RequestEvent) {
   const nonce = encodeBase64Url(getRandomBytes())
   setCookie(event, 'nuxt-auth-nonce', nonce, {
     httpOnly: true,
-    secure: !isDevelopment,
+    secure: isOAuthCookieSecure(),
     sameSite: 'lax',
     maxAge: OAUTH_COOKIE_MAX_AGE,
     path: '/',
