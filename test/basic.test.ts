@@ -47,14 +47,10 @@ describe('ssr', async () => {
     expect(html).toContain('{&quot;fromNuxtServer&quot;:true}')
   })
 
-  it('returns an empty session', async () => {
+  it('returns an empty session without setting a cookie', async () => {
     const response = await fetch('/api/_auth/session')
-    const session = await response.json()
-    // Session should be an object with an `id` property
-    expect(session).toBeInstanceOf(Object)
-    expect(session).toHaveProperty('id')
-    expect(session).not.toHaveProperty('user')
-    expect(getCookie(response, SESSION_COOKIE)).toBeTruthy()
+    expect(await response.json()).toEqual({})
+    expect(response.headers.getSetCookie()).toEqual([])
   })
 
   it('shares the session between `nuxt/server` and `/api/_auth/session`', async () => {
