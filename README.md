@@ -899,6 +899,34 @@ export default defineNuxtConfig({
 
 The browser then sends the session cookie to every subdomain of `example.com`, and each application can decrypt it.
 
+## Serve over plain HTTP
+
+The OAuth event handlers set short-lived cookies for the state, nonce and PKCE verifier. They are `Secure` except in development. Browsers ignore `Secure` cookies set over plain HTTP, except on `localhost`, so logging in to a built app served over plain HTTP, for example in an end-to-end test stack, fails with `state mismatch`.
+
+When `runtimeConfig.session.cookie.secure` is `false`, both the session cookie and these cookies are set without `Secure`. Nuxt only overrides declared options from environment variables, so declare it in your `nuxt.config.ts` to switch it at runtime:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-auth-utils'],
+  runtimeConfig: {
+    session: {
+      cookie: {
+        secure: true
+      }
+    }
+  }
+})
+```
+
+Then start the built app with `NUXT_SESSION_COOKIE_SECURE=false`:
+
+```bash
+NUXT_SESSION_COOKIE_SECURE=false node .output/server/index.mjs
+```
+
+> [!WARNING]
+> Only do this when the app is served over plain HTTP: without `Secure`, the cookies can be read or overwritten on the network. A proxy that terminates TLS is not a reason to disable it, as `Secure` applies to the browser's connection.
+
 ## More
 
 - [nuxt-authorization](https://github.com/barbapapazes/nuxt-authorization): Authorization module for managing permissions inside a Nuxt app, compatible with `nuxt-auth-utils`
