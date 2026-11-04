@@ -18,7 +18,7 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
   onError,
 }: WebAuthnAuthenticateEventHandlerOptions<T>): EventHandler {
   return defineEventHandler(async (event) => {
-    const url = getRequestURL(event)
+    const url = getRequestURL(event, { xForwardedProto: true })
     const body = await readBody<AuthenticationBody>(event)
     const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig().webauthn.authenticate, {
       rpID: url.hostname,
