@@ -638,6 +638,7 @@ We leverage hooks to let you extend the session data with your own data or log w
 export default () => {
   // Called when the session is fetched during SSR for the Vue composable (/api/_auth/session)
   // Or when we call useUserSession().fetch()
+  // Not called for a visitor without a session cookie: they get an empty session and no cookie is set
   sessionHooks.hook('fetch', async (session, event) => {
     // extend User Session by calling your database
     // or

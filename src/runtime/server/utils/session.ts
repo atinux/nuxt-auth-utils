@@ -1,14 +1,12 @@
 import type { RequestEvent, SessionConfig } from 'nuxt/server'
-import { createError, defineEventHandler, useRuntimeConfig, useSession } from 'nuxt/server'
+import { createError, defineEventHandler, useSession } from 'nuxt/server'
 import { defu } from 'defu'
 import { createHooks } from 'hookable'
 import type { OmitWithIndexSignature } from '../../types/utils'
+import { resolveSessionConfig } from '../lib/session'
 import type { LegacyH3Event, SessionEvent, UserSession, UserSessionRequired } from '#auth-utils'
 
-/**
- * Name of the cookie the user session is sealed into.
- */
-export const USER_SESSION_COOKIE_NAME = 'nuxt-auth-session'
+export { USER_SESSION_COOKIE_NAME } from '../lib/session'
 
 type UserSessionData = OmitWithIndexSignature<UserSession, 'id'>
 
@@ -134,32 +132,12 @@ async function _useSession(event: SessionEvent, config: UserSessionConfig = {}, 
       message: '[nuxt-auth-utils] The user session is read-only in WebSocket handlers: `setUserSession`, `replaceUserSession` and `clearUserSession` need the event of an HTTP request.',
     })
   }
-  const runtimeConfig = useRuntimeConfig()
-  warnLegacySessionPassword(runtimeConfig)
-
-  // The session is sealed with a secret derived from `appSecret` (`NUXT_APP_SECRET`)
-  const { password: _password, ...finalConfig } = defu(config, runtimeConfig.session, { name: USER_SESSION_COOKIE_NAME }) as SessionConfig
-  // `nuxt-session` is the cookie of the app's own `useSession()`: sharing it would mix both sessions
-  if (finalConfig.name === APP_SESSION_COOKIE_NAME) {
-    warnAppSessionName()
-    finalConfig.name = USER_SESSION_COOKIE_NAME
-  }
-
-  return useSession<UserSessionData>(sessionEvent, finalConfig)
+  return useSession<UserSessionData>(sessionEvent, resolveSessionConfig(config))
 }
 
 // The session is sealed as strict JSON: values such as `Date` are stored as their JSON form, as in v0.5
 function toJSONData<T>(data: T): T {
   return JSON.parse(JSON.stringify(data))
-}
-
-const APP_SESSION_COOKIE_NAME = 'nuxt-session'
-let warnedAppSessionName = false
-
-function warnAppSessionName() {
-  if (warnedAppSessionName) return
-  warnedAppSessionName = true
-  console.warn(`[nuxt-auth-utils] The session name \`${APP_SESSION_COOKIE_NAME}\` is the cookie of \`useSession()\` from \`nuxt/server\`, using \`${USER_SESSION_COOKIE_NAME}\` instead. Set another \`runtimeConfig.session.name\` (\`NUXT_SESSION_NAME\`) to rename the user session cookie.`)
 }
 
 // Gives the event of an h3 v1 handler in the shape of a `nuxt/server` handler.
@@ -193,17 +171,4 @@ function toSessionEvent(event: SessionEvent): { event: SessionRequestEvent, webS
     status: 500,
     message: '[nuxt-auth-utils] The session utils need a request event, a WebSocket peer or a WebSocket upgrade request.',
   })
-}
-
-let checkedLegacySessionPassword = false
-
-function warnLegacySessionPassword(runtimeConfig: ReturnType<typeof useRuntimeConfig>) {
-  if (checkedLegacySessionPassword) return
-  checkedLegacySessionPassword = true
-
-  const envPrefix = (runtimeConfig as { nitro?: { envPrefix?: string } }).nitro?.envPrefix || 'NUXT_'
-  const envKey = `${envPrefix}SESSION_PASSWORD`
-  if (globalThis.process?.env?.[envKey] || (runtimeConfig.session as SessionConfig | undefined)?.password) {
-    console.warn(`[nuxt-auth-utils] \`${envKey}\` (\`runtimeConfig.session.password\`) is not used anymore. Set \`NUXT_APP_SECRET\` instead, for example with \`openssl rand -base64 32\`. Sessions are now sealed with a secret derived from \`appSecret\`.`)
-  }
 }

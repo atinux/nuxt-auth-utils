@@ -15,5 +15,8 @@ describe('with NUXT_SESSION_NAME', async () => {
     const login = await fetch('/api/nuxt-server')
     expect(getCookie(login, 'custom-session')).toBeDefined()
     expect(getCookie(login, 'nuxt-auth-session')).toBeUndefined()
+
+    const session = await fetch('/api/_auth/session', { headers: { cookie: getCookie(login, 'custom-session')! } })
+    expect(await session.json()).toEqual({ user: { fromNuxtServer: true }, id: expect.any(String) })
   })
 })

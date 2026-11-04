@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
-import { setup, fetch } from '@nuxt/test-utils'
+import { setup, fetch, $fetch } from '@nuxt/test-utils'
 
 const rootDir = fileURLToPath(new URL('./fixtures/basic', import.meta.url))
 
@@ -15,6 +15,7 @@ describe('with the session name of `useSession()`', async () => {
     const login = await fetch('/api/nuxt-server')
     const userCookie = getCookie(login, 'nuxt-auth-session')!
     expect(userCookie).toBeDefined()
+    expect(await $fetch('/api/_auth/session', { headers: { cookie: userCookie } })).toEqual({ user: { fromNuxtServer: true }, id: expect.any(String) })
 
     const visit = await fetch('/api/app-session', { headers: { cookie: userCookie } })
     const appCookie = getCookie(visit, 'nuxt-session')!

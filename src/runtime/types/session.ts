@@ -1,4 +1,5 @@
 import type { ComputedRef, Ref } from 'vue'
+import type { OmitWithIndexSignature } from './utils'
 
 export interface User {
 }
@@ -43,9 +44,9 @@ export interface UserSessionComposable {
    */
   user: ComputedRef<User | null>
   /**
-   * The session object.
+   * The session object, without `id` for a visitor who has no session yet.
    */
-  session: Ref<UserSession | null>
+  session: Ref<(OmitWithIndexSignature<UserSession, 'id'> & { id?: string }) | null>
   /**
    * Fetch the user session from the server.
    */

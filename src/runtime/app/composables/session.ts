@@ -1,5 +1,5 @@
 import { useState, computed, useRequestFetch, useRequestEvent } from '#imports'
-import type { UserSession, UserSessionComposable } from '#auth-utils'
+import type { UserSessionComposable } from '#auth-utils'
 
 /**
  * Composable to get back the user session and utils around it.
@@ -7,7 +7,7 @@ import type { UserSession, UserSessionComposable } from '#auth-utils'
  */
 export function useUserSession(): UserSessionComposable {
   const serverEvent = import.meta.server ? useRequestEvent() : null
-  const sessionState = useState<UserSession | null>('nuxt-session', () => null)
+  const sessionState = useState<UserSessionComposable['session']['value']>('nuxt-session', () => null)
   const authReadyState = useState('nuxt-auth-ready', () => false)
   const requestFetch = useRequestFetch()
 
@@ -30,7 +30,7 @@ export function useUserSession(): UserSessionComposable {
   }
 
   const fetch = async () => {
-    sessionState.value = await requestFetch<UserSession>('/api/_auth/session', {
+    sessionState.value = await requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
       headers: {
         accept: 'application/json',
       },
