@@ -210,6 +210,16 @@ describe('ssr', async () => {
     expect(response.headers.getSetCookie().find(c => c.startsWith('nuxt-auth-state='))).toMatch(/; Secure/i)
   })
 
+  it('uses the forwarded protocol in the OAuth redirect URI', async () => {
+    const response = await fetch('/auth/google', {
+      redirect: 'manual',
+      headers: { 'x-forwarded-proto': 'https' },
+    })
+    const location = new URL(response.headers.get('location')!)
+
+    expect(location.searchParams.get('redirect_uri')).toMatch(/^https:\/\/[^/]+\/auth\/google$/)
+  })
+
   it('rejects OAuth callbacks without matching browser state', async () => {
     const response = await $fetch<{ success: boolean, error: string }>('/auth/google', {
       query: {

@@ -18,7 +18,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
   onError,
 }: WebAuthnRegisterEventHandlerOptions<T>): EventHandler {
   return defineEventHandler(async (event) => {
-    const url = getRequestURL(event)
+    const url = getRequestURL(event, { xForwardedProto: true })
     const body = await readBody<RegistrationBody<T>>(event)
     if (body.verify === undefined || !body.user?.userName)
       throw createError({

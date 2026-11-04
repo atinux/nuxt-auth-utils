@@ -17,7 +17,7 @@ export function isOAuthCookieSecure(): boolean {
 const OAUTH_COOKIE_MAX_AGE = 60 * 10
 
 export function getOAuthRedirectURL(event: RequestEvent): string {
-  const requestURL = getRequestURL(event)
+  const requestURL = getRequestURL(event, { xForwardedProto: true })
 
   return `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
 }
