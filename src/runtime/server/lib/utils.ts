@@ -1,16 +1,17 @@
 import type { RequestEvent } from 'nuxt/server'
-import { createError, deleteCookie, getCookie, getQuery, getRequestURL, setCookie, useRuntimeConfig } from 'nuxt/server'
+import { createError, deleteCookie, getCookie, getQuery, getRequestURL, setCookie } from 'nuxt/server'
 import { $fetch, FetchError } from 'ofetch'
 import { snakeCase, upperFirst } from 'scule'
 import * as jose from 'jose'
 import { subtle, getRandomValues } from 'uncrypto'
 import type { OAuthProvider, OnError } from '#auth-utils'
+import { resolveSessionConfig } from './session'
 
 // Determine if we are in development mode
 export const isDevelopment = process.env.NODE_ENV === 'development'
 
 export function isOAuthCookieSecure(): boolean {
-  return !isDevelopment && useRuntimeConfig().session.cookie?.secure !== false
+  return !isDevelopment && resolveSessionConfig().cookie?.secure !== false
 }
 
 // OAuth cookie expiration time (10 minutes in seconds)
