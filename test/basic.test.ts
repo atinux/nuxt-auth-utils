@@ -202,6 +202,16 @@ describe('ssr', async () => {
     expect(state).not.toBe('configured-state-must-not-override-generated-state')
   })
 
+  it('uses the forwarded protocol in the OAuth redirect URI', async () => {
+    const response = await fetch('/auth/google', {
+      redirect: 'manual',
+      headers: { 'x-forwarded-proto': 'https' },
+    })
+    const location = new URL(response.headers.get('location')!)
+
+    expect(location.searchParams.get('redirect_uri')).toMatch(/^https:\/\/[^/]+\/auth\/google$/)
+  })
+
   it('rejects OAuth callbacks without matching browser state', async () => {
     const response = await $fetch<{ success: boolean, error: string }>('/auth/google', {
       query: {

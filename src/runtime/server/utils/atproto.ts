@@ -18,7 +18,7 @@ export function getAtprotoClientMetadata(
 
   const grantTypes = [...new Set(['authorization_code', ...providerRuntimeConfig.grantTypes ?? []])] as [OAuthGrantType, ...OAuthGrantType[]]
 
-  const requestURL = getRequestURL(event)
+  const requestURL = getRequestURL(event, { xForwardedProto: true })
   const baseUrl = `${requestURL.protocol}//${requestURL.host}`
 
   /**

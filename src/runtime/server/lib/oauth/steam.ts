@@ -38,10 +38,10 @@ export function defineOAuthSteamEventHandler({ config, onSuccess, onError }: OAu
       return handleMissingConfiguration(event, 'steam', ['apiKey'], onError)
     }
 
-    const url = getRequestURL(event)
+    const url = getRequestURL(event, { xForwardedProto: true })
     const state = await handleState(event, { isCallback: Boolean(query['openid.claimed_id']) })
     if (!query['openid.claimed_id']) {
-      const redirectURL = withQuery(config.redirectURL || getRequestURL(event).href, { state })
+      const redirectURL = withQuery(config.redirectURL || url.href, { state })
       const realm = url.port ? `${url.protocol}//${url.hostname}:${url.port}` : `${url.protocol}//${url.hostname}`
       const steamOpenIdParams = {
         'openid.ns': 'http://specs.openid.net/auth/2.0',
