@@ -23,6 +23,10 @@ export function resolveSessionConfig(config: Omit<SessionConfig, 'password'> = {
     warnAppSessionName()
     finalConfig.name = USER_SESSION_COOKIE_NAME
   }
+  // Nitro 3 keeps environment overrides as strings: `NUXT_SESSION_COOKIE_SECURE=false` gives `'false'`
+  if ((finalConfig.cookie?.secure as unknown) === 'false') {
+    finalConfig.cookie = { ...finalConfig.cookie, secure: false }
+  }
 
   return finalConfig
 }
