@@ -1,4 +1,5 @@
 import type { ScryptConfig } from '@adonisjs/hash/types'
+import type { GenerateAuthenticationOptionsOpts, GenerateRegistrationOptionsOpts } from '@simplewebauthn/server'
 import {
   addComponentsDir,
   addImports,
@@ -16,13 +17,28 @@ import type { SessionConfig } from 'nuxt/server'
 import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
 import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
 
+export interface WebAuthnOptions {
+  /**
+   * Relying Party ID the passkeys are bound to.
+   *
+   * Set the registrable parent domain (such as `example.com`) to create and use passkeys across subdomains.
+   * @default the request hostname
+   */
+  rpID?: string
+  /**
+   * Relying Party name shown by the authenticator when creating a passkey
+   * @default the request hostname
+   */
+  rpName?: string
+}
+
 // Module options TypeScript interface definition
 export interface ModuleOptions {
   /**
    * Enable WebAuthn (Passkeys)
    * @default false
    */
-  webAuthn?: boolean
+  webAuthn?: boolean | WebAuthnOptions
   /**
    * Enable atproto OAuth (Bluesky, etc.)
    * @default false
@@ -53,6 +69,20 @@ declare module 'nuxt/schema' {
      * Session configuration, the session is sealed with a secret derived from `appSecret` (`NUXT_APP_SECRET`)
      */
     session: Omit<SessionConfig, 'password'>
+    /**
+     * WebAuthn settings, `rpID` and `rpName` are set from the `webAuthn` module option.
+     *
+     * Both can be overridden at runtime with `NUXT_WEBAUTHN_RP_ID` and `NUXT_WEBAUTHN_RP_NAME`.
+     *
+     * `register` and `authenticate` are merged into the options passed to
+     * `generateRegistrationOptions()` and `generateAuthenticationOptions()`.
+     */
+    webauthn: {
+      rpID: string
+      rpName: string
+      register: Partial<GenerateRegistrationOptionsOpts>
+      authenticate: Partial<GenerateAuthenticationOptionsOpts>
+    }
   }
 
   interface PublicRuntimeConfig {
@@ -169,7 +199,10 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // WebAuthn settings
+    const webAuthnOptions = typeof options.webAuthn === 'object' ? options.webAuthn : undefined
     runtimeConfig.webauthn = defu(runtimeConfig.webauthn, {
+      rpID: webAuthnOptions?.rpID ?? '',
+      rpName: webAuthnOptions?.rpName ?? '',
       register: {},
       authenticate: {},
     })

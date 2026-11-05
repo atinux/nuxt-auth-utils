@@ -31,9 +31,10 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
       user = await validateUserData(body.user, event, validateUser)
     }
 
-    const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig().webauthn.register, {
-      rpID: url.hostname,
-      rpName: url.hostname,
+    const runtimeConfig = useRuntimeConfig()
+    const _config = defu(await getOptions?.(event, body) ?? {}, runtimeConfig.webauthn.register, {
+      rpID: runtimeConfig.webauthn.rpID || url.hostname,
+      rpName: runtimeConfig.webauthn.rpName || url.hostname,
       userName: user.userName,
       userDisplayName: user.displayName,
       authenticatorSelection: {
@@ -81,7 +82,7 @@ export function defineWebAuthnRegisterEventHandler<T extends WebAuthnUser>({
         response: body.response,
         expectedChallenge,
         expectedOrigin: url.origin,
-        expectedRPID: url.hostname,
+        expectedRPID: _config.rpID,
         requireUserVerification: false, // TODO: make configurable https://simplewebauthn.dev/docs/advanced/passkeys#verifyregistrationresponse
         supportedAlgorithmIDs: _config.supportedAlgorithmIDs,
       })
