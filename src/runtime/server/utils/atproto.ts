@@ -29,7 +29,7 @@ export function getAtprotoClientMetadata(
    */
   const redirectURL = new URL(
     (config?.redirectUrl && baseUrl + config.redirectUrl)
-    || (providerRuntimeConfig.redirectUris[0] && baseUrl + providerRuntimeConfig.redirectUris[0])
+    || (providerRuntimeConfig.redirectUris?.[0] && baseUrl + providerRuntimeConfig.redirectUris[0])
     || getOAuthRedirectURL(event),
   )
 
@@ -38,7 +38,7 @@ export function getAtprotoClientMetadata(
     // For local development, Bluesky authorization servers allow "http://127.0.0.1" as a special value for redirect URIs
     redirectURL.hostname = '127.0.0.1'
   }
-  const redirectUris = (providerRuntimeConfig.redirectUris.length ? providerRuntimeConfig.redirectUris : [requestURL.pathname])
+  const redirectUris = (providerRuntimeConfig.redirectUris?.length ? providerRuntimeConfig.redirectUris : [requestURL.pathname])
     .map(uri => new URL(`${redirectURL.protocol}//${redirectURL.host}${uri}`).toString()) as [string, ...string[]]
 
   const clientId = dev

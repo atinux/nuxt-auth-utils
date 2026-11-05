@@ -80,7 +80,7 @@ export function defineOAuthHerokuEventHandler({
     const state = await handleState(event)
 
     if (!query.code) {
-      config.scope = config.scope || ['identity']
+      config.scope = config.scope?.length ? config.scope : ['identity']
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {

@@ -14,8 +14,7 @@ export const atprotoProviderDefaultClientMetadata: AtprotoProviderClientMetadata
   grantTypes: ['authorization_code'],
   responseTypes: ['code'],
   applicationType: 'web',
-  // @ts-expect-error TypeScript is too smart for its own good
-  redirectUris: undefined,
+  redirectUris: [],
   dpopBoundAccessTokens: true as const,
   tokenEndpointAuthMethod: 'none',
 }

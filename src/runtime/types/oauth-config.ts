@@ -6,6 +6,20 @@ export type OAuthProvider = ATProtoProvider | 'atlassian' | 'auth0' | 'authentik
 
 export type OnError = (event: RequestEvent, error: NuxtError) => unknown
 
+/**
+ * Augment this interface to type the runtime configuration of OAuth providers that are not
+ * shipped with the module, such as providers added by another module.
+ *
+ * ```ts
+ * declare module '#auth-utils' {
+ *   interface OAuthRuntimeConfigExtension {
+ *     myProvider: { clientId: string, clientSecret: string }
+ *   }
+ * }
+ * ```
+ */
+export interface OAuthRuntimeConfigExtension {}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface OAuthConfig<TConfig, TResult = { user: any, tokens: any }> {
   config?: TConfig
