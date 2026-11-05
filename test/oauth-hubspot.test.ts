@@ -48,9 +48,10 @@ vi.mock('../src/runtime/server/lib/utils', async importOriginal => ({
 }))
 
 /** Records the requests the handler sends to the HubSpot API and answers them from `introspect`. */
-function stubHubspotApi(introspect: unknown) {
+function stubHubspotApi(introspect: unknown, introspectStatus = 200) {
   vi.stubGlobal('fetch', async (input: RequestInfo | URL, init?: RequestInit) => {
     const request = new Request(input, init)
+    const isIntrospect = request.url.endsWith('/introspect')
     upstreamRequests.push({
       url: request.url,
       method: request.method,
@@ -58,8 +59,8 @@ function stubHubspotApi(introspect: unknown) {
       body: Object.fromEntries(new URLSearchParams(await request.text())),
     })
 
-    return new Response(JSON.stringify(request.url.endsWith('/introspect') ? introspect : tokenResponse), {
-      status: 200,
+    return new Response(JSON.stringify(isIntrospect ? introspect : tokenResponse), {
+      status: isIntrospect ? introspectStatus : 200,
       headers: { 'content-type': 'application/json' },
     })
   })
@@ -142,5 +143,16 @@ describe('hubspot login flow', () => {
 
     expect(onSuccess).not.toHaveBeenCalled()
     expect(onError).toHaveBeenCalledOnce()
+    expect(onError.mock.calls[0]![1]).toMatchObject({ message: 'Hubspot login failed: token is invalid' })
+  })
+
+  it('reports a rejected introspection request through onError', async () => {
+    stubHubspotApi({ error: 'invalid_client', error_description: 'client authentication failed' }, 400)
+    const { onSuccess, onError, login } = runLogin()
+    await login({})
+
+    expect(onSuccess).not.toHaveBeenCalled()
+    expect(onError).toHaveBeenCalledOnce()
+    expect(onError.mock.calls[0]![1]).toMatchObject({ message: 'Hubspot login failed: client authentication failed' })
   })
 })
