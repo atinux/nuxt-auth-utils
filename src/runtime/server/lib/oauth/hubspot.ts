@@ -1,6 +1,5 @@
 import type { RequestEvent } from 'nuxt/server'
-import { defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
-import { $fetch } from 'ofetch'
+import { createError, defineEventHandler, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
 import { withQuery } from 'ufo'
 import defu from 'defu'
 import {
@@ -56,7 +55,9 @@ interface SignedAccessToken {
 }
 
 interface OAuthHubspotAccessInfo {
+  active: boolean
   token: string
+  client_id: string
   user: string
   hub_domain: string
   scopes: string[]
@@ -65,6 +66,8 @@ interface OAuthHubspotAccessInfo {
   app_id: number
   expires_in: number
   user_id: number
+  is_private_distribution?: boolean
+  token_use: 'access_token'
   token_type: string
 }
 
@@ -102,7 +105,7 @@ export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: O
     }
 
     const tokens = await requestAccessToken(
-      'https://api.hubapi.com/oauth/v1/token', {
+      'https://api.hubapi.com/oauth/2026-09/token', {
         body: {
           client_id: config.clientId,
           client_secret: config.clientSecret,
@@ -116,7 +119,32 @@ export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: O
       return handleAccessTokenErrorResponse(event, 'hubspot', tokens, onError)
     }
 
-    const info: OAuthHubspotAccessInfo = await $fetch('https://api.hubapi.com/oauth/v1/access-tokens/' + tokens.access_token)
+    // The v1 `GET /oauth/v1/access-tokens/{token}` endpoint is deprecated in favor of token introspection.
+    // @see https://developers.hubspot.com/docs/api-reference/legacy/authentication/oauth-tokens/v1/migration-guide
+    const info = await requestAccessToken<OAuthHubspotAccessInfo & { error?: string }>(
+      'https://api.hubapi.com/oauth/2026-09/token/introspect', {
+        params: {
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          token: tokens.access_token,
+          token_type_hint: 'access_token',
+        },
+      })
+
+    if (info.error) {
+      return handleAccessTokenErrorResponse(event, 'hubspot', info, onError)
+    }
+
+    // Introspection answers `{ active: false }` for an unknown token instead of failing
+    if (!info.active) {
+      const error = createError({
+        status: 401,
+        message: 'Hubspot login failed: the access token is not active',
+        data: info,
+      })
+      if (!onError) throw error
+      return onError(event, error)
+    }
 
     return onSuccess(event, {
       user: {
