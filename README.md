@@ -965,13 +965,13 @@ Releases are automated with [uppt](https://github.com/danielroe/uppt): every pus
 
 <!-- Badges -->
 [npm-version-src]: https://img.shields.io/npm/v/nuxt-auth-utils/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/nuxt-auth-utils
+[npm-version-href]: https://npmx.dev/package/nuxt-auth-utils
 
 [npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-auth-utils.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npm.chart.dev/nuxt-auth-utils
+[npm-downloads-href]: https://npmx.dev/package-stats/nuxt-auth-utils/v/latest?granularity=monthly
 
 [license-src]: https://img.shields.io/npm/l/nuxt-auth-utils.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/nuxt-auth-utils
+[license-href]: https://github.com/atinux/nuxt-auth-utils/blob/main/LICENSE
 
 [nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
 [nuxt-href]: https://nuxt.com
