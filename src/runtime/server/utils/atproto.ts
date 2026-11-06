@@ -1,9 +1,9 @@
 import type { RequestEvent } from 'nuxt/server'
 import type { OAuthClientMetadataInput, OAuthGrantType } from '@atproto/oauth-client-node'
 import { getRequestURL, useRuntimeConfig } from 'nuxt/server'
+import { withBase } from 'ufo'
 import type { AtprotoProviderClientMetadata } from '../../types/atproto'
 import type { OAuthBlueskyConfig } from '../lib/atproto/bluesky'
-import { getOAuthRedirectURL } from '../lib/utils'
 import { getClientMetadataFilename } from '../../utils/atproto'
 import type { ATProtoProvider, OAuthConfig } from '#auth-utils'
 
@@ -12,7 +12,8 @@ export function getAtprotoClientMetadata(
   provider: ATProtoProvider,
   config?: OAuthConfig<OAuthBlueskyConfig>['config'],
 ): OAuthClientMetadataInput {
-  const providerRuntimeConfig: AtprotoProviderClientMetadata = useRuntimeConfig().oauth[provider] as AtprotoProviderClientMetadata
+  const runtimeConfig = useRuntimeConfig()
+  const providerRuntimeConfig: AtprotoProviderClientMetadata = runtimeConfig.oauth[provider] as AtprotoProviderClientMetadata
   const scopes = [...new Set(['atproto', ...config?.scope ?? [], ...providerRuntimeConfig.scope ?? []])]
   const scope = scopes.join(' ')
 
@@ -21,16 +22,20 @@ export function getAtprotoClientMetadata(
   const requestURL = getRequestURL(event, { xForwardedProto: true })
   const baseUrl = `${requestURL.protocol}//${requestURL.host}`
 
+  // The login route is served under the app base URL, which can be set at runtime (`NUXT_APP_BASE_URL`),
+  // so the conventional callback path is resolved here rather than baked into the runtime config.
+  const callbackPath = withBase(`/auth/${provider}`, runtimeConfig.app.baseURL) as `/${string}`
+
   /**
    * The redirect URL must be a valid URL, so we need to parse it to ensure it is correct. Will use the following order:
    * 1. URL provided as part of the config of the event handler, on the condition that it was listed in the redirect URIs.
    * 2. First URL provided in the runtime config.
-   * 3. The URL of the current request.
+   * 3. The conventional callback path.
    */
   const redirectURL = new URL(
     (config?.redirectUrl && baseUrl + config.redirectUrl)
     || (providerRuntimeConfig.redirectUris?.[0] && baseUrl + providerRuntimeConfig.redirectUris[0])
-    || getOAuthRedirectURL(event),
+    || baseUrl + callbackPath,
   )
 
   const dev = import.meta.dev
@@ -38,13 +43,13 @@ export function getAtprotoClientMetadata(
     // For local development, Bluesky authorization servers allow "http://127.0.0.1" as a special value for redirect URIs
     redirectURL.hostname = '127.0.0.1'
   }
-  const redirectUris = (providerRuntimeConfig.redirectUris?.length ? providerRuntimeConfig.redirectUris : [requestURL.pathname])
+  const redirectUris = (providerRuntimeConfig.redirectUris?.length ? providerRuntimeConfig.redirectUris : [callbackPath])
     .map(uri => new URL(`${redirectURL.protocol}//${redirectURL.host}${uri}`).toString()) as [string, ...string[]]
 
   const clientId = dev
     // For local development, Bluesky authorization servers allow "http://localhost" as a special value for the client
     ? `http://localhost?redirect_uri=${encodeURIComponent(redirectURL.toString())}&scope=${encodeURIComponent(scope)}`
-    : `${baseUrl}/${getClientMetadataFilename('bluesky', providerRuntimeConfig)}`
+    : `${baseUrl}${withBase(`/${getClientMetadataFilename('bluesky', providerRuntimeConfig)}`, runtimeConfig.app.baseURL)}`
 
   const clientMetadata: OAuthClientMetadataInput = {
     client_name: providerRuntimeConfig.clientName || undefined,
