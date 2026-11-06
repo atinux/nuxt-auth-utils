@@ -420,7 +420,7 @@ The module fills in `/auth/<provider>`, the path its playground uses, under that
 app.baseURL: '/my-app/'  ->  redirect_uris: ["https://example.com/my-app/auth/bluesky"]
 ```
 
-Set `redirectUris` when your login route lives elsewhere. Both requests then use it:
+Set `redirectUris` when your login route lives elsewhere; until you do, the module logs a warning in development. Both requests then use it:
 
 ```ts
 export default defineNuxtConfig({

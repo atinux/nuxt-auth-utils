@@ -59,7 +59,7 @@ export type AtprotoProviderClientMetadata = {
   /**
    * At least one redirect URI is required. The URL origin must match that of the `clientId`, so declare only the path.
    *
-   * Empty by default, in which case the path of the current request is used.
+   * Empty by default, in which case `/auth/<provider>` under the app base URL is used.
    * @example ['/auth/callback']
    */
   redirectUris?: `/${string}`[]

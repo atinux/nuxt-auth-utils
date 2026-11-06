@@ -28,7 +28,7 @@ export function getAtprotoClientMetadata(
 
   /**
    * The redirect URL must be a valid URL, so we need to parse it to ensure it is correct. Will use the following order:
-   * 1. URL provided as part of the config of the event handler, on the condition that it was listed in the redirect URIs.
+   * 1. URL provided as part of the config of the event handler. It must also be listed in the redirect URIs, which is not checked here.
    * 2. First URL provided in the runtime config.
    * 3. The conventional callback path.
    */
@@ -49,7 +49,7 @@ export function getAtprotoClientMetadata(
   const clientId = dev
     // For local development, Bluesky authorization servers allow "http://localhost" as a special value for the client
     ? `http://localhost?redirect_uri=${encodeURIComponent(redirectURL.toString())}&scope=${encodeURIComponent(scope)}`
-    : `${baseUrl}${withBase(`/${getClientMetadataFilename('bluesky', providerRuntimeConfig)}`, runtimeConfig.app.baseURL)}`
+    : `${baseUrl}${withBase(`/${getClientMetadataFilename(provider, providerRuntimeConfig)}`, runtimeConfig.app.baseURL)}`
 
   const clientMetadata: OAuthClientMetadataInput = {
     client_name: providerRuntimeConfig.clientName || undefined,
