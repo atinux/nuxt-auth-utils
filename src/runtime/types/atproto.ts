@@ -1,6 +1,6 @@
 import type { OAuthClientMetadata } from '@atproto/oauth-client-node'
 
-export interface AtprotoProviderClientMetadata {
+export type AtprotoProviderClientMetadata = {
   /**
    * The name of the client metadata file. This is used to construct the client ID.
    * @example 'client-metadata.json'
@@ -58,9 +58,11 @@ export interface AtprotoProviderClientMetadata {
 
   /**
    * At least one redirect URI is required. The URL origin must match that of the `clientId`, so declare only the path.
+   *
+   * Empty by default, in which case the path of the current request is used.
    * @example ['/auth/callback']
    */
-  redirectUris: OAuthClientMetadata['redirect_uris']
+  redirectUris?: `/${string}`[]
 
   /**
    * The token endpoint authentication method. `none` is the default, and the only supported value at this time.

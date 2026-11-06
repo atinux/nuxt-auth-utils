@@ -80,7 +80,7 @@ export function defineOAuthSlackEventHandler({
     const state = await handleState(event)
 
     if (!query.code) {
-      config.scope = config.scope || ['openid', 'email', 'profile']
+      config.scope = config.scope?.length ? config.scope : ['openid', 'email', 'profile']
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {

@@ -91,7 +91,7 @@ export function defineOAuthSalesforceEventHandler({
     const state = await handleState(event)
 
     if (!query.code) {
-      config.scope = config.scope || ['id']
+      config.scope = config.scope?.length ? config.scope : ['id']
       return sendRedirect(
         event,
         withQuery(config.authorizationURL as string, {

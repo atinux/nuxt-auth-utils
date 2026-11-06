@@ -15,6 +15,8 @@ import {
 import { defu } from 'defu'
 import type { SessionConfig } from 'nuxt/server'
 import type { AtprotoProviderClientMetadata } from './runtime/types/atproto'
+import type { OAuthRuntimeConfig } from './runtime/types/oauth-runtime-config'
+import type { OAuthWorkOSConfig } from './runtime/server/lib/oauth/workos'
 import { atprotoProviderDefaultClientMetadata, atprotoProviders, getClientMetadataFilename } from './runtime/utils/atproto'
 
 export interface WebAuthnOptions {
@@ -83,6 +85,10 @@ declare module 'nuxt/schema' {
       register: Partial<GenerateRegistrationOptionsOpts>
       authenticate: Partial<GenerateAuthenticationOptionsOpts>
     }
+    /**
+     * OAuth providers configuration, one key per provider (`github`, `google`, `keycloak`, ...).
+     */
+    oauth: OAuthRuntimeConfig
   }
 
   interface PublicRuntimeConfig {
@@ -267,9 +273,9 @@ export default defineNuxtModule<ModuleOptions>({
       clientId: '',
       clientSecret: '',
       connectionId: '',
-      screenHint: '',
+      screenHint: 'sign-in',
       redirectURL: '',
-    })
+    } satisfies OAuthWorkOSConfig)
     // Microsoft OAuth
     runtimeConfig.oauth.microsoft = defu(runtimeConfig.oauth.microsoft, {
       clientId: '',
@@ -519,28 +525,28 @@ export default defineNuxtModule<ModuleOptions>({
       redirectURL: '',
       baseURL: '',
       userURL: '',
-      scope: '',
+      scope: [],
     })
     // Slack OAuth
     runtimeConfig.oauth.slack = defu(runtimeConfig.oauth.slack, {
       clientId: '',
       clientSecret: '',
       redirectURL: '',
-      scope: '',
+      scope: [],
     })
     // Heroku OAuth
     runtimeConfig.oauth.heroku = defu(runtimeConfig.oauth.heroku, {
       clientId: '',
       clientSecret: '',
       redirectURL: '',
-      scope: '',
+      scope: [],
     })
     // Roblox OAuth
     runtimeConfig.oauth.roblox = defu(runtimeConfig.oauth.roblox, {
       clientId: '',
       clientSecret: '',
       redirectURL: '',
-      scope: '',
+      scope: [],
     })
     // Okta OAuth
     runtimeConfig.oauth.okta = defu(runtimeConfig.oauth.okta, {
