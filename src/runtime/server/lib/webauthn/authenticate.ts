@@ -20,8 +20,9 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
   return defineEventHandler(async (event) => {
     const url = getRequestURL(event, { xForwardedProto: true })
     const body = await readBody<AuthenticationBody>(event)
-    const _config = defu(await getOptions?.(event, body) ?? {}, useRuntimeConfig().webauthn.authenticate, {
-      rpID: url.hostname,
+    const runtimeConfig = useRuntimeConfig()
+    const _config = defu(await getOptions?.(event, body) ?? {}, runtimeConfig.webauthn.authenticate, {
+      rpID: runtimeConfig.webauthn.rpID || url.hostname,
     } satisfies GenerateAuthenticationOptionsOpts)
 
     if (!storeChallenge) {
@@ -60,7 +61,7 @@ export function defineWebAuthnAuthenticateEventHandler<T extends WebAuthnCredent
         response: body.response,
         expectedChallenge,
         expectedOrigin: url.origin,
-        expectedRPID: url.hostname,
+        expectedRPID: _config.rpID,
         requireUserVerification: false, // TODO: make configurable https://simplewebauthn.dev/docs/advanced/passkeys#verifyauthenticationresponse
         credential: {
           id: credential.id,

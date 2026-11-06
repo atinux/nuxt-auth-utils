@@ -432,6 +432,37 @@ export default defineNuxtConfig({
 })
 ```
 
+#### Relying Party ID
+
+A passkey is bound to the domain that created it. By default, a passkey created on `example.com` cannot be used on `app.example.com`. Set `rpID` to the registrable parent domain to share passkeys between a domain and its subdomains:
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    webAuthn: {
+      rpID: 'example.com', // passkeys created on `example.com` also work on `app.example.com`
+      rpName: 'My App' // shown by the authenticator when creating a passkey
+    }
+  }
+})
+```
+
+Both options default to the hostname of the request. The module uses `rpID` to generate the options and to verify the response, and `rpName` only to label the passkey during registration. Both are read from `runtimeConfig`, which helps when one build serves several domains:
+
+```ts
+export default defineNuxtConfig({
+  runtimeConfig: {
+    webauthn: {
+      rpID: 'example.com'
+    }
+  }
+})
+```
+
+`NUXT_WEBAUTHN_RP_ID` and `NUXT_WEBAUTHN_RP_NAME` override both at runtime.
+
+When you define `getOptions`, the module calls it while generating the options and again while verifying the response. Return the same `rpID` in both calls, or verification fails with an `Unexpected RP ID hash` error. The expected origin is always the origin of the request, because that is what the browser sends back.
+
 #### Example
 
 In this example we will implement the very basic steps to register and authenticate a credential.

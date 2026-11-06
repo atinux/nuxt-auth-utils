@@ -10,4 +10,8 @@ export default defineNuxtConfig({
       websocket: true,
     },
   },
+
+  auth: {
+    webAuthn: true,
+  },
 })
