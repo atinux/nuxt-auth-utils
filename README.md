@@ -434,9 +434,13 @@ export default defineNuxtConfig({
 })
 ```
 
-Declare paths only, without the origin, and include the app base URL when your app is served from a subpath. The module prepends the origin of the request, because the URL origin must match the client ID.
+Declare paths only, without the origin or the app base URL. The module prepends the base URL, like it does for `/auth/<provider>`, and leaves a path that already starts with it as is. It then prepends the origin of the request, because the URL origin must match the client ID:
 
-The `redirectUrl` option of `defineOAuthBlueskyEventHandler()` applies to the login request alone. The metadata document cannot see it, so use `redirectUris` for a custom callback path.
+```text
+app.baseURL: '/my-app/', redirectUris: ['/login/bluesky']  ->  redirect_uris: ["https://example.com/my-app/login/bluesky"]
+```
+
+The `redirectUrl` option of `defineOAuthBlueskyEventHandler()` applies to the login request alone, also under the base URL. The metadata document cannot see it, so use `redirectUris` for a custom callback path.
 
 ### WebAuthn (passkey)
 

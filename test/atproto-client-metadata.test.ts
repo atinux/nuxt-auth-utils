@@ -87,24 +87,28 @@ describe('AT Protocol client metadata with a configured callback path', async ()
   await setup({
     rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
     nuxtConfig: {
+      app: {
+        baseURL: '/my-app/',
+      },
       runtimeConfig: {
         appSecret: 'a-test-app-secret-with-at-least-32-characters',
         oauth: {
           bluesky: {
-            redirectUris: ['/login/bluesky'],
+            redirectUris: ['/login/bluesky', '/my-app/callback/bluesky'],
           },
         },
       },
     },
   })
 
-  it('replaces the convention instead of being added to it', async () => {
+  it('replaces the convention and resolves the paths under the base URL', async () => {
     const origin = new URL(url('/')).origin
 
-    const login = await $fetch<ClientMetadata>('/auth/bluesky')
-    const published = await $fetch<ClientMetadata>('/bluesky/client-metadata.json')
+    const login = await $fetch<ClientMetadata>('/my-app/auth/bluesky')
+    const published = await $fetch<ClientMetadata>('/my-app/bluesky/client-metadata.json')
 
-    expect(login.redirect_uris).toEqual([`${origin}/login/bluesky`])
+    // A path that already includes the base URL must not get it twice.
+    expect(login.redirect_uris).toEqual([`${origin}/my-app/login/bluesky`, `${origin}/my-app/callback/bluesky`])
     expect(published.redirect_uris).toEqual(login.redirect_uris)
   })
 })

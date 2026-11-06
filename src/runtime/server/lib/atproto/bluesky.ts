@@ -8,6 +8,7 @@ import type {
   NodeSavedStateStore,
 } from '@atproto/oauth-client-node'
 import { Agent } from '@atproto/api'
+import { withoutBase } from 'ufo'
 import type { AppBskyActorDefs } from '@atproto/api'
 import { getAtprotoClientMetadata } from '../../utils/atproto'
 import type { AtprotoProviderClientMetadata } from '../../../types/atproto'
@@ -116,14 +117,15 @@ let warnedUnpublishedLoginPath = false
 
 function warnUnpublishedLoginPath(event: RequestEvent, redirectUri: string) {
   if (warnedUnpublishedLoginPath) return
-  if ((useRuntimeConfig().oauth.bluesky as AtprotoProviderClientMetadata).redirectUris?.length) return
+  const runtimeConfig = useRuntimeConfig()
+  if ((runtimeConfig.oauth.bluesky as AtprotoProviderClientMetadata).redirectUris?.length) return
 
   const loginPath = getRequestURL(event).pathname
   const callbackPath = new URL(redirectUri).pathname
   if (loginPath === callbackPath) return
 
   warnedUnpublishedLoginPath = true
-  console.warn(`[nuxt-auth-utils] The Bluesky login route is served from \`${loginPath}\`, but Bluesky redirects back to \`${callbackPath}\`. Set \`runtimeConfig.oauth.bluesky.redirectUris\` to \`['${loginPath}']\`.`)
+  console.warn(`[nuxt-auth-utils] The Bluesky login route is served from \`${loginPath}\`, but Bluesky redirects back to \`${callbackPath}\`. Set \`runtimeConfig.oauth.bluesky.redirectUris\` to \`['${withoutBase(loginPath, runtimeConfig.app.baseURL)}']\`.`)
 }
 
 export class StateStore implements NodeSavedStateStore {

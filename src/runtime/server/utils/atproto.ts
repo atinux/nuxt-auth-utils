@@ -22,28 +22,25 @@ export function getAtprotoClientMetadata(
   const requestURL = getRequestURL(event, { xForwardedProto: true })
   const baseUrl = `${requestURL.protocol}//${requestURL.host}`
 
-  // The login route is served under the app base URL, which can be set at runtime (`NUXT_APP_BASE_URL`),
-  // so the conventional callback path is resolved here rather than baked into the runtime config.
-  const callbackPath = withBase(`/auth/${provider}`, runtimeConfig.app.baseURL) as `/${string}`
+  // Routes are served under the app base URL, which can be set at runtime (`NUXT_APP_BASE_URL`),
+  // so callback paths are resolved against it here rather than baked into the runtime config.
+  // A path that already starts with the base URL is left as is.
+  const withAppBase = (path: string) => withBase(path, runtimeConfig.app.baseURL)
+  const callbackPaths = (providerRuntimeConfig.redirectUris?.length ? providerRuntimeConfig.redirectUris : [`/auth/${provider}`]).map(withAppBase)
 
   /**
    * The redirect URL must be a valid URL, so we need to parse it to ensure it is correct. Will use the following order:
    * 1. URL provided as part of the config of the event handler. It must also be listed in the redirect URIs, which is not checked here.
-   * 2. First URL provided in the runtime config.
-   * 3. The conventional callback path.
+   * 2. First redirect URI, from the runtime config or the conventional callback path.
    */
-  const redirectURL = new URL(
-    (config?.redirectUrl && baseUrl + config.redirectUrl)
-    || (providerRuntimeConfig.redirectUris?.[0] && baseUrl + providerRuntimeConfig.redirectUris[0])
-    || baseUrl + callbackPath,
-  )
+  const redirectURL = new URL(baseUrl + (config?.redirectUrl ? withAppBase(config.redirectUrl) : callbackPaths[0]))
 
   const dev = import.meta.dev
   if (dev && redirectURL.hostname === 'localhost') {
     // For local development, Bluesky authorization servers allow "http://127.0.0.1" as a special value for redirect URIs
     redirectURL.hostname = '127.0.0.1'
   }
-  const redirectUris = (providerRuntimeConfig.redirectUris?.length ? providerRuntimeConfig.redirectUris : [callbackPath])
+  const redirectUris = callbackPaths
     .map(uri => new URL(`${redirectURL.protocol}//${redirectURL.host}${uri}`).toString()) as [string, ...string[]]
 
   const clientId = dev
