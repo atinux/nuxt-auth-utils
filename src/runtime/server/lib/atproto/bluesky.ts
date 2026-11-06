@@ -1,5 +1,5 @@
 import type { RequestEvent } from 'nuxt/server'
-import { defineEventHandler, createError, deleteCookie, getCookie, getQuery, sendRedirect, setCookie } from 'nuxt/server'
+import { defineEventHandler, createError, deleteCookie, getCookie, getQuery, getRequestURL, sendRedirect, setCookie, useRuntimeConfig } from 'nuxt/server'
 import { NodeOAuthClient, OAuthCallbackError, OAuthResolverError, OAuthResponseError } from '@atproto/oauth-client-node'
 import type {
   NodeSavedSession,
@@ -8,8 +8,10 @@ import type {
   NodeSavedStateStore,
 } from '@atproto/oauth-client-node'
 import { Agent } from '@atproto/api'
+import { withoutBase } from 'ufo'
 import type { AppBskyActorDefs } from '@atproto/api'
 import { getAtprotoClientMetadata } from '../../utils/atproto'
+import type { AtprotoProviderClientMetadata } from '../../../types/atproto'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthBlueskyConfig {
@@ -34,6 +36,7 @@ type BlueSkyTokens = NodeSavedSession['tokenSet']
 export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBlueskyConfig, { user: BlueSkyUser, tokens: BlueSkyTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
     const clientMetadata = getAtprotoClientMetadata(event, 'bluesky', config)
+    if (import.meta.dev && !config?.redirectUrl) warnUnpublishedLoginPath(event, clientMetadata.redirect_uris[0])
     const scopes = clientMetadata.scope?.split(' ') ?? []
 
     const sessionStore = new SessionStore()
@@ -108,6 +111,21 @@ export function defineOAuthBlueskyEventHandler({ config, onSuccess, onError }: O
       return onError(event, error)
     }
   })
+}
+
+let warnedUnpublishedLoginPath = false
+
+function warnUnpublishedLoginPath(event: RequestEvent, redirectUri: string) {
+  if (warnedUnpublishedLoginPath) return
+  const runtimeConfig = useRuntimeConfig()
+  if ((runtimeConfig.oauth.bluesky as AtprotoProviderClientMetadata).redirectUris?.length) return
+
+  const loginPath = getRequestURL(event).pathname
+  const callbackPath = new URL(redirectUri).pathname
+  if (loginPath === callbackPath) return
+
+  warnedUnpublishedLoginPath = true
+  console.warn(`[nuxt-auth-utils] The Bluesky login route is served from \`${loginPath}\`, but Bluesky redirects back to \`${callbackPath}\`. Set \`runtimeConfig.oauth.bluesky.redirectUris\` to \`['${withoutBase(loginPath, runtimeConfig.app.baseURL)}']\`.`)
 }
 
 export class StateStore implements NodeSavedStateStore {

@@ -13,5 +13,6 @@ export default defineNuxtConfig({
 
   auth: {
     webAuthn: true,
+    atproto: true,
   },
 })

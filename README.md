@@ -410,6 +410,38 @@ export default defineNuxtConfig({
 })
 ```
 
+#### Callback path
+
+The authorization server compares the redirect URI of the login request with the list published in the client metadata document. That document is served from `bluesky/client-metadata.json` under your app base URL (`app.baseURL`, `/` by default), so it cannot know where your login route lives.
+
+The module fills in `/auth/<provider>`, the path its playground uses, under that base URL. The login route is served under the base URL too, so a deployment that sets `app.baseURL` publishes the path its login route answers on:
+
+```text
+app.baseURL: '/my-app/'  ->  redirect_uris: ["https://example.com/my-app/auth/bluesky"]
+```
+
+Set `redirectUris` when your login route lives elsewhere; until you do, the module logs a warning in development. Both requests then use it:
+
+```ts
+export default defineNuxtConfig({
+  runtimeConfig: {
+    oauth: {
+      bluesky: {
+        redirectUris: ['/login/bluesky']
+      }
+    }
+  }
+})
+```
+
+Declare paths only, without the origin or the app base URL. The module prepends the base URL, like it does for `/auth/<provider>`, and leaves a path that already starts with it as is. It then prepends the origin of the request, because the URL origin must match the client ID:
+
+```text
+app.baseURL: '/my-app/', redirectUris: ['/login/bluesky']  ->  redirect_uris: ["https://example.com/my-app/login/bluesky"]
+```
+
+The `redirectUrl` option of `defineOAuthBlueskyEventHandler()` applies to the login request alone, also under the base URL. The metadata document cannot see it, so use `redirectUris` for a custom callback path.
+
 ### WebAuthn (passkey)
 
 WebAuthn (Web Authentication) is a web standard that enhances security by replacing passwords with passkeys using public key cryptography. Users can authenticate with biometric data (like fingerprints or facial recognition) or physical devices (like USB keys), reducing the risk of phishing and password breaches. This approach offers a more secure and user-friendly authentication method, supported by major browsers and platforms.
