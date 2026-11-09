@@ -292,6 +292,17 @@ describe('ssr', async () => {
     expect(location.searchParams.get('redirect_uri')).toMatch(/^https:\/\/[^/]+\/auth\/google$/)
   })
 
+  it('ignores the forwarded host in the OAuth redirect URI by default', async () => {
+    const response = await fetch('/auth/google', {
+      redirect: 'manual',
+      headers: { 'x-forwarded-proto': 'https', 'x-forwarded-host': 'auth.example.com' },
+    })
+    const redirectUri = new URL(response.headers.get('location')!).searchParams.get('redirect_uri')
+
+    expect(redirectUri).not.toContain('auth.example.com')
+    expect(redirectUri).toMatch(/^https:\/\/[^/]+\/auth\/google$/)
+  })
+
   it('rejects OAuth callbacks without matching browser state', async () => {
     const response = await $fetch<{ success: boolean, error: string }>('/auth/google', {
       query: {

@@ -1,9 +1,10 @@
 import type { RequestEvent } from 'nuxt/server'
 import type { OAuthClientMetadataInput, OAuthGrantType } from '@atproto/oauth-client-node'
-import { getRequestURL, useRuntimeConfig } from 'nuxt/server'
+import { useRuntimeConfig } from 'nuxt/server'
 import { withBase } from 'ufo'
 import type { AtprotoProviderClientMetadata } from '../../types/atproto'
 import type { OAuthBlueskyConfig } from '../lib/atproto/bluesky'
+import { getPublicRequestURL } from '../lib/request-url'
 import { getClientMetadataFilename } from '../../utils/atproto'
 import type { ATProtoProvider, OAuthConfig } from '#auth-utils'
 
@@ -19,7 +20,7 @@ export function getAtprotoClientMetadata(
 
   const grantTypes = [...new Set(['authorization_code', ...providerRuntimeConfig.grantTypes ?? []])] as [OAuthGrantType, ...OAuthGrantType[]]
 
-  const requestURL = getRequestURL(event, { xForwardedProto: true })
+  const requestURL = getPublicRequestURL(event)
   const baseUrl = `${requestURL.protocol}//${requestURL.host}`
 
   // Routes are served under the app base URL, which can be set at runtime (`NUXT_APP_BASE_URL`),

@@ -1,11 +1,12 @@
 import type { RequestEvent } from 'nuxt/server'
-import { createError, deleteCookie, getCookie, getQuery, getRequestURL, setCookie } from 'nuxt/server'
+import { createError, deleteCookie, getCookie, getQuery, setCookie } from 'nuxt/server'
 import { $fetch, FetchError } from 'ofetch'
 import { snakeCase, upperFirst } from 'scule'
 import * as jose from 'jose'
 import { subtle, getRandomValues } from 'uncrypto'
 import type { OAuthProvider, OnError } from '#auth-utils'
 import { resolveSessionConfig } from './session'
+import { getPublicRequestURL } from './request-url'
 
 // Determine if we are in development mode
 export const isDevelopment = process.env.NODE_ENV === 'development'
@@ -18,7 +19,7 @@ export function isOAuthCookieSecure(): boolean {
 const OAUTH_COOKIE_MAX_AGE = 60 * 10
 
 export function getOAuthRedirectURL(event: RequestEvent): string {
-  const requestURL = getRequestURL(event, { xForwardedProto: true })
+  const requestURL = getPublicRequestURL(event)
 
   return `${requestURL.protocol}//${requestURL.host}${requestURL.pathname}`
 }

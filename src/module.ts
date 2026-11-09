@@ -64,6 +64,24 @@ export interface ModuleOptions {
 
 declare module 'nuxt/schema' {
   interface RuntimeConfig {
+    /**
+     * Public origin of the app, an absolute `http` or `https` URL such as `https://example.com`.
+     *
+     * The module builds the OAuth callback URL, the atproto client metadata and the Steam `return_to` from
+     * this origin and the path the request was served on, instead of the origin of the request. Set
+     * `NUXT_APP_URL` to change it at runtime.
+     */
+    appURL: string
+    /**
+     * Whether the module reads `x-forwarded-host` from the request.
+     *
+     * The host decides where the provider sends the user back, and a client can set the header when the proxy
+     * doesn't strip it, so the module ignores it by default. Set `NUXT_AUTH_TRUST_FORWARDED_HOST=true` when the
+     * proxy rewrites `Host` to an internal address. Prefer `NUXT_APP_URL` to name the public origin.
+     */
+    auth: {
+      trustForwardedHost: boolean
+    }
     hash: {
       scrypt: ScryptConfig
     }
@@ -195,6 +213,11 @@ export default defineNuxtModule<ModuleOptions>({
       },
     })
 
+    // Declared so `NUXT_AUTH_TRUST_FORWARDED_HOST` can override it at runtime
+    runtimeConfig.auth = defu(runtimeConfig.auth, {
+      trustForwardedHost: false,
+    })
+
     runtimeConfig.hash = defu(runtimeConfig.hash, {
       scrypt: options.hash?.scrypt,
     })
@@ -203,6 +226,9 @@ export default defineNuxtModule<ModuleOptions>({
     runtimeConfig.public.auth = defu(runtimeConfig.public.auth, {
       loadStrategy: options.loadStrategy ?? 'server-first',
     })
+
+    // Declared so `NUXT_APP_URL` can override it at runtime
+    runtimeConfig.appURL ||= ''
 
     // WebAuthn settings
     const webAuthnOptions = typeof options.webAuthn === 'object' ? options.webAuthn : undefined
