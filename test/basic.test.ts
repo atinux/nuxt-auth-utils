@@ -48,7 +48,7 @@ describe('ssr', async () => {
   })
 
   it('exposes the status and error of a failed session fetch during SSR', async () => {
-    const response = await fetch('/me', { headers: { 'x-fail-session': '1' } })
+    const response = await fetch('/me', { headers: { 'x-fail-session': '1', 'x-render-id': crypto.randomUUID() } })
     const html = await response.text()
     expect(response.status).toBe(200)
     expect(html).toContain('anonymous')
@@ -58,6 +58,20 @@ describe('ssr', async () => {
     const success = await $fetch<string>('/me')
     expect(success).toMatch(/<div id="session-status">\s*success\s*<\/div>/)
     expect(success).not.toContain('session-error')
+  })
+
+  it('keeps the user session when a refetch fails', async () => {
+    const login = await fetch('/api/nuxt-server')
+    const cookie = getCookie(login, SESSION_COOKIE)!
+    // Call 1 is the plugin fetch, calls 2 and 3 the overlapping refetches
+    const render = (failing: string) => $fetch<string>('/refetch', {
+      headers: { 'cookie': cookie, 'x-fail-session': failing, 'x-render-id': crypto.randomUUID() },
+    })
+
+    // The latest refetch fails
+    expect(await render('3')).toMatch(/<div id="refetch">\s*true error 503\s*<\/div>/)
+    // An older refetch fails after the latest one succeeded
+    expect(await render('2')).toMatch(/<div id="refetch">\s*true success none\s*<\/div>/)
   })
 
   it('returns an empty session without setting a cookie', async () => {
