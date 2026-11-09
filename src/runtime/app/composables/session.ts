@@ -1,5 +1,9 @@
-import { useState, computed, createError, useRequestFetch, useRequestEvent } from '#imports'
+import type { NuxtApp } from 'nuxt/app'
+import { useState, computed, createError, useNuxtApp, useRequestFetch, useRequestEvent } from '#imports'
 import type { UserSessionComposable } from '#auth-utils'
+
+// The latest session request of each Nuxt app, shared by all `useUserSession()` calls
+const latestFetch = new WeakMap<NuxtApp, Promise<unknown>>()
 
 /**
  * Composable to get back the user session and utils around it.
@@ -12,6 +16,7 @@ export function useUserSession(): UserSessionComposable {
   const errorState = useState<UserSessionComposable['error']['value']>('nuxt-auth-error', () => null)
   const statusState = useState<UserSessionComposable['status']['value']>('nuxt-auth-status', () => 'idle')
   const requestFetch = useRequestFetch()
+  const nuxtApp = useNuxtApp()
 
   const clear = async () => {
     await requestFetch('/api/_auth/session', {
@@ -33,17 +38,23 @@ export function useUserSession(): UserSessionComposable {
 
   const fetch = async () => {
     statusState.value = 'pending'
+    const request = requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
+      headers: {
+        accept: 'application/json',
+      },
+      retry: false,
+    })
+    latestFetch.set(nuxtApp, request)
     try {
-      sessionState.value = await requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
-        headers: {
-          accept: 'application/json',
-        },
-        retry: false,
-      })
+      const session = await request
+      // A newer fetch started meanwhile: let it set the state
+      if (latestFetch.get(nuxtApp) !== request) return
+      sessionState.value = session
       errorState.value = null
       statusState.value = 'success'
     }
     catch (error) {
+      if (latestFetch.get(nuxtApp) !== request) return
       // Keep the current session: a failed request does not mean the user logged out
       // `createError` returns a NuxtError, which the payload can send from the server to the client
       errorState.value = createError(error as Error)
