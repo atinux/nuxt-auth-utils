@@ -1,5 +1,9 @@
-import { useState, computed, useRequestFetch, useRequestEvent } from '#imports'
+import type { NuxtApp } from 'nuxt/app'
+import { useState, computed, createError, useNuxtApp, useRequestFetch, useRequestEvent } from '#imports'
 import type { UserSessionComposable } from '#auth-utils'
+
+// The latest session request of each Nuxt app, shared by all `useUserSession()` calls
+const latestFetch = new WeakMap<NuxtApp, Promise<unknown>>()
 
 /**
  * Composable to get back the user session and utils around it.
@@ -9,7 +13,10 @@ export function useUserSession(): UserSessionComposable {
   const serverEvent = import.meta.server ? useRequestEvent() : null
   const sessionState = useState<UserSessionComposable['session']['value']>('nuxt-session', () => null)
   const authReadyState = useState('nuxt-auth-ready', () => false)
+  const errorState = useState<UserSessionComposable['error']['value']>('nuxt-auth-error', () => null)
+  const statusState = useState<UserSessionComposable['status']['value']>('nuxt-auth-status', () => 'idle')
   const requestFetch = useRequestFetch()
+  const nuxtApp = useNuxtApp()
 
   const clear = async () => {
     await requestFetch('/api/_auth/session', {
@@ -26,16 +33,39 @@ export function useUserSession(): UserSessionComposable {
         }
       },
     })
+    // Cancel the fetch in flight, so it does not restore the session
+    latestFetch.delete(nuxtApp)
     sessionState.value = null
+    errorState.value = null
+    statusState.value = 'idle'
+    // The cancelled fetch may be the first one, which would set it
+    authReadyState.value = true
   }
 
   const fetch = async () => {
-    sessionState.value = await requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
+    statusState.value = 'pending'
+    const request = requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
       headers: {
         accept: 'application/json',
       },
       retry: false,
-    }).catch(() => null)
+    })
+    latestFetch.set(nuxtApp, request)
+    try {
+      const session = await request
+      // A newer fetch started meanwhile: let it set the state
+      if (latestFetch.get(nuxtApp) !== request) return
+      sessionState.value = session
+      errorState.value = null
+      statusState.value = 'success'
+    }
+    catch (error) {
+      if (latestFetch.get(nuxtApp) !== request) return
+      // Keep the current session: a failed request does not mean the user logged out
+      // `createError` returns a NuxtError, which the payload can send from the server to the client
+      errorState.value = createError(error as Error)
+      statusState.value = 'error'
+    }
     if (!authReadyState.value) {
       authReadyState.value = true
     }
@@ -79,6 +109,8 @@ export function useUserSession(): UserSessionComposable {
     loggedIn: computed(() => Boolean(sessionState.value?.user)),
     user: computed(() => sessionState.value?.user || null),
     session: sessionState,
+    status: computed(() => statusState.value),
+    error: computed(() => errorState.value),
     fetch,
     openInPopup,
     clear,

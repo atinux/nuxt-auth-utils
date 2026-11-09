@@ -47,6 +47,45 @@ describe('ssr', async () => {
     expect(html).toContain('{&quot;fromNuxtServer&quot;:true}')
   })
 
+  it('exposes the status and error of a failed session fetch during SSR', async () => {
+    const response = await fetch('/me', { headers: { 'x-fail-session': '1', 'x-render-id': crypto.randomUUID() } })
+    const html = await response.text()
+    expect(response.status).toBe(200)
+    expect(html).toContain('anonymous')
+    expect(html).toMatch(/<div id="session-status">\s*error\s*<\/div>/)
+    expect(html).toMatch(/<div id="session-error">\s*503\s*<\/div>/)
+
+    const success = await $fetch<string>('/me')
+    expect(success).toMatch(/<div id="session-status">\s*success\s*<\/div>/)
+    expect(success).not.toContain('session-error')
+  })
+
+  it('keeps the user session when a refetch fails', async () => {
+    const login = await fetch('/api/nuxt-server')
+    const cookie = getCookie(login, SESSION_COOKIE)!
+    // Call 1 is the plugin fetch, calls 2 and 3 the overlapping refetches
+    const render = (failing: string) => $fetch<string>('/refetch', {
+      headers: { 'cookie': cookie, 'x-fail-session': failing, 'x-render-id': crypto.randomUUID() },
+    })
+
+    // The latest refetch fails
+    expect(await render('3')).toMatch(/<div id="refetch">\s*true error 503\s*<\/div>/)
+    // An older refetch fails after the latest one succeeded
+    expect(await render('2')).toMatch(/<div id="refetch">\s*true success none\s*<\/div>/)
+  })
+
+  it('cancels the fetch in flight when clearing the user session', async () => {
+    const login = await fetch('/api/nuxt-server')
+    const cookie = getCookie(login, SESSION_COOKIE)!
+    // Call 2, the refetch, answers after `clear()` has finished
+    for (const header of ['x-delay-session', 'x-fail-session']) {
+      const html = await $fetch<string>('/refetch?then=clear', {
+        headers: { 'cookie': cookie, [header]: '2', 'x-render-id': crypto.randomUUID() },
+      })
+      expect(html, header).toMatch(/<div id="refetch">\s*false idle none\s*<\/div>/)
+    }
+  })
+
   it('returns an empty session without setting a cookie', async () => {
     const response = await fetch('/api/_auth/session')
     expect(await response.json()).toEqual({})

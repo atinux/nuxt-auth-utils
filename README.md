@@ -108,17 +108,39 @@ interface UserSessionComposable {
    */
   session: Ref<UserSession>
   /**
+   * The status of the last `fetch()`: `idle` before the first fetch and after `clear()`, then `pending`, `success`, or `error`.
+   */
+  status: ComputedRef<'idle' | 'pending' | 'success' | 'error'>
+  /**
+   * The error of the last `fetch()`, null when it succeeded.
+   * A failed fetch keeps the current session.
+   */
+  error: ComputedRef<NuxtError | null>
+  /**
    * Fetch the user session from the server.
+   * Never throws: read `error` to know if it failed.
    */
   fetch: () => Promise<void>
   /**
    * Clear the user session and remove the session cookie.
+   * Cancels the fetch in flight, and resets `status` and `error`.
    */
   clear: () => Promise<void>
   /**
    * Open the OAuth route in a popup that auto-closes when successful.
    */
   openInPopup: (route: string, size?: { width?: number, height?: number }) => void
+}
+```
+
+When fetching the session fails, for instance on a network error or a server error, `fetch()` keeps the current session instead of logging the user out, and sets `error`:
+
+```ts
+const { fetch, error } = useUserSession()
+
+await fetch()
+if (error.value) {
+  console.error('Could not refresh the user session', error.value)
 }
 ```
 
