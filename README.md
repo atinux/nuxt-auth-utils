@@ -108,7 +108,7 @@ interface UserSessionComposable {
    */
   session: Ref<UserSession>
   /**
-   * The status of the last `fetch()`: `idle` before the first fetch, then `pending`, `success`, or `error`.
+   * The status of the last `fetch()`: `idle` before the first fetch and after `clear()`, then `pending`, `success`, or `error`.
    */
   status: ComputedRef<'idle' | 'pending' | 'success' | 'error'>
   /**
@@ -123,6 +123,7 @@ interface UserSessionComposable {
   fetch: () => Promise<void>
   /**
    * Clear the user session and remove the session cookie.
+   * Cancels the fetch in flight, and resets `status` and `error`.
    */
   clear: () => Promise<void>
   /**

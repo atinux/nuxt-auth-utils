@@ -49,7 +49,7 @@ export interface UserSessionComposable {
    */
   session: Ref<(OmitWithIndexSignature<UserSession, 'id'> & { id?: string }) | null>
   /**
-   * The status of the last `fetch()`: `idle` before the first fetch, then `pending`, `success`, or `error`.
+   * The status of the last `fetch()`: `idle` before the first fetch and after `clear()`, then `pending`, `success`, or `error`.
    */
   status: ComputedRef<AsyncDataRequestStatus>
   /**
@@ -64,6 +64,7 @@ export interface UserSessionComposable {
   fetch: () => Promise<void>
   /**
    * Clear the user session and remove the session cookie.
+   * Cancels the fetch in flight, and resets `status` and `error`.
    */
   clear: () => Promise<void>
   /**

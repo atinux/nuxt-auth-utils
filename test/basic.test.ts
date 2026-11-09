@@ -74,6 +74,16 @@ describe('ssr', async () => {
     expect(await render('2')).toMatch(/<div id="refetch">\s*true success none\s*<\/div>/)
   })
 
+  it('cancels the fetch in flight when clearing the user session', async () => {
+    const login = await fetch('/api/nuxt-server')
+    const cookie = getCookie(login, SESSION_COOKIE)!
+    // Call 2, the refetch, fails after `clear()` has finished
+    const html = await $fetch<string>('/refetch?then=clear', {
+      headers: { 'cookie': cookie, 'x-fail-session': '2', 'x-render-id': crypto.randomUUID() },
+    })
+    expect(html).toMatch(/<div id="refetch">\s*false idle none\s*<\/div>/)
+  })
+
   it('returns an empty session without setting a cookie', async () => {
     const response = await fetch('/api/_auth/session')
     expect(await response.json()).toEqual({})

@@ -33,7 +33,11 @@ export function useUserSession(): UserSessionComposable {
         }
       },
     })
+    // Cancel the fetch in flight, so it does not restore the session
+    latestFetch.delete(nuxtApp)
     sessionState.value = null
+    errorState.value = null
+    statusState.value = 'idle'
   }
 
   const fetch = async () => {
