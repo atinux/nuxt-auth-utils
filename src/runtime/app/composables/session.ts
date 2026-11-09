@@ -38,6 +38,8 @@ export function useUserSession(): UserSessionComposable {
     sessionState.value = null
     errorState.value = null
     statusState.value = 'idle'
+    // The cancelled fetch may be the first one, which would set it
+    authReadyState.value = true
   }
 
   const fetch = async () => {
