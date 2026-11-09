@@ -1,4 +1,5 @@
 import type { ComputedRef, Ref } from 'vue'
+import type { AsyncDataRequestStatus, NuxtError } from 'nuxt/app'
 import type { OmitWithIndexSignature } from './utils'
 
 export interface User {
@@ -48,7 +49,17 @@ export interface UserSessionComposable {
    */
   session: Ref<(OmitWithIndexSignature<UserSession, 'id'> & { id?: string }) | null>
   /**
+   * The status of the last `fetch()`: `idle` before the first fetch, then `pending`, `success`, or `error`.
+   */
+  status: ComputedRef<AsyncDataRequestStatus>
+  /**
+   * The error of the last `fetch()`, null when it succeeded.
+   * A failed fetch keeps the current session.
+   */
+  error: ComputedRef<NuxtError | null>
+  /**
    * Fetch the user session from the server.
+   * Never throws: read `error` to know if it failed.
    */
   fetch: () => Promise<void>
   /**

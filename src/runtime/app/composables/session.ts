@@ -1,4 +1,4 @@
-import { useState, computed, useRequestFetch, useRequestEvent } from '#imports'
+import { useState, computed, createError, useRequestFetch, useRequestEvent } from '#imports'
 import type { UserSessionComposable } from '#auth-utils'
 
 /**
@@ -9,6 +9,8 @@ export function useUserSession(): UserSessionComposable {
   const serverEvent = import.meta.server ? useRequestEvent() : null
   const sessionState = useState<UserSessionComposable['session']['value']>('nuxt-session', () => null)
   const authReadyState = useState('nuxt-auth-ready', () => false)
+  const errorState = useState<UserSessionComposable['error']['value']>('nuxt-auth-error', () => null)
+  const statusState = useState<UserSessionComposable['status']['value']>('nuxt-auth-status', () => 'idle')
   const requestFetch = useRequestFetch()
 
   const clear = async () => {
@@ -30,12 +32,23 @@ export function useUserSession(): UserSessionComposable {
   }
 
   const fetch = async () => {
-    sessionState.value = await requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
-      headers: {
-        accept: 'application/json',
-      },
-      retry: false,
-    }).catch(() => null)
+    statusState.value = 'pending'
+    try {
+      sessionState.value = await requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
+        headers: {
+          accept: 'application/json',
+        },
+        retry: false,
+      })
+      errorState.value = null
+      statusState.value = 'success'
+    }
+    catch (error) {
+      // Keep the current session: a failed request does not mean the user logged out
+      // `createError` returns a NuxtError, which the payload can send from the server to the client
+      errorState.value = createError(error as Error)
+      statusState.value = 'error'
+    }
     if (!authReadyState.value) {
       authReadyState.value = true
     }
@@ -79,6 +92,8 @@ export function useUserSession(): UserSessionComposable {
     loggedIn: computed(() => Boolean(sessionState.value?.user)),
     user: computed(() => sessionState.value?.user || null),
     session: sessionState,
+    status: computed(() => statusState.value),
+    error: computed(() => errorState.value),
     fetch,
     openInPopup,
     clear,

@@ -47,6 +47,19 @@ describe('ssr', async () => {
     expect(html).toContain('{&quot;fromNuxtServer&quot;:true}')
   })
 
+  it('exposes the status and error of a failed session fetch during SSR', async () => {
+    const response = await fetch('/me', { headers: { 'x-fail-session': '1' } })
+    const html = await response.text()
+    expect(response.status).toBe(200)
+    expect(html).toContain('anonymous')
+    expect(html).toMatch(/<div id="session-status">\s*error\s*<\/div>/)
+    expect(html).toMatch(/<div id="session-error">\s*503\s*<\/div>/)
+
+    const success = await $fetch<string>('/me')
+    expect(success).toMatch(/<div id="session-status">\s*success\s*<\/div>/)
+    expect(success).not.toContain('session-error')
+  })
+
   it('returns an empty session without setting a cookie', async () => {
     const response = await fetch('/api/_auth/session')
     expect(await response.json()).toEqual({})
