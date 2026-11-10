@@ -60,12 +60,12 @@ export interface OAuthGoogleConfig {
 }
 
 export function defineOAuthGoogleEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthGoogleConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.google, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.google, {
       authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
       tokenURL: 'https://oauth2.googleapis.com/token',
       userURL: 'https://www.googleapis.com/oauth2/v3/userinfo',

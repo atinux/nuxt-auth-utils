@@ -65,12 +65,12 @@ export interface OAuthShopifyCustomerConfig {
 }
 
 export function defineOAuthShopifyCustomerEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthShopifyCustomerConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.shopifyCustomer, {}) as OAuthShopifyCustomerConfig
+    const config = defu(userConfig, useRuntimeConfig().oauth?.shopifyCustomer, {}) as OAuthShopifyCustomerConfig
 
     const query = getQuery<{ code?: string, state?: string }>(event)
 

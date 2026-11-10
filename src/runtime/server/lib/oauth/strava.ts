@@ -151,12 +151,12 @@ export interface OAuthStravaTokens {
 }
 
 export function defineOAuthStravaEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthStravaConfig, { user: OAuthStravaUser, tokens: OAuthStravaTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.strava) as OAuthStravaConfig
+    const config = defu(userConfig, useRuntimeConfig().oauth?.strava) as OAuthStravaConfig
 
     const query = getQuery<{ code?: string, state?: string, error?: string }>(event)
 

@@ -65,12 +65,12 @@ export interface OAuthXConfig {
 }
 
 export function defineOAuthXEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthXConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.x, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.x, {
       authorizationURL: 'https://x.com/i/oauth2/authorize',
       tokenURL: 'https://api.x.com/2/oauth2/token',
       userURL: 'https://api.x.com/2/users/me',

@@ -98,9 +98,9 @@ interface OAuthBoxTokens {
  * @see https://developer.box.com/guides/authentication/oauth2/
  * @see https://www.postman.com/boxdev/box-s-public-workspace/collection/trhp912/box-platform-api
  */
-export function defineOAuthBoxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthBoxConfig, { user: OAuthBoxUser, tokens: OAuthBoxTokens }>) {
+export function defineOAuthBoxEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthBoxConfig, { user: OAuthBoxUser, tokens: OAuthBoxTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.box, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.box, {
       authorizationURL: 'https://account.box.com/api/oauth2/authorize',
       tokenURL: 'https://api.box.com/oauth2/token',
       userURL: 'https://api.box.com/2.0/users/me',

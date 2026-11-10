@@ -95,12 +95,12 @@ export interface OAuthAtlassianConfig {
  * Atlassian User identity, Confluence, BRIE, Jira platform, Atlassian Personal data reporting
  */
 export function defineOAuthAtlassianEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthAtlassianConfig, { user: AtlassianUser, tokens: AtlassianTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.atlassian, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.atlassian, {
       authorizationURL: 'https://auth.atlassian.com/authorize',
       tokenURL: 'https://auth.atlassian.com/oauth/token',
       audienceURL: 'https://api.atlassian.com',

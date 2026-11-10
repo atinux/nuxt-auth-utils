@@ -71,9 +71,9 @@ interface OAuthHubspotAccessInfo {
   token_type: string
 }
 
-export function defineOAuthHubspotEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthHubspotConfig>) {
+export function defineOAuthHubspotEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthHubspotConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.hubspot) as OAuthHubspotConfig
+    const config = defu(userConfig, useRuntimeConfig().oauth?.hubspot) as OAuthHubspotConfig
 
     if (!config.clientId || !config.clientSecret || !config.redirectURL) {
       return handleMissingConfiguration(event, 'hubspot', ['clientId', 'clientSecret', 'redirectURL'], onError)

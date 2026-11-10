@@ -43,9 +43,9 @@ export interface OAuthZitadelConfig {
   redirectURL?: string
 }
 
-export function defineOAuthZitadelEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthZitadelConfig>) {
+export function defineOAuthZitadelEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthZitadelConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.zitadel, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.zitadel, {
       authorizationParams: {},
     }) as OAuthZitadelConfig
 

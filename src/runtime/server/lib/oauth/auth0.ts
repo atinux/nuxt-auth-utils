@@ -65,9 +65,9 @@ export interface OAuthAuth0Config {
   redirectURL?: string
 }
 
-export function defineOAuthAuth0EventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
+export function defineOAuthAuth0EventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthAuth0Config>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.auth0, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.auth0, {
       authorizationParams: {},
     }) as OAuthAuth0Config
 

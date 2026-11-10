@@ -63,9 +63,9 @@ interface KickTokens {
   token_type: string
 }
 
-export function defineOAuthKickEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthKickConfig, { user: KickUser, tokens: KickTokens }>) {
+export function defineOAuthKickEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthKickConfig, { user: KickUser, tokens: KickTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.kick, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.kick, {
       authorizationURL: 'https://id.kick.com/oauth/authorize',
       tokenURL: 'https://id.kick.com/oauth/token',
     }) as OAuthKickConfig

@@ -59,9 +59,9 @@ export interface OAuthMicrosoftConfig {
   redirectURL?: string
 }
 
-export function defineOAuthMicrosoftEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthMicrosoftConfig>) {
+export function defineOAuthMicrosoftEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthMicrosoftConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.microsoft, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.microsoft, {
       authorizationParams: {},
     }) as OAuthMicrosoftConfig
 

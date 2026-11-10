@@ -53,9 +53,9 @@ export interface OAuthOsuConfig {
   redirectURL?: string
 }
 
-export function defineOAuthOsuEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthOsuConfig>) {
+export function defineOAuthOsuEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthOsuConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.osu, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.osu, {
       authorizationURL: 'https://osu.ppy.sh/oauth/authorize',
       tokenURL: 'https://osu.ppy.sh/oauth/token',
       authorizationParams: {},

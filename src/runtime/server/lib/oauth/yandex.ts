@@ -66,12 +66,12 @@ export interface OAuthYandexConfig {
 }
 
 export function defineOAuthYandexEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthYandexConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.yandex, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.yandex, {
       authorizationURL: 'https://oauth.yandex.ru/authorize',
       tokenURL: 'https://oauth.yandex.ru/token',
       userURL: 'https://login.yandex.ru/info',

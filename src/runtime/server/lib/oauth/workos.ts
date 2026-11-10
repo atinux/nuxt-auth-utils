@@ -71,9 +71,9 @@ export interface OAuthWorkOSTokens {
   refresh_token: string
 }
 
-export function defineOAuthWorkOSEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthWorkOSConfig, { user: OAuthWorkOSUser, tokens: OAuthWorkOSTokens }>) {
+export function defineOAuthWorkOSEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthWorkOSConfig, { user: OAuthWorkOSUser, tokens: OAuthWorkOSTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.workos, { screen_hint: 'sign-in' }) as OAuthWorkOSConfig
+    const config = defu(userConfig, useRuntimeConfig().oauth?.workos, { screen_hint: 'sign-in' }) as OAuthWorkOSConfig
 
     if (!config.clientId || !config.clientSecret) {
       return handleMissingConfiguration(event, 'workos', ['clientId', 'clientSecret'], onError)

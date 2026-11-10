@@ -64,9 +64,9 @@ export interface OAuthPaypalConfig {
   redirectURL?: string
 }
 
-export function defineOAuthPaypalEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
+export function defineOAuthPaypalEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthPaypalConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.paypal, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.paypal, {
       sandbox: import.meta.dev,
       authorizationURL: 'https://www.paypal.com/signin/authorize',
       tokenURL: 'https://api-m.paypal.com/v1/oauth2/token',

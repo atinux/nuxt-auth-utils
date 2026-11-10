@@ -91,9 +91,9 @@ export interface CloudflareTokens {
   scope: string
 }
 
-export function defineOAuthCloudflareEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCloudflareConfig, { user: CloudflareUser, tokens: CloudflareTokens }>) {
+export function defineOAuthCloudflareEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthCloudflareConfig, { user: CloudflareUser, tokens: CloudflareTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.cloudflare, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.cloudflare, {
       authorizationURL: 'https://dash.cloudflare.com/oauth2/auth',
       tokenURL: 'https://dash.cloudflare.com/oauth2/token',
       userURL: 'https://dash.cloudflare.com/oauth2/userinfo',

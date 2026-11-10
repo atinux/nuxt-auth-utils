@@ -70,15 +70,15 @@ export interface OAuthGitLabConfig {
 }
 
 export function defineOAuthGitLabEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthGitLabConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
     const runtimeConfig = useRuntimeConfig().oauth?.gitlab
     const baseURL
-      = config?.baseURL ?? runtimeConfig.baseURL ?? 'https://gitlab.com'
-    config = defu(config, runtimeConfig, {
+      = userConfig?.baseURL ?? runtimeConfig.baseURL ?? 'https://gitlab.com'
+    const config = defu(userConfig, runtimeConfig, {
       authorizationURL: `${baseURL}/oauth/authorize`,
       tokenURL: `${baseURL}/oauth/token`,
       authorizationParams: {},

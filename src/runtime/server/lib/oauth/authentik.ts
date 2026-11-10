@@ -36,9 +36,9 @@ export interface OAuthAuthentikConfig {
   scope?: string[]
 }
 
-export function defineOAuthAuthentikEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAuthentikConfig>) {
+export function defineOAuthAuthentikEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthAuthentikConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.authentik) as OAuthAuthentikConfig
+    const config = defu(userConfig, useRuntimeConfig().oauth?.authentik) as OAuthAuthentikConfig
 
     const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 

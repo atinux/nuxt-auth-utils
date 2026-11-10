@@ -190,9 +190,9 @@ export interface OAuthRobloxUser {
   }
 }
 
-export function defineOAuthRobloxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthRobloxConfig>) {
+export function defineOAuthRobloxEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthRobloxConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.roblox, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.roblox, {
       authorizationURL: 'https://apis.roblox.com/oauth/v1/authorize',
       tokenURL: 'https://apis.roblox.com/oauth/v1/token',
       authorizationParams: {},

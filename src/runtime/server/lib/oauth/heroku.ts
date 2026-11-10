@@ -47,14 +47,14 @@ export interface OAuthHerokuConfig {
 }
 
 export function defineOAuthHerokuEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthHerokuConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
     const runtimeConfig = useRuntimeConfig().oauth?.heroku
     const baseURL = 'https://id.heroku.com'
-    config = defu(config, runtimeConfig, {
+    const config = defu(userConfig, runtimeConfig, {
       authorizationURL: `${baseURL}/oauth/authorize`,
       tokenURL: `${baseURL}/oauth/token`,
       authorizationParams: {},

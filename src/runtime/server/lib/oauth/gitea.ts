@@ -69,14 +69,14 @@ export interface OAuthGiteaConfig {
 }
 
 export function defineOAuthGiteaEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthGiteaConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
     const runtimeConfig = useRuntimeConfig().oauth?.gitea
-    const baseURL = config?.baseURL ?? runtimeConfig.baseURL ?? 'https://gitea.com'
-    config = defu(config, runtimeConfig, {
+    const baseURL = userConfig?.baseURL ?? runtimeConfig.baseURL ?? 'https://gitea.com'
+    const config = defu(userConfig, runtimeConfig, {
       authorizationURL: `${baseURL}/login/oauth/authorize`,
       tokenURL: `${baseURL}/login/oauth/access_token`,
       authorizationParams: {},

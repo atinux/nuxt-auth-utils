@@ -95,12 +95,12 @@ export interface LiveChatConfig {
 }
 
 export function defineOAuthLiveChatEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<LiveChatConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.livechat, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.livechat, {
       authorizationURL: 'https://accounts.livechat.com',
       tokenURL: 'https://accounts.livechat.com/v2/token',
       userURL: 'https://accounts.livechat.com/v2/accounts/me',

@@ -61,9 +61,9 @@ export interface OAuthPolarConfig {
   redirectURL?: string
 }
 
-export function defineOAuthPolarEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthPolarConfig>) {
+export function defineOAuthPolarEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthPolarConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.polar, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.polar, {
       authorizationURL: 'https://polar.sh/oauth2/authorize',
       tokenURL: 'https://api.polar.sh/v1/oauth2/token',
     }) as OAuthPolarConfig

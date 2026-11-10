@@ -80,9 +80,9 @@ interface TwitchTokens {
   token_type: string
 }
 
-export function defineOAuthTwitchEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig, { user: TwitchUser, tokens: TwitchTokens }>) {
+export function defineOAuthTwitchEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthTwitchConfig, { user: TwitchUser, tokens: TwitchTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.twitch, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.twitch, {
       authorizationURL: 'https://id.twitch.tv/oauth2/authorize',
       tokenURL: 'https://id.twitch.tv/oauth2/token',
       authorizationParams: {},

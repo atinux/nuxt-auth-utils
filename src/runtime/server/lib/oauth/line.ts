@@ -58,12 +58,12 @@ export interface OAuthLineConfig {
 }
 
 export function defineOAuthLineEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthLineConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.line, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.line, {
       authorizationURL: 'https://access.line.me/oauth2/v2.1/authorize',
       tokenURL: 'https://api.line.me/oauth2/v2.1/token',
       userURL: 'https://api.line.me/v2/profile',

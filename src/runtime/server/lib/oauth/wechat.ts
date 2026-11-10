@@ -109,12 +109,12 @@ function handleWechatOAuthError(event: RequestEvent, phase: 'token' | 'userinfo'
 }
 
 export function defineOAuthWechatEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthWechatConfig, { user: WechatOAuthUser, tokens: WechatOAuthTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.wechat, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.wechat, {
       authorizationURL: 'https://open.weixin.qq.com/connect/qrconnect',
       tokenURL: 'https://api.weixin.qq.com/sns/oauth2/access_token',
       userURL: 'https://api.weixin.qq.com/sns/userinfo',

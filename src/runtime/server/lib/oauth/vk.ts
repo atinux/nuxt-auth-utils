@@ -68,12 +68,12 @@ export interface OAuthVKConfig {
 }
 
 export function defineOAuthVKEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthVKConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.vk, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.vk, {
       authorizationURL: 'https://id.vk.com/authorize',
       tokenURL: 'https://id.vk.com/oauth2/auth',
       userURL: 'https://id.vk.com/oauth2/user_info',

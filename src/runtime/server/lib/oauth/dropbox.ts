@@ -58,9 +58,9 @@ export interface OAuthDropboxConfig {
   redirectURL?: string
 }
 
-export function defineOAuthDropboxEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDropboxConfig>) {
+export function defineOAuthDropboxEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthDropboxConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.dropbox, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.dropbox, {
       authorizationURL: 'https://www.dropbox.com/oauth2/authorize',
       tokenURL: 'https://api.dropboxapi.com/oauth2/token',
       authorizationParams: {},
