@@ -186,6 +186,16 @@ describe('ssr', async () => {
     expect(logout.headers.getSetCookie().find(c => c.startsWith(`${SESSION_COOKIE}=`))).toMatch(/Max-Age=0/i)
   })
 
+  it('passes the session id to the `clear` hook', async () => {
+    const login = await fetch('/api/nuxt-server')
+    const cookie = getCookie(login, SESSION_COOKIE)!
+    const { id } = await $fetch<{ id: string }>('/api/_auth/session', { headers: { cookie } })
+
+    await fetch('/api/_auth/session', { method: 'DELETE', headers: { cookie } })
+    expect(id).toBeTruthy()
+    expect(await $fetch('/api/cleared-sessions')).toContain(id)
+  })
+
   it('forwards the logout cookie when clearing the session during SSR', async () => {
     const login = await fetch('/api/nuxt-server')
     const cookie = getCookie(login, SESSION_COOKIE)!
