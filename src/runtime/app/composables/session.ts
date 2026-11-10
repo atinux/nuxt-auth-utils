@@ -35,11 +35,15 @@ export function useUserSession(): UserSessionComposable {
   const clear = async () => {
     await requestFetch('/api/_auth/session', {
       method: 'DELETE',
-      onResponse,
+      onResponse(context) {
+        // Cancel the fetch in flight once the session is cleared, before the logout cookie: it cannot restore the session or send its cookie after it
+        if (context.response.ok) {
+          latestFetch.delete(nuxtApp)
+          if (import.meta.server) clearedDuringSSR.add(nuxtApp)
+        }
+        onResponse(context)
+      },
     })
-    // Cancel the fetch in flight, so it does not restore the session
-    latestFetch.delete(nuxtApp)
-    if (import.meta.server) clearedDuringSSR.add(nuxtApp)
     sessionState.value = null
     errorState.value = null
     statusState.value = 'idle'
