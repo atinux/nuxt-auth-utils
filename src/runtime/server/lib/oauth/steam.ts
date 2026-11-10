@@ -1,9 +1,10 @@
 import type { RequestEvent } from 'nuxt/server'
-import { defineEventHandler, createError, getQuery, getRequestURL, sendRedirect, useRuntimeConfig } from 'nuxt/server'
+import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
 import { $fetch } from 'ofetch'
-import { withQuery } from 'ufo'
+import { withQuery, hasProtocol } from 'ufo'
 import { defu } from 'defu'
 import { handleInvalidState, handleMissingConfiguration, handleState } from '../utils'
+import { getPublicRequestURL } from '../request-url'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthSteamConfig {
@@ -27,6 +28,22 @@ export interface OAuthSteamConfig {
   redirectURL?: string
 }
 
+/**
+ * The URL Steam sends the user back to, which `openid.realm` must contain.
+ *
+ * An absolute `redirectURL` is used as is, so an app URL the module can't parse doesn't block a login that
+ * configures its own callback.
+ */
+function getReturnURL(event: RequestEvent, redirectURL?: string): URL {
+  if (redirectURL && hasProtocol(redirectURL)) {
+    return new URL(redirectURL)
+  }
+
+  const requestURL = getPublicRequestURL(event)
+
+  return new URL(redirectURL || requestURL.href, requestURL)
+}
+
 export function defineOAuthSteamEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthSteamConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
     const config = defu(userConfig, useRuntimeConfig().oauth?.steam, {
@@ -38,11 +55,12 @@ export function defineOAuthSteamEventHandler({ config: userConfig, onSuccess, on
       return handleMissingConfiguration(event, 'steam', ['apiKey'], onError)
     }
 
-    const url = getRequestURL(event, { xForwardedProto: true })
     const state = await handleState(event, { isCallback: Boolean(query['openid.claimed_id']) })
     if (!query['openid.claimed_id']) {
-      const redirectURL = withQuery(config.redirectURL || url.href, { state })
-      const realm = url.port ? `${url.protocol}//${url.hostname}:${url.port}` : `${url.protocol}//${url.hostname}`
+      // `openid.realm` must contain `openid.return_to`, so both follow the same URL
+      const returnTo = getReturnURL(event, config.redirectURL)
+      const redirectURL = withQuery(returnTo.href, { state })
+      const realm = returnTo.origin
       const steamOpenIdParams = {
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',

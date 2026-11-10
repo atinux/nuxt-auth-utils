@@ -344,6 +344,17 @@ Make sure to set the callback URL in your OAuth app settings as `<your-domain>/a
 
 If the redirect URL mismatch in production, this means that the module cannot guess the right redirect URL. You can set the `NUXT_OAUTH_<PROVIDER>_REDIRECT_URL` env variable to overwrite the default one.
 
+The module builds the callback URL from the origin the request was served on. Set `runtimeConfig.appURL` (`NUXT_APP_URL`) to name the public origin instead: the module then takes the origin from it and the path from the request. The atproto client metadata and the Steam `return_to` use the same origin.
+
+It is an absolute `http` or `https` URL, such as `https://example.com`. When the module cannot parse it, or it uses another scheme, it fails the login with a `500` that names the setting, instead of falling back to the request host. An absolute provider `redirectURL` is unaffected, since it takes over before the app URL is read.
+
+> [!WARNING]
+> Without an app URL, the origin comes from the `Host` header. A deployment that answers on any host must reject unknown `Host` values or set the app URL. A provider `redirectURL` only changes that provider's callback URL, so it does not cover the atproto client metadata.
+
+A reverse proxy that terminates TLS sets `x-forwarded-proto`, which the module reads. A proxy that rewrites `Host` to an internal address can set `runtimeConfig.auth.trustForwardedHost` to `true` (`NUXT_AUTH_TRUST_FORWARDED_HOST`) to have the module read `x-forwarded-host` instead. The module ignores that header by default, because the host decides where the provider sends the user back and a client can set the header when the proxy doesn't strip it.
+
+In development the module always uses the request, so a production app URL doesn't affect local logins.
+
 #### Mastodon
 
 Mastodon does not have a single shared OAuth server: every account lives on its own instance (e.g. `mastodon.social`, `h4.io`), and there is no portable identity across instances the way there is with AT Protocol/Bluesky. Because of this, the provider needs to know which instance to talk to before it can start the flow, and it registers an application against that instance on first use via `POST /api/v1/apps` (Mastodon's own API, not the RFC 7591 Dynamic Client Registration spec it superficially resembles).
