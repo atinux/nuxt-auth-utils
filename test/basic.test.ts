@@ -88,6 +88,69 @@ describe('ssr', async () => {
     }
   })
 
+  async function loginWithOldToken() {
+    const login = await fetch('/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ operation: 'set', data: { user: { name: 'login' }, refreshToken: 'old' } }),
+    })
+    return getCookie(login, SESSION_COOKIE)!
+  }
+
+  it('returns the session written in the `fetch` hook', async () => {
+    const response = await fetch('/api/_auth/session', { headers: { cookie: await loginWithOldToken() } })
+    expect(await response.json()).toEqual({ user: { name: 'refreshed' }, refreshToken: 'new', extra: 'added', id: expect.any(String) })
+
+    const cookie = getCookie(response, SESSION_COOKIE)!
+    expect(await $fetch('/api/_auth/session', { headers: { cookie } })).toEqual({ user: { name: 'refreshed' }, refreshToken: 'new', id: expect.any(String) })
+  })
+
+  it('returns the session replaced in the `fetch` hook without the removed keys', async () => {
+    const login = await fetch('/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ operation: 'set', data: { user: { name: 'login' }, impersonatorId: 'expired' } }),
+    })
+    const session = await $fetch('/api/_auth/session', { headers: { cookie: getCookie(login, SESSION_COOKIE)! } })
+    expect(session).toEqual({ user: { name: 'login' }, id: expect.any(String) })
+  })
+
+  it('does not store nested changes the `fetch` hook makes to the session', async () => {
+    const login = await fetch('/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ operation: 'set', data: { user: { name: 'login' }, refreshToken: 'rotate' } }),
+    })
+    const response = await fetch('/api/_auth/session', { headers: { cookie: getCookie(login, SESSION_COOKIE)! } })
+    expect(await response.json()).toEqual({ user: { name: 'login', premium: true }, refreshToken: 'rotated', id: expect.any(String) })
+
+    const cookie = getCookie(response, SESSION_COOKIE)!
+    expect(await $fetch('/api/_auth/session', { headers: { cookie } })).toEqual({ user: { name: 'login' }, refreshToken: 'rotated', id: expect.any(String) })
+  })
+
+  it('sends the session written in the `fetch` hook during SSR to the browser', async () => {
+    const page = await fetch('/me', { headers: { cookie: await loginWithOldToken() } })
+    expect(await page.text()).toContain('{&quot;name&quot;:&quot;refreshed&quot;}')
+
+    const cookie = getCookie(page, SESSION_COOKIE)!
+    expect(await $fetch('/api/_auth/session', { headers: { cookie } })).toMatchObject({ refreshToken: 'new' })
+  })
+
+  it('does not send the session written by a fetch cancelled by `clear()` during SSR', async () => {
+    // Call 2, the refetch, writes the session in the `fetch` hook and answers after `clear()` has finished
+    const page = await fetch('/refetch?then=clear', {
+      headers: { 'cookie': await loginWithOldToken(), 'x-delay-session': '2', 'x-render-id': crypto.randomUUID() },
+    })
+    expect(await page.text()).toMatch(/<div id="refetch">\s*false idle none\s*<\/div>/)
+    expect(page.headers.getSetCookie().findLast(c => c.startsWith(`${SESSION_COOKIE}=`))).toMatch(/Max-Age=0/i)
+  })
+
+  it('keeps the session cleared for a fetch after `clear()` during SSR', async () => {
+    const page = await fetch('/refetch?then=clear-fetch', { headers: { cookie: await loginWithOldToken() } })
+    expect(await page.text()).toMatch(/<div id="refetch">\s*false idle none\s*<\/div>/)
+    expect(page.headers.getSetCookie().findLast(c => c.startsWith(`${SESSION_COOKIE}=`))).toMatch(/Max-Age=0/i)
+  })
+
   it('returns an empty session without setting a cookie', async () => {
     const response = await fetch('/api/_auth/session')
     expect(await response.json()).toEqual({})

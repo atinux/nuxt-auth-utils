@@ -4,6 +4,8 @@ import type { UserSessionComposable } from '#auth-utils'
 
 // The latest session request of each Nuxt app, shared by all `useUserSession()` calls
 const latestFetch = new WeakMap<NuxtApp, Promise<unknown>>()
+// Nuxt apps that cleared the session during SSR: the request cookie still holds the cleared session
+const clearedDuringSSR = new WeakSet<NuxtApp>()
 
 /**
  * Composable to get back the user session and utils around it.
@@ -18,23 +20,30 @@ export function useUserSession(): UserSessionComposable {
   const requestFetch = useRequestFetch()
   const nuxtApp = useNuxtApp()
 
+  // Forward the Set-Cookie header to the main server event, so the browser stores the session written during SSR
+  const onResponse = ({ response: { headers } }: { response: { headers: Headers } }) => {
+    if (import.meta.server && serverEvent) {
+      // Nitro 3 events have web response headers, Nitro 2 (h3 v1) events the Node.js response
+      const res = serverEvent.res as { headers?: Headers, appendHeader?: (name: string, value: string) => void }
+      for (const setCookie of headers.getSetCookie()) {
+        if (res.headers) res.headers.append('set-cookie', setCookie)
+        else res.appendHeader?.('set-cookie', setCookie)
+      }
+    }
+  }
+
   const clear = async () => {
     await requestFetch('/api/_auth/session', {
       method: 'DELETE',
-      onResponse({ response: { headers } }: { response: { headers: Headers } }) {
-        // Forward the Set-Cookie header to the main server event
-        if (import.meta.server && serverEvent) {
-          // Nitro 3 events have web response headers, Nitro 2 (h3 v1) events the Node.js response
-          const res = serverEvent.res as { headers?: Headers, appendHeader?: (name: string, value: string) => void }
-          for (const setCookie of headers.getSetCookie()) {
-            if (res.headers) res.headers.append('set-cookie', setCookie)
-            else res.appendHeader?.('set-cookie', setCookie)
-          }
+      onResponse(context) {
+        // Cancel the fetch in flight once the session is cleared, before the logout cookie: it cannot restore the session or send its cookie after it
+        if (context.response.ok) {
+          latestFetch.delete(nuxtApp)
+          if (import.meta.server) clearedDuringSSR.add(nuxtApp)
         }
+        onResponse(context)
       },
     })
-    // Cancel the fetch in flight, so it does not restore the session
-    latestFetch.delete(nuxtApp)
     sessionState.value = null
     errorState.value = null
     statusState.value = 'idle'
@@ -43,12 +52,18 @@ export function useUserSession(): UserSessionComposable {
   }
 
   const fetch = async () => {
+    // Fetching would read the cleared session from the request cookie again, and could send a new cookie for it
+    if (import.meta.server && clearedDuringSSR.has(nuxtApp)) return
     statusState.value = 'pending'
     const request = requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
       headers: {
         accept: 'application/json',
       },
       retry: false,
+      onResponse(context) {
+        // Like the session state, only the latest fetch sets the cookie: `clear()` or a newer fetch may have answered first
+        if (latestFetch.get(nuxtApp) === request) onResponse(context)
+      },
     })
     latestFetch.set(nuxtApp, request)
     try {
