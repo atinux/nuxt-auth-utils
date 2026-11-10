@@ -113,6 +113,19 @@ describe('ssr', async () => {
     expect(session).toEqual({ user: { name: 'login' }, id: expect.any(String) })
   })
 
+  it('does not store nested changes the `fetch` hook makes to the session', async () => {
+    const login = await fetch('/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ operation: 'set', data: { user: { name: 'login' }, refreshToken: 'rotate' } }),
+    })
+    const response = await fetch('/api/_auth/session', { headers: { cookie: getCookie(login, SESSION_COOKIE)! } })
+    expect(await response.json()).toEqual({ user: { name: 'login', premium: true }, refreshToken: 'rotated', id: expect.any(String) })
+
+    const cookie = getCookie(response, SESSION_COOKIE)!
+    expect(await $fetch('/api/_auth/session', { headers: { cookie } })).toEqual({ user: { name: 'login' }, refreshToken: 'rotated', id: expect.any(String) })
+  })
+
   it('sends the session written in the `fetch` hook during SSR to the browser', async () => {
     const page = await fetch('/me', { headers: { cookie: await loginWithOldToken() } })
     expect(await page.text()).toContain('{&quot;name&quot;:&quot;refreshed&quot;}')

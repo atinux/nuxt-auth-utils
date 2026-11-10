@@ -47,8 +47,9 @@ export const sessionHooks = createHooks<SessionHooks>()
  */
 export async function getUserSession(event: SessionEvent): Promise<UserSession> {
   const session = await _useSession(event)
+  // A deep copy: changes to the returned session, nested ones included, are not stored by the next write
   return {
-    ...session.data,
+    ...structuredClone(session.data),
     id: session.id,
   }
 }
