@@ -4,6 +4,8 @@ import type { UserSessionComposable } from '#auth-utils'
 
 // The latest session request of each Nuxt app, shared by all `useUserSession()` calls
 const latestFetch = new WeakMap<NuxtApp, Promise<unknown>>()
+// Nuxt apps that cleared the session during SSR: the request cookie still holds the cleared session
+const clearedDuringSSR = new WeakSet<NuxtApp>()
 
 /**
  * Composable to get back the user session and utils around it.
@@ -37,6 +39,7 @@ export function useUserSession(): UserSessionComposable {
     })
     // Cancel the fetch in flight, so it does not restore the session
     latestFetch.delete(nuxtApp)
+    if (import.meta.server) clearedDuringSSR.add(nuxtApp)
     sessionState.value = null
     errorState.value = null
     statusState.value = 'idle'
@@ -45,6 +48,8 @@ export function useUserSession(): UserSessionComposable {
   }
 
   const fetch = async () => {
+    // Fetching would read the cleared session from the request cookie again, and could send a new cookie for it
+    if (import.meta.server && clearedDuringSSR.has(nuxtApp)) return
     statusState.value = 'pending'
     const request = requestFetch<NonNullable<UserSessionComposable['session']['value']>>('/api/_auth/session', {
       headers: {

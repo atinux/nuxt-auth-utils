@@ -143,6 +143,12 @@ describe('ssr', async () => {
     expect(page.headers.getSetCookie().findLast(c => c.startsWith(`${SESSION_COOKIE}=`))).toMatch(/Max-Age=0/i)
   })
 
+  it('keeps the session cleared for a fetch after `clear()` during SSR', async () => {
+    const page = await fetch('/refetch?then=clear-fetch', { headers: { cookie: await loginWithOldToken() } })
+    expect(await page.text()).toMatch(/<div id="refetch">\s*false idle none\s*<\/div>/)
+    expect(page.headers.getSetCookie().findLast(c => c.startsWith(`${SESSION_COOKIE}=`))).toMatch(/Max-Age=0/i)
+  })
+
   it('returns an empty session without setting a cookie', async () => {
     const response = await fetch('/api/_auth/session')
     expect(await response.json()).toEqual({})
