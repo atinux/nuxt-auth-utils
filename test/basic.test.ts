@@ -111,6 +111,15 @@ describe('ssr', async () => {
     expect(await $fetch('/api/_auth/session', { headers: { cookie } })).toMatchObject({ refreshToken: 'new' })
   })
 
+  it('does not send the session written by a fetch cancelled by `clear()` during SSR', async () => {
+    // Call 2, the refetch, writes the session in the `fetch` hook and answers after `clear()` has finished
+    const page = await fetch('/refetch?then=clear', {
+      headers: { 'cookie': await loginWithOldToken(), 'x-delay-session': '2', 'x-render-id': crypto.randomUUID() },
+    })
+    expect(await page.text()).toMatch(/<div id="refetch">\s*false idle none\s*<\/div>/)
+    expect(page.headers.getSetCookie().findLast(c => c.startsWith(`${SESSION_COOKIE}=`))).toMatch(/Max-Age=0/i)
+  })
+
   it('returns an empty session without setting a cookie', async () => {
     const response = await fetch('/api/_auth/session')
     expect(await response.json()).toEqual({})

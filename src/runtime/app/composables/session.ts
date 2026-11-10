@@ -51,7 +51,10 @@ export function useUserSession(): UserSessionComposable {
         accept: 'application/json',
       },
       retry: false,
-      onResponse,
+      onResponse(context) {
+        // Like the session state, only the latest fetch sets the cookie: `clear()` or a newer fetch may have answered first
+        if (latestFetch.get(nuxtApp) === request) onResponse(context)
+      },
     })
     latestFetch.set(nuxtApp, request)
     try {
