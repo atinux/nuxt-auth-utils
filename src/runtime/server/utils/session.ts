@@ -94,7 +94,7 @@ export async function replaceUserSession(event: WritableSessionEvent, data: User
 export async function clearUserSession(event: WritableSessionEvent, config?: UserSessionConfig): Promise<boolean> {
   const session = await _useSession(event, config, true)
 
-  await sessionHooks.callHookParallel('clear', session.data as UserSession, toSessionEvent(event).event as RequestEvent)
+  await sessionHooks.callHookParallel('clear', { ...session.data, id: session.id }, toSessionEvent(event).event as RequestEvent)
   await session.clear()
 
   return true
