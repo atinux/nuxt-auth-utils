@@ -45,9 +45,9 @@ export interface OAuthCognitoConfig {
   redirectURL?: string
 }
 
-export function defineOAuthCognitoEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
+export function defineOAuthCognitoEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthCognitoConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.cognito, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.cognito, {
       authorizationParams: {},
     }) as OAuthCognitoConfig
 

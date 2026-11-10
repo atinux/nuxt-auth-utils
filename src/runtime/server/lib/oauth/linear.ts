@@ -46,9 +46,9 @@ export interface OAuthLinearConfig {
   redirectURL?: string
 }
 
-export function defineOAuthLinearEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLinearConfig>) {
+export function defineOAuthLinearEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthLinearConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.linear, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.linear, {
       authorizationURL: 'https://linear.app/oauth/authorize',
       tokenURL: 'https://api.linear.app/oauth/token',
       authorizationParams: {},

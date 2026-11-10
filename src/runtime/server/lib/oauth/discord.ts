@@ -59,9 +59,9 @@ export interface OAuthDiscordConfig {
   redirectURL?: string
 }
 
-export function defineOAuthDiscordEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthDiscordConfig>) {
+export function defineOAuthDiscordEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthDiscordConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.discord, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.discord, {
       authorizationURL: 'https://discord.com/oauth2/authorize',
       tokenURL: 'https://discord.com/api/oauth2/token',
       profileRequired: true,

@@ -100,9 +100,9 @@ interface SpotifyTokens {
   refresh_token: string
 }
 
-export function defineOAuthSpotifyEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig, { user: SpotifyUser, tokens: SpotifyTokens }>) {
+export function defineOAuthSpotifyEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthSpotifyConfig, { user: SpotifyUser, tokens: SpotifyTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.spotify, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.spotify, {
       authorizationURL: 'https://accounts.spotify.com/authorize',
       tokenURL: 'https://accounts.spotify.com/api/token',
       authorizationParams: {},

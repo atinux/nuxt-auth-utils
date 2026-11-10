@@ -59,9 +59,9 @@ export interface OAuthAzureB2CConfig {
   redirectURL?: string
 }
 
-export function defineOAuthAzureB2CEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthAzureB2CConfig>) {
+export function defineOAuthAzureB2CEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthAzureB2CConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.azureb2c, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.azureb2c, {
       authorizationParams: {},
     }) as OAuthAzureB2CConfig
 

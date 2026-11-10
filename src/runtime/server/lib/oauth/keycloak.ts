@@ -54,12 +54,12 @@ export interface OAuthKeycloakConfig {
 }
 
 export function defineOAuthKeycloakEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthKeycloakConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.keycloak, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.keycloak, {
       authorizationParams: {},
     }) as OAuthKeycloakConfig
 

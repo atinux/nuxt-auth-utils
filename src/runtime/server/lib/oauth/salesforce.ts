@@ -57,14 +57,14 @@ export interface OAuthSalesforceConfig {
 }
 
 export function defineOAuthSalesforceEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthSalesforceConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
     const runtimeConfig = useRuntimeConfig().oauth?.salesforce
-    const baseURL = config?.baseURL || runtimeConfig?.baseURL || 'https://login.salesforce.com'
-    config = defu(config, runtimeConfig, {
+    const baseURL = userConfig?.baseURL || runtimeConfig?.baseURL || 'https://login.salesforce.com'
+    const config = defu(userConfig, runtimeConfig, {
       authorizationURL: `${baseURL}/services/oauth2/authorize`,
       tokenURL: `${baseURL}/services/oauth2/token`,
       authorizationParams: {},

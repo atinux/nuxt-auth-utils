@@ -5,6 +5,7 @@ export default defineOAuthGoogleEventHandler({
     authorizationURL: 'https://accounts.example.com/authorize',
     tokenURL: 'https://accounts.example.com/token',
     userURL: 'https://accounts.example.com/userinfo',
+    scope: ['openid'],
     authorizationParams: {
       state: 'configured-state-must-not-override-generated-state',
     },

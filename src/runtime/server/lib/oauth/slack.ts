@@ -47,14 +47,14 @@ export interface OAuthSlackConfig {
 }
 
 export function defineOAuthSlackEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthSlackConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
     const runtimeConfig = useRuntimeConfig().oauth?.slack
     const baseURL = 'https://slack.com'
-    config = defu(config, runtimeConfig, {
+    const config = defu(userConfig, runtimeConfig, {
       authorizationURL: `${baseURL}/openid/connect/authorize`,
       tokenURL: `${baseURL}/api/openid.connect.token`,
       authorizationParams: {},

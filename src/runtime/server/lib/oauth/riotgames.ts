@@ -84,9 +84,9 @@ interface RiotGamesTokens {
   token_type: string
 }
 
-export function defineOAuthRiotGamesEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthRiotGamesConfig, { user: RiotGamesUser, tokens: RiotGamesTokens }>) {
+export function defineOAuthRiotGamesEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthRiotGamesConfig, { user: RiotGamesUser, tokens: RiotGamesTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.riotgames, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.riotgames, {
       authorizationURL: 'https://auth.riotgames.com/authorize',
       tokenURL: 'https://auth.riotgames.com/token',
       apiURL: 'https://auth.riotgames.com',

@@ -241,9 +241,9 @@ interface OIDCConfiguration {
 /**
  * Event handler for generic OAuth using OIDC and PKCE.
  */
-export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config, onSuccess, onError }: OAuthConfig<OAuthOidcConfig, { user: TUser, tokens: OidcTokens }>) {
+export function defineOAuthOidcEventHandler<TUser = OidcUser>({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthOidcConfig, { user: TUser, tokens: OidcTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth.oidc)
+    const config = defu(userConfig, useRuntimeConfig().oauth.oidc)
 
     const query = getQuery<{ code?: string, error?: string, state?: string }>(event)
 

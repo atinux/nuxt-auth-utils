@@ -51,9 +51,9 @@ export interface OAuthLinkedInConfig {
   redirectURL?: string
 }
 
-export function defineOAuthLinkedInEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthLinkedInConfig>) {
+export function defineOAuthLinkedInEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthLinkedInConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.linkedin, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.linkedin, {
       authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
       tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
       authorizationParams: {},

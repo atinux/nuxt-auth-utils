@@ -57,9 +57,9 @@ export interface OAuthTikTokConfig {
   redirectURL?: string
 }
 
-export function defineOAuthTikTokEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthTikTokConfig>) {
+export function defineOAuthTikTokEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthTikTokConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.tiktok, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.tiktok, {
       sandbox: import.meta.dev,
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',

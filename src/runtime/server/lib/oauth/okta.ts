@@ -102,7 +102,7 @@ export interface OAuthOktaConfig {
   openIdConfigCacheTTL?: number
 }
 
-export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAuthConfigExt<OAuthOktaConfig>) {
+export function defineOAuthOktaEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfigExt<OAuthOktaConfig>) {
   function normalizeScope(scope: unknown, emailRequired?: boolean): string[] {
     let result: string[]
     if (!scope || (typeof scope === 'string' && scope.trim() === '')) {
@@ -127,7 +127,7 @@ export function defineOAuthOktaEventHandler({ config, onSuccess, onError }: OAut
   // Event handler for Okta OAuth. Is called multiple times during the OAuth flow.
   return defineEventHandler(async (event: RequestEvent) => {
     const runtimeConfig = useRuntimeConfig()
-    config = defu(config, runtimeConfig.oauth?.okta, {
+    const config = defu(userConfig, runtimeConfig.oauth?.okta, {
       authorizationParams: {},
     }) as OAuthOktaConfig
 

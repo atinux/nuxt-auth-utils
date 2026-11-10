@@ -139,13 +139,13 @@ function getMarketplaceHeaders(config: OAuthZendeskConfig): Record<string, strin
 }
 
 export function defineOAuthZendeskEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthZendeskConfig, { user: ZendeskUser, tokens: ZendeskTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
     const runtimeConfig = useRuntimeConfig().oauth?.zendesk
-    config = defu(config, runtimeConfig) as OAuthZendeskConfig
+    const config = defu(userConfig, runtimeConfig) as OAuthZendeskConfig
     // Not a defu default: defu would append 'read' to a configured scope
     config.scope = config.scope?.length ? config.scope : ['read']
     // The user profile is always fetched, which needs `read` or `users:read`

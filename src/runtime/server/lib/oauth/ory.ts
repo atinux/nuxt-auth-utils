@@ -68,9 +68,9 @@ export interface OAuthOryConfig {
   userURL?: string
 }
 
-export function defineOAuthOryEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthOryConfig>) {
+export function defineOAuthOryEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthOryConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.ory, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.ory, {
       scope: ['openid', 'offline'],
       sdkURL: 'https://playground.projects.oryapis.com',
       authorizationURL: '/oauth2/auth',

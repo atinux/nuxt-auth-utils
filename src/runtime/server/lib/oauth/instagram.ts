@@ -58,12 +58,12 @@ export interface OAuthInstagramConfig {
 }
 
 export function defineOAuthInstagramEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthInstagramConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.instagram, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.instagram, {
       scope: ['business_basic'],
       authorizationURL: 'https://www.instagram.com/oauth/authorize',
       tokenURL: 'https://api.instagram.com/oauth/access_token',

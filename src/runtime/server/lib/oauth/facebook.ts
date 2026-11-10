@@ -71,16 +71,16 @@ export interface OAuthFacebookConfig {
 }
 
 export function defineOAuthFacebookEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
 }: OAuthConfig<OAuthFacebookConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    const apiVersion = config?.apiVersion
+    const apiVersion = userConfig?.apiVersion
       || useRuntimeConfig().oauth?.facebook?.apiVersion
       || 'v25.0'
 
-    config = defu(config, useRuntimeConfig().oauth?.facebook, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.facebook, {
       apiVersion,
       authorizationURL: `https://www.facebook.com/${apiVersion}/dialog/oauth`,
       tokenURL: `https://graph.facebook.com/${apiVersion}/oauth/access_token`,

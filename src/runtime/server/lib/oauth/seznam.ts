@@ -116,9 +116,9 @@ export interface OAuthSeznamUser {
   gender?: string | null
 }
 
-export function defineOAuthSeznamEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthSeznamConfig, { user: OAuthSeznamUser, tokens: unknown }>) {
+export function defineOAuthSeznamEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthSeznamConfig, { user: OAuthSeznamUser, tokens: unknown }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.seznam, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.seznam, {
       authorizationURL: 'https://login.szn.cz/api/v1/oauth/auth',
       tokenURL: 'https://login.szn.cz/api/v1/oauth/token',
       userURL: 'https://login.szn.cz/api/v1/user',

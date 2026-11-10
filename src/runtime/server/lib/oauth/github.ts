@@ -105,9 +105,9 @@ interface GitHubTokens {
   token_type: string
 }
 
-export function defineOAuthGitHubEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig, { user: GitHubUser, tokens: GitHubTokens }>) {
+export function defineOAuthGitHubEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthGitHubConfig, { user: GitHubUser, tokens: GitHubTokens }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.github, {
+    const config = defu(userConfig, useRuntimeConfig().oauth?.github, {
       authorizationURL: 'https://github.com/login/oauth/authorize',
       tokenURL: 'https://github.com/login/oauth/access_token',
       apiURL: 'https://api.github.com',

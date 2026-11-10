@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
 import { setup, $fetch, fetch, url } from '@nuxt/test-utils'
@@ -21,6 +22,7 @@ describe('ssr', async () => {
         appSecret: 'a-test-app-secret-with-at-least-32-characters',
         oauth: {
           facebook: { clientId: 'facebook-client-id' },
+          google: { scope: ['email'] },
         },
       },
     },
@@ -235,6 +237,31 @@ describe('ssr', async () => {
     expect(response.status).toBe(302)
     expect(state).toBeTruthy()
     expect(state).not.toBe('configured-state-must-not-override-generated-state')
+  })
+
+  it('keeps the same OAuth scope across requests', async () => {
+    const scopes: (string | null)[] = []
+    for (let i = 0; i < 3; i++) {
+      const response = await fetch('/auth/google', { redirect: 'manual' })
+      scopes.push(new URL(response.headers.get('location')!).searchParams.get('scope'))
+    }
+
+    expect(scopes).toEqual(['openid email', 'openid email', 'openid email'])
+  })
+
+  it('starts the login of every OAuth provider without throwing', async () => {
+    const oauthDirectory = fileURLToPath(new URL('../src/runtime/server/lib/oauth', import.meta.url))
+    const exported = readdirSync(oauthDirectory)
+      .flatMap(file => [...readFileSync(`${oauthDirectory}/${file}`, 'utf8').matchAll(/export function (defineOAuth\w+EventHandler)/g)].map(match => match[1]))
+    const providers = await $fetch<string[]>('/oauth-providers/index')
+    expect(providers.toSorted()).toEqual(exported.toSorted())
+
+    const errors: Record<string, string> = {}
+    for (const provider of providers) {
+      const response = await fetch(`/oauth-providers/${provider}`, { redirect: 'manual' })
+      if (response.status >= 500) errors[provider] = (await response.text()).slice(0, 200)
+    }
+    expect(errors).toEqual({})
   })
 
   it('sets the OAuth state cookie as Secure', async () => {

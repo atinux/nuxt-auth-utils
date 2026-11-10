@@ -88,14 +88,14 @@ export interface OAuthAppleUser {
 }
 
 export function defineOAuthAppleEventHandler({
-  config,
+  config: userConfig,
   onSuccess,
   onError,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: OAuthConfig<OAuthAppleConfig, { user: OAuthAppleUser, payload: OAuthAppleTokens, tokens: any }>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.apple, {
-      authorizationURL: config?.authorizationURL || 'https://appleid.apple.com/auth/authorize',
+    const config = defu(userConfig, useRuntimeConfig().oauth?.apple, {
+      authorizationURL: userConfig?.authorizationURL || 'https://appleid.apple.com/auth/authorize',
       authorizationParams: {},
     }) as OAuthAppleConfig
 

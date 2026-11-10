@@ -36,9 +36,9 @@ export interface OAuthXSUAAConfig {
   redirectURL?: string
 }
 
-export function defineOAuthXSUAAEventHandler({ config, onSuccess, onError }: OAuthConfig<OAuthXSUAAConfig>) {
+export function defineOAuthXSUAAEventHandler({ config: userConfig, onSuccess, onError }: OAuthConfig<OAuthXSUAAConfig>) {
   return defineEventHandler(async (event: RequestEvent) => {
-    config = defu(config, useRuntimeConfig().oauth?.xsuaa) as OAuthXSUAAConfig
+    const config = defu(userConfig, useRuntimeConfig().oauth?.xsuaa) as OAuthXSUAAConfig
 
     const query = getQuery<{ code?: string, state?: string }>(event)
 
