@@ -3,7 +3,7 @@ import { defineEventHandler, createError, getQuery, sendRedirect, useRuntimeConf
 import { $fetch } from 'ofetch'
 import { withQuery } from 'ufo'
 import { defu } from 'defu'
-import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handleState, requestAccessToken } from '../utils'
+import { handleMissingConfiguration, handleAccessTokenErrorResponse, getOAuthRedirectURL, handleInvalidState, handlePkceVerifier, handleState, requestAccessToken } from '../utils'
 import type { OAuthConfig } from '#auth-utils'
 
 export interface OAuthMicrosoftConfig {
@@ -75,6 +75,7 @@ export function defineOAuthMicrosoftEventHandler({ config: userConfig, onSuccess
     const tokenURL = config.tokenURL || `https://login.microsoftonline.com/${config.tenant}/oauth2/v2.0/token`
 
     const redirectURL = config.redirectURL || getOAuthRedirectURL(event)
+    const pkce = await handlePkceVerifier(event)
     const state = await handleState(event)
 
     if (!query.code) {
@@ -90,6 +91,8 @@ export function defineOAuthMicrosoftEventHandler({ config: userConfig, onSuccess
           redirect_uri: redirectURL,
           scope: config.scope.join(' '),
           ...config.authorizationParams,
+          code_challenge: pkce.code_challenge,
+          code_challenge_method: pkce.code_challenge_method,
           state,
         }),
       )
@@ -106,6 +109,7 @@ export function defineOAuthMicrosoftEventHandler({ config: userConfig, onSuccess
         client_id: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: redirectURL,
+        code_verifier: pkce.code_verifier,
       },
     })
 
