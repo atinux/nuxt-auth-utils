@@ -15,6 +15,10 @@ module.exports = {
             deps[name] = nightlies[name]
           }
         }
+        // Since 5.0.0-2611121215, nuxt-nightly declares vue-router as an optional peer dependency
+        if (deps?.nuxt === nightlies.nuxt) {
+          deps['vue-router'] ??= '^5.5.0'
+        }
       }
       return pkg
     },
