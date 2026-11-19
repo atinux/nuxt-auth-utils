@@ -254,6 +254,37 @@ It can also be set using environment variables:
 
 > Provider is in uppercase (GITHUB, GOOGLE, etc.)
 
+#### Testing OAuth without a provider app
+
+For local development, end-to-end tests, and CI, you can use [Mockatoo](https://mockatoo.globalunderdog.com), a free hosted mock OAuth provider, instead of registering a GitHub OAuth app. Declare the URL keys so Nuxt can override them from environment variables:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  runtimeConfig: {
+    oauth: {
+      github: {
+        authorizationURL: 'https://github.com/login/oauth/authorize',
+        tokenURL: 'https://github.com/login/oauth/access_token',
+        apiURL: 'https://api.github.com'
+      }
+    }
+  }
+})
+```
+
+Set these variables in your local `.env` and in your CI environment, never in production:
+
+```dotenv
+NUXT_OAUTH_GITHUB_CLIENT_ID=mockatoo
+NUXT_OAUTH_GITHUB_CLIENT_SECRET=mockatoo-secret
+NUXT_OAUTH_GITHUB_AUTHORIZATION_URL=https://app.mockatoo.globalunderdog.com/github/login/oauth/authorize
+NUXT_OAUTH_GITHUB_TOKEN_URL=https://app.mockatoo.globalunderdog.com/github/login/oauth/access_token
+NUXT_OAUTH_GITHUB_API_URL=https://app.mockatoo.globalunderdog.com/github/api/v3
+```
+
+Set `MOCKATOO_TEST_EMAIL` and `MOCKATOO_TEST_PASSWORD` in your local or CI test environment. Your E2E test can then open `/auth/github`, enter the credentials on Mockatoo, click **Log in with password**, and click **Authorize**. Without the development or test variables, the handler keeps its real GitHub URLs for production.
+
 #### Supported OAuth Providers
 
 - Apple
