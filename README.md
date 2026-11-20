@@ -484,7 +484,7 @@ To enable WebAuthn you need to:
 1. Install the peer dependencies:
 
 ```bash
-npx nypm i @simplewebauthn/server@13 @simplewebauthn/browser@13
+npx nypm i @simplewebauthn/server@14 @simplewebauthn/browser@14
 ```
 
 2. Enable it in your `nuxt.config.ts`
@@ -971,7 +971,7 @@ The other changes in v0.6 are:
 - Nuxt throws a 500 error if a session cookie is larger than 4096 bytes.
 - The session `maxAge` counts from the last write: each `setUserSession` call extends the cookie. In v0.5, it counted from when the session was created.
 - The session can't be named `nuxt-session`, the cookie of `useSession()` from `nuxt/server`. The module warns and uses `nuxt-auth-session` instead.
-- WebAuthn requires SimpleWebAuthn v13, with `@simplewebauthn/server` 13.3.2 or later. Import its JSON types from `@simplewebauthn/server` or `@simplewebauthn/browser` instead of `@simplewebauthn/types`.
+- WebAuthn supports SimpleWebAuthn v13 or v14, with `@simplewebauthn/server` at least 13.3.2 for v13 or 14.0.2 for v14. Import its JSON types from `@simplewebauthn/server` or `@simplewebauthn/browser` instead of `@simplewebauthn/types`.
 
 ## Shared session between microservices and subdomains
 

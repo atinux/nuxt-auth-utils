@@ -2,12 +2,12 @@ import type { Ref } from 'vue'
 import type { NuxtError, RequestEvent, ValidateResult } from 'nuxt/server'
 import type {
   AuthenticationResponseJSON,
-  AuthenticatorTransportFuture,
   GenerateAuthenticationOptionsOpts,
   GenerateRegistrationOptionsOpts,
   RegistrationResponseJSON,
   VerifiedAuthenticationResponse,
   VerifiedRegistrationResponse,
+  WebAuthnCredential as SimpleWebAuthnCredential,
 } from '@simplewebauthn/server'
 
 export interface WebAuthnCredential {
@@ -15,7 +15,7 @@ export interface WebAuthnCredential {
   publicKey: string
   counter: number
   backedUp: boolean
-  transports?: AuthenticatorTransportFuture[]
+  transports?: NonNullable<SimpleWebAuthnCredential['transports']>
   aaguid?: string
   [key: string]: unknown
 }
