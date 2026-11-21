@@ -173,6 +173,16 @@ export default defineNuxtModule<ModuleOptions>({
         process.exit(1)
       }
       addServerImportsDir(resolver.resolve('./runtime/server/lib/webauthn'))
+      // Keep @simplewebauthn/server out of the bundle (Nitro 3): v14 imports `reflect-metadata` before
+      // `@peculiar/x509`, and rolldown can move that import after it in chunked output, so tsyringe
+      // throws on startup. See https://github.com/rolldown/rolldown/issues/6436
+      if (getNitroVersion(nuxt) === 3) {
+        const nitroOptions = nuxt.options.nitro as { traceDeps?: (string | RegExp)[] }
+        nitroOptions.traceDeps ||= []
+        if (!nitroOptions.traceDeps.includes('@simplewebauthn/server')) {
+          nitroOptions.traceDeps.push('@simplewebauthn/server')
+        }
+      }
     }
 
     addServerImportsDir(resolver.resolve('./runtime/server/utils'))
