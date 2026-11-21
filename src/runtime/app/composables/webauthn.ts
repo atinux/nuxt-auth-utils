@@ -5,7 +5,8 @@ import {
   startAuthentication,
   startRegistration,
 } from '@simplewebauthn/browser'
-import type { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
+import type { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser'
+import type { VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from '@simplewebauthn/server'
 import { ref, onMounted } from '#imports'
 import type { WebAuthnComposable, WebAuthnUser } from '#auth-utils'
 
